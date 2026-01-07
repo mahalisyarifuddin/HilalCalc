@@ -243,6 +243,10 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                     let pixelIndex = 0;
                     const chunkSize = 500;
+                    // Optimization: Reuse observer and interpolate sunset time
+                    const observer = new Astronomy.Observer(0, 0, 0);
+                    let currentY = -1;
+                    let sunsetBase = null;
 
                     const processChunk = () => {
                         if (this.cancelRender) {
@@ -261,11 +265,27 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                                 const lat = bounds.maxLat - (y / PPD);
                                 const lon = bounds.minLon + (x / PPD);
 
-                                const visible = this.checkVisibility(lat, lon, date, minAlt, minElong, isGIC);
+                                if (y !== currentY) {
+                                    currentY = y;
+                                    observer.latitude = lat;
+                                    observer.longitude = 0;
+                                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, date.ut, 1);
+                                    sunsetBase = sunset ? sunset.ut : null;
+                                }
 
-                                if (visible) {
-                                    const idx = pixelIndex * 4;
-                                    data[idx] = 0; data[idx+1] = 255; data[idx+2] = 0; data[idx+3] = 128;
+                                if (sunsetBase !== null) {
+                                    observer.latitude = lat;
+                                    observer.longitude = lon;
+
+                                    // Optimization: Sunset time is linearly related to longitude for a given latitude
+                                    const sunsetUT = sunsetBase - (lon / 360.0);
+
+                                    const visible = this.checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, date.ut);
+
+                                    if (visible) {
+                                        const idx = pixelIndex * 4;
+                                        data[idx] = 0; data[idx+1] = 255; data[idx+2] = 0; data[idx+3] = 128;
+                                    }
                                 }
                             }
                         } catch (e) {
@@ -302,26 +322,15 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
                 }
 
-                checkVisibility(lat, lon, date, minAlt, minElong, isGIC) {
-                    const observer = new Astronomy.Observer(lat, lon, 0);
-                    const noonOffsetDays = -lon / 360.0;
-                    const searchTime = date.AddDays(noonOffsetDays);
-
-                    // PASS NUMBER (UT) TO AVOID INSTANCEOF CHECKS FAILING
-                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, searchTime.ut, 1);
-                    if (!sunset) return false;
-
-                    const time = sunset;
-
+                checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, baseDateUT) {
                     if (isGIC) {
-                        if (time.ut >= (date.ut + 0.5)) return false;
+                        if (sunsetUT >= (baseDateUT + 0.5)) return false;
                     }
 
-                    // Pass time.ut here too
-                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, time.ut, observer, true, true);
-                    const moonHor = Astronomy.Horizon(time.ut, observer, moonEq.ra, moonEq.dec, 'normal');
+                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+                    const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, 'normal');
                     const alt = moonHor.altitude;
-                    const elong = Astronomy.AngleFromSun(Astronomy.Body.Moon, time.ut);
+                    const elong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
 
                     return (alt >= minAlt && elong >= minElong);
                 }

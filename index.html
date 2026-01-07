@@ -262,9 +262,9 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                     // Interpolation variables
                     const INTERP_STEP = 10;
-                    let prevRA, prevDec, prevElong;
-                    let nextRA, nextDec, nextElong;
-                    let cachedNextRA, cachedNextDec, cachedNextElong;
+                    let prevRA, prevDec, prevElong, prevAlt;
+                    let nextRA, nextDec, nextElong, nextAlt;
+                    let cachedNextRA, cachedNextDec, cachedNextElong, cachedNextAlt;
 
                     const processChunk = () => {
                         if (this.cancelRender) {
@@ -306,6 +306,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                                     // The Moon moves slowly (~0.5 deg/hr), so we can interpolate RA/Dec/Elong
                                     // every INTERP_STEP pixels instead of calculating heavy Equator() and AngleFromSun() every pixel.
                                     const xMod = x % INTERP_STEP;
+                                    let moonAlt;
 
                                     if (xMod === 0 || prevRA === undefined) {
                                         // Keyframe: Calculate exact or reuse from cache
@@ -313,11 +314,15 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                                             prevRA = cachedNextRA;
                                             prevDec = cachedNextDec;
                                             prevElong = cachedNextElong;
+                                            prevAlt = cachedNextAlt;
                                         } else {
                                             const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
                                             prevRA = moonEq.ra;
                                             prevDec = moonEq.dec;
                                             prevElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
+                                            // Calculate Alt at keyframe
+                                            const moonHor = Astronomy.Horizon(sunsetUT, observer, prevRA, prevDec, 'normal');
+                                            prevAlt = moonHor.altitude;
                                         }
 
                                         // Calculate next keyframe for interpolation
@@ -334,10 +339,14 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                                             cachedNextRA = nextMoonEq.ra;
                                             cachedNextDec = nextMoonEq.dec;
                                             cachedNextElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, nextSunsetUT);
+                                            // Calculate nextAlt
+                                            const nextMoonHor = Astronomy.Horizon(nextSunsetUT, observer, nextMoonEq.ra, nextMoonEq.dec, 'normal');
+                                            cachedNextAlt = nextMoonHor.altitude;
 
                                             nextRA = cachedNextRA;
                                             nextDec = cachedNextDec;
                                             nextElong = cachedNextElong;
+                                            nextAlt = cachedNextAlt;
 
                                             // Handle RA wrap around (0-24h) for interpolation
                                             if (Math.abs(nextRA - prevRA) > 12) {
@@ -349,22 +358,27 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                                             nextRA = prevRA;
                                             nextDec = prevDec;
                                             nextElong = prevElong;
+                                            nextAlt = prevAlt;
                                             cachedNextRA = undefined; // End of row, no next
                                         }
 
                                         moonRA = prevRA;
                                         moonDec = prevDec;
                                         moonElong = prevElong;
+                                        moonAlt = prevAlt;
                                     } else {
                                         // Interpolate
                                         const fraction = xMod / INTERP_STEP;
                                         moonRA = prevRA + (nextRA - prevRA) * fraction;
                                         moonDec = prevDec + (nextDec - prevDec) * fraction;
                                         moonElong = prevElong + (nextElong - prevElong) * fraction;
+                                        // Interpolate Altitude
+                                        moonAlt = prevAlt + (nextAlt - prevAlt) * fraction;
+
                                         if (moonRA >= 24) moonRA -= 24;
                                     }
 
-                                    const visible = this.checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, date.ut, moonRA, moonDec, moonElong);
+                                    const visible = this.checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, date.ut, moonRA, moonDec, moonElong, moonAlt);
 
                                     if (visible) {
                                         const idx = pixelIndex * 4;
@@ -406,7 +420,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
                 }
 
-                checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, baseDateUT, moonRA, moonDec, moonElong) {
+                checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, baseDateUT, moonRA, moonDec, moonElong, moonAlt) {
                     if (isGIC) {
                         if (sunsetUT >= (baseDateUT + 0.5)) return false;
                     }
@@ -422,8 +436,13 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                     // Optimization: Calculate Altitude first as it's cheaper/more likely to fail than AngleFromSun
                     // We must calculate Horizon every pixel because it depends heavily on LST (which changes with longitude/time)
-                    const moonHor = Astronomy.Horizon(sunsetUT, observer, ra, dec, 'normal');
-                    const alt = moonHor.altitude;
+                    let alt;
+                    if (moonAlt !== undefined) {
+                        alt = moonAlt;
+                    } else {
+                        const moonHor = Astronomy.Horizon(sunsetUT, observer, ra, dec, 'normal');
+                        alt = moonHor.altitude;
+                    }
 
                     if (alt < minAlt) return false;
 

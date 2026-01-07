@@ -3,168 +3,32 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<title>Indonesia Hilal Visibility</title>
+		<title>Hilal Visibility Map</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 		<style>
 
-:root {
-    --primary: #005dac;
-    --on-primary: #ffffff;
-    --hover: #00539a;
-    --background: #f9f9ff;
-    --surface: #ffffff;
-    --text: #181c21;
-    --border: #c1c6d4;
-    --muted: #f2f3fc;
-    --success: #0b6b1d;
-    --on-success: #ffffff;
-    --danger: #ba1a1a;
-    --on-danger: #ffffff;
-    --highlight-bg: #d4e3ff;
-}
-@media (prefers-color-scheme: dark) {
-    :root:not(.light) {
-        --primary: #a5c8ff;
-        --on-primary: #00315f;
-        --hover: #72adff;
-        --background: #101319;
-        --surface: #0b0e14;
-        --text: #e0e2ea;
-        --border: #414752;
-        --muted: #181c21;
-        --success: #82db7e;
-        --on-success: #00390a;
-        --danger: #ffb4ab;
-        --on-danger: #93000a;
-        --highlight-bg: #001c3a;
-    }
-}
-:root.dark {
-    --primary: #a5c8ff;
-    --on-primary: #00315f;
-    --hover: #72adff;
-    --background: #101319;
-    --surface: #0b0e14;
-    --text: #e0e2ea;
-    --border: #414752;
-    --muted: #181c21;
-    --success: #82db7e;
-    --on-success: #00390a;
-    --danger: #ffb4ab;
-    --on-danger: #93000a;
-    --highlight-bg: #001c3a;
-}
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    outline-offset: 2px;
-}
-*:focus-visible {
-    outline: 2px solid var(--primary);
-}
-body {
-    background: var(--background);
-    color: var(--text);
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 1rem;
-}
-.container {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    max-width: 960px;
-    padding: 2rem;
-    width: 100%;
-    position: relative;
-    margin: 2rem 0;
-}
-.hidden {
-    display: none !important;
-}
-h1, h2, h3, label {
-    margin: .5rem 0;
-}
-label {
-    display: block;
-    font-weight: 700;
-}
-input, select, button {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-size: 1rem;
-    padding: .5rem;
-    width: 100%;
-}
-button {
-    cursor: pointer;
-}
-button:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
-.primary {
-    background: var(--primary);
-    color: var(--on-primary);
-    border: 0;
-}
-.primary:hover:not(:disabled) {
-    background: var(--hover);
-}
-.secondary:hover:not(:disabled) {
-    background: var(--muted);
-}
-.danger, .success {
-    color: var(--on-danger);
-    border: 0;
-    background: var(--danger);
-}
-.success {
-    background: var(--success);
-    color: var(--on-success);
-}
-.danger:hover, .success:hover {
-    filter: brightness(.9);
-}
-.selectors {
-    position: absolute;
-    right: 2rem;
-    top: 1rem;
-    display: flex;
-    gap: 8px;
-}
-.selectors select {
-    width: auto;
-    font-size: .9rem;
-}
-.row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-.group {
-    flex: 1;
-}
-.info {
-    font-size: .9rem;
-    opacity: .8;
-    line-height: 1.6;
-}
-
-/* Map specific */
-#mapCanvas {
-    width: 100%;
-    height: auto;
-    border: 1px solid var(--border);
-    background-color: #87CEEB;
-    border-radius: 4px;
-    margin-top: 1rem;
-    image-rendering: pixelated;
-}
+:root { --primary: #005dac; --on-primary: #ffffff; --hover: #00539a; --background: #f9f9ff; --surface: #ffffff; --text: #181c21; --border: #c1c6d4; --muted: #f2f3fc; --success: #0b6b1d; --on-success: #ffffff; --danger: #ba1a1a; --on-danger: #ffffff; --highlight-bg: #d4e3ff; }
+@media (prefers-color-scheme: dark) { :root:not(.light) { --primary: #a5c8ff; --on-primary: #00315f; --hover: #72adff; --background: #101319; --surface: #0b0e14; --text: #e0e2ea; --border: #414752; --muted: #181c21; --success: #82db7e; --on-success: #00390a; --danger: #ffb4ab; --on-danger: #93000a; --highlight-bg: #001c3a; } }
+:root.dark { --primary: #a5c8ff; --on-primary: #00315f; --hover: #72adff; --background: #101319; --surface: #0b0e14; --text: #e0e2ea; --border: #414752; --muted: #181c21; --success: #82db7e; --on-success: #00390a; --danger: #ffb4ab; --on-danger: #93000a; --highlight-bg: #001c3a; }
+* { box-sizing: border-box; margin: 0; padding: 0; outline-offset: 2px; }
+*:focus-visible { outline: 2px solid var(--primary); }
+body { background: var(--background); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; min-height: 100vh; padding: 1rem; }
+.container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; max-width: 1200px; padding: 2rem; width: 100%; position: relative; margin: 2rem 0; display: flex; flex-direction: column; }
+.hidden { display: none !important; }
+h1, h2, h3, label { margin: .5rem 0; }
+label { display: block; font-weight: 700; }
+input, select, button { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 1rem; padding: .5rem; width: 100%; }
+button { cursor: pointer; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+.primary { background: var(--primary); color: var(--on-primary); border: 0; }
+.primary:hover:not(:disabled) { background: var(--hover); }
+.secondary:hover:not(:disabled) { background: var(--muted); }
+.selectors { position: absolute; right: 2rem; top: 1rem; display: flex; gap: 8px; z-index: 1000; }
+.row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.group { flex: 1; }
+.info { font-size: .9rem; opacity: .8; line-height: 1.6; }
+#map { width: 100%; height: 500px; border: 1px solid var(--border); border-radius: 4px; margin-top: 1rem; }
+@media(max-width: 768px) { .selectors { position: static; justify-content: end; margin-bottom: .5rem; } .row { flex-direction: column; } #map { height: 350px; } }
 
 		</style>
 	</head>
@@ -183,7 +47,6 @@ button:disabled {
 			</div>
 
             <h1 id="mapTitle">Hilal Visibility Map</h1>
-            <p class="info" id="mapSubtitle">Indonesia Region</p>
 
             <div id="controls">
                 <div class="row">
@@ -192,9 +55,17 @@ button:disabled {
                         <input type="date" id="mapDate">
                     </div>
                     <div class="group">
+                        <label id="regionLabel" for="mapRegion">Region</label>
+                        <select id="mapRegion">
+                            <option value="indonesia">Indonesia</option>
+                            <option value="world">World</option>
+                        </select>
+                    </div>
+                    <div class="group">
                         <label id="criteriaLabel" for="mapCriteria">Criteria</label>
                         <select id="mapCriteria">
                             <option value="mabbims">MABBIMS (Alt≥3°, Elong≥6.4°)</option>
+                            <option value="gic">Global Islamic (Alt≥5°, Elong≥8°, <12am UTC)</option>
                             <option value="alt0">Altitude > 0°</option>
                             <option value="custom">Custom Criteria</option>
                         </select>
@@ -218,14 +89,15 @@ button:disabled {
             </div>
 
             <div id="mapStatus" class="info" style="font-style:italic; min-height: 1.2em;"></div>
-            <canvas id="mapCanvas"></canvas>
+            <div id="map"></div>
+
             <div id="mapLegend" class="info" style="margin-top:0.5rem">
-                <span style="display:inline-block;width:12px;height:12px;background:#0b6b1d;margin-right:4px;"></span><span id="legendVisible">Visible</span>
-                <span style="display:inline-block;width:12px;height:12px;background:#87CEEB;border:1px solid #ccc;margin-left:8px;margin-right:4px;"></span><span id="legendNotVisible">Not Visible</span>
+                <span style="display:inline-block;width:12px;height:12px;background:rgba(0, 255, 0, 0.5);margin-right:4px;border:1px solid green"></span><span id="legendVisible">Visible</span>
             </div>
 
 		</div>
 
+        <script>var exports = {};</script>
         <script>
 /*
  MIT
@@ -567,6 +439,8 @@ GravitySimulator.AddAcceleration=function(a,b,c,d){var e=c.x-b.x,f=c.y-b.y;b=c.z
 $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{configurable:!0,enumerable:!0,get:function(){return this.originBody}},Time:{configurable:!0,enumerable:!0,get:function(){return this.curr.time}}});exports.GravitySimulator=GravitySimulator;var GravSimEndpoint=function(a,b,c){this.time=a;this.gravitators=b;this.bodies=c};
 
         </script>
+        <script>window.Astronomy = exports;</script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 		<script>
 			const text = {
@@ -575,12 +449,11 @@ $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{c
 					lightTheme: 'Light',
 					darkTheme: 'Dark',
                     mapTitle: 'Hilal Visibility Map',
-                    mapSubtitle: 'Indonesia Region',
                     renderMap: 'Render Map',
                     dateLabel: 'Date',
+                    regionLabel: 'Region',
                     criteriaLabel: 'Criteria',
                     legendVisible: 'Visible',
-                    legendNotVisible: 'Not Visible',
                     minAltLabel: 'Min Altitude (°)',
                     minElongLabel: 'Min Elongation (°)',
                     languageLabel: 'Language',
@@ -591,12 +464,11 @@ $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{c
 					lightTheme: 'Terang',
 					darkTheme: 'Gelap',
                     mapTitle: 'Peta Visibilitas Hilal',
-                    mapSubtitle: 'Wilayah Indonesia',
                     renderMap: 'Render Peta',
                     dateLabel: 'Tanggal',
+                    regionLabel: 'Wilayah',
                     criteriaLabel: 'Kriteria',
                     legendVisible: 'Terlihat',
-                    legendNotVisible: 'Tidak Terlihat',
                     minAltLabel: 'Min Tinggi (°)',
                     minElongLabel: 'Min Elongasi (°)',
                     languageLabel: 'Bahasa',
@@ -612,17 +484,20 @@ $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{c
 					this.lang(navigator.language?.startsWith('id') ? 'id' : 'en');
 				}
 				setup() {
-                    // Theme & Lang
 					elements.language.onchange = event => this.lang(event.target.value);
 					elements.theme.onchange = event => this.theme(event.target.value);
-
-                    // Map Logic
                     elements.renderMap.onclick = () => this.handleRenderClick();
                     elements.mapCriteria.onchange = () => this.toggleCustom();
 
-                    // Default Date
                     elements.mapDate.valueAsDate = new Date();
 
+                    this.map = L.map('map').setView([-2.5, 118], 5);
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    }).addTo(this.map);
+
+                    this.overlayLayer = null;
                     this.isRendering = false;
                     this.cancelRender = false;
 				}
@@ -635,7 +510,6 @@ $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{c
 				}
 				lang(language) {
 					this.language = elements.language.value = document.documentElement.lang = language;
-                    // Update Text
 					Object.keys(text.en).forEach(key => elements[key] && (elements[key].textContent = this.string(key)));
 					[...elements.theme.options].forEach(option => option.textContent = this.string(option.value + 'Theme'));
 				}
@@ -659,38 +533,58 @@ $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{c
                     elements.renderMap.disabled = true;
                     elements.mapStatus.textContent = 'Calculating...';
 
-                    const bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
-                    const PPD = 15;
+                    const region = elements.mapRegion.value;
+                    let bounds, zoom;
 
-                    // Parse params
+                    if (region === 'indonesia') {
+                        bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
+                        zoom = 5;
+                    } else {
+                        bounds = { minLat: -60, maxLat: 60, minLon: -180, maxLon: 180 };
+                        zoom = 2;
+                    }
+                    this.map.setView([(bounds.minLat + bounds.maxLat) / 2, (bounds.minLon + bounds.maxLon) / 2], zoom);
+
                     const criteria = elements.mapCriteria.value;
                     const dateStr = elements.mapDate.value;
-                    const date = new Date(dateStr + 'T12:00:00Z');
 
-                    let minAlt = 0, minElong = 0;
+                    const dateObj = new Date(dateStr ? dateStr + 'T12:00:00Z' : new Date());
+                    let date;
+                    try {
+                        date = Astronomy.MakeTime(dateObj);
+                    } catch (e) {
+                        elements.mapStatus.textContent = 'Error: Invalid Date';
+                        elements.renderMap.disabled = false;
+                        this.isRendering = false;
+                        return;
+                    }
+
+                    let minAlt = 0, minElong = 0, isGIC = false;
                     if (criteria === 'mabbims') { minAlt = 3; minElong = 6.4; }
-                    else if (criteria === 'alt0') { minAlt = 0; minElong = -100; } // Ignore elong
+                    else if (criteria === 'gic') { minAlt = 5; minElong = 8; isGIC = true; }
+                    else if (criteria === 'alt0') { minAlt = 0; minElong = -100; }
                     else if (criteria === 'custom') {
                         minAlt = parseFloat(elements.minAlt.value) || 0;
                         minElong = parseFloat(elements.minElong.value) || 0;
                     }
 
+                    const PPD = region === 'indonesia' ? 10 : 2;
                     const widthDeg = bounds.maxLon - bounds.minLon;
                     const heightDeg = bounds.maxLat - bounds.minLat;
+                    const width = Math.ceil(widthDeg * PPD);
+                    const height = Math.ceil(heightDeg * PPD);
 
-                    elements.mapCanvas.width = Math.ceil(widthDeg * PPD);
-                    elements.mapCanvas.height = Math.ceil(heightDeg * PPD);
-                    const ctx = elements.mapCanvas.getContext('2d');
-
-                    // Background
-                    ctx.fillStyle = '#87CEEB';
-                    ctx.fillRect(0, 0, elements.mapCanvas.width, elements.mapCanvas.height);
-
-                    const imageData = ctx.getImageData(0, 0, elements.mapCanvas.width, elements.mapCanvas.height);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, width, height);
+                    const imageData = ctx.getImageData(0, 0, width, height);
                     const data = imageData.data;
-                    const totalPixels = elements.mapCanvas.width * elements.mapCanvas.height;
+                    const totalPixels = width * height;
+
                     let pixelIndex = 0;
-                    const chunkSize = 5000;
+                    const chunkSize = 10000;
 
                     const processChunk = () => {
                         if (this.cancelRender) {
@@ -702,29 +596,38 @@ $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{c
 
                         const end = Math.min(pixelIndex + chunkSize, totalPixels);
 
-                        for (; pixelIndex < end; pixelIndex++) {
-                            const x = pixelIndex % elements.mapCanvas.width;
-                            const y = Math.floor(pixelIndex / elements.mapCanvas.width);
+                        try {
+                            for (; pixelIndex < end; pixelIndex++) {
+                                const x = pixelIndex % width;
+                                const y = Math.floor(pixelIndex / width);
+                                const lat = bounds.maxLat - (y / PPD);
+                                const lon = bounds.minLon + (x / PPD);
 
-                            const lat = bounds.maxLat - (y / PPD);
-                            const lon = bounds.minLon + (x / PPD);
+                                const visible = this.checkVisibility(lat, lon, date, minAlt, minElong, isGIC);
 
-                            const visible = this.checkVisibility(lat, lon, date, minAlt, minElong);
-
-                            if (visible) {
-                                const idx = pixelIndex * 4;
-                                data[idx] = 11;
-                                data[idx+1] = 107;
-                                data[idx+2] = 29;
-                                data[idx+3] = 255;
+                                if (visible) {
+                                    const idx = pixelIndex * 4;
+                                    data[idx] = 0; data[idx+1] = 255; data[idx+2] = 0; data[idx+3] = 128;
+                                }
                             }
+                        } catch (e) {
+                            console.error('Error in calculation loop:', e);
+                            this.isRendering = false;
+                            elements.renderMap.disabled = false;
+                            elements.mapStatus.textContent = 'Error: ' + e.message;
+                            return;
                         }
-                        ctx.putImageData(imageData, 0, 0);
+
+                        if (pixelIndex % (chunkSize * 5) === 0) {
+                             elements.mapStatus.textContent = `Calculating... ${Math.round(pixelIndex/totalPixels*100)}%`;
+                        }
 
                         if (pixelIndex < totalPixels) {
-                            elements.mapStatus.textContent = `Rendering... ${Math.round(pixelIndex/totalPixels*100)}%`;
                             requestAnimationFrame(processChunk);
                         } else {
+                            ctx.putImageData(imageData, 0, 0);
+                            this.updateOverlay(canvas.toDataURL(), bounds);
+
                             this.isRendering = false;
                             elements.renderMap.disabled = false;
                             elements.mapStatus.textContent = 'Done.';
@@ -733,20 +636,34 @@ $jscomp.global.Object.defineProperties(GravitySimulator.prototype,{OriginBody:{c
                     requestAnimationFrame(processChunk);
                 }
 
-                checkVisibility(lat, lon, date, minAlt, minElong) {
+                updateOverlay(imageUrl, bounds) {
+                    if (this.overlayLayer) {
+                        this.map.removeLayer(this.overlayLayer);
+                    }
+                    const imageBounds = [[bounds.minLat, bounds.minLon], [bounds.maxLat, bounds.maxLon]];
+                    this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
+                }
+
+                checkVisibility(lat, lon, date, minAlt, minElong, isGIC) {
                     const observer = new Astronomy.Observer(lat, lon, 0);
-                    // Local Noon approx
                     const noonOffsetDays = -lon / 360.0;
                     const searchTime = date.AddDays(noonOffsetDays);
 
-                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, searchTime, 1);
+                    // PASS NUMBER (UT) TO AVOID INSTANCEOF CHECKS FAILING
+                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, searchTime.ut, 1);
                     if (!sunset) return false;
 
-                    const time = sunset.time;
-                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, time, observer, true, true);
-                    const moonHor = Astronomy.Horizon(time, observer, moonEq.ra, moonEq.dec, 'normal');
+                    const time = sunset;
+
+                    if (isGIC) {
+                        if (time.ut >= (date.ut + 0.5)) return false;
+                    }
+
+                    // Pass time.ut here too
+                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, time.ut, observer, true, true);
+                    const moonHor = Astronomy.Horizon(time.ut, observer, moonEq.ra, moonEq.dec, 'normal');
                     const alt = moonHor.altitude;
-                    const elong = Astronomy.AngleFromSun(Astronomy.Body.Moon, time);
+                    const elong = Astronomy.AngleFromSun(Astronomy.Body.Moon, time.ut);
 
                     return (alt >= minAlt && elong >= minElong);
                 }

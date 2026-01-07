@@ -1,35 +1,34 @@
-# Crescent Moon Visibility Maps Generator
+# Indonesia Election & Visibility Tools
 
-Code is provided to draw crescent visibility maps according to the following criterias:
-- [Yallop criteria](https://astro.ukho.gov.uk/download/NAOTN69.pdf),
-- [Odeh criteria](https://www.astronomycenter.net/pdf/2006_cri.pdf).
+This repository contains a unified web application providing two primary tools focused on the Indonesia region:
 
-The following features are currently available:
-- waxing (evening) crescent visibility bands.
-- waning (morning) crescent visibility bands.
-- moonset before sunset in red (similarly moonrise after sunrise).
+1.  **Apportionment Calculator:** A tool for calculating electoral seat allocation using Hare Quota and Sainte-Laguë methods.
+2.  **Hilal Visibility Map:** A tool for visualizing the visibility of the new moon (Hilal) across Indonesia based on MABBIMS and other criteria.
 
-# Output Examples
-## Wed, 29 June 2022 (29 ZH 1443H) Evening Crescent
-### Yallop
-![2022-06-29 (E) Yallop](https://user-images.githubusercontent.com/833473/193407627-e8895f15-7d6f-46c2-9c7f-a770131ad387.png)
+## Features
 
-For comparison
-![2022-06-29 (E) Yallop (HMNAO)](https://user-images.githubusercontent.com/84683703/191850568-3f661abb-74f2-4720-b256-1404d69757cc.jpg)
+### Apportionment Calculator
+*   **Methods:** Hare Quota and Sainte-Laguë.
+*   **Comparison:** Compare results between methods side-by-side.
+*   **Detailed Steps:** View step-by-step calculations for educational purposes.
+*   **Export:** Export results to CSV.
+*   **Localization:** English and Bahasa Indonesia support.
+*   **Theming:** Dark and Light mode support.
 
-### Odeh
-![2022-06-29 (E) Odeh](https://user-images.githubusercontent.com/833473/193407716-07674584-06c5-47eb-944b-5a6a8ba182bb.png)
-  
-For comparison
-![image](https://user-images.githubusercontent.com/84683703/191850739-bd009136-5e8d-4d0f-ba1d-aac2ace6a564.png)
+### Visibility Map
+*   **Region:** Indonesia (95°E - 141°E, 6°N - 11°S).
+*   **Criteria:**
+    *   **MABBIMS:** Altitude ≥ 3°, Elongation ≥ 6.4°.
+    *   **Altitude 0°:** Simple geometric visibility (Altitude > 0°).
+*   **Visualization:** Interactive rendering on a pixelated map canvas.
 
-# Build Instructions
-On a Linux machine make sure a C++ compiler (gcc-c++ or g++ package) is available, on macOS install llvm from brew. Make sure imagemagick is installed also, then run `./run.sh`.
+## Usage
 
-On a Windows machine, first install msys2 then run `./build-mingw.sh`
+Simply open `index.html` in any modern web browser. No server or build steps required.
 
-# Credits
-- [astronomy-engine](https://github.com/cosinekitty/astronomy/)
+## Development
 
-# License
-MIT
+The project is contained within a single HTML file (`index.html`) for portability. It depends on `astronomy.min.js` which is embedded within the file.
+
+### Credits
+*   **Astronomy Engine:** [cosinekitty/astronomy](https://github.com/cosinekitty/astronomy) for celestial calculations.

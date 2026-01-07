@@ -339,12 +339,16 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                         if (sunsetUT >= (baseDateUT + 0.5)) return false;
                     }
 
+                    // Optimization: Calculate Altitude first as it's cheaper/more likely to fail than AngleFromSun
                     const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
                     const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, 'normal');
                     const alt = moonHor.altitude;
+
+                    if (alt < minAlt) return false;
+
                     const elong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
 
-                    return (alt >= minAlt && elong >= minElong);
+                    return (elong >= minElong);
                 }
 			}
 			new VisibilityMap();

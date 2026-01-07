@@ -146,6 +146,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 					elements.theme.onchange = event => this.theme(event.target.value);
                     elements.renderMap.onclick = () => this.handleRenderClick();
                     elements.mapCriteria.onchange = () => this.toggleCustom();
+                    elements.mapRegion.onchange = () => this.handleRegionChange();
 
                     elements.mapDate.valueAsDate = new Date();
 
@@ -176,6 +177,15 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     elements.customCriteriaInputs.classList.toggle('hidden', !isCustom);
                 }
 
+                handleRegionChange() {
+                    const region = elements.mapRegion.value;
+                    if (region === 'indonesia') {
+                        this.map.setView([-2.5, 118], 5);
+                    } else {
+                        this.map.setView([0, 0], 2);
+                    }
+                }
+
                 handleRenderClick() {
                     if (this.isRendering) {
                         this.cancelRender = true;
@@ -191,17 +201,14 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     elements.renderMap.disabled = true;
                     elements.mapStatus.textContent = 'Calculating...';
 
-                    const region = elements.mapRegion.value;
-                    let bounds, zoom;
-
-                    if (region === 'indonesia') {
-                        bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
-                        zoom = 5;
-                    } else {
-                        bounds = { minLat: -85, maxLat: 85, minLon: -180, maxLon: 180 };
-                        zoom = 2;
-                    }
-                    this.map.setView([(bounds.minLat + bounds.maxLat) / 2, (bounds.minLon + bounds.maxLon) / 2], zoom);
+                    // Use current map bounds for rendering
+                    const mapBounds = this.map.getBounds();
+                    const bounds = {
+                        minLat: Math.max(-85, mapBounds.getSouth()),
+                        maxLat: Math.min(85, mapBounds.getNorth()),
+                        minLon: mapBounds.getWest(),
+                        maxLon: mapBounds.getEast()
+                    };
 
                     const criteria = elements.mapCriteria.value;
                     const dateStr = elements.mapDate.value;
@@ -226,9 +233,14 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                         minElong = parseFloat(elements.minElong.value) || 0;
                     }
 
-                    const PPD = region === 'indonesia' ? 10 : 2;
+                    // Calculate PPD based on screen resolution and zoom
+                    const mapSize = this.map.getSize();
                     const widthDeg = bounds.maxLon - bounds.minLon;
                     const heightDeg = bounds.maxLat - bounds.minLat;
+
+                    // Match canvas pixels to screen pixels roughly
+                    const PPD = mapSize.x / widthDeg;
+
                     const width = Math.ceil(widthDeg * PPD);
                     const height = Math.ceil(heightDeg * PPD);
 
@@ -243,6 +255,10 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                     let pixelIndex = 0;
                     const chunkSize = 500;
+                    // Optimization: Reuse observer and interpolate sunset time
+                    const observer = new Astronomy.Observer(0, 0, 0);
+                    let currentY = -1;
+                    let sunsetBase = null;
 
                     const processChunk = () => {
                         if (this.cancelRender) {
@@ -261,11 +277,27 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                                 const lat = bounds.maxLat - (y / PPD);
                                 const lon = bounds.minLon + (x / PPD);
 
-                                const visible = this.checkVisibility(lat, lon, date, minAlt, minElong, isGIC);
+                                if (y !== currentY) {
+                                    currentY = y;
+                                    observer.latitude = lat;
+                                    observer.longitude = 0;
+                                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, date.ut, 1);
+                                    sunsetBase = sunset ? sunset.ut : null;
+                                }
 
-                                if (visible) {
-                                    const idx = pixelIndex * 4;
-                                    data[idx] = 0; data[idx+1] = 255; data[idx+2] = 0; data[idx+3] = 128;
+                                if (sunsetBase !== null) {
+                                    observer.latitude = lat;
+                                    observer.longitude = lon;
+
+                                    // Optimization: Sunset time is linearly related to longitude for a given latitude
+                                    const sunsetUT = sunsetBase - (lon / 360.0);
+
+                                    const visible = this.checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, date.ut);
+
+                                    if (visible) {
+                                        const idx = pixelIndex * 4;
+                                        data[idx] = 0; data[idx+1] = 255; data[idx+2] = 0; data[idx+3] = 128;
+                                    }
                                 }
                             }
                         } catch (e) {
@@ -302,26 +334,15 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
                 }
 
-                checkVisibility(lat, lon, date, minAlt, minElong, isGIC) {
-                    const observer = new Astronomy.Observer(lat, lon, 0);
-                    const noonOffsetDays = -lon / 360.0;
-                    const searchTime = date.AddDays(noonOffsetDays);
-
-                    // PASS NUMBER (UT) TO AVOID INSTANCEOF CHECKS FAILING
-                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, searchTime.ut, 1);
-                    if (!sunset) return false;
-
-                    const time = sunset;
-
+                checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, baseDateUT) {
                     if (isGIC) {
-                        if (time.ut >= (date.ut + 0.5)) return false;
+                        if (sunsetUT >= (baseDateUT + 0.5)) return false;
                     }
 
-                    // Pass time.ut here too
-                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, time.ut, observer, true, true);
-                    const moonHor = Astronomy.Horizon(time.ut, observer, moonEq.ra, moonEq.dec, 'normal');
+                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+                    const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, 'normal');
                     const alt = moonHor.altitude;
-                    const elong = Astronomy.AngleFromSun(Astronomy.Body.Moon, time.ut);
+                    const elong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
 
                     return (alt >= minAlt && elong >= minElong);
                 }

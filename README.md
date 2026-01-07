@@ -1,35 +1,27 @@
-# Crescent Moon Visibility Maps Generator
+# Hilal Visibility Map
 
-Code is provided to draw crescent visibility maps according to the following criterias:
-- [Yallop criteria](https://astro.ukho.gov.uk/download/NAOTN69.pdf),
-- [Odeh criteria](https://www.astronomycenter.net/pdf/2006_cri.pdf).
+A single-file web tool for visualizing the visibility of the new moon (Hilal) across the World or Indonesia.
 
-The following features are currently available:
-- waxing (evening) crescent visibility bands.
-- waning (morning) crescent visibility bands.
-- moonset before sunset in red (similarly moonrise after sunrise).
+## Features
 
-# Output Examples
-## Wed, 29 June 2022 (29 ZH 1443H) Evening Crescent
-### Yallop
-![2022-06-29 (E) Yallop](https://user-images.githubusercontent.com/833473/193407627-e8895f15-7d6f-46c2-9c7f-a770131ad387.png)
+*   **Regions:**
+    *   **Indonesia:** Detailed view (95°E - 141°E, 6°N - 11°S).
+    *   **World:** Global view (-180°W - 180°E, 60°N - 60°S).
+*   **Criteria:**
+    *   **MABBIMS:** Altitude ≥ 3°, Elongation ≥ 6.4°.
+    *   **Global Islamic Calendar:** Altitude ≥ 5°, Elongation ≥ 8°, Sunset before 00:00 UTC (Next Day).
+    *   **Altitude 0°:** Simple geometric visibility (Altitude > 0°).
+    *   **Custom:** User-defined Minimum Altitude and Elongation thresholds.
+*   **Visualization:** Interactive **Leaflet** map with OpenStreetMap tiles and a color-coded visibility overlay.
+*   **Styling:** Responsive UI with Dark/Light mode support and English/Indonesian localization.
 
-For comparison
-![2022-06-29 (E) Yallop (HMNAO)](https://user-images.githubusercontent.com/84683703/191850568-3f661abb-74f2-4720-b256-1404d69757cc.jpg)
+## Usage
 
-### Odeh
-![2022-06-29 (E) Odeh](https://user-images.githubusercontent.com/833473/193407716-07674584-06c5-47eb-944b-5a6a8ba182bb.png)
-  
-For comparison
-![image](https://user-images.githubusercontent.com/84683703/191850739-bd009136-5e8d-4d0f-ba1d-aac2ace6a564.png)
+Simply open `index.html` in any modern web browser.
+*Note: An internet connection is required to load map tiles from OpenStreetMap and the Leaflet library CDN.*
 
-# Build Instructions
-On a Linux machine make sure a C++ compiler (gcc-c++ or g++ package) is available, on macOS install llvm from brew. Make sure imagemagick is installed also, then run `./run.sh`.
+## Development
 
-On a Windows machine, first install msys2 then run `./build-mingw.sh`
-
-# Credits
-- [astronomy-engine](https://github.com/cosinekitty/astronomy/)
-
-# License
-MIT
+The project is contained within a single HTML file (`index.html`).
+*   **Astronomy Engine:** Embedded `astronomy.min.js` for celestial calculations.
+*   **Leaflet:** Loaded via Unpkg CDN.

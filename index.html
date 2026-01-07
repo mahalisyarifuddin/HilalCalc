@@ -260,6 +260,10 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     let currentY = -1;
                     let sunsetBase = null;
 
+                    // Interpolation variables
+                    const INTERP_STEP = 10;
+                    let prevRA, prevDec, nextRA, nextDec;
+
                     const processChunk = () => {
                         if (this.cancelRender) {
                             this.isRendering = false;
@@ -283,6 +287,8 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                                     observer.longitude = 0;
                                     const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, date.ut, 1);
                                     sunsetBase = sunset ? sunset.ut : null;
+                                    // Reset interpolation state on new row
+                                    prevRA = undefined;
                                 }
 
                                 if (sunsetBase !== null) {
@@ -291,8 +297,53 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                                     // Optimization: Sunset time is linearly related to longitude for a given latitude
                                     const sunsetUT = sunsetBase - (lon / 360.0);
+                                    let moonRA, moonDec;
 
-                                    const visible = this.checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, date.ut);
+                                    // Optimization: Interpolate Moon Coordinates (Equator)
+                                    // The Moon moves slowly (~0.5 deg/hr), so we can interpolate RA/Dec
+                                    // every INTERP_STEP pixels instead of calculating heavy Equator() every pixel.
+                                    const xMod = x % INTERP_STEP;
+
+                                    if (xMod === 0 || prevRA === undefined) {
+                                        // Keyframe: Calculate exact
+                                        const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+                                        prevRA = moonEq.ra;
+                                        prevDec = moonEq.dec;
+
+                                        // Calculate next keyframe for interpolation
+                                        let nextX = x + INTERP_STEP;
+                                        if (nextX >= width) nextX = width - 1;
+
+                                        if (nextX > x) {
+                                            const nextLon = bounds.minLon + (nextX / PPD);
+                                            const nextSunsetUT = sunsetBase - (nextLon / 360.0);
+                                            observer.longitude = nextLon;
+                                            const nextMoonEq = Astronomy.Equator(Astronomy.Body.Moon, nextSunsetUT, observer, true, true);
+                                            nextRA = nextMoonEq.ra;
+                                            nextDec = nextMoonEq.dec;
+
+                                            // Handle RA wrap around (0-24h)
+                                            if (Math.abs(nextRA - prevRA) > 12) {
+                                                if (nextRA > prevRA) prevRA += 24;
+                                                else nextRA += 24;
+                                            }
+                                            observer.longitude = lon; // restore
+                                        } else {
+                                            nextRA = prevRA;
+                                            nextDec = prevDec;
+                                        }
+
+                                        moonRA = prevRA;
+                                        moonDec = prevDec;
+                                    } else {
+                                        // Interpolate
+                                        const fraction = xMod / INTERP_STEP;
+                                        moonRA = prevRA + (nextRA - prevRA) * fraction;
+                                        moonDec = prevDec + (nextDec - prevDec) * fraction;
+                                        if (moonRA >= 24) moonRA -= 24;
+                                    }
+
+                                    const visible = this.checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, date.ut, moonRA, moonDec);
 
                                     if (visible) {
                                         const idx = pixelIndex * 4;
@@ -334,14 +385,23 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
                 }
 
-                checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, baseDateUT) {
+                checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, baseDateUT, moonRA, moonDec) {
                     if (isGIC) {
                         if (sunsetUT >= (baseDateUT + 0.5)) return false;
                     }
 
+                    // Use passed interpolated/calculated RA/Dec if available, otherwise calculate
+                    let ra = moonRA;
+                    let dec = moonDec;
+                    if (ra === undefined) {
+                        const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+                        ra = moonEq.ra;
+                        dec = moonEq.dec;
+                    }
+
                     // Optimization: Calculate Altitude first as it's cheaper/more likely to fail than AngleFromSun
-                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-                    const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, 'normal');
+                    // We must calculate Horizon every pixel because it depends heavily on LST (which changes with longitude/time)
+                    const moonHor = Astronomy.Horizon(sunsetUT, observer, ra, dec, 'normal');
                     const alt = moonHor.altitude;
 
                     if (alt < minAlt) return false;

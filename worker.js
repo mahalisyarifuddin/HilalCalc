@@ -68,7 +68,7 @@ self.onmessage = function(e) {
                 currentY = y;
                 observer.latitude = lat;
                 observer.longitude = 0;
-                const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, date.ut, 1);
+                const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
                 sunsetBase = sunset ? sunset.ut : null;
                 // Reset interpolation state on new row
                 prevRA = undefined;

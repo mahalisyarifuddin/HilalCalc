@@ -158,7 +158,8 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                     this.overlayLayer = null;
                     this.isRendering = false;
-                    this.cancelRender = false;
+                    this.worker = new Worker('worker.js');
+                    this.worker.onmessage = (e) => this.handleWorkerMessage(e);
 				}
 				string(key) {
 					return text[this.language]?.[key] ?? key;
@@ -188,20 +189,24 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                 handleRenderClick() {
                     if (this.isRendering) {
-                        this.cancelRender = true;
-                        setTimeout(() => this.startRender(), 100);
+                        this.worker.terminate();
+                        this.worker = new Worker('worker.js');
+                        this.worker.onmessage = (e) => this.handleWorkerMessage(e);
+
+                        this.isRendering = false;
+                        elements.renderMap.disabled = false;
+                        elements.mapStatus.textContent = 'Cancelled.';
                     } else {
                         this.startRender();
                     }
                 }
 
                 startRender() {
-                    this.cancelRender = false;
                     this.isRendering = true;
-                    elements.renderMap.disabled = true;
+                    elements.renderMap.disabled = false; // Allow cancelling
+                    elements.renderMap.textContent = 'Cancel';
                     elements.mapStatus.textContent = 'Calculating...';
 
-                    // Use current map bounds for rendering
                     const mapBounds = this.map.getBounds();
                     const bounds = {
                         minLat: Math.max(-85, mapBounds.getSouth()),
@@ -212,204 +217,53 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 
                     const criteria = elements.mapCriteria.value;
                     const dateStr = elements.mapDate.value;
-
                     const dateObj = new Date(dateStr ? dateStr + 'T12:00:00Z' : new Date());
-                    let date;
-                    try {
-                        date = Astronomy.MakeTime(dateObj);
-                    } catch (e) {
-                        elements.mapStatus.textContent = 'Error: Invalid Date';
-                        elements.renderMap.disabled = false;
-                        this.isRendering = false;
-                        return;
-                    }
 
-                    let minAlt = 0, minElong = 0, isGIC = false;
-                    if (criteria === 'mabbims') { minAlt = 3; minElong = 6.4; }
-                    else if (criteria === 'gic') { minAlt = 5; minElong = 8; isGIC = true; }
-                    else if (criteria === 'alt0') { minAlt = 0; minElong = -100; }
-                    else if (criteria === 'custom') {
-                        minAlt = parseFloat(elements.minAlt.value) || 0;
-                        minElong = parseFloat(elements.minElong.value) || 0;
-                    }
-
-                    // Calculate PPD based on screen resolution and zoom
                     const mapSize = this.map.getSize();
                     const widthDeg = bounds.maxLon - bounds.minLon;
                     const heightDeg = bounds.maxLat - bounds.minLat;
 
-                    // Match canvas pixels to screen pixels roughly
-                    const PPD = mapSize.x / widthDeg;
+                    this.lastBounds = bounds;
 
-                    const width = Math.ceil(widthDeg * PPD);
-                    const height = Math.ceil(heightDeg * PPD);
+                    this.worker.postMessage({
+                        bounds: bounds,
+                        widthDeg: widthDeg,
+                        heightDeg: heightDeg,
+                        mapSizeX: mapSize.x,
+                        criteria: criteria,
+                        dateTimestamp: dateObj.getTime(),
+                        minAlt: parseFloat(elements.minAlt.value) || 0,
+                        minElong: parseFloat(elements.minElong.value) || 0
+                    });
+                }
 
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, width, height);
-                    const imageData = ctx.getImageData(0, 0, width, height);
-                    const data = imageData.data;
-                    const totalPixels = width * height;
+                handleWorkerMessage(e) {
+                    const { status, percent, imageData: unused, buffer, width, height, message } = e.data;
 
-                    let pixelIndex = 0;
-                    const chunkSize = 500;
-                    // Optimization: Reuse observer and interpolate sunset time
-                    const observer = new Astronomy.Observer(0, 0, 0);
-                    let currentY = -1;
-                    let sunsetBase = null;
+                    if (status === 'progress') {
+                        elements.mapStatus.textContent = `Calculating... ${percent}%`;
+                    } else if (status === 'complete') {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
 
-                    // Interpolation variables
-                    const INTERP_STEP = 10;
-                    let prevRA, prevDec, prevElong, prevAlt;
-                    let nextRA, nextDec, nextElong, nextAlt;
-                    let cachedNextRA, cachedNextDec, cachedNextElong, cachedNextAlt;
+                        const imageData = new ImageData(buffer, width, height);
+                        ctx.putImageData(imageData, 0, 0);
 
-                    const processChunk = () => {
-                        if (this.cancelRender) {
-                            this.isRendering = false;
-                            elements.renderMap.disabled = false;
-                            elements.mapStatus.textContent = 'Cancelled.';
-                            return;
-                        }
+                        this.updateOverlay(canvas.toDataURL(), this.lastBounds);
 
-                        const end = Math.min(pixelIndex + chunkSize, totalPixels);
-
-                        try {
-                            for (; pixelIndex < end; pixelIndex++) {
-                                const x = pixelIndex % width;
-                                const y = Math.floor(pixelIndex / width);
-                                const lat = bounds.maxLat - (y / PPD);
-                                const lon = bounds.minLon + (x / PPD);
-
-                                if (y !== currentY) {
-                                    currentY = y;
-                                    observer.latitude = lat;
-                                    observer.longitude = 0;
-                                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, date.ut, 1);
-                                    sunsetBase = sunset ? sunset.ut : null;
-                                    // Reset interpolation state on new row
-                                    prevRA = undefined;
-                                    cachedNextRA = undefined;
-                                }
-
-                                if (sunsetBase !== null) {
-                                    observer.latitude = lat;
-                                    observer.longitude = lon;
-
-                                    // Optimization: Sunset time is linearly related to longitude for a given latitude
-                                    const sunsetUT = sunsetBase - (lon / 360.0);
-                                    let moonRA, moonDec, moonElong;
-
-                                    // Optimization: Interpolate Moon Coordinates (Equator) AND Elongation
-                                    // The Moon moves slowly (~0.5 deg/hr), so we can interpolate RA/Dec/Elong
-                                    // every INTERP_STEP pixels instead of calculating heavy Equator() and AngleFromSun() every pixel.
-                                    const xMod = x % INTERP_STEP;
-                                    let moonAlt;
-
-                                    if (xMod === 0 || prevRA === undefined) {
-                                        // Keyframe: Calculate exact or reuse from cache
-                                        if (x > 0 && prevRA !== undefined && cachedNextRA !== undefined) {
-                                            prevRA = cachedNextRA;
-                                            prevDec = cachedNextDec;
-                                            prevElong = cachedNextElong;
-                                            prevAlt = cachedNextAlt;
-                                        } else {
-                                            const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-                                            prevRA = moonEq.ra;
-                                            prevDec = moonEq.dec;
-                                            prevElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
-                                            // Calculate Alt at keyframe
-                                            const moonHor = Astronomy.Horizon(sunsetUT, observer, prevRA, prevDec, 'normal');
-                                            prevAlt = moonHor.altitude;
-                                        }
-
-                                        // Calculate next keyframe for interpolation
-                                        let nextX = x + INTERP_STEP;
-                                        if (nextX >= width) nextX = width - 1;
-
-                                        if (nextX > x) {
-                                            const nextLon = bounds.minLon + (nextX / PPD);
-                                            const nextSunsetUT = sunsetBase - (nextLon / 360.0);
-                                            observer.longitude = nextLon;
-
-                                            const nextMoonEq = Astronomy.Equator(Astronomy.Body.Moon, nextSunsetUT, observer, true, true);
-                                            // Store raw values for next iteration's prev
-                                            cachedNextRA = nextMoonEq.ra;
-                                            cachedNextDec = nextMoonEq.dec;
-                                            cachedNextElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, nextSunsetUT);
-                                            // Calculate nextAlt
-                                            const nextMoonHor = Astronomy.Horizon(nextSunsetUT, observer, nextMoonEq.ra, nextMoonEq.dec, 'normal');
-                                            cachedNextAlt = nextMoonHor.altitude;
-
-                                            nextRA = cachedNextRA;
-                                            nextDec = cachedNextDec;
-                                            nextElong = cachedNextElong;
-                                            nextAlt = cachedNextAlt;
-
-                                            // Handle RA wrap around (0-24h) for interpolation
-                                            if (Math.abs(nextRA - prevRA) > 12) {
-                                                if (nextRA > prevRA) prevRA += 24;
-                                                else nextRA += 24;
-                                            }
-                                            observer.longitude = lon; // restore
-                                        } else {
-                                            nextRA = prevRA;
-                                            nextDec = prevDec;
-                                            nextElong = prevElong;
-                                            nextAlt = prevAlt;
-                                            cachedNextRA = undefined; // End of row, no next
-                                        }
-
-                                        moonRA = prevRA;
-                                        moonDec = prevDec;
-                                        moonElong = prevElong;
-                                        moonAlt = prevAlt;
-                                    } else {
-                                        // Interpolate
-                                        const fraction = xMod / INTERP_STEP;
-                                        moonRA = prevRA + (nextRA - prevRA) * fraction;
-                                        moonDec = prevDec + (nextDec - prevDec) * fraction;
-                                        moonElong = prevElong + (nextElong - prevElong) * fraction;
-                                        // Interpolate Altitude
-                                        moonAlt = prevAlt + (nextAlt - prevAlt) * fraction;
-
-                                        if (moonRA >= 24) moonRA -= 24;
-                                    }
-
-                                    const visible = this.checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, date.ut, moonRA, moonDec, moonElong, moonAlt);
-
-                                    if (visible) {
-                                        const idx = pixelIndex * 4;
-                                        data[idx] = 0; data[idx+1] = 255; data[idx+2] = 0; data[idx+3] = 128;
-                                    }
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Error in calculation loop:', e);
-                            this.isRendering = false;
-                            elements.renderMap.disabled = false;
-                            elements.mapStatus.textContent = 'Error: ' + e.message;
-                            return;
-                        }
-
-                        if (pixelIndex % (chunkSize * 5) === 0) {
-                             elements.mapStatus.textContent = `Calculating... ${Math.round(pixelIndex/totalPixels*100)}%`;
-                        }
-
-                        if (pixelIndex < totalPixels) {
-                            requestAnimationFrame(processChunk);
-                        } else {
-                            ctx.putImageData(imageData, 0, 0);
-                            this.updateOverlay(canvas.toDataURL(), bounds);
-
-                            this.isRendering = false;
-                            elements.renderMap.disabled = false;
-                            elements.mapStatus.textContent = 'Done.';
-                        }
-                    };
-                    requestAnimationFrame(processChunk);
+                        this.isRendering = false;
+                        elements.renderMap.disabled = false;
+                        elements.renderMap.textContent = this.string('renderMap');
+                        elements.mapStatus.textContent = 'Done.';
+                    } else if (status === 'error') {
+                        console.error('Worker Error:', message);
+                        elements.mapStatus.textContent = 'Error: ' + message;
+                        this.isRendering = false;
+                        elements.renderMap.disabled = false;
+                        elements.renderMap.textContent = this.string('renderMap');
+                    }
                 }
 
                 updateOverlay(imageUrl, bounds) {
@@ -418,38 +272,6 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                     }
                     const imageBounds = [[bounds.minLat, bounds.minLon], [bounds.maxLat, bounds.maxLon]];
                     this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
-                }
-
-                checkVisibility(observer, sunsetUT, minAlt, minElong, isGIC, baseDateUT, moonRA, moonDec, moonElong, moonAlt) {
-                    if (isGIC) {
-                        if (sunsetUT >= (baseDateUT + 0.5)) return false;
-                    }
-
-                    // Use passed interpolated/calculated RA/Dec if available, otherwise calculate
-                    let ra = moonRA;
-                    let dec = moonDec;
-                    if (ra === undefined) {
-                        const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-                        ra = moonEq.ra;
-                        dec = moonEq.dec;
-                    }
-
-                    // Optimization: Calculate Altitude first as it's cheaper/more likely to fail than AngleFromSun
-                    // We must calculate Horizon every pixel because it depends heavily on LST (which changes with longitude/time)
-                    let alt;
-                    if (moonAlt !== undefined) {
-                        alt = moonAlt;
-                    } else {
-                        const moonHor = Astronomy.Horizon(sunsetUT, observer, ra, dec, 'normal');
-                        alt = moonHor.altitude;
-                    }
-
-                    if (alt < minAlt) return false;
-
-                    // Use interpolated elongation if provided
-                    const elong = moonElong !== undefined ? moonElong : Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
-
-                    return (elong >= minElong);
                 }
 			}
 			new VisibilityMap();

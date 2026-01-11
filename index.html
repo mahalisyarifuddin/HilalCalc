@@ -320,27 +320,7 @@ self.onmessage = function(e) {
                 }
 
                 // Check visibility
-                // Logic copied from index.html checkVisibility
-                let visible = false;
-
-                // --- checkVisibility logic inlined ---
-                let isVisibleGIC = true;
-                if (isGIC) {
-                    if (sunsetUT >= (date.ut + 0.5)) isVisibleGIC = false;
-                }
-
-                if (isVisibleGIC) {
-                    // We already have moonAlt calculated/interpolated
-                    if (moonAlt >= minAlt) {
-                         const elong = moonElong; // Already have it
-                         if (elong >= minElong) {
-                             visible = true;
-                         }
-                    }
-                }
-                // -------------------------------------
-
-                if (visible) {
+                if ((!isGIC || sunsetUT < date.ut + 0.5) && moonAlt >= minAlt && moonElong >= minElong) {
                     const idx = pixelIndex * 4;
                     buffer[idx] = 0;     // R
                     buffer[idx+1] = 255; // G
@@ -606,26 +586,9 @@ self.onmessage = function(e) {
                     let color = 'var(--danger)';
                     let bg = 'var(--on-danger)';
 
-                     // GIC check: sunset must be before 12AM UTC? No, "before midnight".
-                     // The logic in map says: if (sunsetUT >= (date.ut + 0.5)) isVisibleGIC = false;
-                     // date.ut is noon. +0.5 is midnight next day?
-                     // Wait, MakeTime(Date) -> if Date is "YYYY-MM-DDT12:00:00Z", then date.ut is that time.
-                     // The condition seems to check if sunset is later than midnight of that day?
-                     // I will copy the logic from map.
-
-                     let isVisibleGIC = true;
-                     if (isGIC) {
-                         // Original logic: if (sunsetUT >= (date.ut + 0.5)) isVisibleGIC = false;
-                         // date was created from noon. +0.5 is midnight.
-                         if (sunsetUT >= (date.ut + 0.5)) isVisibleGIC = false;
-                     }
-
-                     if (isVisibleGIC) {
-                         if (moonHor.altitude >= minAlt) {
-                             if (elongation >= minElong) {
-                                 visible = true;
-                             }
-                         }
+                     // GIC check: sunset must be before midnight
+                     if ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong) {
+                         visible = true;
                      }
 
                      if (visible) {

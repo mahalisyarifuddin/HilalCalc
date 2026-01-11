@@ -124,6 +124,10 @@ button:disabled { opacity: .6; cursor: not-allowed; }
                          <label id="calcLonLabel" for="calcLon">Longitude</label>
                          <input type="number" id="calcLon" step="0.0001" placeholder="106.8166">
                     </div>
+                    <div class="group">
+                        <label id="utcOffsetLabel" for="calcUtcOffset">UTC Offset</label>
+                        <input type="number" id="calcUtcOffset" step="0.5" value="0" placeholder="e.g. 7">
+                   </div>
                 </div>
                  <div class="row">
                      <div class="group">
@@ -360,6 +364,7 @@ self.onmessage = function(e) {
 `;
 			const text = {
 				en: {
+                    utcOffsetLabel: 'UTC Offset',
 					autoTheme: 'Auto Theme',
 					lightTheme: 'Light',
 					darkTheme: 'Dark',
@@ -394,6 +399,7 @@ self.onmessage = function(e) {
                     notVisible: 'Not Visible'
 				},
 				id: {
+                    utcOffsetLabel: 'Selisih UTC',
 					autoTheme: 'Tema Otomatis',
 					lightTheme: 'Terang',
 					darkTheme: 'Gelap',
@@ -570,13 +576,16 @@ self.onmessage = function(e) {
                     // We'll show UT for clarity or simple HH:MM and let user infer.
                     // Actually, Astronomy.js returns UT double.
 
+                    const offset = parseFloat(elements.calcUtcOffset.value) || 0;
                     const fmt = (ut) => {
                         // Convert UT double to Date object
                         if (!ut) return 'N/A';
                         const d = ut.date;
-                        // Format to string.
-                        // Let's use simple UTC string for now.
-                        return d.toISOString().substring(11, 19) + ' UTC';
+                        // Adjust for offset
+                        d.setMinutes(d.getMinutes() + offset * 60);
+                        const timeStr = d.toISOString().substring(11, 19);
+                        const sign = offset >= 0 ? '+' : '';
+                        return `${timeStr} (UTC${sign}${offset})`;
                     };
 
                     // Visibility Check

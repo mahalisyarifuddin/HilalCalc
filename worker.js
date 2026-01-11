@@ -149,27 +149,7 @@ self.onmessage = function(e) {
                 }
 
                 // Check visibility
-                // Logic copied from index.html checkVisibility
-                let visible = false;
-
-                // --- checkVisibility logic inlined ---
-                let isVisibleGIC = true;
-                if (isGIC) {
-                    if (sunsetUT >= (date.ut + 0.5)) isVisibleGIC = false;
-                }
-
-                if (isVisibleGIC) {
-                    // We already have moonAlt calculated/interpolated
-                    if (moonAlt >= minAlt) {
-                         const elong = moonElong; // Already have it
-                         if (elong >= minElong) {
-                             visible = true;
-                         }
-                    }
-                }
-                // -------------------------------------
-
-                if (visible) {
+                if ((!isGIC || sunsetUT < date.ut + 0.5) && moonAlt >= minAlt && moonElong >= minElong) {
                     const idx = pixelIndex * 4;
                     buffer[idx] = 0;     // R
                     buffer[idx+1] = 255; // G

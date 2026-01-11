@@ -5,10 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MABBIMS Hijri Calendar (Standalone)</title>
     <style>
+        :root {
+            --primary: #005dac;
+            --on-primary: #ffffff;
+            --background: #f4f6f8;
+            --surface: #ffffff;
+            --text: #181c21;
+            --border: #eaeaea;
+            --muted: #f2f3fc;
+            --highlight: #e3f2fd;
+            --formula-bg: #f8f9fa;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light) {
+                --primary: #a5c8ff;
+                --on-primary: #00315f;
+                --background: #101319;
+                --surface: #0b0e14;
+                --text: #e0e2ea;
+                --border: #414752;
+                --muted: #181c21;
+                --highlight: #004a77;
+                --formula-bg: #1e222b;
+            }
+        }
+
+        :root.dark {
+            --primary: #a5c8ff;
+            --on-primary: #00315f;
+            --background: #101319;
+            --surface: #0b0e14;
+            --text: #e0e2ea;
+            --border: #414752;
+            --muted: #181c21;
+            --highlight: #004a77;
+            --formula-bg: #1e222b;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
+            background-color: var(--background);
+            color: var(--text);
             margin: 0;
             padding: 20px;
             display: flex;
@@ -18,49 +56,51 @@
         .container {
             max-width: 900px;
             width: 100%;
-            background: white;
+            background: var(--surface);
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
         }
         h1 {
-            color: #2c3e50;
+            color: var(--text);
             text-align: center;
             margin-bottom: 0.5rem;
         }
         .subtitle {
             text-align: center;
-            color: #666;
+            color: var(--text);
+            opacity: 0.7;
             margin-bottom: 2rem;
             font-size: 0.95rem;
         }
         .section {
             margin-bottom: 2rem;
-            border: 1px solid #eaeaea;
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1.5rem;
-            background: #fff;
+            background: var(--surface);
         }
         .section h2 {
             margin-top: 0;
             font-size: 1.25rem;
-            color: #005dac;
-            border-bottom: 2px solid #f0f0f0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
             padding-bottom: 0.5rem;
             margin-bottom: 1rem;
         }
 
         /* Formula Section */
         .formula-box {
-            background: #f8f9fa;
+            background: var(--formula-bg);
             padding: 15px;
             border-radius: 6px;
             font-family: "Courier New", monospace;
             font-weight: bold;
             text-align: center;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             margin: 1rem 0;
-            color: #d35400;
+            color: var(--text);
         }
         .calc-row {
             display: flex;
@@ -69,11 +109,20 @@
             gap: 10px;
             margin-top: 1rem;
         }
-        input[type="number"] {
+        input[type="number"], input[type="date"] {
             padding: 8px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--border);
             border-radius: 4px;
-            width: 80px;
+            width: auto;
+            background: var(--surface);
+            color: var(--text);
+        }
+        select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            padding: 5px;
         }
 
         /* Calendar Section */
@@ -84,8 +133,8 @@
             margin-bottom: 1rem;
         }
         .calendar-controls button {
-            background: #005dac;
-            color: white;
+            background: var(--primary);
+            color: var(--on-primary);
             border: none;
             padding: 8px 16px;
             border-radius: 4px;
@@ -94,7 +143,7 @@
             transition: background 0.2s;
         }
         .calendar-controls button:hover {
-            background: #004a8b;
+            opacity: 0.9;
         }
         .current-month-label {
             font-size: 1.2rem;
@@ -104,19 +153,19 @@
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 1px;
-            background: #ddd; /* Borders */
-            border: 1px solid #ddd;
+            background: var(--border);
+            border: 1px solid var(--border);
         }
         .day-header {
-            background: #f1f3f5;
+            background: var(--muted);
             padding: 10px;
             text-align: center;
             font-weight: bold;
             font-size: 0.9rem;
-            color: #555;
+            color: var(--text);
         }
         .day-cell {
-            background: white;
+            background: var(--surface);
             min-height: 90px;
             padding: 8px;
             display: flex;
@@ -125,11 +174,11 @@
             position: relative;
         }
         .day-cell.other-month {
-            background: #f9f9f9;
-            color: #aaa;
+            background: var(--formula-bg);
+            opacity: 0.6;
         }
         .day-cell.today {
-            background: #e3f2fd;
+            background: var(--highlight);
         }
         .gregorian-date {
             font-size: 1.1rem;
@@ -137,84 +186,136 @@
         }
         .hijri-date {
             font-size: 0.85rem;
-            color: #2e7d32;
+            color: var(--primary);
             text-align: right;
             font-weight: 600;
         }
         .hijri-month-name {
             font-size: 0.75rem;
-            color: #666;
+            color: var(--text);
+            opacity: 0.8;
             text-align: right;
         }
-        .new-moon-indicator {
+
+        .selectors {
             position: absolute;
-            bottom: 5px;
-            left: 5px;
-            font-size: 12px;
-            color: #d35400;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 8px;
         }
 
-        .loading {
-            opacity: 0.5;
-            pointer-events: none;
+        @media(max-width: 600px) {
+            .selectors {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: flex-end;
+                margin-bottom: 1rem;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>MABBIMS Hijri Calendar</h1>
+    <div class="selectors">
+        <select id="language">
+            <option value="en">English</option>
+            <option value="id">Bahasa Indonesia</option>
+        </select>
+        <select id="theme">
+            <option value="auto">Auto</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+        </select>
+    </div>
+
+    <h1 id="pageTitle">MABBIMS Hijri Calendar</h1>
     <div class="subtitle">
-        Calculation Base: <strong>6°04′30″ N, 95°06′45″ E</strong> (UTC+7)<br>
-        Criteria: Altitude ≥ 3°, Elongation ≥ 6.4° (at Sunset)
+        <span id="baseLabel">Calculation Base</span>: <strong>6°04′30″ N, 95°06′45″ E</strong> (UTC+7)<br>
+        <span id="criteriaLabel">Criteria</span>: Altitude ≥ 3°, Elongation ≥ 6.4° (at Sunset)
     </div>
 
     <!-- Heuristic Formula Section -->
     <div class="section">
-        <h2>Heuristic Formula (Gregorian to Hijri)</h2>
-        <p>A simplified approximation to convert a Gregorian year ($G$) to a Hijri year ($H$):</p>
+        <h2 id="heuristicTitle">Heuristic Formula (Gregorian to Hijri)</h2>
+        <p id="heuristicDesc">Using the Tabular Islamic Calendar (Kuwaiti Algorithm) for approximate conversion.</p>
+
         <div class="formula-box">
-            H ≈ floor( (G - 622) * 33 / 32 )
+            <div>H-Year ≈ floor( (30 × (JD - 1948439.5) + 10631) / 10631 )</div>
+            <div style="font-size:0.8em; margin-top:5px; font-weight:normal;">(JD = Julian Day Number)</div>
         </div>
-        <p style="font-size: 0.9em; color: #666;">
-            * This formula is based on the ratio of the solar year (365.24 days) to the lunar year (354.37 days), which is approximately 33/32.
-            It only estimates the year and does not calculate the month or day.
-        </p>
+
         <div class="calc-row">
-            <label for="gYear">Gregorian Year: </label>
-            <input type="number" id="gYear" value="2024">
-            <span>&rarr; Hijri Year (Approx): <span id="hYearResult" style="font-weight:bold; color:#005dac;">1445</span></span>
+            <label for="gDateInput" id="gDateLabel">Gregorian Date: </label>
+            <input type="date" id="gDateInput">
+            <span>&rarr; <span id="hDateResult" style="font-weight:bold; color:var(--primary);"></span></span>
         </div>
+        <p style="font-size: 0.9em; color: var(--text); opacity: 0.7; text-align: center; margin-top: 10px;">
+            * <span id="heuristicNote">This is an arithmetic approximation and may differ from the astronomical calculation below by 1-2 days.</span>
+        </p>
     </div>
 
     <!-- Calendar Section -->
     <div class="section">
-        <h2>Full Calculation Calendar</h2>
+        <h2 id="calendarTitle">Full Calculation Calendar</h2>
         <div class="calendar-controls">
             <button id="prevBtn">&larr; Previous</button>
-            <div class="current-month-label" id="monthLabel">October 2024</div>
+            <div class="current-month-label" id="monthLabel"></div>
             <button id="nextBtn">Next &rarr;</button>
         </div>
         <div class="calendar-grid" id="calendar">
-            <!-- Headers -->
-            <div class="day-header">Sun</div>
-            <div class="day-header">Mon</div>
-            <div class="day-header">Tue</div>
-            <div class="day-header">Wed</div>
-            <div class="day-header">Thu</div>
-            <div class="day-header">Fri</div>
-            <div class="day-header">Sat</div>
-            <!-- Days will be inserted here -->
+            <!-- Headers will be injected by JS -->
         </div>
-        <p style="font-size: 0.8rem; color: #888; margin-top: 10px; text-align: center;">
-            * Hijri dates are determined by simulating moon sighting (MABBIMS) at the specified coordinates for each month start.
-            Dates change at sunset, but are mapped here to the following civil day.
+        <p style="font-size: 0.8rem; color: var(--text); opacity: 0.6; margin-top: 10px; text-align: center;">
+            * <span id="calendarNote">Hijri dates are determined by simulating moon sighting (MABBIMS) at the specified coordinates for each month start. Dates change at sunset, but are mapped here to the following civil day.</span>
         </p>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 <script>
+    // --- Translations ---
+    const text = {
+        en: {
+            pageTitle: 'MABBIMS Hijri Calendar',
+            baseLabel: 'Calculation Base',
+            criteriaLabel: 'Criteria',
+            heuristicTitle: 'Heuristic Formula (Gregorian to Hijri)',
+            heuristicDesc: 'Using the Tabular Islamic Calendar (Kuwaiti Algorithm) for approximate conversion.',
+            gDateLabel: 'Gregorian Date',
+            heuristicNote: 'This is an arithmetic approximation and may differ from the astronomical calculation below by 1-2 days.',
+            calendarTitle: 'Full Calculation Calendar',
+            calendarNote: 'Hijri dates are determined by simulating moon sighting (MABBIMS) at the specified coordinates for each month start. Dates change at sunset, but are mapped here to the following civil day.',
+            prevBtn: 'Previous',
+            nextBtn: 'Next',
+            weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
+            autoTheme: 'Auto Theme',
+            lightTheme: 'Light',
+            darkTheme: 'Dark'
+        },
+        id: {
+            pageTitle: 'Kalender Hijriyah MABBIMS',
+            baseLabel: 'Basis Perhitungan',
+            criteriaLabel: 'Kriteria',
+            heuristicTitle: 'Rumus Heuristik (Masehi ke Hijriyah)',
+            heuristicDesc: 'Menggunakan Kalender Islam Tabular (Algoritma Kuwait) untuk konversi perkiraan.',
+            gDateLabel: 'Tanggal Masehi',
+            heuristicNote: 'Ini adalah perkiraan aritmatika dan mungkin berbeda 1-2 hari dari perhitungan astronomis di bawah.',
+            calendarTitle: 'Kalender Perhitungan Penuh',
+            calendarNote: 'Tanggal Hijriyah ditentukan dengan simulasi rukyatul hilal (MABBIMS) di koordinat yang ditentukan untuk setiap awal bulan. Tanggal berganti saat matahari terbenam, tetapi dipetakan di sini ke hari sipil berikutnya.',
+            prevBtn: 'Sebelumnya',
+            nextBtn: 'Berikutnya',
+            weekDays: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+            months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
+            autoTheme: 'Tema Otomatis',
+            lightTheme: 'Terang',
+            darkTheme: 'Gelap'
+        }
+    };
+
     // --- Configuration ---
     const OBSERVER = {
         lat: 6.075,
@@ -223,389 +324,317 @@
     };
     const UTC_OFFSET = 7; // WIB
 
-    const HIJRI_MONTHS = [
-        "Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani",
-        "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban",
-        "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"
-    ];
+    // --- Helper ---
+    const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
 
-    // --- Heuristic Formula ---
-    const gYearInput = document.getElementById('gYear');
-    const hYearResult = document.getElementById('hYearResult');
-
-    function updateHeuristic() {
-        const G = parseInt(gYearInput.value);
-        if (!isNaN(G)) {
-            const H = Math.floor((G - 622) * 33 / 32);
-            hYearResult.textContent = H;
-        } else {
-            hYearResult.textContent = "-";
-        }
-    }
-    gYearInput.addEventListener('input', updateHeuristic);
-    updateHeuristic(); // Init
-
-    // --- Calendar Logic ---
-
-    // Standard Arithmetic Hijri (Kuwaiti Algorithm) - purely for estimating the Month/Year labels
-    // We will then correct the START of the month using MABBIMS.
-    function kuwaitiCalendar(date) {
-        let day = date.getDate();
-        let month = date.getMonth();
-        let year = date.getFullYear();
-
-        let m = month + 1;
-        let y = year;
-        if (m < 3) {
-            y -= 1;
-            m += 12;
+    // --- Logic ---
+    class HijriApp {
+        constructor() {
+            this.lang = 'en';
+            this.setup();
+            this.updateLanguage('en');
         }
 
-        let a = Math.floor(y / 100);
-        let b = 2 - a + Math.floor(a / 4);
-        if (y < 1583) b = 0;
-        if (y === 1582) {
-            if (m > 10) b = -10;
-            if (m === 10) {
-                b = 0;
-                if (day > 4) b = -10;
-            }
+        setup() {
+            // Theme
+            elements.theme.onchange = (e) => this.setTheme(e.target.value);
+            // Language
+            elements.language.onchange = (e) => this.updateLanguage(e.target.value);
+
+            // Heuristic
+            elements.gDateInput.valueAsDate = new Date();
+            elements.gDateInput.onchange = () => this.updateHeuristic();
+
+            // Calendar
+            this.currentViewDate = new Date();
+            elements.prevBtn.onclick = () => {
+                this.currentViewDate.setMonth(this.currentViewDate.getMonth() - 1);
+                this.renderCalendar();
+            };
+            elements.nextBtn.onclick = () => {
+                this.currentViewDate.setMonth(this.currentViewDate.getMonth() + 1);
+                this.renderCalendar();
+            };
+
+            // Initial Render
+            setTimeout(() => this.renderCalendar(), 100);
         }
 
-        let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524;
-
-        b = 0;
-        if (jd > 2299160) {
-            a = Math.floor((jd - 1867216.25) / 36524.25);
-            b = 1 + a - Math.floor(a / 4);
-        }
-        let bb = jd + b + 1524;
-        let cc = Math.floor((bb - 122.1) / 365.25);
-        let dd = Math.floor(365.25 * cc);
-        let ee = Math.floor((bb - dd) / 30.6001);
-        day = (bb - dd) - Math.floor(30.6001 * ee);
-        month = ee - 1;
-        if (ee > 13) {
-            cc += 1;
-            month = ee - 13;
-        }
-        year = cc - 4716;
-
-        let iyear = 10631.0 / 30.0;
-        let epochastro = 1948084;
-        let epochcivil = 1948085;
-
-        let shift1 = 8.01 / 60.0;
-
-        let z = jd - epochastro;
-        let cyc = Math.floor(z / 10631.0);
-        z = z - 10631.0 * cyc;
-        let j = Math.floor((z - shift1) / iyear);
-        let iy = 30 * cyc + j;
-        z = z - Math.floor(j * iyear + shift1);
-        let im = Math.floor((z + 28.5001) / 29.5);
-        if (im === 13) im = 12;
-        let id = z - Math.floor(29.5001 * im - 29);
-
-        return {
-            day: id,
-            month: im - 1, // 0-indexed
-            year: iy
-        };
-    }
-
-    // --- MABBIMS Check ---
-
-    // Check if the moon is visible on the evening of the given Date (Civil date at location)
-    function checkVisibility(dateObj) {
-        // Set time to sunset?
-        // Actually we need to find the Sunset time for this Date at the observer location.
-        // Convert input civil date (assume midnight) to approx UTC.
-        // UTC = Local - Offset
-        const baseUTC = new Date(dateObj);
-        baseUTC.setHours(12 - UTC_OFFSET); // Noon local time approx, to find sunset same day
-
-        const date = Astronomy.MakeTime(baseUTC);
-        const observer = new Astronomy.Observer(OBSERVER.lat, OBSERVER.lon, OBSERVER.height);
-
-        // Find sunset on this day
-        const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
-
-        if (!sunset) return false; // Should not happen near equator
-
-        const sunsetUT = sunset.ut;
-
-        // Calculate Moon position at Sunset
-        const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-        const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
-        const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
-        const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
-        const moonAge = 0; // Not used for new MABBIMS
-
-        // MABBIMS Criteria (New)
-        // Alt >= 3 deg
-        // Elong >= 6.4 deg
-        // Also check if Moonset is after Sunset (implicitly covered by altitude usually, but good to check)
-        // Also check if sunsetUT is AFTER conjunction (Moon Age > 0)
-        // Check conjunction:
-        // Search backward up to 35 days to ensure we find the previous new moon
-        const prevNewMoon = Astronomy.SearchMoonPhase(0, sunsetUT, -35);
-        if (!prevNewMoon) return false; // Should not happen
-
-        const age = sunsetUT - prevNewMoon.ut; // in days
-
-        // Global Islamic Calendar logic often requires age > 0 (conjunction before sunset)
-        if (age < 0) return false;
-
-        // Criteria
-        const alt = moonHor.altitude;
-
-        const isVisible = (alt >= 3.0 && elongation >= 6.4);
-
-        return { isVisible, alt, elongation, age };
-    }
-
-    // Determine the start of the Hijri month that is closest to the given approximate Gregorian date
-    // Strategy:
-    // 1. Estimate Hijri month using Kuwaiti.
-    // 2. Find the New Moon roughly corresponding to the start of that month.
-    // 3. Simulate visibility to find the EXACT start date (Day 1).
-    // 4. Return { hYear, hMonth, gDateOfStart }
-
-    // Cache for calculated month starts to improve performance
-    const monthStartCache = {};
-
-    function getAccurateHijriMonthStart(hYear, hMonth) {
-        const cacheKey = `${hYear}-${hMonth}`;
-        if (monthStartCache[cacheKey]) return monthStartCache[cacheKey];
-
-        // 1. Get approx Gregorian start
-        // Reverse Kuwaiti or just approximate:
-        // Hijri year = 354.36 days.
-        // Epoch: 16 July 622 (Julian) -> 19 July 622 (Gregorian approx?)
-        // Let's iterate.
-        // Simpler: Use a known anchor.
-        // 1 Muharram 1445 was roughly July 19, 2023.
-
-        // Let's use the input hYear/hMonth to find an approximate Gregorian date.
-        // Approx days since 1/1/1445:
-        const daysSinceAnchor = ((hYear - 1445) * 354.367) + (hMonth * 29.53);
-        const anchorDate = new Date("2023-07-19T12:00:00Z"); // Approx 1 Muharram 1445
-        const approxDate = new Date(anchorDate.getTime() + daysSinceAnchor * 86400000);
-
-        // Now find the New Moon close to this date (within 15 days)
-        const observer = new Astronomy.Observer(OBSERVER.lat, OBSERVER.lon, OBSERVER.height);
-        const approxTime = Astronomy.MakeTime(approxDate);
-
-        // Search for phase 0
-        // We want the new moon that starts this month.
-        // For month M, the new moon is usually just before the start.
-        const nm = Astronomy.SearchMoonPhase(0, approxTime.ut, -1); // Previous new moon from the middle of month estimate
-        // Actually if approxDate is mid-month, searching -1 might give the start of this month.
-        // If approxDate is start of month, searching -1 gives previous month's start.
-        // Let's search near approxDate - 2 days.
-
-        // Search strictly backward from approxDate (which is approx start of month)
-        // to find the New Moon that caused this month.
-        const searchCenter = Astronomy.MakeTime(approxDate);
-        let bestNM = Astronomy.SearchMoonPhase(0, searchCenter.ut, -30); // Previous New Moon
-
-        if (!bestNM) {
-            // Should not happen, but fallback
-            console.error("No New Moon found for", hYear, hMonth);
-            return { gDate: approxDate };
+        setTheme(themeName) {
+            document.documentElement.className = themeName === "auto" ? "" : themeName;
         }
 
-        // Now we have the Conjunction Time (bestNM.ut).
-        // Convert to Local Date.
-        const nmDate = bestNM.date;
-        nmDate.setMinutes(nmDate.getMinutes() + UTC_OFFSET * 60);
+        updateLanguage(lang) {
+            this.lang = lang;
+            const t = text[lang];
 
-        // Check visibility on the evening of the Conjunction Day (Local).
-        // Construct Date object for that day (Civil Date)
-        let checkDate = new Date(nmDate.getFullYear(), nmDate.getMonth(), nmDate.getDate());
+            // Text Content Updates
+            elements.pageTitle.textContent = t.pageTitle;
+            elements.baseLabel.textContent = t.baseLabel;
+            elements.criteriaLabel.textContent = t.criteriaLabel;
+            elements.heuristicTitle.textContent = t.heuristicTitle;
+            elements.heuristicDesc.textContent = t.heuristicDesc;
+            elements.gDateLabel.textContent = t.gDateLabel;
+            elements.heuristicNote.textContent = t.heuristicNote;
+            elements.calendarTitle.textContent = t.calendarTitle;
+            elements.calendarNote.textContent = t.calendarNote;
 
-        let foundStart = false;
-        let startOffset = 0; // Days after CheckDate
+            // Button/Select Text
+            // elements.prevBtn.textContent = t.prevBtn; // Arrow is separate? No, I used text in HTML.
+            elements.prevBtn.innerHTML = `&larr; ${t.prevBtn}`;
+            elements.nextBtn.innerHTML = `${t.nextBtn} &rarr;`;
 
-        // Check day 0 (Day of Conjunction)
-        let vis0 = checkVisibility(checkDate);
-        if (vis0.isVisible) {
-            // Visible on evening of Day 0 -> Month starts Day 1
-            startOffset = 1;
-        } else {
-            // Check day 1
-            let nextDay = new Date(checkDate);
-            nextDay.setDate(checkDate.getDate() + 1);
-            let vis1 = checkVisibility(nextDay);
-
-            if (vis1.isVisible) {
-                // Visible on evening of Day 1 -> Month starts Day 2
-                startOffset = 2;
-            } else {
-                // Not visible on evening of Day 1 (which is the 30th of previous month usually if day 0 was 29th)
-                // If not seen on 30th evening? No, the previous month cannot exceed 30 days.
-                // If Day 0 was 29th:
-                //   Day 0 evening (29th) -> Not Seen -> Next day is 30th.
-                //   Day 1 evening (30th) -> Start new month regardless?
-                //   Yes, Islamic months are max 30 days.
-                //   So if not seen on 29th, month is 30 days.
-                //   So new month starts on Day 2.
-                // Wait, if New Moon is on Day 0.
-                // It is likely Day 0 is 29th of prev month.
-                // Check Day 0 evening. Not seen. Day 1 is 30th.
-                // Month starts Day 2.
-                // What if Day 0 was 28th? (Conjunction early).
-                // This is getting complicated without full chain.
-                // Assumption: The New Moon event roughly corresponds to the 29th of the previous month.
-                startOffset = 2;
-            }
-        }
-
-        // Calculate Gregorian Date of Day 1
-        const startDate = new Date(checkDate);
-        startDate.setDate(checkDate.getDate() + startOffset);
-
-        const result = {
-            gDate: startDate
-        };
-        monthStartCache[cacheKey] = result;
-        return result;
-    }
-
-    // --- State & Rendering ---
-
-    let currentViewDate = new Date();
-
-    function renderCalendar() {
-        const grid = document.getElementById('calendar');
-        const monthLabel = document.getElementById('monthLabel');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-
-        // Set loading state
-        grid.style.opacity = 0.5;
-
-        const year = currentViewDate.getFullYear();
-        const month = currentViewDate.getMonth();
-
-        monthLabel.textContent = currentViewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-        // Calculate grid start (Sunday before 1st of month)
-        const firstDayOfMonth = new Date(year, month, 1);
-        const startDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sun
-        const gridStartDate = new Date(year, month, 1 - startDayOfWeek);
-
-        // We need about 42 days
-        const daysToRender = 42;
-
-        // Prepare Hijri Data
-        // Find the Hijri Month for the first day of the grid
-        const startKw = kuwaitiCalendar(gridStartDate);
-
-        // Get Accurate start for this estimated Hijri month
-        let hMonthIdx = startKw.month;
-        let hYear = startKw.year;
-
-        // We need to map the Gregorian dates in the grid to Hijri dates.
-        // We can do this by finding the Start Date of the current Hijri month,
-        // and the Start Date of the NEXT Hijri month.
-
-        // Load starts for: current, next, and next-next (to cover overlap)
-        // Since the grid might span 3 Hijri months.
-
-        const hStarts = [];
-
-        // Load a range of months around the estimate
-        // Start from -1 to +2 months relative to the start date estimate
-        for(let i = -1; i <= 2; i++) {
-            let m = hMonthIdx + i;
-            let y = hYear;
-            while(m > 11) { m -= 12; y++; }
-            while(m < 0) { m += 12; y--; }
-
-            const st = getAccurateHijriMonthStart(y, m);
-            hStarts.push({
-                y: y,
-                m: m,
-                gDate: st.gDate
+            // Update Theme options
+            [...elements.theme.options].forEach(opt => {
+                if(text[lang][opt.value + 'Theme']) opt.textContent = text[lang][opt.value + 'Theme'];
             });
+
+            // Re-render components dependent on language
+            this.updateHeuristic();
+            this.renderCalendar();
         }
 
-        // Sort by date just in case
-        hStarts.sort((a,b) => a.gDate - b.gDate);
+        // --- Heuristic Logic ---
+        updateHeuristic() {
+            const date = elements.gDateInput.valueAsDate;
+            if (!date) return;
 
-        // Clear grid days (keep headers)
-        const headers = Array.from(grid.children).slice(0, 7);
-        grid.innerHTML = '';
-        headers.forEach(h => grid.appendChild(h));
+            const h = this.kuwaitiCalendar(date);
+            const t = text[this.lang];
+            const monthName = t.months[h.month];
 
-        const today = new Date();
-        today.setHours(0,0,0,0);
+            elements.hDateResult.textContent = `${h.day} ${monthName} ${h.year}`;
+        }
 
-        for (let i = 0; i < daysToRender; i++) {
-            const date = new Date(gridStartDate);
-            date.setDate(gridStartDate.getDate() + i);
+        kuwaitiCalendar(date) {
+            let day = date.getDate();
+            let month = date.getMonth();
+            let year = date.getFullYear();
 
-            // Determine Hijri Date
-            // Find which month interval this date falls into
-            let hDateDisplay = "?";
-            let hMonthNameDisplay = "";
-            let hYearDisplay = "";
+            let m = month + 1;
+            let y = year;
+            if (m < 3) {
+                y -= 1;
+                m += 12;
+            }
 
-            for (let k = 0; k < hStarts.length - 1; k++) {
-                const s1 = hStarts[k];
-                const s2 = hStarts[k+1];
-
-                if (date >= s1.gDate && date < s2.gDate) {
-                    // It is in month s1
-                    const diffTime = Math.abs(date - s1.gDate);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    // day 1 is start date, so diff 0 -> day 1
-                    // Wait, Math.ceil might be off if times differ.
-                    // normalize dates to midnight
-                    const d1 = new Date(date).setHours(0,0,0,0);
-                    const d2 = new Date(s1.gDate).setHours(0,0,0,0);
-                    const dayNum = Math.round((d1 - d2) / 86400000) + 1;
-
-                    hDateDisplay = dayNum;
-                    hMonthNameDisplay = HIJRI_MONTHS[s1.m];
-                    hYearDisplay = s1.y;
-                    break;
+            let a = Math.floor(y / 100);
+            let b = 2 - a + Math.floor(a / 4);
+            if (y < 1583) b = 0;
+            if (y === 1582) {
+                if (m > 10) b = -10;
+                if (m === 10) {
+                    b = 0;
+                    if (day > 4) b = -10;
                 }
             }
 
-            const el = document.createElement('div');
-            el.className = 'day-cell';
-            if (date.getMonth() !== month) el.classList.add('other-month');
-            if (date.getTime() === today.getTime()) el.classList.add('today');
+            let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524;
 
-            el.innerHTML = `
-                <div class="gregorian-date">${date.getDate()}</div>
-                <div>
-                    <div class="hijri-date">${hDateDisplay}</div>
-                    <div class="hijri-month-name">${hMonthNameDisplay}</div>
-                </div>
-            `;
-            grid.appendChild(el);
+            b = 0;
+            if (jd > 2299160) {
+                a = Math.floor((jd - 1867216.25) / 36524.25);
+                b = 1 + a - Math.floor(a / 4);
+            }
+            let bb = jd + b + 1524;
+            let cc = Math.floor((bb - 122.1) / 365.25);
+            let dd = Math.floor(365.25 * cc);
+            let ee = Math.floor((bb - dd) / 30.6001);
+            day = (bb - dd) - Math.floor(30.6001 * ee);
+            month = ee - 1;
+            if (ee > 13) {
+                cc += 1;
+                month = ee - 13;
+            }
+            year = cc - 4716;
+
+            let iyear = 10631.0 / 30.0;
+            let epochastro = 1948084;
+            let epochcivil = 1948085;
+
+            let shift1 = 8.01 / 60.0;
+
+            let z = jd - epochastro;
+            let cyc = Math.floor(z / 10631.0);
+            z = z - 10631.0 * cyc;
+            let j = Math.floor((z - shift1) / iyear);
+            let iy = 30 * cyc + j;
+            z = z - Math.floor(j * iyear + shift1);
+            let im = Math.floor((z + 28.5001) / 29.5);
+            if (im === 13) im = 12;
+            let id = z - Math.floor(29.5001 * im - 29);
+
+            return {
+                day: id,
+                month: im - 1, // 0-indexed
+                year: iy
+            };
         }
 
-        grid.style.opacity = 1;
+        // --- MABBIMS Logic ---
+        checkVisibility(dateObj) {
+            const baseUTC = new Date(dateObj);
+            baseUTC.setHours(12 - UTC_OFFSET);
+
+            const date = Astronomy.MakeTime(baseUTC);
+            const observer = new Astronomy.Observer(OBSERVER.lat, OBSERVER.lon, OBSERVER.height);
+
+            const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
+
+            if (!sunset) return false;
+
+            const sunsetUT = sunset.ut;
+            const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+            const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
+            const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
+            const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
+
+            // Search strictly backward
+            const searchCenter = Astronomy.MakeTime(dateObj);
+            let bestNM = Astronomy.SearchMoonPhase(0, searchCenter.ut, -35);
+            if (!bestNM) return false;
+
+            const age = sunsetUT - bestNM.ut;
+            if (age < 0) return false;
+
+            const alt = moonHor.altitude;
+            const isVisible = (alt >= 3.0 && elongation >= 6.4);
+
+            return { isVisible, alt, elongation, age };
+        }
+
+        monthStartCache = {};
+
+        getAccurateHijriMonthStart(hYear, hMonth) {
+            const cacheKey = `${hYear}-${hMonth}`;
+            if (this.monthStartCache[cacheKey]) return this.monthStartCache[cacheKey];
+
+            const daysSinceAnchor = ((hYear - 1445) * 354.367) + (hMonth * 29.53);
+            const anchorDate = new Date("2023-07-19T12:00:00Z");
+            const approxDate = new Date(anchorDate.getTime() + daysSinceAnchor * 86400000);
+
+            const searchCenter = Astronomy.MakeTime(approxDate);
+            let bestNM = Astronomy.SearchMoonPhase(0, searchCenter.ut, -30);
+
+            if (!bestNM) return { gDate: approxDate };
+
+            const nmDate = bestNM.date;
+            nmDate.setMinutes(nmDate.getMinutes() + UTC_OFFSET * 60);
+
+            let checkDate = new Date(nmDate.getFullYear(), nmDate.getMonth(), nmDate.getDate());
+            let startOffset = 0;
+
+            let vis0 = this.checkVisibility(checkDate);
+            if (vis0 && vis0.isVisible) {
+                startOffset = 1;
+            } else {
+                startOffset = 2; // If not seen on 29th (likely day 0), then month starts on day 2? (Simplification)
+                // Logic refinement:
+                // If Conjunction is Day 0.
+                // Day 0 Evening: Check. If visible -> Day 1 is 1st.
+                // If not visible -> Day 1 is 30th (of prev month). Day 2 is 1st.
+            }
+
+            const startDate = new Date(checkDate);
+            startDate.setDate(checkDate.getDate() + startOffset);
+
+            const result = { gDate: startDate };
+            this.monthStartCache[cacheKey] = result;
+            return result;
+        }
+
+        renderCalendar() {
+            const grid = elements.calendar;
+            const monthLabel = elements.monthLabel;
+
+            grid.style.opacity = 0.5;
+
+            const year = this.currentViewDate.getFullYear();
+            const month = this.currentViewDate.getMonth();
+
+            // Localize month label?
+            // "January 2026" or "Januari 2026"
+            // Use Intl.DateTimeFormat
+            const langCode = this.lang === 'id' ? 'id-ID' : 'en-US';
+            monthLabel.textContent = this.currentViewDate.toLocaleDateString(langCode, { month: 'long', year: 'numeric' });
+
+            const firstDayOfMonth = new Date(year, month, 1);
+            const startDayOfWeek = firstDayOfMonth.getDay();
+            const gridStartDate = new Date(year, month, 1 - startDayOfWeek);
+
+            const daysToRender = 42;
+            const startKw = this.kuwaitiCalendar(gridStartDate);
+
+            let hMonthIdx = startKw.month;
+            let hYear = startKw.year;
+
+            const hStarts = [];
+            for(let i = -1; i <= 2; i++) {
+                let m = hMonthIdx + i;
+                let y = hYear;
+                while(m > 11) { m -= 12; y++; }
+                while(m < 0) { m += 12; y--; }
+
+                const st = this.getAccurateHijriMonthStart(y, m);
+                hStarts.push({ y: y, m: m, gDate: st.gDate });
+            }
+            hStarts.sort((a,b) => a.gDate - b.gDate);
+
+            // Render Headers
+            grid.innerHTML = '';
+            const t = text[this.lang];
+            t.weekDays.forEach(day => {
+                const el = document.createElement('div');
+                el.className = 'day-header';
+                el.textContent = day;
+                grid.appendChild(el);
+            });
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            for (let i = 0; i < daysToRender; i++) {
+                const date = new Date(gridStartDate);
+                date.setDate(gridStartDate.getDate() + i);
+
+                let hDateDisplay = "?";
+                let hMonthNameDisplay = "";
+
+                for (let k = 0; k < hStarts.length - 1; k++) {
+                    const s1 = hStarts[k];
+                    const s2 = hStarts[k+1];
+
+                    if (date >= s1.gDate && date < s2.gDate) {
+                        const d1 = new Date(date).setHours(0,0,0,0);
+                        const d2 = new Date(s1.gDate).setHours(0,0,0,0);
+                        const dayNum = Math.round((d1 - d2) / 86400000) + 1;
+
+                        hDateDisplay = dayNum;
+                        hMonthNameDisplay = t.months[s1.m];
+                        break;
+                    }
+                }
+
+                const el = document.createElement('div');
+                el.className = 'day-cell';
+                if (date.getMonth() !== month) el.classList.add('other-month');
+                if (date.getTime() === today.getTime()) el.classList.add('today');
+
+                el.innerHTML = `
+                    <div class="gregorian-date">${date.getDate()}</div>
+                    <div>
+                        <div class="hijri-date">${hDateDisplay}</div>
+                        <div class="hijri-month-name">${hMonthNameDisplay}</div>
+                    </div>
+                `;
+                grid.appendChild(el);
+            }
+
+            grid.style.opacity = 1;
+        }
     }
 
-    // Controls
-    document.getElementById('prevBtn').onclick = () => {
-        currentViewDate.setMonth(currentViewDate.getMonth() - 1);
-        renderCalendar();
-    };
-    document.getElementById('nextBtn').onclick = () => {
-        currentViewDate.setMonth(currentViewDate.getMonth() + 1);
-        renderCalendar();
-    };
-
-    // Initial Render
-    setTimeout(renderCalendar, 100); // Allow Astronomy to load? It's sync.
-
+    new HijriApp();
 </script>
 
 </body>

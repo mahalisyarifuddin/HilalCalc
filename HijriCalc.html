@@ -412,6 +412,13 @@
             }
         }
 
+        // Calculate timezone offset from longitude
+        // Each 15° of longitude ≈ 1 hour of time difference from UTC
+	// **However, this is a simplification since real-world timezones have political boundaries.**
+        getTimezoneOffset() {
+            return Math.round(state.lon / 15);
+        }
+
         setup() {
             // Init inputs
             elements.latInput.value = state.lat;
@@ -508,7 +515,9 @@
         updateLanguage(lang) {
             const t = text[lang];
             elements.appTitle.textContent = t.appTitle;
-            elements.appSubtitle.textContent = `${state.lat}° N, ${state.lon}° E (UTC+7)`; // Simplified display
+            const tz = this.getTimezoneOffset();
+            const tzStr = tz >= 0 ? `+${tz}` : `${tz}`;
+            elements.appSubtitle.textContent = `${state.lat}° N, ${state.lon}° E (UTC${tzStr})`; // Simplified display
             if (this.isOffline) {
                 elements.appSubtitle.textContent += " (Offline/Heuristic)";
             }
@@ -607,9 +616,9 @@
 
         // MABBIMS Calculation
         checkVisibility(dateObj) {
-            // Hardcoded UTC+7 for simplicity of "Civil Day" logic,
+            // Use calculated timezone for "Civil Day" logic,
             // but we use actual Observer coords for Physics.
-            const UTC_OFFSET = 7;
+            const UTC_OFFSET = this.getTimezoneOffset();
             const baseUTC = new Date(dateObj);
             baseUTC.setHours(12 - UTC_OFFSET);
 
@@ -655,9 +664,9 @@
             if (!bestNM) return { gDate: approxDate };
 
             const nmDate = bestNM.date;
-            // Shift to local civil time (UTC+7 assumption for simplicity or derive from lon?)
-            // Using fixed UTC+7 as per request "WIB" context implied by Aceh/Jakarta.
-            const UTC_OFFSET = 7;
+            // Shift to local civil time.
+            // Using calculated timezone to approximate the civil day.
+            const UTC_OFFSET = this.getTimezoneOffset();
             nmDate.setMinutes(nmDate.getMinutes() + UTC_OFFSET * 60);
 
             let checkDate = new Date(nmDate.getFullYear(), nmDate.getMonth(), nmDate.getDate());

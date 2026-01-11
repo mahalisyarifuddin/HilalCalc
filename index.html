@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<title>Hilal Visibility Map</title>
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 		<style>
 
 :root { --primary: #005dac; --on-primary: #ffffff; --hover: #00539a; --background: #f9f9ff; --surface: #ffffff; --text: #181c21; --border: #c1c6d4; --muted: #f2f3fc; --success: #0b6b1d; --on-success: #ffffff; --danger: #ba1a1a; --on-danger: #ffffff; --highlight-bg: #d4e3ff; }
@@ -42,7 +42,7 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 	</head>
 	<body>
 		<div class="container">
-            <div class="selectors">
+			<div class="selectors">
 				<select id="language">
 					<option value="en">English</option>
 					<option value="id">Bahasa Indonesia</option>
@@ -54,669 +54,641 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 				</select>
 			</div>
 
-            <h1 id="mapTitle">Hilal Visibility Map</h1>
+			<h1 id="mapTitle">Hilal Visibility Map</h1>
 
-            <div class="tabs">
-                <button id="tabMap" class="tab active">Map</button>
-                <button id="tabCalc" class="tab">Detailed Calculations</button>
-            </div>
+			<div class="tabs">
+				<button id="tabMap" class="tab active">Map</button>
+				<button id="tabCalc" class="tab">Detailed Calculations</button>
+			</div>
 
-            <div id="mapView">
-                <div id="controls">
-                    <div class="row">
-                    <div class="group">
-                        <label id="dateLabel" for="mapDate">Date</label>
-                        <input type="date" id="mapDate">
-                    </div>
-                    <div class="group">
-                        <label id="regionLabel" for="mapRegion">Region</label>
-                        <select id="mapRegion">
-                            <option value="indonesia">Indonesia</option>
-                            <option value="world">World</option>
-                        </select>
-                    </div>
-                    <div class="group">
-                        <label id="criteriaLabel" for="mapCriteria">Criteria</label>
-                        <select id="mapCriteria">
-                            <option value="mabbims">MABBIMS (Alt≥3°, Elong≥6.4°)</option>
-                            <option value="gic">Global Islamic (Alt≥5°, Elong≥8°, <12am UTC)</option>
-                            <option value="alt0">Altitude > 0°</option>
-                            <option value="custom">Custom Criteria</option>
-                        </select>
-                    </div>
-                </div>
+			<div id="mapView">
+				<div id="controls">
+					<div class="row">
+					<div class="group">
+						<label id="dateLabel" for="mapDate">Date</label>
+						<input type="date" id="mapDate">
+					</div>
+					<div class="group">
+						<label id="regionLabel" for="mapRegion">Region</label>
+						<select id="mapRegion">
+							<option value="indonesia">Indonesia</option>
+							<option value="world">World</option>
+						</select>
+					</div>
+					<div class="group">
+						<label id="criteriaLabel" for="mapCriteria">Criteria</label>
+						<select id="mapCriteria">
+							<option value="mabbims">MABBIMS (Alt≥3°, Elong≥6.4°)</option>
+							<option value="gic">Global Islamic (Alt≥5°, Elong≥8°, <12am UTC)</option>
+							<option value="alt0">Altitude > 0°</option>
+							<option value="custom">Custom Criteria</option>
+						</select>
+					</div>
+				</div>
 
-                <div class="row hidden" id="customCriteriaInputs">
-                    <div class="group">
-                        <label id="minAltLabel" for="minAlt">Min Altitude (°)</label>
-                        <input type="number" id="minAlt" value="0" step="0.1">
-                    </div>
-                    <div class="group">
-                        <label id="minElongLabel" for="minElong">Min Elongation (°)</label>
-                        <input type="number" id="minElong" value="0" step="0.1">
-                    </div>
-                </div>
+				<div class="row hidden" id="customCriteriaInputs">
+					<div class="group">
+						<label id="minAltLabel" for="minAlt">Min Altitude (°)</label>
+						<input type="number" id="minAlt" value="0" step="0.1">
+					</div>
+					<div class="group">
+						<label id="minElongLabel" for="minElong">Min Elongation (°)</label>
+						<input type="number" id="minElong" value="0" step="0.1">
+					</div>
+				</div>
 
-                <div class="row">
-                    <button id="renderMap" class="primary">Render Map</button>
-                </div>
-            </div>
+				<div class="row">
+					<button id="renderMap" class="primary">Render Map</button>
+				</div>
+			</div>
 
-            <div id="mapStatus" class="info" style="font-style:italic; min-height: 1.2em;"></div>
-            <div id="map"></div>
+			<div id="mapStatus" class="info" style="font-style:italic; min-height: 1.2em;"></div>
+			<div id="map"></div>
 
-            <div id="mapLegend" class="info" style="margin-top:0.5rem">
-                <span style="display:inline-block;width:12px;height:12px;background:rgba(0, 255, 0, 0.5);margin-right:4px;border:1px solid green"></span><span id="legendVisible">Visible</span>
-            </div>
-            </div> <!-- End mapView -->
+			<div id="mapLegend" class="info" style="margin-top:0.5rem">
+				<span style="display:inline-block;width:12px;height:12px;background:rgba(0, 255, 0, 0.5);margin-right:4px;border:1px solid green"></span><span id="legendVisible">Visible</span>
+			</div>
+			</div>
 
-            <div id="calcView" class="hidden">
-                <div class="row">
-                    <div class="group">
-                        <label id="calcDateLabel" for="calcDate">Date</label>
-                        <input type="date" id="calcDate">
-                    </div>
-                    <div class="group">
-                         <label id="calcLatLabel" for="calcLat">Latitude</label>
-                         <input type="number" id="calcLat" step="0.0001" placeholder="-6.2000">
-                    </div>
-                    <div class="group">
-                         <label id="calcLonLabel" for="calcLon">Longitude</label>
-                         <input type="number" id="calcLon" step="0.0001" placeholder="106.8166">
-                    </div>
-                    <div class="group">
-                        <label id="utcOffsetLabel" for="calcUtcOffset">UTC Offset</label>
-                        <input type="number" id="calcUtcOffset" step="0.5" value="0" placeholder="e.g. 7">
-                   </div>
-                </div>
-                 <div class="row">
-                     <div class="group">
-                        <label id="calcCriteriaLabel" for="calcCriteria">Criteria</label>
-                        <select id="calcCriteria">
-                            <option value="mabbims">MABBIMS</option>
-                            <option value="gic">Global Islamic</option>
-                            <option value="alt0">Altitude > 0°</option>
-                            <option value="custom">Custom</option>
-                        </select>
-                    </div>
-                     <div class="group">
-                         <button id="getLocation" class="secondary" style="margin-top: 1.7rem;">📍 Use My Location</button>
-                     </div>
-                </div>
+			<div id="calcView" class="hidden">
+				<div class="row">
+					<div class="group">
+						<label id="calcDateLabel" for="calcDate">Date</label>
+						<input type="date" id="calcDate">
+					</div>
+					<div class="group">
+						<label id="calcLatLabel" for="calcLat">Latitude</label>
+						<input type="number" id="calcLat" step="0.0001" placeholder="-6.2000">
+					</div>
+					<div class="group">
+						<label id="calcLonLabel" for="calcLon">Longitude</label>
+						<input type="number" id="calcLon" step="0.0001" placeholder="106.8166">
+					</div>
+					<div class="group">
+						<label id="utcOffsetLabel" for="calcUtcOffset">UTC Offset</label>
+						<input type="number" id="calcUtcOffset" step="0.5" value="0" placeholder="e.g. 7">
+				</div>
+				</div>
+				<div class="row">
+					<div class="group">
+						<label id="calcCriteriaLabel" for="calcCriteria">Criteria</label>
+						<select id="calcCriteria">
+							<option value="mabbims">MABBIMS</option>
+							<option value="gic">Global Islamic</option>
+							<option value="alt0">Altitude > 0°</option>
+							<option value="custom">Custom</option>
+						</select>
+					</div>
+					<div class="group">
+						<button id="getLocation" class="secondary" style="margin-top: 1.7rem;">📍 Use My Location</button>
+					</div>
+				</div>
 
-                <div class="row hidden" id="calcCustomCriteriaInputs">
-                    <div class="group">
-                        <label for="calcMinAlt">Min Altitude (°)</label>
-                        <input type="number" id="calcMinAlt" value="0" step="0.1">
-                    </div>
-                    <div class="group">
-                        <label for="calcMinElong">Min Elongation (°)</label>
-                        <input type="number" id="calcMinElong" value="0" step="0.1">
-                    </div>
-                </div>
+				<div class="row hidden" id="calcCustomCriteriaInputs">
+					<div class="group">
+						<label for="calcMinAlt">Min Altitude (°)</label>
+						<input type="number" id="calcMinAlt" value="0" step="0.1">
+					</div>
+					<div class="group">
+						<label for="calcMinElong">Min Elongation (°)</label>
+						<input type="number" id="calcMinElong" value="0" step="0.1">
+					</div>
+				</div>
 
-                <div class="row">
-                    <button id="calculateBtn" class="primary">Calculate</button>
-                </div>
+				<div class="row">
+					<button id="calculateBtn" class="primary">Calculate</button>
+				</div>
 
-                <div id="results"></div>
-            </div>
+				<div id="results"></div>
+			</div>
 
 		</div>
 
-        <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+		<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 		<script>
-			const WORKER_SOURCE = `// Inlined worker.js content
-importScripts('https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js');
+			const WORKER_SOURCE = `
+importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
 
-const RESOLUTION_FACTOR = 0.25; // 1/4th resolution = 16x faster
-const INTERP_STEP = 10; // Interpolate every 10 *calculated* pixels
+const RESOLUTION_FACTOR = 0.25;
+const INTERP_STEP = 10;
 
 self.onmessage = function(e) {
-    const {
-        bounds,
-        widthDeg,
-        heightDeg,
-        mapSizeX,
-        criteria,
-        dateTimestamp,
-        minAlt: criteriaMinAlt,
-        minElong: criteriaMinElong
-    } = e.data;
+	const {
+		bounds,
+		widthDeg,
+		heightDeg,
+		mapSizeX,
+		criteria,
+		dateTimestamp,
+		minAlt: criteriaMinAlt,
+		minElong: criteriaMinElong
+	} = e.data;
 
-    try {
-        const date = Astronomy.MakeTime(new Date(dateTimestamp));
+	try {
+		const date = Astronomy.MakeTime(new Date(dateTimestamp));
 
-        let minAlt = 0, minElong = 0, isGIC = false;
-        if (criteria === 'mabbims') { minAlt = 3; minElong = 6.4; }
-        else if (criteria === 'gic') { minAlt = 5; minElong = 8; isGIC = true; }
-        else if (criteria === 'alt0') { minAlt = 0; minElong = -100; }
-        else if (criteria === 'custom') {
-            minAlt = criteriaMinAlt;
-            minElong = criteriaMinElong;
-        }
+		let minAlt = 0, minElong = 0, isGIC = false;
 
-        // Calculate PPD based on screen resolution and zoom, applied with RESOLUTION_FACTOR
-        const PPD = (mapSizeX / widthDeg) * RESOLUTION_FACTOR;
+		const criteriaParams =
+			(criteria === "mabbims") ? { minAlt: 3, minElong: 6.4, isGIC: false } :
+			(criteria === "gic") ? { minAlt: 5, minElong: 8, isGIC: true } :
+			(criteria === "alt0") ? { minAlt: 0, minElong: -100, isGIC: false } :
+			{ minAlt: criteriaMinAlt, minElong: criteriaMinElong, isGIC: false };
 
-        const width = Math.ceil(widthDeg * PPD);
-        const height = Math.ceil(heightDeg * PPD);
+		minAlt = criteriaParams.minAlt;
+		minElong = criteriaParams.minElong;
+		isGIC = criteriaParams.isGIC;
 
-        // Prepare buffer
-        // RGBA = 4 bytes
-        const buffer = new Uint8ClampedArray(width * height * 4);
+		const PPD = (mapSizeX / widthDeg) * RESOLUTION_FACTOR;
 
-        const totalPixels = width * height;
-        const observer = new Astronomy.Observer(0, 0, 0);
-        let currentY = -1;
-        let sunsetBase = null;
+		const width = Math.ceil(widthDeg * PPD);
+		const height = Math.ceil(heightDeg * PPD);
 
-        let prevRA, prevDec, prevElong, prevAlt;
-        let nextRA, nextDec, nextElong, nextAlt;
-        let cachedNextRA, cachedNextDec, cachedNextElong, cachedNextAlt;
+		const buffer = new Uint8ClampedArray(width * height * 4);
 
-        // Progress reporting interval
-        const progressInterval = Math.floor(totalPixels / 20);
-        let lastReported = 0;
+		const totalPixels = width * height;
+		const observer = new Astronomy.Observer(0, 0, 0);
+		let currentY = -1;
+		let sunsetBase = null;
 
-        for (let pixelIndex = 0; pixelIndex < totalPixels; pixelIndex++) {
-            // Report progress occasionally
-            if (pixelIndex - lastReported > progressInterval) {
-                self.postMessage({ status: 'progress', percent: Math.round(pixelIndex / totalPixels * 100) });
-                lastReported = pixelIndex;
-            }
+		let prevRA, prevDec, prevElong, prevAlt;
+		let nextRA, nextDec, nextElong, nextAlt;
+		let cachedNextRA, cachedNextDec, cachedNextElong, cachedNextAlt;
 
-            const x = pixelIndex % width;
-            const y = Math.floor(pixelIndex / width);
+		const progressInterval = Math.floor(totalPixels / 20);
+		let lastReported = 0;
 
-            // Map pixel back to lat/lon
-            const lat = bounds.maxLat - (y / PPD);
-            const lon = bounds.minLon + (x / PPD);
+		for (let pixelIndex = 0; pixelIndex < totalPixels; pixelIndex++) {
 
-            if (y !== currentY) {
-                currentY = y;
-                observer.latitude = lat;
-                observer.longitude = 0;
-                const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
-                sunsetBase = sunset ? sunset.ut : null;
-                // Reset interpolation state on new row
-                prevRA = undefined;
-                cachedNextRA = undefined;
-            }
+			(pixelIndex - lastReported > progressInterval) && (
+				self.postMessage({ status: "progress", percent: Math.round(pixelIndex / totalPixels * 100) }),
+				lastReported = pixelIndex
+			);
 
-            if (sunsetBase !== null) {
-                observer.latitude = lat;
-                observer.longitude = lon;
+			const x = pixelIndex % width;
+			const y = Math.floor(pixelIndex / width);
 
-                const sunsetUT = sunsetBase - (lon / 360.0);
-                let moonRA, moonDec, moonElong;
-                let moonAlt;
+			const lat = bounds.maxLat - (y / PPD);
+			const lon = bounds.minLon + (x / PPD);
 
-                const xMod = x % INTERP_STEP;
+			(y !== currentY) && (
+				currentY = y,
+				observer.latitude = lat,
+				observer.longitude = 0,
+				sunsetBase = (Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1))?.ut || null,
+				prevRA = undefined,
+				cachedNextRA = undefined
+			);
 
-                if (xMod === 0 || prevRA === undefined) {
-                    if (x > 0 && prevRA !== undefined && cachedNextRA !== undefined) {
-                        prevRA = cachedNextRA;
-                        prevDec = cachedNextDec;
-                        prevElong = cachedNextElong;
-                        prevAlt = cachedNextAlt;
-                    } else {
-                        const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-                        prevRA = moonEq.ra;
-                        prevDec = moonEq.dec;
-                        prevElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
-                        const moonHor = Astronomy.Horizon(sunsetUT, observer, prevRA, prevDec, 'normal');
-                        prevAlt = moonHor.altitude;
-                    }
+			(sunsetBase !== null) && (
+				observer.latitude = lat,
+				observer.longitude = lon,
 
-                    // Calculate next keyframe
-                    let nextX = x + INTERP_STEP;
-                    if (nextX >= width) nextX = width - 1;
+				(() => {
+					const sunsetUT = sunsetBase - (lon / 360.0);
+					let moonRA, moonDec, moonElong;
+					let moonAlt;
+					const xMod = x % INTERP_STEP;
 
-                    if (nextX > x) {
-                        const nextLon = bounds.minLon + (nextX / PPD);
-                        const nextSunsetUT = sunsetBase - (nextLon / 360.0);
-                        observer.longitude = nextLon;
+					(xMod === 0 || prevRA === undefined) ? (
+						(x > 0 && prevRA !== undefined && cachedNextRA !== undefined) ? (
+							prevRA = cachedNextRA,
+							prevDec = cachedNextDec,
+							prevElong = cachedNextElong,
+							prevAlt = cachedNextAlt
+						) : (
+							(() => {
+								const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+								prevRA = moonEq.ra;
+								prevDec = moonEq.dec;
+								prevElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
+								prevAlt = Astronomy.Horizon(sunsetUT, observer, prevRA, prevDec, "normal").altitude;
+							})()
+						),
 
-                        const nextMoonEq = Astronomy.Equator(Astronomy.Body.Moon, nextSunsetUT, observer, true, true);
-                        cachedNextRA = nextMoonEq.ra;
-                        cachedNextDec = nextMoonEq.dec;
-                        cachedNextElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, nextSunsetUT);
-                        const nextMoonHor = Astronomy.Horizon(nextSunsetUT, observer, nextMoonEq.ra, nextMoonEq.dec, 'normal');
-                        cachedNextAlt = nextMoonHor.altitude;
+						(() => {
+							let nextX = x + INTERP_STEP;
+							(nextX >= width) && (nextX = width - 1);
 
-                        nextRA = cachedNextRA;
-                        nextDec = cachedNextDec;
-                        nextElong = cachedNextElong;
-                        nextAlt = cachedNextAlt;
+							(nextX > x) ? (
+								(() => {
+									const nextLon = bounds.minLon + (nextX / PPD);
+									const nextSunsetUT = sunsetBase - (nextLon / 360.0);
+									observer.longitude = nextLon;
 
-                        if (Math.abs(nextRA - prevRA) > 12) {
-                            if (nextRA > prevRA) prevRA += 24;
-                            else nextRA += 24;
-                        }
-                        observer.longitude = lon;
-                    } else {
-                        nextRA = prevRA;
-                        nextDec = prevDec;
-                        nextElong = prevElong;
-                        nextAlt = prevAlt;
-                        cachedNextRA = undefined;
-                    }
+									const nextMoonEq = Astronomy.Equator(Astronomy.Body.Moon, nextSunsetUT, observer, true, true);
+									cachedNextRA = nextMoonEq.ra;
+									cachedNextDec = nextMoonEq.dec;
+									cachedNextElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, nextSunsetUT);
+									cachedNextAlt = Astronomy.Horizon(nextSunsetUT, observer, nextMoonEq.ra, nextMoonEq.dec, "normal").altitude;
 
-                    moonRA = prevRA;
-                    moonDec = prevDec;
-                    moonElong = prevElong;
-                    moonAlt = prevAlt;
-                } else {
-                    const fraction = xMod / INTERP_STEP;
-                    moonRA = prevRA + (nextRA - prevRA) * fraction;
-                    moonDec = prevDec + (nextDec - prevDec) * fraction;
-                    moonElong = prevElong + (nextElong - prevElong) * fraction;
-                    moonAlt = prevAlt + (nextAlt - prevAlt) * fraction;
+									nextRA = cachedNextRA;
+									nextDec = cachedNextDec;
+									nextElong = cachedNextElong;
+									nextAlt = cachedNextAlt;
 
-                    if (moonRA >= 24) moonRA -= 24;
-                }
+									(Math.abs(nextRA - prevRA) > 12) && (
+										(nextRA > prevRA) ? (prevRA += 24) : (nextRA += 24)
+									);
+									observer.longitude = lon;
+								})()
+							) : (
+								nextRA = prevRA,
+								nextDec = prevDec,
+								nextElong = prevElong,
+								nextAlt = prevAlt,
+								cachedNextRA = undefined
+							);
 
-                // Check visibility
-                if ((!isGIC || sunsetUT < date.ut + 0.5) && moonAlt >= minAlt && moonElong >= minElong) {
-                    const idx = pixelIndex * 4;
-                    buffer[idx] = 0;     // R
-                    buffer[idx+1] = 255; // G
-                    buffer[idx+2] = 0;   // B
-                    buffer[idx+3] = 128; // A
-                }
-            }
-        }
+							moonRA = prevRA;
+							moonDec = prevDec;
+							moonElong = prevElong;
+							moonAlt = prevAlt;
+						})()
+					) : (
+						(() => {
+							const fraction = xMod / INTERP_STEP;
+							moonRA = prevRA + (nextRA - prevRA) * fraction;
+							moonDec = prevDec + (nextDec - prevDec) * fraction;
+							moonElong = prevElong + (nextElong - prevElong) * fraction;
+							moonAlt = prevAlt + (nextAlt - prevAlt) * fraction;
 
-        self.postMessage({
-            status: 'complete',
-            buffer: buffer,
-            width: width,
-            height: height
-        }, [buffer.buffer]);
+							(moonRA >= 24) && (moonRA -= 24);
+						})()
+					);
 
-    } catch (e) {
-        self.postMessage({ status: 'error', message: e.message });
-    }
+					((!isGIC || sunsetUT < date.ut + 0.5) && moonAlt >= minAlt && moonElong >= minElong) && (
+						(() => {
+							const idx = pixelIndex * 4;
+							buffer[idx] = 0;
+							buffer[idx+1] = 255;
+							buffer[idx+2] = 0;
+							buffer[idx+3] = 128;
+						})()
+					);
+				})()
+			);
+		}
+
+		self.postMessage({
+			status: "complete",
+			buffer: buffer,
+			width: width,
+			height: height
+		}, [buffer.buffer]);
+
+	} catch (e) {
+		self.postMessage({ status: "error", message: e.message });
+	}
 };
 `;
 			const text = {
 				en: {
-                    utcOffsetLabel: 'UTC Offset',
+					utcOffsetLabel: 'UTC Offset',
 					autoTheme: 'Auto Theme',
 					lightTheme: 'Light',
 					darkTheme: 'Dark',
-                    mapTitle: 'Hilal Visibility Map',
-                    renderMap: 'Render Map',
-                    dateLabel: 'Date',
-                    regionLabel: 'Region',
-                    criteriaLabel: 'Criteria',
-                    legendVisible: 'Visible',
-                    minAltLabel: 'Min Altitude (°)',
-                    minElongLabel: 'Min Elongation (°)',
-                    languageLabel: 'Language',
+					mapTitle: 'Hilal Visibility Map',
+					renderMap: 'Render Map',
+					dateLabel: 'Date',
+					regionLabel: 'Region',
+					criteriaLabel: 'Criteria',
+					legendVisible: 'Visible',
+					minAltLabel: 'Min Altitude (°)',
+					minElongLabel: 'Min Elongation (°)',
+					languageLabel: 'Language',
 					themeLabel: 'Theme',
-                    calcDateLabel: 'Date',
-                    calcLatLabel: 'Latitude',
-                    calcLonLabel: 'Longitude',
-                    calcCriteriaLabel: 'Criteria',
-                    calculateBtn: 'Calculate',
-                    tabMap: 'Map',
-                    tabCalc: 'Detailed Calculations',
-                    getLocation: '📍 Use My Location',
-                    sunsetTime: 'Sunset Time',
-                    moonsetTime: 'Moonset Time',
-                    moonAge: 'Moon Age',
-                    moonAlt: 'Moon Altitude',
-                    moonElong: 'Elongation',
-                    moonAzimuth: 'Moon Azimuth',
-                    moonWidth: 'Moon Width',
-                    illuminatedFraction: 'Illuminated Fraction',
-                    visibilityStatus: 'Visibility Status',
-                    visible: 'Visible',
-                    notVisible: 'Not Visible'
+					calcDateLabel: 'Date',
+					calcLatLabel: 'Latitude',
+					calcLonLabel: 'Longitude',
+					calcCriteriaLabel: 'Criteria',
+					calculateBtn: 'Calculate',
+					tabMap: 'Map',
+					tabCalc: 'Detailed Calculations',
+					getLocation: '📍 Use My Location',
+					sunsetTime: 'Sunset Time',
+					moonsetTime: 'Moonset Time',
+					moonAge: 'Moon Age',
+					moonAlt: 'Moon Altitude',
+					moonElong: 'Elongation',
+					moonAzimuth: 'Moon Azimuth',
+					moonWidth: 'Moon Width',
+					illuminatedFraction: 'Illuminated Fraction',
+					visibilityStatus: 'Visibility Status',
+					visible: 'Visible',
+					notVisible: 'Not Visible'
 				},
 				id: {
-                    utcOffsetLabel: 'Selisih UTC',
+					utcOffsetLabel: 'Selisih UTC',
 					autoTheme: 'Tema Otomatis',
 					lightTheme: 'Terang',
 					darkTheme: 'Gelap',
-                    mapTitle: 'Peta Visibilitas Hilal',
-                    renderMap: 'Render Peta',
-                    dateLabel: 'Tanggal',
-                    regionLabel: 'Wilayah',
-                    criteriaLabel: 'Kriteria',
-                    legendVisible: 'Terlihat',
-                    minAltLabel: 'Min Tinggi (°)',
-                    minElongLabel: 'Min Elongasi (°)',
-                    languageLabel: 'Bahasa',
+					mapTitle: 'Peta Visibilitas Hilal',
+					renderMap: 'Render Peta',
+					dateLabel: 'Tanggal',
+					regionLabel: 'Wilayah',
+					criteriaLabel: 'Kriteria',
+					legendVisible: 'Terlihat',
+					minAltLabel: 'Min Tinggi (°)',
+					minElongLabel: 'Min Elongasi (°)',
+					languageLabel: 'Bahasa',
 					themeLabel: 'Tema',
-                    calcDateLabel: 'Tanggal',
-                    calcLatLabel: 'Lintang',
-                    calcLonLabel: 'Bujur',
-                    calcCriteriaLabel: 'Kriteria',
-                    calculateBtn: 'Hitung',
-                    tabMap: 'Peta',
-                    tabCalc: 'Hitung Detail',
-                    getLocation: '📍 Lokasi Saya',
-                    sunsetTime: 'Waktu Matahari Terbenam',
-                    moonsetTime: 'Waktu Bulan Terbenam',
-                    moonAge: 'Umur Bulan',
-                    moonAlt: 'Tinggi Bulan',
-                    moonElong: 'Elongasi',
-                    moonAzimuth: 'Azimuth Bulan',
-                    moonWidth: 'Lebar Bulan',
-                    illuminatedFraction: 'Fraksi Iluminasi',
-                    visibilityStatus: 'Status Visibilitas',
-                    visible: 'Terlihat',
-                    notVisible: 'Tidak Terlihat'
+					calcDateLabel: 'Tanggal',
+					calcLatLabel: 'Lintang',
+					calcLonLabel: 'Bujur',
+					calcCriteriaLabel: 'Kriteria',
+					calculateBtn: 'Hitung',
+					tabMap: 'Peta',
+					tabCalc: 'Hitung Detail',
+					getLocation: '📍 Lokasi Saya',
+					sunsetTime: 'Waktu Matahari Terbenam',
+					moonsetTime: 'Waktu Bulan Terbenam',
+					moonAge: 'Umur Bulan',
+					moonAlt: 'Tinggi Bulan',
+					moonElong: 'Elongasi',
+					moonAzimuth: 'Azimuth Bulan',
+					moonWidth: 'Lebar Bulan',
+					illuminatedFraction: 'Fraksi Iluminasi',
+					visibilityStatus: 'Status Visibilitas',
+					visible: 'Terlihat',
+					notVisible: 'Tidak Terlihat'
 				}
 			};
 			const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
 
+
 			class VisibilityMap {
 				constructor() {
 					this.setup();
-					this.theme('auto');
-					this.lang(navigator.language?.startsWith('id') ? 'id' : 'en');
+					this.theme("auto");
+					this.lang(navigator.language?.startsWith("id") ? "id" : "en");
 				}
 				setup() {
 					elements.language.onchange = event => this.lang(event.target.value);
 					elements.theme.onchange = event => this.theme(event.target.value);
-                    elements.renderMap.onclick = () => this.handleRenderClick();
-                    elements.mapCriteria.onchange = () => this.toggleCustom();
-                    elements.mapRegion.onchange = () => this.handleRegionChange();
+					elements.renderMap.onclick = () => this.handleRenderClick();
+					elements.mapCriteria.onchange = () => this.toggleCustom();
+					elements.mapRegion.onchange = () => this.handleRegionChange();
 
-                    elements.tabMap.onclick = () => this.switchTab('map');
-                    elements.tabCalc.onclick = () => this.switchTab('calc');
-                    elements.calcCriteria.onchange = () => this.toggleCustomCalc();
-                    elements.calculateBtn.onclick = () => this.calculateDetails();
-                    elements.getLocation.onclick = () => this.getCurrentLocation();
+					elements.tabMap.onclick = () => this.switchTab("map");
+					elements.tabCalc.onclick = () => this.switchTab("calc");
+					elements.calcCriteria.onchange = () => this.toggleCustomCalc();
+					elements.calculateBtn.onclick = () => this.calculateDetails();
+					elements.getLocation.onclick = () => this.getCurrentLocation();
 
-                    const today = new Date();
-                    elements.mapDate.valueAsDate = today;
-                    elements.calcDate.valueAsDate = today;
+					const today = new Date();
+					elements.mapDate.valueAsDate = today;
+					elements.calcDate.valueAsDate = today;
 
-                    this.map = L.map('map').setView([-2.5, 118], 5);
-                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19,
-                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    }).addTo(this.map);
+					this.map = L.map("map").setView([-2.5, 118], 5);
+					L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+						maxZoom: 19,
+						attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
+					}).addTo(this.map);
 
-                    this.overlayLayer = null;
-                    this.isRendering = false;
-                    const blob = new Blob([WORKER_SOURCE], { type: 'application/javascript' });
-                    this.workerUrl = URL.createObjectURL(blob);
-                    this.worker = new Worker(this.workerUrl);
-                    this.worker.onmessage = (e) => this.handleWorkerMessage(e);
+					this.overlayLayer = null;
+					this.isRendering = false;
+					const blob = new Blob([WORKER_SOURCE], { type: "application/javascript" });
+					this.workerUrl = URL.createObjectURL(blob);
+					this.worker = new Worker(this.workerUrl);
+					this.worker.onmessage = (e) => this.handleWorkerMessage(e);
 				}
 				string(key) {
 					return text[this.language]?.[key] ?? key;
 				}
 				theme(themeName) {
-					document.documentElement.className = themeName === 'auto' ? '' : themeName;
+					document.documentElement.className = themeName === "auto" ? "" : themeName;
 					elements.theme.value = themeName;
 				}
 				lang(language) {
 					this.language = elements.language.value = document.documentElement.lang = language;
 					Object.keys(text.en).forEach(key => elements[key] && (elements[key].textContent = this.string(key)));
-					[...elements.theme.options].forEach(option => option.textContent = this.string(option.value + 'Theme'));
+					[...elements.theme.options].forEach(option => option.textContent = this.string(option.value + "Theme"));
 				}
-                toggleCustom() {
-                    const isCustom = elements.mapCriteria.value === 'custom';
-                    elements.customCriteriaInputs.classList.toggle('hidden', !isCustom);
-                }
+				toggleCustom() {
+					const isCustom = elements.mapCriteria.value === "custom";
+					elements.customCriteriaInputs.classList.toggle("hidden", !isCustom);
+				}
 
-                toggleCustomCalc() {
-                     const isCustom = elements.calcCriteria.value === 'custom';
-                     elements.calcCustomCriteriaInputs.classList.toggle('hidden', !isCustom);
-                }
+				toggleCustomCalc() {
+					const isCustom = elements.calcCriteria.value === "custom";
+					elements.calcCustomCriteriaInputs.classList.toggle("hidden", !isCustom);
+				}
 
-                switchTab(tab) {
-                    if (tab === 'map') {
-                        elements.tabMap.classList.add('active');
-                        elements.tabCalc.classList.remove('active');
-                        elements.mapView.classList.remove('hidden');
-                        elements.calcView.classList.add('hidden');
-                        setTimeout(() => this.map.invalidateSize(), 100);
-                    } else {
-                        elements.tabMap.classList.remove('active');
-                        elements.tabCalc.classList.add('active');
-                        elements.mapView.classList.add('hidden');
-                        elements.calcView.classList.remove('hidden');
-                    }
-                }
+				switchTab(tab) {
+					(tab === "map") ? (
+						elements.tabMap.classList.add("active"),
+						elements.tabCalc.classList.remove("active"),
+						elements.mapView.classList.remove("hidden"),
+						elements.calcView.classList.add("hidden"),
+						setTimeout(() => this.map.invalidateSize(), 100)
+					) : (
+						elements.tabMap.classList.remove("active"),
+						elements.tabCalc.classList.add("active"),
+						elements.mapView.classList.add("hidden"),
+						elements.calcView.classList.remove("hidden")
+					);
+				}
 
-                getCurrentLocation() {
-                     if (navigator.geolocation) {
-                         navigator.geolocation.getCurrentPosition(
-                             (position) => {
-                                 elements.calcLat.value = position.coords.latitude.toFixed(4);
-                                 elements.calcLon.value = position.coords.longitude.toFixed(4);
-                             },
-                             (error) => {
-                                 alert('Error getting location: ' + error.message);
-                             }
-                         );
-                     } else {
-                         alert('Geolocation is not supported by this browser.');
-                     }
-                }
+				getCurrentLocation() {
+					navigator.geolocation ?
+						navigator.geolocation.getCurrentPosition(
+							(position) => {
+								elements.calcLat.value = position.coords.latitude.toFixed(4);
+								elements.calcLon.value = position.coords.longitude.toFixed(4);
+							},
+							(error) => {
+								alert("Error getting location: " + error.message);
+							}
+						) :
+						alert("Geolocation is not supported by this browser.");
+				}
 
-                calculateDetails() {
-                    const lat = parseFloat(elements.calcLat.value);
-                    const lon = parseFloat(elements.calcLon.value);
-                    const dateStr = elements.calcDate.value;
-                    const criteria = elements.calcCriteria.value;
+				calculateDetails() {
+					const lat = parseFloat(elements.calcLat.value);
+					const lon = parseFloat(elements.calcLon.value);
+					const dateStr = elements.calcDate.value;
+					const criteria = elements.calcCriteria.value;
 
-                    if (isNaN(lat) || isNaN(lon) || !dateStr) {
-                        alert('Please fill in all fields correctly.');
-                        return;
-                    }
+					(isNaN(lat) || isNaN(lon) || !dateStr) ?
+						alert("Please fill in all fields correctly.") :
+						this._calculateDetailsInner(lat, lon, dateStr, criteria);
+				}
 
-                    const dateObj = new Date(dateStr + 'T00:00:00Z');
-                    const observer = new Astronomy.Observer(lat, lon, 0);
-                    const date = Astronomy.MakeTime(dateObj);
+				_calculateDetailsInner(lat, lon, dateStr, criteria) {
+					const dateObj = new Date(dateStr + "T00:00:00Z");
+					const observer = new Astronomy.Observer(lat, lon, 0);
+					const date = Astronomy.MakeTime(dateObj);
 
-                    // 1. Calculate Sunset
-                    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
-                    if (!sunset) {
-                         elements.results.innerHTML = '<div class="result-card">Error: Sun does not set on this date/location.</div>';
-                         return;
-                    }
+					const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
 
-                    // 2. Moon properties at Sunset
-                    // Adjust to local time of observer if needed, but Astronomy works in UT.
-                    // We need to calculate moon position at the moment of sunset.
+					(!sunset) ?
+						(elements.results.innerHTML = "<div class=\"result-card\">Error: Sun does not set on this date/location.</div>") :
+						this._calculateDetailsWithSunset(sunset, observer, date, criteria);
+				}
 
-                    const sunsetUT = sunset.ut; // This is UT time of sunset
-                    const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-                    const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, 'normal');
-                    const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
-                    const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
+				_calculateDetailsWithSunset(sunset, observer, date, criteria) {
+					const sunsetUT = sunset.ut;
+					const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+					const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
+					const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
+					const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
 
-                    // Calculate Moon Age (Time since New Moon)
-                    const prevNewMoon = Astronomy.SearchMoonPhase(0, date.ut, -1);
-                    const ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0;
+					const prevNewMoon = Astronomy.SearchMoonPhase(0, date.ut, -1);
+					const ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0;
 
-                    const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon, sunsetUT);
+					const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon, sunsetUT);
+					const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon, observer, -1, sunsetUT, 1);
 
-                    // Calculate Moonset after Sunset
-                    const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon, observer, -1, sunsetUT, 1);
+					const offset = parseFloat(elements.calcUtcOffset.value) || 0;
+					const fmt = (ut) => {
+						return !ut ? "N/A" : (() => {
+						const d = ut.date;
+						d.setMinutes(d.getMinutes() + offset * 60);
+						const timeStr = d.toISOString().substring(11, 19);
+						const sign = offset >= 0 ? "+" : "";
+						return `${timeStr} (UTC${sign}${offset})`;
+					})();
 
-                    // Format times
-                    // We want to show local time relative to the user provided lat/lon or just UT?
-                    // The browser's date handling is tricky. Let's just output UT and maybe Local if we can guess offset.
-                    // Or just use the browser's timezone since the user is likely in that timezone if using "Use My Location".
-                    // But if they input a remote location, browser time is wrong.
-                    // Let's stick to showing simple time strings, maybe "HH:MM (UT)" or "HH:MM (Local)" depending on how we format.
-                    // Ideally we format to the timezone of the location, but we don't know it without an API.
-                    // We'll show UT for clarity or simple HH:MM and let user infer.
-                    // Actually, Astronomy.js returns UT double.
+					const customMinAlt = parseFloat(elements.calcMinAlt.value) || 0;
+					const customMinElong = parseFloat(elements.calcMinElong.value) || 0;
 
-                    const offset = parseFloat(elements.calcUtcOffset.value) || 0;
-                    const fmt = (ut) => {
-                        // Convert UT double to Date object
-                        if (!ut) return 'N/A';
-                        const d = ut.date;
-                        // Adjust for offset
-                        d.setMinutes(d.getMinutes() + offset * 60);
-                        const timeStr = d.toISOString().substring(11, 19);
-                        const sign = offset >= 0 ? '+' : '';
-                        return `${timeStr} (UTC${sign}${offset})`;
-                    };
+					const criteriaParams =
+						(criteria === "mabbims") ? { minAlt: 3, minElong: 6.4, isGIC: false } :
+						(criteria === "gic") ? { minAlt: 5, minElong: 8, isGIC: true } :
+						(criteria === "alt0") ? { minAlt: 0, minElong: -100, isGIC: false } :
+						{ minAlt: customMinAlt, minElong: customMinElong, isGIC: false };
 
-                    // Visibility Check
-                    let minAlt = 0, minElong = 0, isGIC = false;
-                    let customMinAlt = parseFloat(elements.calcMinAlt.value) || 0;
-                    let customMinElong = parseFloat(elements.calcMinElong.value) || 0;
+					const { minAlt, minElong, isGIC } = criteriaParams;
 
-                    if (criteria === 'mabbims') { minAlt = 3; minElong = 6.4; }
-                    else if (criteria === 'gic') { minAlt = 5; minElong = 8; isGIC = true; }
-                    else if (criteria === 'alt0') { minAlt = 0; minElong = -100; }
-                    else if (criteria === 'custom') {
-                        minAlt = customMinAlt;
-                        minElong = customMinElong;
-                    }
+					const visible = ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong);
 
-                    let visible = false;
-                    let visibleStatus = this.string('notVisible');
-                    let color = 'var(--danger)';
-                    let bg = 'var(--on-danger)';
+					const visibleStatus = visible ? this.string("visible") : this.string("notVisible");
+					const color = visible ? "var(--success)" : "var(--danger)";
+					const bg = visible ? "var(--on-success)" : "var(--on-danger)";
 
-                     // GIC check: sunset must be before midnight
-                     if ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong) {
-                         visible = true;
-                     }
+					const displayData = [
+						{ label: "visibilityStatus", value: visibleStatus, color: color, bg: bg },
+						{ label: "sunsetTime", value: fmt(sunset) },
+						{ label: "moonsetTime", value: fmt(moonset) },
+						{ label: "moonAlt", value: moonHor.altitude.toFixed(2) + "°" },
+						{ label: "moonElong", value: elongation.toFixed(2) + "°" },
+						{ label: "moonAzimuth", value: moonHor.azimuth.toFixed(2) + "°" },
+						{ label: "moonAge", value: ageInDays.toFixed(2) + " days" },
+						{ label: "illuminatedFraction", value: (moonPhase.phase_fraction * 100).toFixed(2) + "%" }
+					];
 
-                     if (visible) {
-                         visibleStatus = this.string('visible');
-                         color = 'var(--success)';
-                         bg = 'var(--on-success)';
-                     }
+					let html = "";
+					displayData.forEach(item => {
+						const style = item.color ? `color: ${item.color};` : "";
+						const label = this.string(item.label) || item.label;
+						html += `<div class=\"result-card\">
+									<div class=\"result-label\">${label}</div>
+									<div class=\"result-value\" style=\"${style}\">${item.value}</div>
+								</div>`;
+					});
 
-                    const displayData = [
-                        { label: 'visibilityStatus', value: visibleStatus, color: color, bg: bg },
-                        { label: 'sunsetTime', value: fmt(sunset) },
-                        { label: 'moonsetTime', value: fmt(moonset) },
-                        { label: 'moonAlt', value: moonHor.altitude.toFixed(2) + '°' },
-                        { label: 'moonElong', value: elongation.toFixed(2) + '°' },
-                        { label: 'moonAzimuth', value: moonHor.azimuth.toFixed(2) + '°' },
-                        { label: 'moonAge', value: ageInDays.toFixed(2) + ' days' },
-                        { label: 'illuminatedFraction', value: (moonPhase.phase_fraction * 100).toFixed(2) + '%' }
-                    ];
+					elements.results.innerHTML = html;
+				}
 
-                    let html = '';
-                    displayData.forEach(item => {
-                         const style = item.color ? `color: ${item.color};` : '';
-                         const label = this.string(item.label) || item.label;
-                         html += `<div class="result-card">
-                                    <div class="result-label">${label}</div>
-                                    <div class="result-value" style="${style}">${item.value}</div>
-                                  </div>`;
-                    });
+				handleRegionChange() {
+					const region = elements.mapRegion.value;
+					(region === "indonesia") ?
+						this.map.setView([-2.5, 118], 5) :
+						this.map.setView([0, 0], 2);
+				}
 
-                    elements.results.innerHTML = html;
-                }
+				handleRenderClick() {
+					this.isRendering ? (
+						this.worker.terminate(),
+						this.worker = new Worker(this.workerUrl),
+						this.worker.onmessage = (e) => this.handleWorkerMessage(e),
+						this.isRendering = false,
+						elements.renderMap.disabled = false,
+						elements.mapStatus.textContent = "Cancelled."
+					) : (
+						this.startRender()
+					);
+				}
 
-                handleRegionChange() {
-                    const region = elements.mapRegion.value;
-                    if (region === 'indonesia') {
-                        this.map.setView([-2.5, 118], 5);
-                    } else {
-                        this.map.setView([0, 0], 2);
-                    }
-                }
+				startRender() {
+					this.isRendering = true;
+					elements.renderMap.disabled = false;
+					elements.renderMap.textContent = "Cancel";
+					elements.mapStatus.textContent = "Calculating...";
 
-                handleRenderClick() {
-                    if (this.isRendering) {
-                        this.worker.terminate();
-                        this.worker = new Worker(this.workerUrl);
-                        this.worker.onmessage = (e) => this.handleWorkerMessage(e);
+					const mapBounds = this.map.getBounds();
+					const bounds = {
+						minLat: Math.max(-85, mapBounds.getSouth()),
+						maxLat: Math.min(85, mapBounds.getNorth()),
+						minLon: mapBounds.getWest(),
+						maxLon: mapBounds.getEast()
+					};
 
-                        this.isRendering = false;
-                        elements.renderMap.disabled = false;
-                        elements.mapStatus.textContent = 'Cancelled.';
-                    } else {
-                        this.startRender();
-                    }
-                }
+					const criteria = elements.mapCriteria.value;
+					const dateStr = elements.mapDate.value;
+					const dateObj = new Date(dateStr ? dateStr + "T12:00:00Z" : new Date());
 
-                startRender() {
-                    this.isRendering = true;
-                    elements.renderMap.disabled = false; // Allow cancelling
-                    elements.renderMap.textContent = 'Cancel';
-                    elements.mapStatus.textContent = 'Calculating...';
+					const mapSize = this.map.getSize();
+					const widthDeg = bounds.maxLon - bounds.minLon;
+					const heightDeg = bounds.maxLat - bounds.minLat;
 
-                    const mapBounds = this.map.getBounds();
-                    const bounds = {
-                        minLat: Math.max(-85, mapBounds.getSouth()),
-                        maxLat: Math.min(85, mapBounds.getNorth()),
-                        minLon: mapBounds.getWest(),
-                        maxLon: mapBounds.getEast()
-                    };
+					this.lastBounds = bounds;
 
-                    const criteria = elements.mapCriteria.value;
-                    const dateStr = elements.mapDate.value;
-                    const dateObj = new Date(dateStr ? dateStr + 'T12:00:00Z' : new Date());
+					this.worker.postMessage({
+						bounds: bounds,
+						widthDeg: widthDeg,
+						heightDeg: heightDeg,
+						mapSizeX: mapSize.x,
+						criteria: criteria,
+						dateTimestamp: dateObj.getTime(),
+						minAlt: parseFloat(elements.minAlt.value) || 0,
+						minElong: parseFloat(elements.minElong.value) || 0
+					});
+				}
 
-                    const mapSize = this.map.getSize();
-                    const widthDeg = bounds.maxLon - bounds.minLon;
-                    const heightDeg = bounds.maxLat - bounds.minLat;
+				handleWorkerMessage(e) {
+					const { status, percent, imageData: unused, buffer, width, height, message } = e.data;
 
-                    this.lastBounds = bounds;
+					(status === "progress") ? (
+						elements.mapStatus.textContent = `Calculating... ${percent}%`
+					) : (status === "complete") ? (
+						this._handleComplete(width, height, buffer)
+					) : (status === "error") ? (
+						console.error("Worker Error:", message),
+						elements.mapStatus.textContent = "Error: " + message,
+						this.isRendering = false,
+						elements.renderMap.disabled = false,
+						elements.renderMap.textContent = this.string("renderMap")
+					) : null;
+				}
 
-                    this.worker.postMessage({
-                        bounds: bounds,
-                        widthDeg: widthDeg,
-                        heightDeg: heightDeg,
-                        mapSizeX: mapSize.x,
-                        criteria: criteria,
-                        dateTimestamp: dateObj.getTime(),
-                        minAlt: parseFloat(elements.minAlt.value) || 0,
-                        minElong: parseFloat(elements.minElong.value) || 0
-                    });
-                }
+				_handleComplete(width, height, buffer) {
+					const canvas = document.createElement("canvas");
+					canvas.width = width;
+					canvas.height = height;
+					const ctx = canvas.getContext("2d");
 
-                handleWorkerMessage(e) {
-                    const { status, percent, imageData: unused, buffer, width, height, message } = e.data;
+					const imageData = new ImageData(buffer, width, height);
+					ctx.putImageData(imageData, 0, 0);
 
-                    if (status === 'progress') {
-                        elements.mapStatus.textContent = `Calculating... ${percent}%`;
-                    } else if (status === 'complete') {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
+					this.updateOverlay(canvas.toDataURL(), this.lastBounds);
 
-                        const imageData = new ImageData(buffer, width, height);
-                        ctx.putImageData(imageData, 0, 0);
+					this.isRendering = false;
+					elements.renderMap.disabled = false;
+					elements.renderMap.textContent = this.string("renderMap");
+					elements.mapStatus.textContent = "Done.";
+				}
 
-                        this.updateOverlay(canvas.toDataURL(), this.lastBounds);
-
-                        this.isRendering = false;
-                        elements.renderMap.disabled = false;
-                        elements.renderMap.textContent = this.string('renderMap');
-                        elements.mapStatus.textContent = 'Done.';
-                    } else if (status === 'error') {
-                        console.error('Worker Error:', message);
-                        elements.mapStatus.textContent = 'Error: ' + message;
-                        this.isRendering = false;
-                        elements.renderMap.disabled = false;
-                        elements.renderMap.textContent = this.string('renderMap');
-                    }
-                }
-
-                updateOverlay(imageUrl, bounds) {
-                    if (this.overlayLayer) {
-                        this.map.removeLayer(this.overlayLayer);
-                    }
-                    const imageBounds = [[bounds.minLat, bounds.minLon], [bounds.maxLat, bounds.maxLon]];
-                    this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
-                }
+				updateOverlay(imageUrl, bounds) {
+					this.overlayLayer && this.map.removeLayer(this.overlayLayer);
+					const imageBounds = [[bounds.minLat, bounds.minLon], [bounds.maxLat, bounds.maxLon]];
+					this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
+				}
 			}
+
 			new VisibilityMap();
 		</script>
 	</body>

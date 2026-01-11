@@ -390,9 +390,29 @@
 
     class HijriCalc {
         constructor() {
+            this.isOffline = (typeof Astronomy === 'undefined');
             this.setup();
             this.updateLanguage('en');
             this.render();
+
+            if (this.isOffline) {
+                console.warn("Astronomy Engine not loaded. Falling back to Tabular method.");
+                const banner = document.createElement('div');
+                banner.style.background = 'var(--danger)';
+                banner.style.color = 'var(--on-danger)';
+                banner.style.padding = '0.75rem';
+                banner.style.textAlign = 'center';
+                banner.style.fontWeight = 'bold';
+                banner.style.borderRadius = '4px';
+                banner.style.marginBottom = '1rem';
+                banner.textContent = 'Offline Mode: Using approximate Tabular algorithm';
+
+                // Insert inside container for better layout
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.insertBefore(banner, container.firstChild);
+                }
+            }
         }
 
         setup() {
@@ -492,6 +512,9 @@
             const t = text[lang];
             elements.appTitle.textContent = t.appTitle;
             elements.appSubtitle.textContent = `${state.lat}° N, ${state.lon}° E (UTC+7)`; // Simplified display
+            if (this.isOffline) {
+                elements.appSubtitle.textContent += " (Offline/Heuristic)";
+            }
             elements.gotoTitle.textContent = t.gotoTitle;
             elements.formulaTitle.textContent = t.formulaTitle;
             elements.formulaDesc.textContent = t.formulaDesc;
@@ -617,6 +640,10 @@
         }
 
         getAccurateHijriMonthStart(hYear, hMonth) {
+            if (this.isOffline) {
+                return { gDate: this.hijriToGregorian(hYear, hMonth, 1) };
+            }
+
             const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}`;
             if (this.cache && this.cache[cacheKey]) return this.cache[cacheKey];
             if (!this.cache) this.cache = {};

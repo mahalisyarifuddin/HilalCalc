@@ -691,119 +691,135 @@
 
 					const progressInterval = Math.floor(totalPixels / 20);
 					let lastReported = 0;
+					let pixelIndex = 0;
 
-					for (let pixelIndex = 0; pixelIndex < totalPixels && this.isRendering; pixelIndex++) {
+					// Optimization: Time-slice the rendering to avoid blocking the main thread
+					const processChunk = () => {
+						const chunkStart = performance.now();
 
-						(pixelIndex - lastReported > progressInterval) && (
-							lastReported = pixelIndex
-						);
+						while (pixelIndex < totalPixels && this.isRendering) {
 
-						const x = pixelIndex % width;
-						const y = Math.floor(pixelIndex / width);
+							(pixelIndex - lastReported > progressInterval) && (
+								lastReported = pixelIndex
+							);
 
-						const lat = bounds.maxLat - (y / PPD);
-						const lon = bounds.minLon + (x / PPD);
+							const x = pixelIndex % width;
+							const y = Math.floor(pixelIndex / width);
 
-						(y !== currentY) && (
-							currentY = y,
-							observer.latitude = lat,
-							observer.longitude = 0,
-							sunsetBase = (Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1))?.ut || null,
-							prevRA = undefined,
-							cachedNextRA = undefined
-						);
+							const lat = bounds.maxLat - (y / PPD);
+							const lon = bounds.minLon + (x / PPD);
 
-						(sunsetBase !== null) && (
-							observer.latitude = lat,
-							observer.longitude = lon,
+							(y !== currentY) && (
+								currentY = y,
+								observer.latitude = lat,
+								observer.longitude = 0,
+								sunsetBase = (Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1))?.ut || null,
+								prevRA = undefined,
+								cachedNextRA = undefined
+							);
 
-							(() => {
-								const sunsetUT = sunsetBase - (lon / 360.0);
-								let moonRA, moonDec, moonElong;
-								let moonAlt;
-								const xMod = x % INTERP_STEP;
+							(sunsetBase !== null) && (
+								observer.latitude = lat,
+								observer.longitude = lon,
 
-								(xMod === 0 || prevRA === undefined) ? (
-									(x > 0 && prevRA !== undefined && cachedNextRA !== undefined) ? (
-										prevRA = cachedNextRA,
-										prevDec = cachedNextDec,
-										prevElong = cachedNextElong,
-										prevAlt = cachedNextAlt
+								(() => {
+									const sunsetUT = sunsetBase - (lon / 360.0);
+									let moonRA, moonDec, moonElong;
+									let moonAlt;
+									const xMod = x % INTERP_STEP;
+
+									(xMod === 0 || prevRA === undefined) ? (
+										(x > 0 && prevRA !== undefined && cachedNextRA !== undefined) ? (
+											prevRA = cachedNextRA,
+											prevDec = cachedNextDec,
+											prevElong = cachedNextElong,
+											prevAlt = cachedNextAlt
+										) : (
+											(() => {
+												const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+												prevRA = moonEq.ra;
+												prevDec = moonEq.dec;
+												prevElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
+												prevAlt = Astronomy.Horizon(sunsetUT, observer, prevRA, prevDec, "normal").altitude;
+											})()
+										),
+
+										(() => {
+											let nextX = x + INTERP_STEP;
+											(nextX >= width) && (nextX = width - 1);
+
+											(nextX > x) ? (
+												(() => {
+													const nextLon = bounds.minLon + (nextX / PPD);
+													const nextSunsetUT = sunsetBase - (nextLon / 360.0);
+													observer.longitude = nextLon;
+
+													const nextMoonEq = Astronomy.Equator(Astronomy.Body.Moon, nextSunsetUT, observer, true, true);
+													cachedNextRA = nextMoonEq.ra;
+													cachedNextDec = nextMoonEq.dec;
+													cachedNextElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, nextSunsetUT);
+													cachedNextAlt = Astronomy.Horizon(nextSunsetUT, observer, nextMoonEq.ra, nextMoonEq.dec, "normal").altitude;
+
+													nextRA = cachedNextRA;
+													nextDec = cachedNextDec;
+													nextElong = cachedNextElong;
+													nextAlt = cachedNextAlt;
+
+													(Math.abs(nextRA - prevRA) > 12) && (
+														(nextRA > prevRA) ? (prevRA += 24) : (nextRA += 24)
+													);
+													observer.longitude = lon;
+												})()
+											) : (
+												nextRA = prevRA,
+												nextDec = prevDec,
+												nextElong = prevElong,
+												nextAlt = prevAlt,
+												cachedNextRA = undefined
+											);
+
+											moonRA = prevRA;
+											moonDec = prevDec;
+											moonElong = prevElong;
+											moonAlt = prevAlt;
+										})()
 									) : (
 										(() => {
-											const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-											prevRA = moonEq.ra;
-											prevDec = moonEq.dec;
-											prevElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
-											prevAlt = Astronomy.Horizon(sunsetUT, observer, prevRA, prevDec, "normal").altitude;
+											const fraction = xMod / INTERP_STEP;
+											moonRA = prevRA + (nextRA - prevRA) * fraction;
+											moonDec = prevDec + (nextDec - prevDec) * fraction;
+											moonElong = prevElong + (nextElong - prevElong) * fraction;
+											moonAlt = prevAlt + (nextAlt - prevAlt) * fraction;
+
+											(moonRA >= 24) && (moonRA -= 24);
 										})()
-									),
+									);
 
-									(() => {
-										let nextX = x + INTERP_STEP;
-										(nextX >= width) && (nextX = width - 1);
+									((!isGIC || sunsetUT < date.ut + 0.5) && moonAlt >= minAlt && moonElong >= minElong) && (
+										(() => {
+											const idx = pixelIndex * 4;
+											buffer[idx] = 0;
+											buffer[idx+1] = 255;
+											buffer[idx+2] = 0;
+											buffer[idx+3] = 128;
+										})()
+									);
+								})()
+							);
 
-										(nextX > x) ? (
-											(() => {
-												const nextLon = bounds.minLon + (nextX / PPD);
-												const nextSunsetUT = sunsetBase - (nextLon / 360.0);
-												observer.longitude = nextLon;
+							pixelIndex++;
 
-												const nextMoonEq = Astronomy.Equator(Astronomy.Body.Moon, nextSunsetUT, observer, true, true);
-												cachedNextRA = nextMoonEq.ra;
-												cachedNextDec = nextMoonEq.dec;
-												cachedNextElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, nextSunsetUT);
-												cachedNextAlt = Astronomy.Horizon(nextSunsetUT, observer, nextMoonEq.ra, nextMoonEq.dec, "normal").altitude;
+							// Yield to main thread every 50ms to keep UI responsive
+							if (pixelIndex % 500 === 0 && (performance.now() - chunkStart > 50)) {
+								setTimeout(processChunk, 0);
+								return;
+							}
+						}
 
-												nextRA = cachedNextRA;
-												nextDec = cachedNextDec;
-												nextElong = cachedNextElong;
-												nextAlt = cachedNextAlt;
+						this.isRendering && this._handleComplete(width, height, buffer);
+					};
 
-												(Math.abs(nextRA - prevRA) > 12) && (
-													(nextRA > prevRA) ? (prevRA += 24) : (nextRA += 24)
-												);
-												observer.longitude = lon;
-											})()
-										) : (
-											nextRA = prevRA,
-											nextDec = prevDec,
-											nextElong = prevElong,
-											nextAlt = prevAlt,
-											cachedNextRA = undefined
-										);
-
-										moonRA = prevRA;
-										moonDec = prevDec;
-										moonElong = prevElong;
-										moonAlt = prevAlt;
-									})()
-								) : (
-									(() => {
-										const fraction = xMod / INTERP_STEP;
-										moonRA = prevRA + (nextRA - prevRA) * fraction;
-										moonDec = prevDec + (nextDec - prevDec) * fraction;
-										moonElong = prevElong + (nextElong - prevElong) * fraction;
-										moonAlt = prevAlt + (nextAlt - prevAlt) * fraction;
-
-										(moonRA >= 24) && (moonRA -= 24);
-									})()
-								);
-
-								((!isGIC || sunsetUT < date.ut + 0.5) && moonAlt >= minAlt && moonElong >= minElong) && (
-									(() => {
-										const idx = pixelIndex * 4;
-										buffer[idx] = 0;
-										buffer[idx+1] = 255;
-										buffer[idx+2] = 0;
-										buffer[idx+3] = 128;
-									})()
-								);
-							})()
-						);
-					}
-
-					this.isRendering && this._handleComplete(width, height, buffer);
+					processChunk();
 				}
 
 				_handleComplete(width, height, buffer) {

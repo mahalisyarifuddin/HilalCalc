@@ -783,7 +783,7 @@
         }
 
         // MABBIMS Calculation
-        checkVisibility(dateObj) {
+        checkVisibility(dateObj, knownNewMoonUT) {
             const UTC_OFFSET = this.getTimezoneOffset();
             const baseUTC = new Date(dateObj);
             baseUTC.setHours(12 - UTC_OFFSET);
@@ -800,11 +800,15 @@
             const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
             const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
 
-            const searchCenter = Astronomy.MakeTime(dateObj);
-            let bestNM = Astronomy.SearchMoonPhase(0, searchCenter.ut, -35);
-            if (!bestNM) return false;
+            let nmUt = knownNewMoonUT;
+            if (nmUt === undefined || nmUt === null) {
+                const searchCenter = Astronomy.MakeTime(dateObj);
+                const bestNM = Astronomy.SearchMoonPhase(0, searchCenter.ut, -35);
+                if (!bestNM) return false;
+                nmUt = bestNM.ut;
+            }
 
-            const age = sunsetUT - bestNM.ut;
+            const age = sunsetUT - nmUt;
             if (age < 0) return false;
 
             const alt = moonHor.altitude;
@@ -834,7 +838,7 @@
             nmDate.setMinutes(nmDate.getMinutes() + UTC_OFFSET * 60);
 
             let checkDate = new Date(nmDate.getFullYear(), nmDate.getMonth(), nmDate.getDate());
-            let isVisible = this.checkVisibility(checkDate);
+            let isVisible = this.checkVisibility(checkDate, bestNM.ut);
 
             const startDate = new Date(checkDate);
             startDate.setDate(checkDate.getDate() + (isVisible ? 1 : 2));

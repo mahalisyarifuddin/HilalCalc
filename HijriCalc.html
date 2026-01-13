@@ -110,7 +110,7 @@
         .primary { background: var(--primary); color: var(--on-primary); border: 0; }
         .primary:hover:not(:disabled) { background: var(--hover); }
 
-        .secondary { background: transparent; border: 1px solid var(--border); }
+        .secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
         .secondary:hover:not(:disabled) { background: var(--muted); }
 
         .selectors {
@@ -576,6 +576,14 @@
             state.weekStart = 0;
             state.hijriAdj = 0;
             state.primaryCalendar = 'gregorian';
+
+            elements.latInput.value = state.lat;
+            elements.lonInput.value = state.lon;
+            elements.language.value = state.lang;
+            elements.weekStart.value = state.weekStart;
+            elements.hijriAdj.value = state.hijriAdj;
+            elements.primaryCalendar.value = state.primaryCalendar;
+            elements.theme.value = state.theme;
 
             this.savePreferences();
         }

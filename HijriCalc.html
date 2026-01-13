@@ -132,12 +132,13 @@
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            grid-template-columns: repeat(7, minmax(50px, 1fr));
             gap: 1px;
             background: var(--border);
             border: 1px solid var(--border);
             border-radius: 4px;
-            overflow: hidden;
+            overflow-x: auto;
+            min-width: 100%;
         }
 
         .day-header {
@@ -156,6 +157,7 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
+            overflow: hidden;
         }
 
         .day-cell.other-month { opacity: 0.5; background: var(--formula-bg); }
@@ -297,7 +299,13 @@
         @media(max-width: 600px) {
             .selectors { position: static; justify-content: flex-end; margin-bottom: 1rem; }
             .calendar-header { flex-direction: column; align-items: stretch; }
-            .day-cell { min-height: 70px; }
+            .day-cell { min-height: 60px; padding: 4px; }
+            .gregorian-date { font-size: 1rem; }
+            .hijri-date { font-size: 0.8rem; }
+            .calendar-grid.hijri-primary .hijri-date { font-size: 1rem; }
+            .calendar-grid.hijri-primary .gregorian-date { font-size: 0.8rem; }
+            /* Horizontal scrolling on mobile */
+            .calendar-grid { display: grid; overflow-x: auto; }
         }
     </style>
 </head>
@@ -317,7 +325,7 @@
         <div class="control-group">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h3 id="gotoTitle">Go to Date</h3>
-                <button id="todayBtn" class="secondary" style="width:auto; padding: 2px 8px; font-size:0.8rem;">Today</button>
+                <button id="todayBtn" class="secondary" style="width:auto; padding: 4px 8px; font-size:0.85rem;">Today</button>
             </div>
             <div class="row">
                 <input type="date" id="gDateInput">
@@ -419,7 +427,10 @@
         <small style="opacity: 0.6;">Shifts the Tabular formula.</small>
     </div>
 
-    <button id="savePrefBtn">Save & Close</button>
+    <div style="display: flex; gap: 10px; margin-top: 1rem;">
+        <button id="resetPrefBtn" class="secondary">Reset Defaults</button>
+        <button id="savePrefBtn" class="primary">Save & Close</button>
+    </div>
 </dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
@@ -439,6 +450,7 @@
             locLabel: 'Location',
             adjLabel: 'Hijri Adjustment (Days)',
             save: 'Save & Close',
+            reset: 'Reset Defaults',
             myLoc: 'Use My Location',
             go: 'Go',
             goH: 'Go to Hijri',
@@ -460,6 +472,7 @@
             locLabel: 'Lokasi',
             adjLabel: 'Penyesuaian Hijriyah (Hari)',
             save: 'Simpan & Tutup',
+            reset: 'Atur Ulang',
             myLoc: 'Gunakan Lokasi Saya',
             go: 'Buka',
             goH: 'Buka Hijriyah',
@@ -475,7 +488,7 @@
     let state = {
         lat: 6.075, // Aceh
         lon: 95.1125,
-        lang: 'en',
+        lang: navigator.language?.startsWith('id') ? 'id' : 'en',
         theme: 'auto',
         weekStart: 0, // Sunday
         hijriAdj: 0,
@@ -555,6 +568,18 @@
             this.render();
         }
 
+        resetPreferences() {
+            state.lat = 6.075;
+            state.lon = 95.1125;
+            state.lang = navigator.language?.startsWith('id') ? 'id' : 'en';
+            state.theme = 'auto';
+            state.weekStart = 0;
+            state.hijriAdj = 0;
+            state.primaryCalendar = 'gregorian';
+
+            this.savePreferences();
+        }
+
         applyTheme(theme) {
              document.documentElement.className = theme === 'auto' ? '' : theme;
              elements.theme.value = theme;
@@ -597,6 +622,10 @@
             elements.savePrefBtn.onclick = () => {
                 this.savePreferences();
                 elements.prefDialog.close();
+            };
+            elements.resetPrefBtn.onclick = () => {
+                 this.resetPreferences();
+                 elements.prefDialog.close();
             };
 
             elements.myLocBtn.onclick = () => this.getLocation();
@@ -696,6 +725,7 @@
             elements.adjLabel.textContent = t.adjLabel;
 
             elements.savePrefBtn.textContent = t.save;
+            elements.resetPrefBtn.textContent = t.reset;
             elements.myLocBtn.textContent = t.myLoc;
             elements.goBtn.textContent = t.go;
             elements.goHBtn.textContent = t.goH;
@@ -828,10 +858,19 @@
             const anchorDate = new Date("2023-07-19T12:00:00Z");
             const approxDate = new Date(anchorDate.getTime() + daysSinceAnchor * 86400000);
 
-            const searchCenter = Astronomy.MakeTime(approxDate);
-            let bestNM = Astronomy.SearchMoonPhase(0, searchCenter.ut, -30);
+            // Use a search window of +/- 5 days to ensure we find the closest New Moon
+            // even if approxDate is slightly off in either direction.
+            const searchStart = new Date(approxDate.getTime() - 5 * 86400000);
+            const tStart = Astronomy.MakeTime(searchStart);
+            let bestNM = Astronomy.SearchMoonPhase(0, tStart.ut, 10);
 
-            if (!bestNM) return { gDate: approxDate };
+            // Sanity check: If bestNM is too far from approxDate (> 4 days), it's likely wrong.
+            // approxDate is mean conjunction, deviation shouldn't exceed ~1 day.
+            // But we allow 4 days to be super safe against timezones/anomalies.
+            // If it fails, fallback to approxDate (Tabular).
+            if (!bestNM || Math.abs(bestNM.date - approxDate) > 4 * 86400000) {
+                 return { gDate: approxDate };
+            }
 
             const nmDate = bestNM.date;
             const UTC_OFFSET = this.getTimezoneOffset();
@@ -1014,24 +1053,23 @@
                                let pm = context.hMonth - 1; let py = context.hYear;
                                if(pm<0){pm+=12; py--;}
                                const pStart = this.getAccurateHijriMonthStart(py, pm);
-                               const pLen = Math.round((context.startGDate - pStart.gDate)/86400000);
-                               hDateDisplay = pLen + diff; // diff is negative or zero (Wait, diff=0 is Day 0? No diff=1 is Day 1. diff=0 is Day 0 (last day of prev))
-                               // If diff=0 (day before start), it is Day 30 (if len 30).
-                               // 1st Day is diff=1.
-                               // 0th Day is diff=0.
-                               // -1 Day is diff=-1.
+                               let pLen = Math.round((context.startGDate - pStart.gDate)/86400000);
 
-                               // If pLen is 30.
-                               // Date is 1 day before start. diff = 0. hDate = 30 + 0 = 30. Correct.
-                               // Date is 2 days before. diff = -1. hDate = 30 - 1 = 29. Correct.
+                               // Safety check for pLen to avoid 0 length (rendering negative days)
+                               if (pLen < 29 || pLen > 30) pLen = 30;
 
+                               hDateDisplay = pLen + diff;
                                hMonthNameDisplay = t.months[pm];
                            } else {
                                // Next Month
                                // diff is > month length.
                                // e.g. Length 30. diff is 31.
                                // Day is 1.
-                               const len = Math.round((context.endGDate - context.startGDate)/86400000);
+                               let len = Math.round((context.endGDate - context.startGDate)/86400000);
+
+                               // Safety check for len
+                               if (len < 29 || len > 30) len = 30;
+
                                hDateDisplay = diff - len;
 
                                let nm = context.hMonth + 1;

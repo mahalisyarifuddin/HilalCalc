@@ -342,7 +342,7 @@
         <div class="control-group">
             <h3 id="formulaTitle">Heuristic Formula</h3>
             <p style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px;">
-                JD = floor( (11H + 3) / 30 ) + 354H + 2270158
+                JD = floor( (11H + 14) / 30 ) + 354H + 2270158
             </p>
             <p id="formulaDesc" style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">
                 Optimized Tabular (Type II) algorithm.
@@ -752,7 +752,7 @@
         hijriToGregorianTabular(hYear, hMonth, hDay) {
             const iyear = 10631.0 / 30.0;
             const epochastro = 1948439.5 + state.hijriAdj;
-            const shift1 = 8.01 / 60.0;
+            const shift1 = 0.47;
 
             let hYear0 = hYear - 1;
             let cyc = Math.floor(hYear0 / 30);
@@ -815,7 +815,7 @@
             // Tabular Reverse
             let iyear = 10631.0 / 30.0;
             let epochastro = 1948439.5 + state.hijriAdj;
-            let shift1 = 8.01 / 60.0;
+            let shift1 = 0.47;
 
             let z = jd - epochastro;
             let cyc = Math.floor(z / 10631.0);

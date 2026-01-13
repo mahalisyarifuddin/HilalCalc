@@ -740,8 +740,8 @@
 
         // --- Logic ---
 
-        // Tabular -> Gregorian (for navigation)
-        hijriToGregorian(hYear, hMonth, hDay) {
+        // Tabular -> Gregorian
+        hijriToGregorianTabular(hYear, hMonth, hDay) {
             const iyear = 10631.0 / 30.0;
             const epochastro = 1948439.5 + state.hijriAdj;
             const shift1 = 8.01 / 60.0;
@@ -775,8 +775,18 @@
             return new Date(year, month - 1, Math.floor(day));
         }
 
-        // Gregorian -> Tabular (for init inputs)
-        gregorianToHijri(date) {
+        hijriToGregorian(hYear, hMonth, hDay) {
+            if (this.isOffline) {
+                return this.hijriToGregorianTabular(hYear, hMonth, hDay);
+            }
+            const start = this.getAccurateHijriMonthStart(hYear, hMonth);
+            const gDate = new Date(start.gDate);
+            gDate.setDate(gDate.getDate() + (hDay - 1));
+            return gDate;
+        }
+
+        // Gregorian -> Tabular
+        gregorianToHijriTabular(date) {
              let day = date.getDate();
             let month = date.getMonth();
             let year = date.getFullYear();
@@ -810,6 +820,57 @@
             let id = z - Math.floor(29.5001 * im - 29);
 
             return { day: Math.floor(id), month: im - 1, year: iy + 1 };
+        }
+
+        gregorianToHijri(date) {
+            if (this.isOffline) {
+                return this.gregorianToHijriTabular(date);
+            }
+
+            // 1. Get approx
+            const approx = this.gregorianToHijriTabular(date);
+
+            // 2. Check Accurate Start of this month
+            const startCurrent = this.getAccurateHijriMonthStart(approx.year, approx.month);
+
+            // Compare
+            const tDate = date.getTime();
+            const tStart = startCurrent.gDate.getTime();
+
+            // If date is BEFORE start of this approx month, it's prev month
+            if (tDate < tStart) {
+                // Check Prev Month
+                let pm = approx.month - 1;
+                let py = approx.year;
+                if (pm < 0) { pm = 11; py--; }
+
+                const startPrev = this.getAccurateHijriMonthStart(py, pm);
+                const day = Math.round((tDate - startPrev.gDate.getTime()) / 86400000) + 1;
+                return { day: day, month: pm, year: py };
+            }
+
+            // If date is significantly after (e.g. > 29 days), check next month
+            // Hijri month is max 30 days.
+            // If approx said day 30, it might be day 1 of next month.
+            // Or if approx said day 29, it might be day 1 of next month.
+            // Let's check next month start just in case
+
+            // Check Next Month Start
+            let nm = approx.month + 1;
+            let ny = approx.year;
+            if (nm > 11) { nm = 0; ny++; }
+
+            const startNext = this.getAccurateHijriMonthStart(ny, nm);
+            const tNext = startNext.gDate.getTime();
+
+            if (tDate >= tNext) {
+                 const day = Math.round((tDate - tNext) / 86400000) + 1;
+                 return { day: day, month: nm, year: ny };
+            }
+
+            // Otherwise it is in Current Month
+            const day = Math.round((tDate - tStart) / 86400000) + 1;
+            return { day: day, month: approx.month, year: approx.year };
         }
 
         // MABBIMS Calculation
@@ -847,7 +908,7 @@
 
         getAccurateHijriMonthStart(hYear, hMonth) {
             if (this.isOffline) {
-                return { gDate: this.hijriToGregorian(hYear, hMonth, 1) };
+                return { gDate: this.hijriToGregorianTabular(hYear, hMonth, 1) };
             }
 
             const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}`;
@@ -1013,74 +1074,34 @@
                         // Actually, in Hijri mode, we don't show the month name in the cell usually,
                         // unless it's a "Other Month" cell?
                     } else {
-                        // It's outside the target Hijri Month (prev or next)
-                        // We need to calculate what Hijri date it is.
-                        // For simplicity, do a quick inaccurate conversion or accurate lookaround?
-                        // Let's do accurate lookaround since we are effectively moving between months.
+                        const start = new Date(context.startGDate).setHours(0,0,0,0);
+                        const diff = Math.round((dateNoTime - start) / 86400000) + 1;
 
-                        // Just use the same "look for starts" logic but centered on this date?
-                        // Or cheaper: Use Tabular as fallback for "grayed out" days?
-                        // No, consistency is key.
+                        if (date < context.startGDate) {
+                            // Prev Month
+                            let pm = context.hMonth - 1;
+                            let py = context.hYear;
+                            if(pm < 0) { pm += 12; py--; }
+                            const pStart = this.getAccurateHijriMonthStart(py, pm);
+                            let pLen = Math.round((context.startGDate - pStart.gDate)/86400000);
 
-                        // Let's lazily find the start.
-                        const approx = this.gregorianToHijri(date);
-                        const st = this.getAccurateHijriMonthStart(approx.year, approx.month);
-                        const nextSt = this.getAccurateHijriMonthStart(approx.year, approx.month + 1 > 11 ? 0 : approx.month + 1, approx.month + 1 > 11 ? approx.year + 1 : approx.year); // Handle overflow in args if needed, but getAccurate handles simple args?
-                        // actually getAccurateHijriMonthStart handles year/month rollover logic? No, let's check.
-                        // It doesn't seem to internally handle month > 11 in args passed to cache key.
+                            // Safety check for pLen
+                            if (pLen < 29 || pLen > 30) pLen = 30;
 
-                        // We need a helper for safe next month.
-                        let safeM = approx.month;
-                        let safeY = approx.year;
-
-                        // Find if date >= st.gDate
-                        if (date < st.gDate) {
-                           // Then it belongs to prev month?
-                           // This path is getting complex.
-                           // Simpler approach:
-                           // We are only drawing +/- a few days from the main month.
-                           // Just calculate the "Hijri Day" relative to the Main Month start.
-                           // If it's negative, it's prev month.
-                           // If > length, it's next month.
-                           const start = new Date(context.startGDate).setHours(0,0,0,0);
-                           const diff = Math.round((dateNoTime - start) / 86400000) + 1;
-
-                           if (diff < 1) {
-                               // Prev Month
-                               // Determine length of prev month to find day number (e.g. 30, 29)
-                               // Prev Month End is context.startGDate.
-                               // We need Prev Month Start.
-                               let pm = context.hMonth - 1; let py = context.hYear;
-                               if(pm<0){pm+=12; py--;}
-                               const pStart = this.getAccurateHijriMonthStart(py, pm);
-                               let pLen = Math.round((context.startGDate - pStart.gDate)/86400000);
-
-                               // Safety check for pLen to avoid 0 length (rendering negative days)
-                               if (pLen < 29 || pLen > 30) pLen = 30;
-
-                               hDateDisplay = pLen + diff;
-                               hMonthNameDisplay = t.months[pm];
-                           } else {
-                               // Next Month
-                               // diff is > month length.
-                               // e.g. Length 30. diff is 31.
-                               // Day is 1.
-                               let len = Math.round((context.endGDate - context.startGDate)/86400000);
-
-                               // Safety check for len
-                               if (len < 29 || len > 30) len = 30;
-
-                               hDateDisplay = diff - len;
-
-                               let nm = context.hMonth + 1;
-                               if(nm>11) nm=0;
-                               hMonthNameDisplay = t.months[nm];
-                           }
+                            hDateDisplay = pLen + diff;
+                            hMonthNameDisplay = t.months[pm];
                         } else {
-                             // Should be covered by main block, but "if (date < context.endGDate)" might fail if endGDate calculation had issues?
-                             // Assuming main block catches "current month" days.
-                             const start = new Date(context.startGDate).setHours(0,0,0,0);
-                             hDateDisplay = Math.round((dateNoTime - start) / 86400000) + 1;
+                            // Next Month
+                            let len = Math.round((context.endGDate - context.startGDate)/86400000);
+
+                            // Safety check for len
+                            if (len < 29 || len > 30) len = 30;
+
+                            hDateDisplay = diff - len;
+
+                            let nm = context.hMonth + 1;
+                            if(nm > 11) nm = 0;
+                            hMonthNameDisplay = t.months[nm];
                         }
                     }
                 }

@@ -110,18 +110,8 @@
         .primary { background: var(--primary); color: var(--on-primary); border: 0; }
         .primary:hover:not(:disabled) { background: var(--hover); }
 
-        .secondary { background: transparent; border: 1px solid var(--border); }
-        .secondary:hover:not(:disabled) { background: var(--muted); }
-
-        .danger-outline {
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-        }
-        .danger-outline:hover:not(:disabled) {
-            background: var(--danger);
-            color: var(--on-danger);
-        }
+        .secondary { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .secondary:hover:not(:disabled) { background: var(--highlight-bg); }
 
         .selectors {
             position: absolute;
@@ -438,7 +428,7 @@
     </div>
 
     <div style="display: flex; gap: 10px; margin-top: 1rem;">
-        <button id="resetPrefBtn" class="danger-outline">Reset Defaults</button>
+        <button id="resetPrefBtn" class="secondary">Reset Defaults</button>
         <button id="savePrefBtn" class="primary">Save & Close</button>
     </div>
 </dialog>

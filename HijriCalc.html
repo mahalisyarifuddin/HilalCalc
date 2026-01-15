@@ -456,7 +456,15 @@
             goH: 'Go to Hijri',
             months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
             days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-            footer: '* Dates start at sunset. MABBIMS Criteria: Alt ≥ 3°, Elong ≥ 6.4°.'
+            footer: '* Dates start at sunset. MABBIMS Criteria: Alt ≥ 3°, Elong ≥ 6.4°.',
+            gDateLabel: 'Gregorian Date',
+            hDayLabel: 'Hijri Day',
+            hMonthLabel: 'Hijri Month',
+            hYearLabel: 'Hijri Year',
+            goBtnLabel: 'Go to Gregorian Date',
+            goHBtnLabel: 'Go to Hijri Date',
+            prevMonthLabel: 'Previous Month',
+            nextMonthLabel: 'Next Month'
         },
         id: {
             appTitle: 'Kalender Hijriyah MABBIMS',
@@ -478,7 +486,15 @@
             goH: 'Buka Hijriyah',
             months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
             days: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
-            footer: '* Tanggal dimulai saat maghrib. Kriteria MABBIMS: Alt ≥ 3°, Elong ≥ 6.4°.'
+            footer: '* Tanggal dimulai saat maghrib. Kriteria MABBIMS: Alt ≥ 3°, Elong ≥ 6.4°.',
+            gDateLabel: 'Tanggal Masehi',
+            hDayLabel: 'Hari Hijriyah',
+            hMonthLabel: 'Bulan Hijriyah',
+            hYearLabel: 'Tahun Hijriyah',
+            goBtnLabel: 'Buka Tanggal Masehi',
+            goHBtnLabel: 'Buka Tanggal Hijriyah',
+            prevMonthLabel: 'Bulan Sebelumnya',
+            nextMonthLabel: 'Bulan Berikutnya'
         }
     };
 
@@ -745,6 +761,16 @@
             elements.goHBtn.textContent = t.goH;
             elements.footerNote.textContent = t.footer;
             elements.prefBtn.textContent = t.prefTitle;
+
+            // Update ARIA labels for accessibility
+            elements.gDateInput.setAttribute('aria-label', t.gDateLabel);
+            elements.hDayInput.setAttribute('aria-label', t.hDayLabel);
+            elements.hMonthInput.setAttribute('aria-label', t.hMonthLabel);
+            elements.hYearInput.setAttribute('aria-label', t.hYearLabel);
+            elements.goBtn.setAttribute('aria-label', t.goBtnLabel);
+            elements.goHBtn.setAttribute('aria-label', t.goHBtnLabel);
+            elements.prevMonthBtn.setAttribute('aria-label', t.prevMonthLabel);
+            elements.nextMonthBtn.setAttribute('aria-label', t.nextMonthLabel);
 
             // Update Hijri Month Select Options
             [...elements.hMonthInput.options].forEach((opt, i) => {

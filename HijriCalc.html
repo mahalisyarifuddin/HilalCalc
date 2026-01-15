@@ -313,10 +313,10 @@
 
 <div class="container">
     <div class="selectors">
-        <button id="prefBtn" class="secondary" style="width:auto; padding: 6px 12px;">Settings</button>
+        <button id="prefBtn" class="secondary" style="width:auto; padding: 6px 12px;" data-i18n="prefTitle">Settings</button>
     </div>
 
-    <h1 id="appTitle">MABBIMS Hijri Calendar</h1>
+    <h1 id="appTitle" data-i18n="appTitle">MABBIMS Hijri Calendar</h1>
     <p id="appSubtitle" style="opacity: 0.7; margin-bottom: 2rem;">
         6°04′30″ N 95°06′45″ E (UTC+7)
     </p>
@@ -324,63 +324,63 @@
     <div class="controls">
         <div class="control-group">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 id="gotoTitle">Go to Date</h3>
-                <button id="todayBtn" class="secondary" style="width:auto; padding: 4px 8px; font-size:0.85rem;">Today</button>
+                <h3 id="gotoTitle" data-i18n="gotoTitle">Go to Date</h3>
+                <button id="todayBtn" class="secondary" style="width:auto; padding: 4px 8px; font-size:0.85rem;" data-i18n="today">Today</button>
             </div>
             <div class="row">
-                <input type="date" id="gDateInput">
-                <button id="goBtn" class="primary">Go</button>
+                <input type="date" id="gDateInput" data-i18n-aria="gDateLabel">
+                <button id="goBtn" class="primary" data-i18n="go" data-i18n-aria="goBtnLabel">Go</button>
             </div>
             <div class="row" style="margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px;">
-                <input type="number" id="hDayInput" placeholder="D" min="1" max="30" style="flex: 0.6;">
-                <select id="hMonthInput" style="flex: 2;"></select>
-                <input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500" style="flex: 1;">
+                <input type="number" id="hDayInput" placeholder="D" min="1" max="30" style="flex: 0.6;" data-i18n-aria="hDayLabel">
+                <select id="hMonthInput" style="flex: 2;" data-i18n-aria="hMonthLabel"></select>
+                <input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500" style="flex: 1;" data-i18n-aria="hYearLabel">
             </div>
-            <button id="goHBtn" class="secondary" style="margin-top: 5px;">Go to Hijri</button>
+            <button id="goHBtn" class="secondary" style="margin-top: 5px;" data-i18n="goH" data-i18n-aria="goHBtnLabel">Go to Hijri</button>
         </div>
 
         <div class="control-group">
-            <h3 id="formulaTitle">Heuristic Formula</h3>
+            <h3 id="formulaTitle" data-i18n="formulaTitle">Heuristic Formula</h3>
             <p style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px;">
                 JD = floor( (11H + 14) / 30 ) + 354H + 2270158
             </p>
-            <p id="formulaDesc" style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">
+            <p id="formulaDesc" style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;" data-i18n="formulaDesc">
                 Optimized Tabular (Type II) algorithm.
             </p>
         </div>
     </div>
 
     <div class="calendar-header">
-        <button id="prevMonthBtn" class="secondary" style="width: auto;">&larr; Prev</button>
+        <button id="prevMonthBtn" class="secondary" style="width: auto;" data-i18n-aria="prevMonthLabel">&larr; Prev</button>
         <h2 id="monthDisplay">January 2026</h2>
-        <button id="nextMonthBtn" class="secondary" style="width: auto;">Next &rarr;</button>
+        <button id="nextMonthBtn" class="secondary" style="width: auto;" data-i18n-aria="nextMonthLabel">Next &rarr;</button>
     </div>
 
     <div class="calendar-grid" id="calendar">
         <!-- JS will populate -->
     </div>
 
-    <p class="info-text" id="footerNote">
+    <p class="info-text" id="footerNote" data-i18n="footer">
         * Dates start at sunset. MABBIMS Criteria: Alt ≥ 3°, Elong ≥ 6.4°.
     </p>
 </div>
 
 <dialog id="prefDialog">
     <div class="dialog-header">
-        <h3 id="prefTitle">Preferences</h3>
+        <h3 id="prefTitle" data-i18n="prefTitle">Preferences</h3>
         <button id="closePref" class="close-button" aria-label="Close Settings">&times;</button>
     </div>
 
     <div class="group">
         <label>
-            <span id="langLabel">Language</span>
+            <span id="langLabel" data-i18n="langLabel">Language</span>
             <select id="language">
                 <option value="en">English</option>
                 <option value="id">Bahasa Indonesia</option>
             </select>
         </label>
         <label>
-            <span id="themeLabel">Theme</span>
+            <span id="themeLabel" data-i18n="themeLabel">Theme</span>
             <select id="theme">
                 <option value="auto">Auto</option>
                 <option value="light">Light</option>
@@ -388,14 +388,14 @@
             </select>
         </label>
         <label>
-            <span id="primaryCalLabel">Primary Calendar</span>
+            <span id="primaryCalLabel" data-i18n="primaryCalLabel">Primary Calendar</span>
             <select id="primaryCalendar">
                 <option value="gregorian">Gregorian</option>
                 <option value="hijri">Hijri</option>
             </select>
         </label>
         <label>
-            <span id="weekStartLabel">Week starts on</span>
+            <span id="weekStartLabel" data-i18n="weekStartLabel">Week starts on</span>
             <select id="weekStart">
                 <option value="0">Sunday</option>
                 <option value="1">Monday</option>
@@ -406,8 +406,8 @@
 
     <div class="group">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem">
-            <label id="locLabel" style="margin-bottom:0">Location</label>
-            <button id="myLocBtn" style="width:auto; padding: .25rem .5rem; font-size:.8rem; background:transparent; color:var(--primary); border:none;">Use My Location</button>
+            <label id="locLabel" style="margin-bottom:0" data-i18n="locLabel">Location</label>
+            <button id="myLocBtn" style="width:auto; padding: .25rem .5rem; font-size:.8rem; background:transparent; color:var(--primary); border:none;" data-i18n="myLoc">Use My Location</button>
         </div>
         <div class="row">
             <div style="flex:1">
@@ -422,14 +422,14 @@
     </div>
 
     <div class="group">
-        <label id="adjLabel">Hijri Adjustment (Days)</label>
+        <label id="adjLabel" data-i18n="adjLabel">Hijri Adjustment (Days)</label>
         <input type="number" id="hijriAdj" value="0" min="-2" max="2">
         <small style="opacity: 0.6;">Shifts the Tabular formula.</small>
     </div>
 
     <div style="display: flex; gap: 10px; margin-top: 1rem;">
-        <button id="resetPrefBtn" class="secondary">Reset Defaults</button>
-        <button id="savePrefBtn" class="primary">Save & Close</button>
+        <button id="resetPrefBtn" class="secondary" data-i18n="reset">Reset Defaults</button>
+        <button id="savePrefBtn" class="primary" data-i18n="save">Save & Close</button>
     </div>
 </dialog>
 
@@ -736,41 +736,23 @@
 
         updateLanguage(lang) {
             const t = text[lang];
-            elements.appTitle.textContent = t.appTitle;
+
+            // Static text content
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.textContent = t[key];
+            });
+
+            // Accessibility labels
+            document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+                const key = el.getAttribute('data-i18n-aria');
+                if (t[key]) el.setAttribute('aria-label', t[key]);
+            });
+
             elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon);
             if (this.isOffline) {
                 elements.appSubtitle.textContent += " (Offline/Heuristic)";
             }
-            elements.gotoTitle.textContent = t.gotoTitle;
-            elements.todayBtn.textContent = t.today;
-            elements.formulaTitle.textContent = t.formulaTitle;
-            elements.formulaDesc.textContent = t.formulaDesc;
-            elements.prefTitle.textContent = t.prefTitle;
-
-            elements.langLabel.textContent = t.langLabel;
-            elements.themeLabel.textContent = t.themeLabel;
-            elements.primaryCalLabel.textContent = t.primaryCalLabel;
-            elements.weekStartLabel.textContent = t.weekStartLabel;
-            elements.locLabel.textContent = t.locLabel;
-            elements.adjLabel.textContent = t.adjLabel;
-
-            elements.savePrefBtn.textContent = t.save;
-            elements.resetPrefBtn.textContent = t.reset;
-            elements.myLocBtn.textContent = t.myLoc;
-            elements.goBtn.textContent = t.go;
-            elements.goHBtn.textContent = t.goH;
-            elements.footerNote.textContent = t.footer;
-            elements.prefBtn.textContent = t.prefTitle;
-
-            // Update ARIA labels for accessibility
-            elements.gDateInput.setAttribute('aria-label', t.gDateLabel);
-            elements.hDayInput.setAttribute('aria-label', t.hDayLabel);
-            elements.hMonthInput.setAttribute('aria-label', t.hMonthLabel);
-            elements.hYearInput.setAttribute('aria-label', t.hYearLabel);
-            elements.goBtn.setAttribute('aria-label', t.goBtnLabel);
-            elements.goHBtn.setAttribute('aria-label', t.goHBtnLabel);
-            elements.prevMonthBtn.setAttribute('aria-label', t.prevMonthLabel);
-            elements.nextMonthBtn.setAttribute('aria-label', t.nextMonthLabel);
 
             // Update Hijri Month Select Options
             [...elements.hMonthInput.options].forEach((opt, i) => {

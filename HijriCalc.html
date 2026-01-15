@@ -712,10 +712,16 @@
             }
         }
 
+        formatCoordinates(lat, lon) {
+            const latDir = lat >= 0 ? 'N' : 'S';
+            const lonDir = lon >= 0 ? 'E' : 'W';
+            return `${Math.abs(lat)}° ${latDir}, ${Math.abs(lon)}° ${lonDir}`;
+        }
+
         updateLanguage(lang) {
             const t = text[lang];
             elements.appTitle.textContent = t.appTitle;
-            elements.appSubtitle.textContent = `${state.lat}° N, ${state.lon}° E`;
+            elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon);
             if (this.isOffline) {
                 elements.appSubtitle.textContent += " (Offline/Heuristic)";
             }

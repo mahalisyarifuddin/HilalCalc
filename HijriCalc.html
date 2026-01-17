@@ -639,8 +639,14 @@
             elements.hDayInput.value = h.day;
             elements.hMonthInput.value = h.month;
             elements.hYearInput.value = h.year;
+            this.updateHijriDayLimit();
 
             // Events
+            const validateHijri = () => this.updateHijriDayLimit();
+            elements.hMonthInput.addEventListener('change', validateHijri);
+            elements.hYearInput.addEventListener('change', validateHijri);
+            elements.hYearInput.addEventListener('input', validateHijri);
+
             elements.prefBtn.onclick = () => elements.prefDialog.showModal();
             elements.closePref.onclick = () => elements.prefDialog.close();
             elements.savePrefBtn.onclick = () => {
@@ -715,6 +721,27 @@
             elements.hDayInput.value = h.day;
             elements.hMonthInput.value = h.month;
             elements.hYearInput.value = h.year;
+            this.updateHijriDayLimit();
+        }
+
+        updateHijriDayLimit() {
+            const m = parseInt(elements.hMonthInput.value);
+            const y = parseInt(elements.hYearInput.value);
+            if (isNaN(m) || isNaN(y)) return;
+
+            // Calculate current month start
+            const currentStart = this.getAccurateHijriMonthStart(y, m);
+
+            // Calculate next month start to find duration
+            let nextM = m + 1;
+            let nextY = y;
+            if (nextM > 11) { nextM = 0; nextY++; }
+            const nextStart = this.getAccurateHijriMonthStart(nextY, nextM);
+
+            const daysInMonth = Math.round((nextStart.gDate - currentStart.gDate) / 86400000);
+
+            elements.hDayInput.max = daysInMonth;
+            elements.hDayInput.placeholder = `1-${daysInMonth}`;
         }
 
         getLocation() {

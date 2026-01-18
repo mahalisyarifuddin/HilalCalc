@@ -697,6 +697,40 @@
                     this.setDateToInput(elements.gDateInput, gDate);
                 }
             };
+
+            // Keyboard Navigation (Delegation)
+            elements.calendar.addEventListener('keydown', (e) => {
+                const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Enter', ' '];
+                if (!keys.includes(e.key)) return;
+
+                const cell = e.target.closest('.day-cell');
+                if (!cell) return;
+
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    cell.click();
+                    return;
+                }
+
+                e.preventDefault();
+                const cells = Array.from(elements.calendar.querySelectorAll('.day-cell'));
+                const idx = cells.indexOf(cell);
+                if (idx === -1) return;
+
+                let newIdx = idx;
+                if (e.key === 'ArrowRight') newIdx++;
+                else if (e.key === 'ArrowLeft') newIdx--;
+                else if (e.key === 'ArrowDown') newIdx += 7;
+                else if (e.key === 'ArrowUp') newIdx -= 7;
+                else if (e.key === 'Home') newIdx = 0;
+                else if (e.key === 'End') newIdx = cells.length - 1;
+
+                if (newIdx >= 0 && newIdx < cells.length) {
+                    cell.tabIndex = -1;
+                    cells[newIdx].tabIndex = 0;
+                    cells[newIdx].focus();
+                }
+            });
         }
 
         navigateMonth(delta) {
@@ -1072,6 +1106,8 @@
             const grid = elements.calendar;
             const t = text[state.lang];
 
+            grid.setAttribute('role', 'grid');
+
             // Generate Headers
             grid.innerHTML = '';
             for(let i=0; i<7; i++) {
@@ -1079,6 +1115,7 @@
                 const el = document.createElement('div');
                 el.className = 'day-header';
                 el.textContent = t.days[dIndex];
+                el.setAttribute('role', 'columnheader');
                 grid.appendChild(el);
             }
 
@@ -1178,7 +1215,8 @@
 
                 const el = document.createElement('div');
                 el.className = 'day-cell';
-                el.tabIndex = 0;
+                el.setAttribute('role', 'gridcell');
+                el.tabIndex = -1; // Roving TabIndex initialization
 
                 // Determine styling class
                 if (isGregorianMode) {
@@ -1198,17 +1236,14 @@
                 }
 
                 // Interactivity
-                const selectDate = () => {
+                el.onclick = () => {
                     this.setDateToInput(elements.gDateInput, date);
                     this.updateHijriInputs(date);
                     this.render(); // Re-render to update selection
-                };
-                el.onclick = selectDate;
-                el.onkeydown = (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        selectDate();
-                    }
+
+                    // Restore focus to the newly selected cell
+                    const selected = elements.calendar.querySelector('.day-cell.selected');
+                    if (selected) selected.focus();
                 };
 
                 const fullDate = date.toLocaleDateString(state.lang==='id'?'id-ID':'en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
@@ -1236,6 +1271,21 @@
                     </div>
                 `;
                 grid.appendChild(el);
+            }
+
+            // Set initial focus candidate (Roving TabIndex)
+            const cells = grid.querySelectorAll('.day-cell');
+            let focusCandidate = grid.querySelector('.day-cell.selected');
+            if (!focusCandidate) {
+                // Try finding today if in view
+                focusCandidate = grid.querySelector('.day-cell.today');
+            }
+            if (!focusCandidate && cells.length > 0) {
+                // Default to first cell
+                focusCandidate = cells[0];
+            }
+            if (focusCandidate) {
+                focusCandidate.tabIndex = 0;
             }
         }
     }

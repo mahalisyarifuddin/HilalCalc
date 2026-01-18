@@ -162,6 +162,9 @@
 
         .day-cell.other-month { opacity: 0.5; background: var(--formula-bg); }
         .day-cell.today { background: var(--highlight-bg); }
+        .day-cell.selected { border: 2px solid var(--primary); }
+        .day-cell:hover { background: var(--muted); cursor: pointer; }
+        .day-cell:focus { outline: 2px solid var(--primary); z-index: 10; }
 
         /* Default: Gregorian Primary */
         .gregorian-date { font-size: 1.2rem; font-weight: 700; order: 1; }
@@ -623,7 +626,7 @@
             elements.primaryCalendar.value = state.primaryCalendar;
             elements.theme.value = state.theme;
 
-            elements.gDateInput.valueAsDate = new Date();
+            this.setDateToInput(elements.gDateInput, new Date());
 
             // Populate Hijri Month Select
             // (Will be updated with language later, but init struct here)
@@ -662,7 +665,7 @@
 
             elements.todayBtn.onclick = () => {
                 state.viewDate = new Date();
-                elements.gDateInput.valueAsDate = state.viewDate;
+                this.setDateToInput(elements.gDateInput, state.viewDate);
                 this.updateHijriInputs(state.viewDate);
                 this.render();
             };
@@ -675,7 +678,7 @@
             };
 
             elements.goBtn.onclick = () => {
-                const d = elements.gDateInput.valueAsDate;
+                const d = this.getDateFromInput(elements.gDateInput);
                 if(d) {
                     state.viewDate = d;
                     this.updateHijriInputs(d);
@@ -691,7 +694,7 @@
                     const gDate = this.hijriToGregorian(y, m, d);
                     state.viewDate = gDate;
                     this.render();
-                    elements.gDateInput.valueAsDate = gDate;
+                    this.setDateToInput(elements.gDateInput, gDate);
                 }
             };
         }
@@ -759,6 +762,20 @@
             const latDir = lat >= 0 ? 'N' : 'S';
             const lonDir = lon >= 0 ? 'E' : 'W';
             return `${Math.abs(lat)}° ${latDir}, ${Math.abs(lon)}° ${lonDir}`;
+        }
+
+        // Date Helpers to avoid Timezone issues with valueAsDate
+        getDateFromInput(input) {
+            if (!input.value) return null;
+            const [y, m, d] = input.value.split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        setDateToInput(input, date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            input.value = `${y}-${m}-${d}`;
         }
 
         updateLanguage(lang) {
@@ -1090,6 +1107,10 @@
             const today = new Date();
             today.setHours(0,0,0,0);
 
+            // Get currently selected date from input
+            const selectedDate = this.getDateFromInput(elements.gDateInput);
+            const selectedTime = selectedDate ? selectedDate.getTime() : -1;
+
             for (let i = 0; i < 42; i++) {
                 const date = new Date(gridStartDate);
                 date.setDate(gridStartDate.getDate() + i);
@@ -1157,6 +1178,7 @@
 
                 const el = document.createElement('div');
                 el.className = 'day-cell';
+                el.tabIndex = 0;
 
                 // Determine styling class
                 if (isGregorianMode) {
@@ -1168,7 +1190,29 @@
                     }
                 }
 
-                if (date.getTime() === today.getTime()) el.classList.add('today');
+                const dateTime = date.getTime();
+                if (dateTime === today.getTime()) el.classList.add('today');
+                if (dateTime === selectedTime) {
+                    el.classList.add('selected');
+                    el.setAttribute('aria-selected', 'true');
+                }
+
+                // Interactivity
+                const selectDate = () => {
+                    this.setDateToInput(elements.gDateInput, date);
+                    this.updateHijriInputs(date);
+                    this.render(); // Re-render to update selection
+                };
+                el.onclick = selectDate;
+                el.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectDate();
+                    }
+                };
+
+                const fullDate = date.toLocaleDateString(state.lang==='id'?'id-ID':'en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+                el.setAttribute('aria-label', `${fullDate}, ${hDateDisplay} ${hMonthNameDisplay}`);
 
                 // Content
                 // Hijri Mode: Hijri Date is Primary (Big), Gregorian is Secondary (Small)

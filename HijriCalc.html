@@ -455,6 +455,7 @@
             save: 'Save & Close',
             reset: 'Reset Defaults',
             myLoc: 'Use My Location',
+            locating: 'Locating...',
             go: 'Go',
             goH: 'Go to Hijri',
             months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
@@ -485,6 +486,7 @@
             save: 'Simpan & Tutup',
             reset: 'Atur Ulang',
             myLoc: 'Gunakan Lokasi Saya',
+            locating: 'Mencari lokasi...',
             go: 'Buka',
             goH: 'Buka Hijriyah',
             months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
@@ -783,9 +785,23 @@
 
         getLocation() {
             if (navigator.geolocation) {
+                const btn = elements.myLocBtn;
+                const originalText = btn.textContent;
+                const t = text[state.lang];
+
+                btn.disabled = true;
+                btn.textContent = t.locating || 'Locating...';
+
                 navigator.geolocation.getCurrentPosition((pos) => {
                     elements.latInput.value = pos.coords.latitude.toFixed(4);
                     elements.lonInput.value = pos.coords.longitude.toFixed(4);
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }, (err) => {
+                    console.error(err);
+                    alert("Error getting location: " + err.message);
+                    btn.disabled = false;
+                    btn.textContent = originalText;
                 });
             } else {
                 alert("Geolocation is not supported by this browser.");

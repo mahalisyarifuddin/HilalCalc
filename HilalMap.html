@@ -310,7 +310,8 @@
 						</select>
 					</div>
 					<div class="group">
-						<button id="getLocation" class="secondary" style="margin-top: 1.7rem;">📍 Use My Location</button>
+						<label>&nbsp;</label>
+						<button id="getLocation" class="secondary">📍 Use My Location</button>
 					</div>
 				</div>
 
@@ -634,8 +635,11 @@ self.onmessage = function(e) {
 					navigator.geolocation ?
 						navigator.geolocation.getCurrentPosition(
 							(position) => {
+								const lon = position.coords.longitude;
 								elements.calcLat.value = position.coords.latitude.toFixed(4);
-								elements.calcLon.value = position.coords.longitude.toFixed(4);
+								elements.calcLon.value = lon.toFixed(4);
+								// Auto-detect UTC offset based on longitude (approx 15 degrees per hour)
+								elements.calcUtcOffset.value = Math.round(lon / 15);
 							},
 							(error) => {
 								alert("Error getting location: " + error.message);

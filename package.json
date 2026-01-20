@@ -2,5 +2,8 @@
   "dependencies": {
     "astronomy-engine": "^2.1.19",
     "playwright": "^1.57.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
   }
 }

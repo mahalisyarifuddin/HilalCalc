@@ -310,6 +310,19 @@
             /* Horizontal scrolling on mobile */
             .calendar-grid { display: grid; overflow-x: auto; }
         }
+
+        .spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            vertical-align: text-bottom;
+            margin-right: 4px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -679,7 +692,7 @@
                 this.navigateMonth(1);
             };
 
-            elements.goBtn.onclick = () => {
+            const handleGo = () => {
                 const d = this.getDateFromInput(elements.gDateInput);
                 if(d) {
                     state.viewDate = d;
@@ -687,8 +700,13 @@
                     this.render();
                 }
             };
+            elements.goBtn.onclick = handleGo;
+            elements.gDateInput.addEventListener('change', handleGo);
+            elements.gDateInput.addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') handleGo();
+            });
 
-            elements.goHBtn.onclick = () => {
+            const handleGoH = () => {
                 const d = parseInt(elements.hDayInput.value);
                 const m = parseInt(elements.hMonthInput.value);
                 const y = parseInt(elements.hYearInput.value);
@@ -699,6 +717,12 @@
                     this.setDateToInput(elements.gDateInput, gDate);
                 }
             };
+            elements.goHBtn.onclick = handleGoH;
+            [elements.hDayInput, elements.hMonthInput, elements.hYearInput].forEach(el => {
+                el.addEventListener('keydown', (e) => {
+                    if(e.key === 'Enter') handleGoH();
+                });
+            });
 
             // Keyboard Navigation (Delegation)
             elements.calendar.addEventListener('keydown', (e) => {
@@ -850,7 +874,7 @@
                 const t = text[state.lang];
 
                 btn.disabled = true;
-                btn.textContent = t.locating || 'Locating...';
+                btn.innerHTML = `<span class="spinner"></span> ${t.locating || 'Locating...'}`;
 
                 navigator.geolocation.getCurrentPosition((pos) => {
                     elements.latInput.value = pos.coords.latitude.toFixed(4);

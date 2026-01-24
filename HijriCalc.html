@@ -532,6 +532,7 @@
     class HijriCalc {
         constructor() {
             this.isOffline = (typeof Astronomy === 'undefined');
+            this.CACHE_VERSION = 1;
             this.loadState();
 
             // Override viewDate to today regardless of persisted state, as requested
@@ -575,6 +576,42 @@
                 }
             } catch (e) {
                 console.error("Failed to load state", e);
+            }
+        }
+
+        loadCache() {
+            try {
+                const saved = localStorage.getItem('hijriCalcCache');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.version === this.CACHE_VERSION) {
+                        this.cache = parsed.data;
+                    } else {
+                        // console.log("Cache version mismatch or invalid, clearing.");
+                        this.cache = {};
+                    }
+                } else {
+                    this.cache = {};
+                }
+            } catch (e) {
+                console.error("Failed to load cache", e);
+                this.cache = {};
+            }
+        }
+
+        scheduleSaveCache() {
+            if (this.saveTimeout) clearTimeout(this.saveTimeout);
+            this.saveTimeout = setTimeout(() => this.saveCache(), 1000);
+        }
+
+        saveCache() {
+            try {
+                localStorage.setItem('hijriCalcCache', JSON.stringify({
+                    version: this.CACHE_VERSION,
+                    data: this.cache
+                }));
+            } catch (e) {
+                console.warn("Failed to save cache", e);
             }
         }
 
@@ -1111,9 +1148,15 @@
                 return { gDate: this.hijriToGregorianTabular(hYear, hMonth, 1) };
             }
 
+            if (!this.cache) this.loadCache();
             const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}`;
-            if (this.cache && this.cache[cacheKey]) return this.cache[cacheKey];
-            if (!this.cache) this.cache = {};
+
+            if (this.cache[cacheKey]) {
+                if (typeof this.cache[cacheKey].gDate === 'string') {
+                    this.cache[cacheKey].gDate = new Date(this.cache[cacheKey].gDate);
+                }
+                return this.cache[cacheKey];
+            }
 
             const daysSinceAnchor = ((hYear - 1445) * 354.367) + (hMonth * 29.53);
             const anchorDate = new Date("2023-07-19T12:00:00Z");
@@ -1145,6 +1188,7 @@
 
             const result = { gDate: startDate };
             this.cache[cacheKey] = result;
+            this.scheduleSaveCache();
             return result;
         }
 

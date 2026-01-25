@@ -902,6 +902,10 @@
 
             elements.hDayInput.max = daysInMonth;
             elements.hDayInput.placeholder = `1-${daysInMonth}`;
+
+            if (parseInt(elements.hDayInput.value) > daysInMonth) {
+                elements.hDayInput.value = daysInMonth;
+            }
         }
 
         getLocation() {

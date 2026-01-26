@@ -12,7 +12,7 @@
             --background: #f9f9ff;
             --surface: #ffffff;
             --text: #181c21;
-            --border: #c1c6d4;
+            --border: #8D93A1;
             --muted: #f2f3fc;
             --success: #0b6b1d;
             --on-success: #ffffff;
@@ -368,7 +368,7 @@
 
     <div class="calendar-header">
         <button id="prevMonthBtn" class="secondary" style="width: auto;" data-i18n-aria="prevMonthLabel">&larr; Prev</button>
-        <h2 id="monthDisplay">January 2026</h2>
+        <h2 id="monthDisplay" aria-live="polite">January 2026</h2>
         <button id="nextMonthBtn" class="secondary" style="width: auto;" data-i18n-aria="nextMonthLabel">Next &rarr;</button>
     </div>
 
@@ -759,6 +759,7 @@
                 el.addEventListener('keydown', (e) => {
                     if(e.key === 'Enter') handleGoH();
                 });
+                el.addEventListener('change', handleGoH);
             });
 
             // Keyboard Navigation (Delegation)

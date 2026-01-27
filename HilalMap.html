@@ -208,6 +208,22 @@
 					height: 350px;
 				}
 			}
+			 .spinner  {
+				display: inline-block;
+				width: 1em;
+				height: 1em;
+				border: 2px solid currentColor;
+				border-right-color: transparent;
+				border-radius: 50%;
+				animation: spin 0.75s linear infinite;
+				vertical-align: text-bottom;
+				margin-right: 4px;
+			}
+			 @keyframes spin  {
+				100%  {
+					transform: rotate(360deg);
+				}
+			}
 		</style>
 	</head>
 	<body>
@@ -340,6 +356,8 @@
 		<script>
 			const text = {
 				en: {
+					locating: 'Locating...',
+					calculating: 'Calculating...',
 					utcOffsetLabel: 'UTC Offset',
 					autoTheme: 'Auto Theme',
 					lightTheme: 'Light',
@@ -375,6 +393,8 @@
 					notVisible: 'Not Visible'
 				},
 				id: {
+					locating: 'Mencari lokasi...',
+					calculating: 'Menghitung...',
 					utcOffsetLabel: 'Selisih UTC',
 					autoTheme: 'Tema Otomatis',
 					lightTheme: 'Terang',
@@ -631,7 +651,14 @@ self.onmessage = function(e) {
 				}
 
 				getCurrentLocation() {
-					navigator.geolocation ?
+					const btn = elements.getLocation;
+					const originalText = btn.innerHTML;
+					const t = this.string("locating");
+
+					btn.disabled = true;
+					btn.innerHTML = `<span class="spinner"></span> ${t}`;
+
+					if (navigator.geolocation) {
 						navigator.geolocation.getCurrentPosition(
 							(position) => {
 								const lon = position.coords.longitude;
@@ -639,12 +666,20 @@ self.onmessage = function(e) {
 								elements.calcLon.value = lon.toFixed(4);
 								// Auto-detect UTC offset based on longitude (approx 15 degrees per hour)
 								elements.calcUtcOffset.value = Math.round(lon / 15);
+								btn.disabled = false;
+								btn.innerHTML = originalText;
 							},
 							(error) => {
 								alert("Error getting location: " + error.message);
+								btn.disabled = false;
+								btn.innerHTML = originalText;
 							}
-						) :
+						);
+					} else {
 						alert("Geolocation is not supported by this browser.");
+						btn.disabled = false;
+						btn.innerHTML = originalText;
+					}
 				}
 
 				calculateDetails() {
@@ -761,7 +796,9 @@ self.onmessage = function(e) {
 					this.isRendering = true;
 					elements.renderMap.disabled = false;
 					elements.renderMap.textContent = "Cancel";
-					elements.mapStatus.textContent = "Calculating (Worker)...";
+
+					const t = this.string("calculating");
+					elements.mapStatus.innerHTML = `<span class="spinner"></span> ${t}`;
 
 					const mapBounds = this.map.getBounds();
 					const bounds = {

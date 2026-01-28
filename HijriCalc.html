@@ -432,16 +432,16 @@
 <body>
 	<div class="container">
 		<div class="selectors">
-			<button id="prefBtn" class="secondary" style="width:auto; padding: 6px 12px;" data-i18n="prefTitle">Settings</button>
+			<button id="prefBtn" class="secondary" style="width:auto; padding: 6px 12px;" data-i18n="prefTitle"></button>
 		</div>
-		<h1 id="appTitle" data-i18n="appTitle">MABBIMS Hijri Calendar</h1>
-		<p id="appSubtitle" style="opacity: 0.7; margin-bottom: 2rem;">6°04′30″ N 95°06′45″ E (UTC+7)</p>
+		<h1 id="appTitle" data-i18n="appTitle"></h1>
+		<p id="appSubtitle" style="opacity: 0.7; margin-bottom: 2rem;"></p>
 		<div class="controls">
 			<div class="control-group">
-				<label class="sr-only" data-i18n="gDateLabel">Gregorian Date</label>
+				<label class="sr-only" data-i18n="gDateLabel"></label>
 				<div class="input-group">
 					<input type="date" id="gDateInput" data-i18n-aria="gDateLabel">
-					<button id="todayBtn" class="secondary" data-i18n="today" style="flex:0.3">Today</button>
+					<button id="todayBtn" class="secondary" data-i18n="today" style="flex:0.3"></button>
 				</div>
 				<div class="input-group" style="margin-bottom:0">
 					<input type="number" id="hDayInput" placeholder="D" min="1" max="30" data-i18n-aria="hDayLabel">
@@ -452,59 +452,59 @@
 			</div>
 		</div>
 		<div class="calendar-header">
-			<button id="prevMonthBtn" class="secondary" style="width: auto;" data-i18n="prevBtn" data-i18n-aria="prevMonthLabel">&larr; Prev</button>
-			<h2 id="monthDisplay">January 2026</h2>
-			<button id="nextMonthBtn" class="secondary" style="width: auto;" data-i18n="nextBtn" data-i18n-aria="nextMonthLabel">Next &rarr;</button>
+			<button id="prevMonthBtn" class="secondary" style="width: auto;" data-i18n="prevBtn" data-i18n-aria="prevMonthLabel"></button>
+			<h2 id="monthDisplay"></h2>
+			<button id="nextMonthBtn" class="secondary" style="width: auto;" data-i18n="nextBtn" data-i18n-aria="nextMonthLabel"></button>
 		</div>
 		<div class="calendar-grid" id="calendar"></div>
 		<details>
-			<summary><span data-i18n="formulaTitle">Heuristic Formula</span></summary>
+			<summary><span data-i18n="formulaTitle"></span></summary>
 			<p style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 5px;">JD = floor( (11H + 14) / 30 ) + 354H + 2270158</p>
-			<p id="formulaDesc" style="font-size: 0.8rem; opacity: 0.8;" data-i18n="formulaDesc">Optimized Tabular (Type II) algorithm.</p>
-			<p class="info-text" id="footerNote" data-i18n="footer">* Dates start at sunset. MABBIMS Criteria: Alt ≥ 3°, Elong ≥ 6.4°.</p>
+			<p id="formulaDesc" style="font-size: 0.8rem; opacity: 0.8;" data-i18n="formulaDesc"></p>
+			<p class="info-text" id="footerNote" data-i18n="footer"></p>
 		</details>
 	</div>
 	<dialog id="prefDialog">
 		<div class="dialog-header">
-			<h3 id="prefTitle" data-i18n="prefTitle">Preferences</h3>
+			<h3 id="prefTitle" data-i18n="prefTitle"></h3>
 			<button id="closePref" class="close-button" aria-label="Close Settings">&times;</button>
 		</div>
 		<div class="group">
 			<label>
-				<span id="langLabel" data-i18n="langLabel">Language</span>
+				<span id="langLabel" data-i18n="langLabel"></span>
 				<select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
 			</label>
 			<label>
-				<span id="themeLabel" data-i18n="themeLabel">Theme</span>
+				<span id="themeLabel" data-i18n="themeLabel"></span>
 				<select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
 			</label>
 			<label>
-				<span id="primaryCalLabel" data-i18n="primaryCalLabel">Primary Calendar</span>
+				<span id="primaryCalLabel" data-i18n="primaryCalLabel"></span>
 				<select id="primaryCalendar"><option value="gregorian">Gregorian</option><option value="hijri">Hijri</option></select>
 			</label>
 			<label>
-				<span id="weekStartLabel" data-i18n="weekStartLabel">Week starts on</span>
+				<span id="weekStartLabel" data-i18n="weekStartLabel"></span>
 				<select id="weekStart"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select>
 			</label>
 		</div>
 		<div class="group">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem">
-				<label id="locLabel" style="margin-bottom:0" data-i18n="locLabel">Location</label>
-				<button id="myLocBtn" style="width:auto; padding: .25rem .5rem; font-size:.8rem; background:transparent; color:var(--primary); border:none;" data-i18n="myLoc">Use My Location</button>
+				<label id="locLabel" style="margin-bottom:0" data-i18n="locLabel"></label>
+				<button id="myLocBtn" style="width:auto; padding: .25rem .5rem; font-size:.8rem; background:transparent; color:var(--primary); border:none;" data-i18n="myLoc"></button>
 			</div>
 			<div class="row">
-				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="latLabel">Lat</label><input type="number" id="latInput" step="0.0001"></div>
-				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="lonLabel">Lon</label><input type="number" id="lonInput" step="0.0001"></div>
+				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="latLabel"></label><input type="number" id="latInput" step="0.0001"></div>
+				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="lonLabel"></label><input type="number" id="lonInput" step="0.0001"></div>
 			</div>
 		</div>
 		<div class="group">
-			<label id="adjLabel" data-i18n="adjLabel">Hijri Adjustment (Days)</label>
+			<label id="adjLabel" data-i18n="adjLabel"></label>
 			<input type="number" id="hijriAdj" value="0" min="-2" max="2">
-			<small style="opacity: 0.6;" data-i18n="adjNote">Shifts the Tabular formula.</small>
+			<small style="opacity: 0.6;" data-i18n="adjNote"></small>
 		</div>
 		<div style="display: flex; gap: 10px; margin-top: 1rem;">
-			<button id="resetPrefBtn" class="secondary" data-i18n="reset">Reset Defaults</button>
-			<button id="savePrefBtn" class="primary" data-i18n="save">Save & Close</button>
+			<button id="resetPrefBtn" class="secondary" data-i18n="reset"></button>
+			<button id="savePrefBtn" class="primary" data-i18n="save"></button>
 		</div>
 	</dialog>
 	<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>

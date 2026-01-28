@@ -232,24 +232,24 @@
 			<select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
 			<select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
 		</div>
-		<h1 id="mapTitle">Hilal Visibility Map</h1>
+		<h1 id="mapTitle"></h1>
 		<div class="tabs">
-			<button id="tabMap" class="tab active">Map</button>
-			<button id="tabCalc" class="tab">Detailed Calculations</button>
+			<button id="tabMap" class="tab active"></button>
+			<button id="tabCalc" class="tab"></button>
 		</div>
 		<div id="mapView">
 			<div id="controls">
 				<div class="row">
 					<div class="group">
-						<label id="dateLabel" for="mapDate">Date</label>
+						<label id="dateLabel" for="mapDate"></label>
 						<input type="date" id="mapDate">
 					</div>
 					<div class="group">
-						<label id="regionLabel" for="mapRegion">Region</label>
+						<label id="regionLabel" for="mapRegion"></label>
 						<select id="mapRegion"><option value="indonesia">Indonesia</option><option value="world">World</option></select>
 					</div>
 					<div class="group">
-						<label id="criteriaLabel" for="mapCriteria">Criteria</label>
+						<label id="criteriaLabel" for="mapCriteria"></label>
 						<select id="mapCriteria">
 							<option value="mabbims">MABBIMS (Alt≥3°, Elong≥6.4°)</option>
 							<option value="gic">Global Islamic (Alt≥5°, Elong≥8°, <12am UTC)</option>
@@ -260,46 +260,46 @@
 				</div>
 				<div class="row hidden" id="customCriteriaInputs">
 					<div class="group">
-						<label id="minAltLabel" for="minAlt">Min Altitude (°)</label>
+						<label id="minAltLabel" for="minAlt"></label>
 						<input type="number" id="minAlt" value="0" step="0.1">
 					</div>
 					<div class="group">
-						<label id="minElongLabel" for="minElong">Min Elongation (°)</label>
+						<label id="minElongLabel" for="minElong"></label>
 						<input type="number" id="minElong" value="0" step="0.1">
 					</div>
 				</div>
 				<div class="row">
-					<button id="renderMap" class="primary">Render Map</button>
+					<button id="renderMap" class="primary"></button>
 				</div>
 			</div>
 			<div id="mapStatus" class="info" style="font-style:italic; min-height: 1.2em;"></div>
 			<div id="map"></div>
 			<div id="mapLegend" class="info" style="margin-top:0.5rem">
-				<span style="display:inline-block;width:12px;height:12px;background:rgba(0, 255, 0, 0.5);margin-right:4px;border:1px solid green"></span><span id="legendVisible">Visible</span>
+				<span style="display:inline-block;width:12px;height:12px;background:rgba(0, 255, 0, 0.5);margin-right:4px;border:1px solid green"></span><span id="legendVisible"></span>
 			</div>
 		</div>
 		<div id="calcView" class="hidden">
 			<div class="row">
 				<div class="group">
-					<label id="calcDateLabel" for="calcDate">Date</label>
+					<label id="calcDateLabel" for="calcDate"></label>
 					<input type="date" id="calcDate">
 				</div>
 				<div class="group">
-					<label id="calcLatLabel" for="calcLat">Latitude</label>
+					<label id="calcLatLabel" for="calcLat"></label>
 					<input type="number" id="calcLat" step="0.0001" placeholder="-6.2000">
 				</div>
 				<div class="group">
-					<label id="calcLonLabel" for="calcLon">Longitude</label>
+					<label id="calcLonLabel" for="calcLon"></label>
 					<input type="number" id="calcLon" step="0.0001" placeholder="106.8166">
 				</div>
 				<div class="group">
-					<label id="utcOffsetLabel" for="calcUtcOffset">UTC Offset</label>
+					<label id="utcOffsetLabel" for="calcUtcOffset"></label>
 					<input type="number" id="calcUtcOffset" step="0.5" value="0" placeholder="e.g. 7">
 				</div>
 			</div>
 			<div class="row" style="align-items: flex-end;">
 				<div class="group">
-					<label id="calcCriteriaLabel" for="calcCriteria">Criteria</label>
+					<label id="calcCriteriaLabel" for="calcCriteria"></label>
 					<select id="calcCriteria">
 						<option value="mabbims">MABBIMS</option>
 						<option value="gic">Global Islamic</option>
@@ -308,21 +308,21 @@
 					</select>
 				</div>
 				<div class="group">
-					<button id="getLocation" class="secondary">📍 Use My Location</button>
+					<button id="getLocation" class="secondary"></button>
 				</div>
 			</div>
 			<div class="row hidden" id="calcCustomCriteriaInputs">
 				<div class="group">
-					<label for="calcMinAlt">Min Altitude (°)</label>
+					<label id="calcMinAltLabel" for="calcMinAlt"></label>
 					<input type="number" id="calcMinAlt" value="0" step="0.1">
 				</div>
 				<div class="group">
-					<label for="calcMinElong">Min Elongation (°)</label>
+					<label id="calcMinElongLabel" for="calcMinElong"></label>
 					<input type="number" id="calcMinElong" value="0" step="0.1">
 				</div>
 			</div>
 			<div class="row">
-				<button id="calculateBtn" class="primary">Calculate</button>
+				<button id="calculateBtn" class="primary"></button>
 			</div>
 			<div id="results"></div>
 		</div>
@@ -382,7 +382,9 @@
 				fillFields: 'Please fill in all fields correctly.',
 				geoError: 'Geolocation is not supported by this browser.',
 				locError: 'Error getting location: ',
-				utcPlaceholder: 'e.g. 7'
+				utcPlaceholder: 'e.g. 7',
+				calcMinAltLabel: 'Min Altitude (°)',
+				calcMinElongLabel: 'Min Elongation (°)'
 			},
 			id: {
 				locating: 'Mencari lokasi...',
@@ -435,7 +437,9 @@
 				fillFields: 'Mohon isi semua kolom dengan benar.',
 				geoError: 'Geolokasi tidak didukung oleh browser ini.',
 				locError: 'Gagal mendapatkan lokasi: ',
-				utcPlaceholder: 'contoh: 7'
+				utcPlaceholder: 'contoh: 7',
+				calcMinAltLabel: 'Min Tinggi (°)',
+				calcMinElongLabel: 'Min Elongasi (°)'
 			}
 		};
 		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });

@@ -938,7 +938,6 @@
 				if (this.isOffline) elements.appSubtitle.textContent += translation.offlineSuffix;
 				[...elements.hMonthInput.options].forEach((option, index) => { option.textContent = translation.months[index]; });
 
-				// Translate selects
 				[...elements.theme.options].forEach(opt => opt.textContent = translation['theme' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
 				[...elements.primaryCalendar.options].forEach(opt => opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
 				const weekDays = [translation.weekSun, translation.weekMon, null, null, null, null, translation.weekSat];

@@ -232,16 +232,15 @@
 		}
 		.controls { 
 			display: flex; 
-			gap: 1rem; 
+			justify-content: center;
 			margin-bottom: 1.5rem; 
-			flex-wrap: wrap; 
 		}
 		.control-group {
-			flex: 1;
-			min-width: 200px;
+			width: 100%;
+			max-width: 600px;
 			background: var(--formula-bg);
-			padding: 1rem;
-			border-radius: 6px;
+			padding: 1.5rem;
+			border-radius: 8px;
 			border: 1px solid var(--border);
 		}
 		.row { 
@@ -369,16 +368,17 @@
 			} 
 		}
 		.nav-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-		.small-btn { width: auto; padding: 4px 8px; font-size: 0.85rem; }
-		.nav-divider { border-top: 1px dashed var(--border); margin: 1rem 0; }
-		.input-group { display: flex; gap: 0.5rem; }
+		.small-btn { width: auto; padding: 6px 12px; font-size: 0.9rem; }
+		.input-group { display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
 		.input-group > * { flex: 1; }
-		.hijri-inputs { gap: 0.5rem; margin-bottom: 0.5rem; }
-		.full-width { width: 100%; }
 		.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 		#hDayInput { flex: 0.6; }
 		#hMonthInput { flex: 2; }
 		#hYearInput { flex: 1; }
+		#goHBtn { flex: 0.4; min-width: 40px; padding: 0.5rem; font-weight: bold; }
+		details { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+		summary { cursor: pointer; opacity: 0.8; font-size: 0.9rem; margin-bottom: 0.5rem; }
+		summary:hover { opacity: 1; color: var(--primary); }
 	</style>
 </head>
 <body>
@@ -389,28 +389,18 @@
 		<h1 id="appTitle" data-i18n="appTitle">MABBIMS Hijri Calendar</h1>
 		<p id="appSubtitle" style="opacity: 0.7; margin-bottom: 2rem;">6°04′30″ N 95°06′45″ E (UTC+7)</p>
 		<div class="controls">
-			<div class="control-group nav-panel">
-				<div class="nav-header">
-					<h3 id="gotoTitle" data-i18n="gotoTitle">Go to Date</h3>
-					<button id="todayBtn" class="secondary small-btn" data-i18n="today">Today</button>
-				</div>
+			<div class="control-group">
 				<label class="sr-only" data-i18n="gDateLabel">Gregorian Date</label>
 				<div class="input-group">
 					<input type="date" id="gDateInput" data-i18n-aria="gDateLabel">
-					<button id="goBtn" class="primary" data-i18n="go" data-i18n-aria="goBtnLabel">Go</button>
+					<button id="todayBtn" class="secondary small-btn" data-i18n="today" style="flex:0.3">Today</button>
 				</div>
-				<div class="nav-divider"></div>
-				<div class="input-group hijri-inputs">
+				<div class="input-group" style="margin-bottom:0">
 					<input type="number" id="hDayInput" placeholder="D" min="1" max="30" data-i18n-aria="hDayLabel">
 					<select id="hMonthInput" data-i18n-aria="hMonthLabel"></select>
 					<input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500" data-i18n-aria="hYearLabel" data-i18n-placeholder="yearPlaceholder">
+					<button id="goHBtn" class="primary" aria-label="Go to Hijri Date" data-i18n-aria="goHBtnLabel">&rarr;</button>
 				</div>
-				<button id="goHBtn" class="secondary full-width" data-i18n="goH" data-i18n-aria="goHBtnLabel">Go to Hijri</button>
-			</div>
-			<div class="control-group">
-				<h3 id="formulaTitle" data-i18n="formulaTitle">Heuristic Formula</h3>
-				<p style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px;">JD = floor( (11H + 14) / 30 ) + 354H + 2270158</p>
-				<p id="formulaDesc" style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;" data-i18n="formulaDesc">Optimized Tabular (Type II) algorithm.</p>
 			</div>
 		</div>
 		<div class="calendar-header">
@@ -419,7 +409,12 @@
 			<button id="nextMonthBtn" class="secondary" style="width: auto;" data-i18n="nextBtn" data-i18n-aria="nextMonthLabel">Next &rarr;</button>
 		</div>
 		<div class="calendar-grid" id="calendar"></div>
-		<p class="info-text" id="footerNote" data-i18n="footer">* Dates start at sunset. MABBIMS Criteria: Alt ≥ 3°, Elong ≥ 6.4°.</p>
+		<details>
+			<summary><span data-i18n="formulaTitle">Heuristic Formula</span></summary>
+			<p style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 5px;">JD = floor( (11H + 14) / 30 ) + 354H + 2270158</p>
+			<p id="formulaDesc" style="font-size: 0.8rem; opacity: 0.8;" data-i18n="formulaDesc">Optimized Tabular (Type II) algorithm.</p>
+			<p class="info-text" id="footerNote" data-i18n="footer">* Dates start at sunset. MABBIMS Criteria: Alt ≥ 3°, Elong ≥ 6.4°.</p>
+		</details>
 	</div>
 	<dialog id="prefDialog">
 		<div class="dialog-header">
@@ -693,7 +688,6 @@
 					const date = this.getDateFromInput(elements.gDateInput);
 					if (date) { state.viewDate = date; this.updateHijriInputs(date); this.render(); }
 				};
-				elements.goBtn.onclick = handleGo;
 				elements.gDateInput.addEventListener('change', handleGo);
 				elements.gDateInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') handleGo(); });
 

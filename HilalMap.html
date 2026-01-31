@@ -833,8 +833,8 @@ self.onmessage = function(e) {
 			handleRegionChange() {
 				const region = elements.mapRegion.value;
 
-				// Map bounds are 84°N to 84°S, -180° to 180°
-				const mapBounds = { minLat: -84, maxLat: 84, minLon: -180, maxLon: 180 };
+				// Map bounds are 82°N to 82°S, -180° to 180°
+				const mapBounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
 
 				if (region === "indonesia") {
 					// Indonesia region: -11° to 6° lat, 95° to 141° lon
@@ -900,13 +900,13 @@ self.onmessage = function(e) {
 				elements.renderMap.textContent = this.string("cancel");
 				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
 
-				// Define bounds based on region (image is 84°N to 84°S)
+				// Define bounds based on region (image is 82°N to 82°S)
 				const region = elements.mapRegion.value;
 				let bounds;
 				if (region === "indonesia") {
 					bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
 				} else {
-					bounds = { minLat: -84, maxLat: 84, minLon: -180, maxLon: 180 };
+					bounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
 				}
 
 				const criteria = elements.mapCriteria.value;
@@ -981,8 +981,8 @@ self.onmessage = function(e) {
 				tempCtx.putImageData(this.currentImageData, 0, 0);
 
 				// Calculate position based on bounds
-				// Image covers 84°N to 84°S, -180° to 180°
-				const imgBounds = { minLat: -84, maxLat: 84, minLon: -180, maxLon: 180 };
+				// Image covers 82°N to 82°S, -180° to 180°
+				const imgBounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
 				const dataBounds = this.lastBounds;
 
 				// Horizontal (Linear)

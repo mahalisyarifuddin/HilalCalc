@@ -524,8 +524,8 @@ self.onmessage = function(e) {
 				const observer = new Astronomy.Observer(lat, lon, 0);
 
 				// Adjust start time to approximate local noon for the search
-				// date.ut is 12:00 UTC. Subtract lon/15 to approximate local 12:00 converted to UTC.
-				const startUT = date.ut - (lon / 15);
+				// date.ut is 12:00 UTC. Subtract lon/15/24 (hours converted to days) to approximate local 12:00 converted to UTC.
+				const startUT = date.ut - (lon / 15 / 24);
 
 				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
 				let visible = false;
@@ -772,7 +772,7 @@ self.onmessage = function(e) {
 				const observer = new Astronomy.Observer(latitude, longitude, 0);
 				const date = Astronomy.MakeTime(dateObj);
 				// Adjust start time to approximate local noon
-				const startUT = date.ut - (longitude / 15);
+				const startUT = date.ut - (longitude / 15 / 24);
 				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
 				if (!sunset) {
 					elements.results.innerHTML = "<div class=\"result-card\">Error: Sun does not set on this date/location.</div>";

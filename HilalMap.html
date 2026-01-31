@@ -474,8 +474,14 @@
 			}
 		};
 
-		const WORKER_CODE = `
-importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
+		const WORKER_CODE = `importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
+
+function calculateSunset(lat, lon, baseDateUT) {
+	const observer = new Astronomy.Observer(lat, lon, 0);
+	const startUT = baseDateUT - (lon / 15 / 24);
+	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
+}
+
 self.onmessage = function(e) {
 	try {
 		const params = e.data;
@@ -512,6 +518,8 @@ self.onmessage = function(e) {
 		const maxY = latToMercatorY(bounds.maxLat);
 		const yRange = maxY - minY;
 
+		const STEP = 10;
+
 		for (let row = 0; row < height; row++) {
 			// Calculate latitude for this row (Mercator interpolation)
 			// Row 0 is top (maxY), Row height is bottom (minY)
@@ -519,19 +527,46 @@ self.onmessage = function(e) {
 			const mercY = maxY - normY * yRange;
 			const lat = mercatorYToLat(mercY);
 
+			let prevCol = -1;
+			let nextCol = -1;
+			let prevSunset = null;
+			let nextSunset = null;
+
 			for (let col = 0; col < width; col++) {
 				const lon = bounds.minLon + (col * cellSizeDeg);
-				const observer = new Astronomy.Observer(lat, lon, 0);
 
-				// Adjust start time to approximate local noon for the search
-				// date.ut is 12:00 UTC. Subtract lon/15/24 (hours converted to days) to approximate local 12:00 converted to UTC.
-				const startUT = date.ut - (lon / 15 / 24);
+				let sunset = null;
+				// Interpolation logic
+				if (col >= nextCol) {
+					prevCol = col;
+					if (col === nextCol && nextSunset !== null) {
+						prevSunset = nextSunset;
+					} else {
+						prevSunset = calculateSunset(lat, lon, date.ut);
+					}
 
-				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
+					nextCol = Math.min(col + STEP, width - 1);
+					if (nextCol === prevCol) {
+						nextSunset = prevSunset;
+					} else {
+						const nextLon = bounds.minLon + (nextCol * cellSizeDeg);
+						nextSunset = calculateSunset(lat, nextLon, date.ut);
+					}
+				}
+
+				if (prevSunset && nextSunset) {
+					const fraction = (col - prevCol) / (nextCol - prevCol || 1);
+					const interpolatedUT = prevSunset.ut + (nextSunset.ut - prevSunset.ut) * fraction;
+					sunset = { ut: interpolatedUT };
+				} else {
+					sunset = calculateSunset(lat, lon, date.ut);
+				}
+
 				let visible = false;
 				if (sunset) {
 					const sunsetUT = sunset.ut;
 					if (!isGIC || sunsetUT < date.ut + 0.5) {
+						const observer = new Astronomy.Observer(lat, lon, 0);
 						const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
 						const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
 						const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);

@@ -22,7 +22,7 @@ Visualize where the new crescent moon is visible on the globe for any given date
 -   **Detailed Calculations**: Calculate exact moon position (Altitude, Elongation, Azimuth, Age) for any specific coordinate.
 -   **Multiple Criteria**: Support for MABBIMS, Global Islamic Calendar (GIC), and custom user-defined criteria.
 -   **Time-Sliced Rendering**: Renders high-resolution overlays directly in the browser without freezing the UI.
--   **Offline Capable**: Works locally (requires internet only for map tiles/CDN, or can be configured for local assets).
+-   **Offline Capable**: Works locally (requires internet only for the map image/CDN).
 
 ### 2. HijriCalc (Calendar & Converter)
 A robust calendar tool focused on the specific coordinates of **Banda Aceh (6°04′30″ N, 95°06′45″ E)**, often used as a reference point for MABBIMS calculations.
@@ -60,7 +60,6 @@ MIT License. See LICENSE for details.
 
 ## Acknowledgments
 -   **Astronomy Engine** (Don Cross) for the core celestial mechanics.
--   **Leaflet** for the map visualization.
 
 ## Contributions
 Contributions, issues, and suggestions are welcome. Please open an issue to discuss ideas or submit a PR.

@@ -22,7 +22,7 @@ Visualisasikan di mana hilal terlihat di bola dunia untuk tanggal tertentu.
 -   **Perhitungan Detail**: Hitung posisi bulan yang tepat (Tinggi, Elongasi, Azimuth, Umur) untuk koordinat tertentu.
 -   **Kriteria Beragam**: Mendukung MABBIMS, Kalender Islam Global (GIC), dan kriteria kustom pengguna.
 -   **Render Time-Sliced**: Merender overlay resolusi tinggi langsung di peramban tanpa membekukan antarmuka pengguna (UI).
--   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk *tile* peta/CDN, atau dapat dikonfigurasi untuk aset lokal).
+-   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk gambar peta/CDN).
 
 ### 2. HijriCalc (Kalender & Konverter)
 Alat kalender yang kuat yang berfokus pada koordinat spesifik **Banda Aceh (6°04′30″ LU, 95°06′45″ BT)**, yang sering digunakan sebagai titik referensi perhitungan MABBIMS.
@@ -60,7 +60,6 @@ Lisensi MIT. Lihat LICENSE untuk detailnya.
 
 ## Ucapan Terima Kasih
 -   **Astronomy Engine** (Don Cross) untuk mekanika benda langit inti.
--   **Leaflet** untuk visualisasi peta.
 
 ## Kontribusi
 Kontribusi, masalah, dan saran dipersilakan. Silakan buka *issue* untuk mendiskusikan ide atau kirimkan PR.

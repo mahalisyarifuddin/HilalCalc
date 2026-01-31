@@ -4,7 +4,6 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>Hilal Visibility Map</title>
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 	<style>
 		:root {
 			--primary: #005dac;
@@ -141,12 +140,63 @@
 			opacity: .8; 
 			line-height: 1.6; 
 		}
-		#map { 
+		#map-container {
 			width: 100%; 
 			height: 500px; 
 			border: 1px solid var(--border); 
 			border-radius: 4px; 
 			margin-top: 1rem; 
+			position: relative;
+			overflow: hidden;
+			background: #aadaff;
+			cursor: grab;
+		}
+		#map-container:active {
+			cursor: grabbing;
+		}
+		#map-wrapper {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform-origin: center center;
+			width: 100%;
+			height: 100%;
+		}
+		#map-image {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			display: block;
+			user-select: none;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+		#map-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+		}
+		.map-controls {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+			z-index: 10;
+		}
+		.map-controls button {
+			width: 30px;
+			height: 30px;
+			padding: 0;
+			font-size: 18px;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			cursor: pointer;
 		}
 		.tabs { 
 			display: flex; 
@@ -204,7 +254,7 @@
 			.row { 
 				flex-direction: column; 
 			}
-			#map { 
+			#map-container {
 				height: 350px; 
 			}
 		}
@@ -232,337 +282,291 @@
 			<select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
 			<select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
 		</div>
-		<h1 id="mapTitle"></h1>
+		<h1 id="mapTitle">Hilal Visibility Map</h1>
 		<div class="tabs">
-			<button id="tabMap" class="tab active"></button>
-			<button id="tabCalc" class="tab"></button>
+			<button id="tabMap" class="tab active">Map</button>
+			<button id="tabCalc" class="tab">Detailed Calculations</button>
 		</div>
 		<div id="mapView">
 			<div id="controls">
 				<div class="row">
 					<div class="group">
-						<label id="dateLabel" for="mapDate"></label>
+						<label id="dateLabel" for="mapDate">Date</label>
 						<input type="date" id="mapDate">
 					</div>
 					<div class="group">
-						<label id="regionLabel" for="mapRegion"></label>
-						<select id="mapRegion"><option value="indonesia">Indonesia</option><option value="world">World</option></select>
+						<label id="regionLabel" for="mapRegion">Region</label>
+						<select id="mapRegion">
+							<option value="world">World</option>
+							<option value="indonesia">Indonesia</option>
+						</select>
 					</div>
 					<div class="group">
-						<label id="criteriaLabel" for="mapCriteria"></label>
+						<label id="criteriaLabel" for="mapCriteria">Criteria</label>
 						<select id="mapCriteria">
-							<option value="mabbims">MABBIMS (Alt≥3°, Elong≥6.4°)</option>
-							<option value="gic">Global Islamic (Alt≥5°, Elong≥8°, <12am UTC)</option>
-							<option value="alt0">Altitude > 0°</option>
-							<option value="custom">Custom Criteria</option>
+							<option value="mabbims">MABIMS (Alt ≥3°, Elong ≥6.4°)</option>
+							<option value="gic">GIC (Alt ≥5°, Elong ≥8°)</option>
+							<option value="alt0">Altitude ≥0°</option>
+							<option value="custom">Custom</option>
 						</select>
 					</div>
 				</div>
-				<div class="row hidden" id="customCriteriaInputs">
+				<div id="customCriteriaInputs" class="hidden row">
 					<div class="group">
-						<label id="minAltLabel" for="minAlt"></label>
-						<input type="number" id="minAlt" value="0" step="0.1">
+						<label id="minAltLabel" for="minAlt">Min Altitude (degrees)</label>
+						<input type="number" id="minAlt" step="0.1" value="3">
 					</div>
 					<div class="group">
-						<label id="minElongLabel" for="minElong"></label>
-						<input type="number" id="minElong" value="0" step="0.1">
+						<label id="minElongLabel" for="minElong">Min Elongation (degrees)</label>
+						<input type="number" id="minElong" step="0.1" value="6.4">
 					</div>
 				</div>
-				<div class="row">
-					<button id="renderMap" class="primary"></button>
-				</div>
+				<button id="renderMap" class="primary">Render Map</button>
+				<div id="mapStatus" class="info" style="margin-top: .5rem;"></div>
 			</div>
-			<div id="mapStatus" class="info" style="font-style:italic; min-height: 1.2em;"></div>
-			<div id="map"></div>
-			<div id="mapLegend" class="info" style="margin-top:0.5rem">
-				<span style="display:inline-block;width:12px;height:12px;background:rgba(0, 255, 0, 0.5);margin-right:4px;border:1px solid green"></span><span id="legendVisible"></span>
+			<div id="map-container">
+				<div class="map-controls">
+					<button id="zoom-in" title="Zoom In">+</button>
+					<button id="zoom-out" title="Zoom Out">−</button>
+					<button id="zoom-reset" title="Reset">⟲</button>
+				</div>
+				<div id="map-wrapper">
+					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Mercator_projection_SW.jpg" alt="World Map" draggable="false">
+					<canvas id="map-overlay"></canvas>
+				</div>
 			</div>
 		</div>
 		<div id="calcView" class="hidden">
 			<div class="row">
 				<div class="group">
-					<label id="calcDateLabel" for="calcDate"></label>
+					<label id="calcDateLabel" for="calcDate">Date</label>
 					<input type="date" id="calcDate">
 				</div>
 				<div class="group">
-					<label id="calcLatLabel" for="calcLat"></label>
-					<input type="number" id="calcLat" step="0.0001" placeholder="-6.2000">
+					<label id="latLabel" for="calcLat">Latitude</label>
+					<input type="number" id="calcLat" step="0.0001" placeholder="e.g., -6.2088">
 				</div>
 				<div class="group">
-					<label id="calcLonLabel" for="calcLon"></label>
-					<input type="number" id="calcLon" step="0.0001" placeholder="106.8166">
-				</div>
-				<div class="group">
-					<label id="utcOffsetLabel" for="calcUtcOffset"></label>
-					<input type="number" id="calcUtcOffset" step="0.5" value="0" placeholder="e.g. 7">
-				</div>
-			</div>
-			<div class="row" style="align-items: flex-end;">
-				<div class="group">
-					<label id="calcCriteriaLabel" for="calcCriteria"></label>
-					<select id="calcCriteria">
-						<option value="mabbims">MABBIMS</option>
-						<option value="gic">Global Islamic</option>
-						<option value="alt0">Altitude > 0°</option>
-						<option value="custom">Custom</option>
-					</select>
-				</div>
-				<div class="group">
-					<button id="getLocation" class="secondary"></button>
-				</div>
-			</div>
-			<div class="row hidden" id="calcCustomCriteriaInputs">
-				<div class="group">
-					<label id="calcMinAltLabel" for="calcMinAlt"></label>
-					<input type="number" id="calcMinAlt" value="0" step="0.1">
-				</div>
-				<div class="group">
-					<label id="calcMinElongLabel" for="calcMinElong"></label>
-					<input type="number" id="calcMinElong" value="0" step="0.1">
+					<label id="lonLabel" for="calcLon">Longitude</label>
+					<input type="number" id="calcLon" step="0.0001" placeholder="e.g., 106.8456">
 				</div>
 			</div>
 			<div class="row">
-				<button id="calculateBtn" class="primary"></button>
+				<div class="group">
+					<label id="utcOffsetLabel" for="calcUtcOffset">UTC Offset (hours)</label>
+					<input type="number" id="calcUtcOffset" step="1" value="7" placeholder="e.g., 7">
+				</div>
+				<div class="group">
+					<label id="calcCriteriaLabel" for="calcCriteria">Criteria</label>
+					<select id="calcCriteria">
+						<option value="mabbims">MABIMS</option>
+						<option value="gic">GIC</option>
+						<option value="alt0">Altitude ≥0°</option>
+						<option value="custom">Custom</option>
+					</select>
+				</div>
+			</div>
+			<div id="calcCustomCriteriaInputs" class="hidden row">
+				<div class="group">
+					<label id="calcMinAltLabel" for="calcMinAlt">Min Altitude (degrees)</label>
+					<input type="number" id="calcMinAlt" step="0.1" value="3">
+				</div>
+				<div class="group">
+					<label id="calcMinElongLabel" for="calcMinElong">Min Elongation (degrees)</label>
+					<input type="number" id="calcMinElong" step="0.1" value="6.4">
+				</div>
+			</div>
+			<div class="row">
+				<button id="getLocation" class="secondary">Get Current Location</button>
+				<button id="calculateBtn" class="primary">Calculate</button>
 			</div>
 			<div id="results"></div>
 		</div>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 	<script>
 		const text = {
 			en: {
-				locating: 'Locating...',
-				calculating: 'Calculating...',
-				utcOffsetLabel: 'UTC Offset',
-				autoTheme: 'Auto Theme',
-				lightTheme: 'Light',
-				darkTheme: 'Dark',
-				mapTitle: 'Hilal Visibility Map',
-				renderMap: 'Render Map',
-				dateLabel: 'Date',
-				regionLabel: 'Region',
-				criteriaLabel: 'Criteria',
-				legendVisible: 'Visible',
-				minAltLabel: 'Min Altitude (°)',
-				minElongLabel: 'Min Elongation (°)',
-				languageLabel: 'Language',
-				themeLabel: 'Theme',
-				calcDateLabel: 'Date',
-				calcLatLabel: 'Latitude',
-				calcLonLabel: 'Longitude',
-				calcCriteriaLabel: 'Criteria',
-				calculateBtn: 'Calculate',
-				tabMap: 'Map',
-				tabCalc: 'Detailed Calculations',
-				getLocation: '📍 Use My Location',
-				sunsetTime: 'Sunset Time',
-				moonsetTime: 'Moonset Time',
-				moonAge: 'Moon Age',
-				moonAlt: 'Moon Altitude',
-				moonElong: 'Elongation',
-				moonAzimuth: 'Moon Azimuth',
-				moonWidth: 'Moon Width',
-				illuminatedFraction: 'Illuminated Fraction',
-				visibilityStatus: 'Visibility Status',
-				visible: 'Visible',
-				notVisible: 'Not Visible',
+				mapTitle: "Hilal Visibility Map",
+				dateLabel: "Date",
+				regionLabel: "Region",
+				criteriaLabel: "Criteria",
+				renderMap: "Render Map",
+				calculating: "Calculating...",
+				calcDateLabel: "Date",
+				latLabel: "Latitude",
+				lonLabel: "Longitude",
+				utcOffsetLabel: "UTC Offset (hours)",
+				calcCriteriaLabel: "Criteria",
+				getLocation: "Get Current Location",
+				calculateBtn: "Calculate",
+				visibilityStatus: "Visibility Status",
+				visible: "Visible",
+				notVisible: "Not Visible",
+				sunsetTime: "Sunset Time",
+				moonsetTime: "Moonset Time",
+				moonAlt: "Moon Altitude",
+				moonElong: "Moon Elongation",
+				moonAzimuth: "Moon Azimuth",
+				moonAge: "Moon Age",
+				illuminatedFraction: "Illuminated Fraction",
+				locating: "Locating...",
+				autoTheme: "Auto",
+				lightTheme: "Light",
+				darkTheme: "Dark",
 				regionIndonesia: 'Indonesia',
 				regionWorld: 'World',
 				criteriaMabbims: 'MABBIMS (Alt≥3°, Elong≥6.4°)',
-				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°, <12am UTC)',
+				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°)',
 				criteriaAlt0: 'Altitude > 0°',
 				criteriaCustom: 'Custom Criteria',
-				statusCancelled: 'Cancelled.',
-				statusDone: 'Done.',
-				statusError: 'Error: ',
-				cancel: 'Cancel',
-				daysSuffix: ' days',
-				errorSun: 'Error: Sun does not set on this date/location.',
-				fillFields: 'Please fill in all fields correctly.',
-				geoError: 'Geolocation is not supported by this browser.',
-				locError: 'Error getting location: ',
-				utcPlaceholder: 'e.g. 7',
-				calcMinAltLabel: 'Min Altitude (°)',
-				calcMinElongLabel: 'Min Elongation (°)'
+				utcPlaceholder: 'e.g., 7',
+				done: "Done",
+				cancel: "Cancel",
+				cancelled: "Cancelled",
+				minAltLabel: "Min Altitude (degrees)",
+				minElongLabel: "Min Elongation (degrees)",
+				calcMinAltLabel: "Min Altitude (degrees)",
+				calcMinElongLabel: "Min Elongation (degrees)"
 			},
 			id: {
-				locating: 'Mencari lokasi...',
-				calculating: 'Menghitung...',
-				utcOffsetLabel: 'Selisih UTC',
-				autoTheme: 'Tema Otomatis',
-				lightTheme: 'Terang',
-				darkTheme: 'Gelap',
-				mapTitle: 'Peta Visibilitas Hilal',
-				renderMap: 'Render Peta',
-				dateLabel: 'Tanggal',
-				regionLabel: 'Wilayah',
-				criteriaLabel: 'Kriteria',
-				legendVisible: 'Terlihat',
-				minAltLabel: 'Min Tinggi (°)',
-				minElongLabel: 'Min Elongasi (°)',
-				languageLabel: 'Bahasa',
-				themeLabel: 'Tema',
-				calcDateLabel: 'Tanggal',
-				calcLatLabel: 'Lintang',
-				calcLonLabel: 'Bujur',
-				calcCriteriaLabel: 'Kriteria',
-				calculateBtn: 'Hitung',
-				tabMap: 'Peta',
-				tabCalc: 'Hitung Detail',
-				getLocation: '📍 Lokasi Saya',
-				sunsetTime: 'Waktu Matahari Terbenam',
-				moonsetTime: 'Waktu Bulan Terbenam',
-				moonAge: 'Umur Bulan',
-				moonAlt: 'Tinggi Bulan',
-				moonElong: 'Elongasi',
-				moonAzimuth: 'Azimuth Bulan',
-				moonWidth: 'Lebar Bulan',
-				illuminatedFraction: 'Fraksi Iluminasi',
-				visibilityStatus: 'Status Visibilitas',
-				visible: 'Terlihat',
-				notVisible: 'Tidak Terlihat',
+				mapTitle: "Peta Visibilitas Hilal",
+				dateLabel: "Tanggal",
+				regionLabel: "Wilayah",
+				criteriaLabel: "Kriteria",
+				renderMap: "Render Peta",
+				calculating: "Menghitung...",
+				calcDateLabel: "Tanggal",
+				latLabel: "Lintang",
+				lonLabel: "Bujur",
+				utcOffsetLabel: "Offset UTC (jam)",
+				calcCriteriaLabel: "Kriteria",
+				getLocation: "Dapatkan Lokasi Saat Ini",
+				calculateBtn: "Hitung",
+				visibilityStatus: "Status Visibilitas",
+				visible: "Terlihat",
+				notVisible: "Tidak Terlihat",
+				sunsetTime: "Waktu Maghrib",
+				moonsetTime: "Waktu Terbenam Bulan",
+				moonAlt: "Ketinggian Bulan",
+				moonElong: "Elongasi Bulan",
+				moonAzimuth: "Azimuth Bulan",
+				moonAge: "Umur Bulan",
+				illuminatedFraction: "Fraksi Teriluminasi",
+				locating: "Mencari lokasi...",
+				autoTheme: "Otomatis",
+				lightTheme: "Terang",
+				darkTheme: "Gelap",
 				regionIndonesia: 'Indonesia',
 				regionWorld: 'Dunia',
 				criteriaMabbims: 'MABBIMS (Alt≥3°, Elong≥6.4°)',
-				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°, <12am UTC)',
+				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°)',
 				criteriaAlt0: 'Tinggi Bulan > 0°',
 				criteriaCustom: 'Kriteria Kustom',
-				statusCancelled: 'Dibatalkan.',
-				statusDone: 'Selesai.',
-				statusError: 'Eror: ',
-				cancel: 'Batal',
-				daysSuffix: ' hari',
-				errorSun: 'Eror: Matahari tidak terbenam pada tanggal/lokasi ini.',
-				fillFields: 'Mohon isi semua kolom dengan benar.',
-				geoError: 'Geolokasi tidak didukung oleh browser ini.',
-				locError: 'Gagal mendapatkan lokasi: ',
 				utcPlaceholder: 'contoh: 7',
-				calcMinAltLabel: 'Min Tinggi (°)',
-				calcMinElongLabel: 'Min Elongasi (°)'
+				done: "Selesai",
+				cancel: "Batal",
+				cancelled: "Dibatalkan",
+				minAltLabel: "Min Ketinggian (derajat)",
+				minElongLabel: "Min Elongasi (derajat)",
+				calcMinAltLabel: "Min Ketinggian (derajat)",
+				calcMinElongLabel: "Min Elongasi (derajat)"
 			}
 		};
-		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
 
 		const WORKER_CODE = `
-importScripts('https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js');
+importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
 self.onmessage = function(e) {
 	try {
-		const { bounds, widthDeg, heightDeg, mapSizeX, criteria, dateTimestamp, minAlt: criteriaMinAlt, minElong: criteriaMinElong } = e.data;
-		const date = Astronomy.MakeTime(new Date(dateTimestamp));
+		const params = e.data;
+		const {bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong} = params;
+
+		// Optimize grid size - max 245x245 grid for better resolution (target ~20s)
+		const maxGridSize = 245;
+		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
+		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
+		const height = Math.min(Math.ceil(heightDeg / cellSizeDeg), maxGridSize);
+
+		const buffer = new Uint8ClampedArray(width * height * 4);
+		const dateObj = new Date(dateTimestamp);
+		const date = Astronomy.MakeTime(dateObj);
 		const criteriaParams =
-			(criteria === "mabbims") ? { minAlt: 3, minElong: 6.4, isGIC: false } :
-			(criteria === "gic") ? { minAlt: 5, minElong: 8, isGIC: true } :
-			(criteria === "alt0") ? { minAlt: 0, minElong: -100, isGIC: false } :
-			{ minAlt: criteriaMinAlt, minElong: criteriaMinElong, isGIC: false };
-		const { minAlt, minElong, isGIC } = criteriaParams;
-		const RESOLUTION_FACTOR = 0.25;
-		const INTERP_STEP = 10;
-		const PPD = (mapSizeX / widthDeg) * RESOLUTION_FACTOR;
-		const width = Math.ceil(widthDeg * PPD);
-		const height = Math.ceil(heightDeg * PPD);
-		const totalPixels = width * height;
-		const buffer = new Uint8ClampedArray(totalPixels * 4);
-		const observer = new Astronomy.Observer(0, 0, 0);
-		let currentY = -1;
-		let sunsetBase = null;
-		let prevRA, prevDec, prevElong, prevAlt;
-		let nextRA, nextDec, nextElong, nextAlt;
-		let cachedNextRA, cachedNextDec, cachedNextElong, cachedNextAlt;
-		for (let pixelIndex = 0; pixelIndex < totalPixels; pixelIndex++) {
-			const x = pixelIndex % width;
-			const y = Math.floor(pixelIndex / width);
-			const lat = bounds.maxLat - (y / PPD);
-			const lon = bounds.minLon + (x / PPD);
-			if (y !== currentY) {
-				currentY = y;
-				observer.latitude = lat;
-				observer.longitude = 0;
-				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
-				sunsetBase = sunset ? sunset.ut : null;
-				prevRA = undefined;
-				cachedNextRA = undefined;
-			}
-			if (sunsetBase !== null) {
-				observer.latitude = lat;
-				observer.longitude = lon;
-				const sunsetUT = sunsetBase - (lon / 360.0);
-				let moonRA, moonDec, moonElong, moonAlt;
-				const xMod = x % INTERP_STEP;
-				if (xMod === 0 || prevRA === undefined) {
-					if (x > 0 && prevRA !== undefined && cachedNextRA !== undefined) {
-						prevRA = cachedNextRA;
-						prevDec = cachedNextDec;
-						prevElong = cachedNextElong;
-						prevAlt = cachedNextAlt;
-					} else {
+			(criteria === "mabbims") ? {minAlt: 3, minElong: 6.4, isGIC: false} :
+			(criteria === "gic") ? {minAlt: 5, minElong: 8, isGIC: true} :
+			(criteria === "alt0") ? {minAlt: 0, minElong: -100, isGIC: false} :
+			{minAlt: minAlt, minElong: minElong, isGIC: false};
+		const {minAlt: criteriaMinAlt, minElong: criteriaMinElong, isGIC} = criteriaParams;
+
+		// Mercator functions
+		const DEG_TO_RAD = Math.PI / 180;
+		const RAD_TO_DEG = 180 / Math.PI;
+		function latToMercatorY(lat) {
+			return Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2));
+		}
+		function mercatorYToLat(y) {
+			return (2 * Math.atan(Math.exp(y)) - Math.PI / 2) * RAD_TO_DEG;
+		}
+
+		// Calculate Y range for the bounds using Mercator
+		const minY = latToMercatorY(bounds.minLat);
+		const maxY = latToMercatorY(bounds.maxLat);
+		const yRange = maxY - minY;
+
+		for (let row = 0; row < height; row++) {
+			// Calculate latitude for this row (Mercator interpolation)
+			// Row 0 is top (maxY), Row height is bottom (minY)
+			const normY = row / (height - 1 || 1);
+			const mercY = maxY - normY * yRange;
+			const lat = mercatorYToLat(mercY);
+
+			for (let col = 0; col < width; col++) {
+				const lon = bounds.minLon + (col * cellSizeDeg);
+				const observer = new Astronomy.Observer(lat, lon, 0);
+
+				// Adjust start time to approximate local noon for the search
+				// date.ut is 12:00 UTC. Subtract lon/15/24 (hours converted to days) to approximate local 12:00 converted to UTC.
+				const startUT = date.ut - (lon / 15 / 24);
+
+				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
+				let visible = false;
+				if (sunset) {
+					const sunsetUT = sunset.ut;
+					if (!isGIC || sunsetUT < date.ut + 0.5) {
 						const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-						prevRA = moonEq.ra;
-						prevDec = moonEq.dec;
-						prevElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, sunsetUT);
-						prevAlt = Astronomy.Horizon(sunsetUT, observer, prevRA, prevDec, "normal").altitude;
-					}
-					let nextX = x + INTERP_STEP;
-					if (nextX >= width) nextX = width - 1;
-					if (nextX > x) {
-						const nextLon = bounds.minLon + (nextX / PPD);
-						const nextSunsetUT = sunsetBase - (nextLon / 360.0);
-						observer.longitude = nextLon;
-						const nextMoonEq = Astronomy.Equator(Astronomy.Body.Moon, nextSunsetUT, observer, true, true);
-						cachedNextRA = nextMoonEq.ra;
-						cachedNextDec = nextMoonEq.dec;
-						cachedNextElong = Astronomy.AngleFromSun(Astronomy.Body.Moon, nextSunsetUT);
-						cachedNextAlt = Astronomy.Horizon(nextSunsetUT, observer, nextMoonEq.ra, nextMoonEq.dec, "normal").altitude;
-						nextRA = cachedNextRA;
-						nextDec = cachedNextDec;
-						nextElong = cachedNextElong;
-						nextAlt = cachedNextAlt;
-						if (Math.abs(nextRA - prevRA) > 12) {
-							if (nextRA > prevRA) prevRA += 24;
-							else nextRA += 24;
+						const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
+						const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
+						const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
+						if (moonHor.altitude >= criteriaMinAlt && elongation >= criteriaMinElong) {
+							visible = true;
 						}
-						observer.longitude = lon;
-					} else {
-						nextRA = prevRA;
-						nextDec = prevDec;
-						nextElong = prevElong;
-						nextAlt = prevAlt;
-						cachedNextRA = undefined;
 					}
-					moonRA = prevRA;
-					moonDec = prevDec;
-					moonElong = prevElong;
-					moonAlt = prevAlt;
-				} else {
-					const fraction = xMod / INTERP_STEP;
-					moonRA = prevRA + (nextRA - prevRA) * fraction;
-					moonDec = prevDec + (nextDec - prevDec) * fraction;
-					moonElong = prevElong + (nextElong - prevElong) * fraction;
-					moonAlt = prevAlt + (nextAlt - prevAlt) * fraction;
-					if (moonRA >= 24) moonRA -= 24;
 				}
-				const visible = (!isGIC || sunsetUT < date.ut + 0.5) && moonAlt >= minAlt && moonElong >= minElong;
+				const idx = (row * width + col) * 4;
 				if (visible) {
-					const idx = pixelIndex * 4;
-					buffer[idx] = 0;
-					buffer[idx + 1] = 255;
-					buffer[idx + 2] = 0;
-					buffer[idx + 3] = 128;
+					buffer[idx] = 0; buffer[idx+1] = 200; buffer[idx+2] = 0; buffer[idx+3] = 180;
+				} else {
+					buffer[idx] = 255; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 180;
 				}
+			}
+			// Report progress every 10 rows
+			if (row % 10 === 0) {
+				self.postMessage({progress: (row / height * 100).toFixed(0)});
 			}
 		}
-		self.postMessage({ buffer, width, height }, [buffer.buffer]);
-	} catch (e) {
-		self.postMessage({ error: e.message });
+		self.postMessage({width, height, buffer: buffer.buffer}, [buffer.buffer]);
+	} catch(err) {
+		self.postMessage({error: err.message});
 	}
 };`;
 
+		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
+
 		class HilalMap {
 			constructor() {
+				this.language = "en";
+				this.worker = null;
+				this.isRendering = false;
 				this.setup();
-				this.theme("auto");
-				this.language = navigator.language?.startsWith("id") ? "id" : "en";
-				this.lang(this.language);
 			}
 
 			setup() {
@@ -576,16 +580,104 @@ self.onmessage = function(e) {
 				elements.calcCriteria.onchange = () => this.toggleCustomCalc();
 				elements.calculateBtn.onclick = () => this.calculateDetails();
 				elements.getLocation.onclick = () => this.getCurrentLocation();
+
+				// Zoom and pan setup
+				this.scale = 1;
+				this.translateX = 0;
+				this.translateY = 0;
+				this.isDragging = false;
+				this.startX = 0;
+				this.startY = 0;
+
+				elements['zoom-in'].onclick = () => this.zoom(1.2);
+				elements['zoom-out'].onclick = () => this.zoom(0.8);
+				elements['zoom-reset'].onclick = () => this.resetZoom();
+
+				elements['map-container'].addEventListener('wheel', (e) => {
+					e.preventDefault();
+					const delta = e.deltaY > 0 ? 0.9 : 1.1;
+					this.zoom(delta);
+				});
+
+				elements['map-container'].addEventListener('mousedown', (e) => {
+					this.isDragging = true;
+					this.startX = e.clientX - this.translateX;
+					this.startY = e.clientY - this.translateY;
+				});
+
+				elements['map-container'].addEventListener('mousemove', (e) => {
+					if (!this.isDragging) return;
+					this.translateX = e.clientX - this.startX;
+					this.translateY = e.clientY - this.startY;
+					this.limitPan();
+					this.updateTransform();
+				});
+
+				elements['map-container'].addEventListener('mouseup', () => {
+					this.isDragging = false;
+				});
+
+				elements['map-container'].addEventListener('mouseleave', () => {
+					this.isDragging = false;
+				});
+
 				const today = new Date();
 				elements.mapDate.valueAsDate = today;
 				elements.calcDate.valueAsDate = today;
-				this.map = L.map("map").setView([-2.5, 118], 5);
-				L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-					maxZoom: 19,
-					attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-				}).addTo(this.map);
-				this.overlayLayer = null;
-				this.isRendering = false;
+
+				// Setup canvas overlay
+				const canvas = elements['map-overlay'];
+				const img = elements['map-image'];
+
+				img.onload = () => {
+					canvas.width = img.naturalWidth;
+					canvas.height = img.naturalHeight;
+					this.redrawOverlay();
+				};
+
+				window.addEventListener('resize', () => {
+					this.redrawOverlay();
+				});
+
+				// Initialize to world view
+				this.handleRegionChange();
+			}
+
+			limitPan() {
+				const container = elements['map-container'];
+				const wrapper = elements['map-wrapper'];
+				const containerWidth = container.offsetWidth;
+				const containerHeight = container.offsetHeight;
+				const scaledWidth = containerWidth * this.scale;
+				const scaledHeight = containerHeight * this.scale;
+
+				// Limit horizontal pan
+				const maxX = (scaledWidth - containerWidth) / 2;
+				const minX = -maxX;
+				this.translateX = Math.max(minX, Math.min(maxX, this.translateX));
+
+				// Limit vertical pan
+				const maxY = (scaledHeight - containerHeight) / 2;
+				const minY = -maxY;
+				this.translateY = Math.max(minY, Math.min(maxY, this.translateY));
+			}
+
+			zoom(factor) {
+				this.scale = Math.max(0.5, Math.min(5, this.scale * factor));
+				this.limitPan();
+				this.updateTransform();
+			}
+
+			resetZoom() {
+				this.scale = 1;
+				this.translateX = 0;
+				this.translateY = 0;
+				this.updateTransform();
+			}
+
+			updateTransform() {
+				elements['map-wrapper'].style.transform =
+					`translate(-50%, -50%) translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
 			}
 
 			string(key) { return text[this.language]?.[key] ?? key; }
@@ -599,19 +691,19 @@ self.onmessage = function(e) {
 				this.language = elements.language.value = document.documentElement.lang = language;
 				Object.keys(text.en).forEach(key => { if (elements[key]) elements[key].textContent = this.string(key); });
 				[...elements.theme.options].forEach(option => option.textContent = this.string(option.value + "Theme"));
+				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.string("utcPlaceholder");
 
 				const translateOptions = (selectId, prefix) => {
 					[...elements[selectId].options].forEach(option => {
 						const val = option.value;
 						const key = prefix + val.charAt(0).toUpperCase() + val.slice(1);
-						option.textContent = this.string(key);
+						const translated = this.string(key);
+						if (translated !== key) option.textContent = translated;
 					});
 				};
 				translateOptions('mapRegion', 'region');
 				translateOptions('mapCriteria', 'criteria');
 				translateOptions('calcCriteria', 'criteria');
-
-				elements.calcUtcOffset.placeholder = this.string("utcPlaceholder");
 			}
 
 			toggleCustom() {
@@ -630,7 +722,6 @@ self.onmessage = function(e) {
 					elements.tabCalc.classList.remove("active");
 					elements.mapView.classList.remove("hidden");
 					elements.calcView.classList.add("hidden");
-					setTimeout(() => this.map.invalidateSize(), 100);
 				} else {
 					elements.tabMap.classList.remove("active");
 					elements.tabCalc.classList.add("active");
@@ -655,13 +746,13 @@ self.onmessage = function(e) {
 							button.innerHTML = originalText;
 						},
 						error => {
-							alert(this.string("locError") + error.message);
+							alert("Error getting location: " + error.message);
 							button.disabled = false;
 							button.innerHTML = originalText;
 						}
 					);
 				} else {
-					alert(this.string("geoError"));
+					alert("Geolocation is not supported by this browser.");
 					button.disabled = false;
 					button.innerHTML = originalText;
 				}
@@ -672,17 +763,19 @@ self.onmessage = function(e) {
 				const longitude = parseFloat(elements.calcLon.value);
 				const dateString = elements.calcDate.value;
 				const criteria = elements.calcCriteria.value;
-				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert(this.string("fillFields"));
+				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert("Please fill in all fields correctly.");
 				else this.calculateDetailsInner(latitude, longitude, dateString, criteria);
 			}
 
 			calculateDetailsInner(latitude, longitude, dateString, criteria) {
-				const dateObj = new Date(dateString + "T00:00:00Z");
+				const dateObj = new Date(dateString + "T12:00:00Z");
 				const observer = new Astronomy.Observer(latitude, longitude, 0);
 				const date = Astronomy.MakeTime(dateObj);
-				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
+				// Adjust start time to approximate local noon
+				const startUT = date.ut - (longitude / 15 / 24);
+				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
 				if (!sunset) {
-					elements.results.innerHTML = `<div class="result-card">${this.string("errorSun")}</div>`;
+					elements.results.innerHTML = "<div class=\"result-card\">Error: Sun does not set on this date/location.</div>";
 					return;
 				}
 				this.calculateDetailsWithSunset(sunset, observer, date, criteria);
@@ -725,7 +818,7 @@ self.onmessage = function(e) {
 					{ label: "moonAlt", value: moonHor.altitude.toFixed(2) + "°" },
 					{ label: "moonElong", value: elongation.toFixed(2) + "°" },
 					{ label: "moonAzimuth", value: moonHor.azimuth.toFixed(2) + "°" },
-					{ label: "moonAge", value: ageInDays.toFixed(2) + this.string("daysSuffix") },
+					{ label: "moonAge", value: ageInDays.toFixed(2) + " days" },
 					{ label: "illuminatedFraction", value: (moonPhase.phase_fraction * 100).toFixed(2) + "%" }
 				];
 				let html = "";
@@ -739,8 +832,51 @@ self.onmessage = function(e) {
 
 			handleRegionChange() {
 				const region = elements.mapRegion.value;
-				if (region === "indonesia") this.map.setView([-2.5, 118], 5);
-				else this.map.setView([0, 0], 2);
+
+				// Map bounds are 82°N to 82°S, -180° to 180°
+				const mapBounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
+
+				if (region === "indonesia") {
+					// Indonesia region: -11° to 6° lat, 95° to 141° lon
+					const targetBounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
+					this.zoomToBounds(targetBounds, mapBounds);
+				} else {
+					// World view
+					this.resetZoom();
+				}
+			}
+
+			zoomToBounds(targetBounds, mapBounds) {
+				const container = elements['map-container'];
+				const containerWidth = container.offsetWidth;
+				const containerHeight = container.offsetHeight;
+
+				// Calculate how much of the map the target occupies
+				const latRange = mapBounds.maxLat - mapBounds.minLat;
+				const lonRange = mapBounds.maxLon - mapBounds.minLon;
+				const targetLatRange = targetBounds.maxLat - targetBounds.minLat;
+				const targetLonRange = targetBounds.maxLon - targetBounds.minLon;
+
+				// Calculate required scale to fit target region
+				const scaleX = lonRange / targetLonRange;
+				const scaleY = latRange / targetLatRange;
+				this.scale = Math.min(scaleX, scaleY, 5); // Cap at max zoom
+
+				// Calculate center of target region in normalized coordinates [0,1]
+				const centerLon = (targetBounds.minLon + targetBounds.maxLon) / 2;
+				const centerLat = (targetBounds.minLat + targetBounds.maxLat) / 2;
+
+				// Convert to normalized position on map [0,1]
+				const normX = (centerLon - mapBounds.minLon) / lonRange;
+				const normY = (mapBounds.maxLat - centerLat) / latRange;
+
+				// Calculate translation needed to center this point
+				// Since map is centered, we need to offset from center
+				this.translateX = -(normX - 0.5) * containerWidth * this.scale;
+				this.translateY = -(normY - 0.5) * containerHeight * this.scale;
+
+				this.limitPan();
+				this.updateTransform();
 			}
 
 			handleRenderClick() {
@@ -755,7 +891,7 @@ self.onmessage = function(e) {
 				this.isRendering = false;
 				elements.renderMap.disabled = false;
 				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = this.string("statusCancelled");
+				elements.mapStatus.textContent = this.string("cancelled");
 			}
 
 			startRender() {
@@ -763,40 +899,47 @@ self.onmessage = function(e) {
 				elements.renderMap.disabled = false;
 				elements.renderMap.textContent = this.string("cancel");
 				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
-				const mapBounds = this.map.getBounds();
-				const bounds = {
-					minLat: Math.max(-85, mapBounds.getSouth()),
-					maxLat: Math.min(85, mapBounds.getNorth()),
-					minLon: mapBounds.getWest(),
-					maxLon: mapBounds.getEast()
-				};
+
+				// Define bounds based on region (image is 82°N to 82°S)
+				const region = elements.mapRegion.value;
+				let bounds;
+				if (region === "indonesia") {
+					bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
+				} else {
+					bounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
+				}
+
 				const criteria = elements.mapCriteria.value;
 				const dateString = elements.mapDate.value;
 				const dateObj = new Date(dateString ? dateString + "T12:00:00Z" : new Date());
-				const mapSize = this.map.getSize();
 				const widthDeg = bounds.maxLon - bounds.minLon;
 				const heightDeg = bounds.maxLat - bounds.minLat;
 				this.lastBounds = bounds;
+
 				const renderParams = {
 					bounds: bounds,
 					widthDeg: widthDeg,
 					heightDeg: heightDeg,
-					mapSizeX: mapSize.x,
 					criteria: criteria,
 					dateTimestamp: dateObj.getTime(),
 					minAlt: parseFloat(elements.minAlt.value) || 0,
 					minElong: parseFloat(elements.minElong.value) || 0
 				};
+
 				if (!this.worker) {
 					const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
 					this.worker = new Worker(URL.createObjectURL(blob));
 				}
+
 				this.worker.onmessage = (e) => {
 					const data = e.data;
-					if (data.buffer) this.handleComplete(data.width, data.height, data.buffer);
-					else if (data.error) {
+					if (data.progress) {
+						elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;
+					} else if (data.buffer) {
+						this.handleComplete(data.width, data.height, data.buffer);
+					} else if (data.error) {
 						console.error(data.error);
-						elements.mapStatus.textContent = this.string("statusError") + data.error;
+						elements.mapStatus.textContent = "Error: " + data.error;
 						this.cancelRender();
 					}
 				};
@@ -804,23 +947,62 @@ self.onmessage = function(e) {
 			}
 
 			handleComplete(width, height, buffer) {
-				const canvas = document.createElement("canvas");
-				canvas.width = width;
-				canvas.height = height;
-				const context = canvas.getContext("2d");
-				const imageData = new ImageData(buffer, width, height);
-				context.putImageData(imageData, 0, 0);
-				this.updateOverlay(canvas.toDataURL(), this.lastBounds);
+				const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
+				this.currentImageData = imageData;
+				this.redrawOverlay();
 				this.isRendering = false;
 				elements.renderMap.disabled = false;
 				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = this.string("statusDone");
+				elements.mapStatus.textContent = this.string("done");
 			}
 
-			updateOverlay(imageUrl, bounds) {
-				if (this.overlayLayer) this.map.removeLayer(this.overlayLayer);
-				const imageBounds = [[bounds.minLat, bounds.minLon], [bounds.maxLat, bounds.maxLon]];
-				this.overlayLayer = L.imageOverlay(imageUrl, imageBounds).addTo(this.map);
+			latToMercatorY(lat) {
+				const DEG_TO_RAD = Math.PI / 180;
+				return Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2));
+			}
+
+			redrawOverlay() {
+				if (!this.currentImageData || !this.lastBounds) return;
+				const canvas = elements['map-overlay'];
+				const img = elements['map-image'];
+
+				// Set canvas to match image dimensions
+				canvas.width = img.naturalWidth || img.width;
+				canvas.height = img.naturalHeight || img.height;
+
+				const ctx = canvas.getContext("2d");
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+				// Create temporary canvas with the calculation data
+				const tempCanvas = document.createElement('canvas');
+				tempCanvas.width = this.currentImageData.width;
+				tempCanvas.height = this.currentImageData.height;
+				const tempCtx = tempCanvas.getContext('2d');
+				tempCtx.putImageData(this.currentImageData, 0, 0);
+
+				// Calculate position based on bounds
+				// Image covers 82°N to 82°S, -180° to 180°
+				const imgBounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
+				const dataBounds = this.lastBounds;
+
+				// Horizontal (Linear)
+				const x = ((dataBounds.minLon - imgBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
+				const w = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
+
+				// Vertical (Mercator)
+				// Map Y=0 is 82°N, Y=Height is -82°S
+				const mapTopY = this.latToMercatorY(imgBounds.maxLat);
+				const mapBottomY = this.latToMercatorY(imgBounds.minLat);
+
+				const dataTopY = this.latToMercatorY(dataBounds.maxLat);
+				const dataBottomY = this.latToMercatorY(dataBounds.minLat);
+
+				// Y pixel is proportional to (mapTopY - val)
+				const y = ((mapTopY - dataTopY) / (mapTopY - mapBottomY)) * canvas.height;
+				const h = ((mapTopY - dataBottomY) / (mapTopY - mapBottomY)) * canvas.height - y;
+
+				// Draw scaled overlay
+				ctx.drawImage(tempCanvas, x, y, w, h);
 			}
 		}
 		new HilalMap();

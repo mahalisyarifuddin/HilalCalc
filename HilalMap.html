@@ -313,11 +313,11 @@
 				</div>
 				<div id="customCriteriaInputs" class="hidden row">
 					<div class="group">
-						<label for="minAlt">Min Altitude (degrees)</label>
+						<label id="minAltLabel" for="minAlt">Min Altitude (degrees)</label>
 						<input type="number" id="minAlt" step="0.1" value="3">
 					</div>
 					<div class="group">
-						<label for="minElong">Min Elongation (degrees)</label>
+						<label id="minElongLabel" for="minElong">Min Elongation (degrees)</label>
 						<input type="number" id="minElong" step="0.1" value="6.4">
 					</div>
 				</div>
@@ -368,11 +368,11 @@
 			</div>
 			<div id="calcCustomCriteriaInputs" class="hidden row">
 				<div class="group">
-					<label for="calcMinAlt">Min Altitude (degrees)</label>
+					<label id="calcMinAltLabel" for="calcMinAlt">Min Altitude (degrees)</label>
 					<input type="number" id="calcMinAlt" step="0.1" value="3">
 				</div>
 				<div class="group">
-					<label for="calcMinElong">Min Elongation (degrees)</label>
+					<label id="calcMinElongLabel" for="calcMinElong">Min Elongation (degrees)</label>
 					<input type="number" id="calcMinElong" step="0.1" value="6.4">
 				</div>
 			</div>
@@ -420,7 +420,14 @@
 				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°)',
 				criteriaAlt0: 'Altitude > 0°',
 				criteriaCustom: 'Custom Criteria',
-				utcPlaceholder: 'e.g., 7'
+				utcPlaceholder: 'e.g., 7',
+				done: "Done",
+				cancel: "Cancel",
+				cancelled: "Cancelled",
+				minAltLabel: "Min Altitude (degrees)",
+				minElongLabel: "Min Elongation (degrees)",
+				calcMinAltLabel: "Min Altitude (degrees)",
+				calcMinElongLabel: "Min Elongation (degrees)"
 			},
 			id: {
 				mapTitle: "Peta Visibilitas Hilal",
@@ -456,7 +463,14 @@
 				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°)',
 				criteriaAlt0: 'Tinggi Bulan > 0°',
 				criteriaCustom: 'Kriteria Kustom',
-				utcPlaceholder: 'contoh: 7'
+				utcPlaceholder: 'contoh: 7',
+				done: "Selesai",
+				cancel: "Batal",
+				cancelled: "Dibatalkan",
+				minAltLabel: "Min Ketinggian (derajat)",
+				minElongLabel: "Min Elongasi (derajat)",
+				calcMinAltLabel: "Min Ketinggian (derajat)",
+				calcMinElongLabel: "Min Elongasi (derajat)"
 			}
 		};
 
@@ -467,9 +481,9 @@ self.onmessage = function(e) {
 		const params = e.data;
 		const {bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong} = params;
 
-		// Optimize grid size - max 100x100 grid to prevent hanging
-		const maxGridSize = 100;
-		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 1);
+		// Optimize grid size - max 300x300 grid for better resolution (target ~30s)
+		const maxGridSize = 300;
+		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
 		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
 		const height = Math.min(Math.ceil(heightDeg / cellSizeDeg), maxGridSize);
 
@@ -508,7 +522,12 @@ self.onmessage = function(e) {
 			for (let col = 0; col < width; col++) {
 				const lon = bounds.minLon + (col * cellSizeDeg);
 				const observer = new Astronomy.Observer(lat, lon, 0);
-				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
+
+				// Adjust start time to approximate local noon for the search
+				// date.ut is 12:00 UTC. Subtract lon/15 to approximate local 12:00 converted to UTC.
+				const startUT = date.ut - (lon / 15);
+
+				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
 				let visible = false;
 				if (sunset) {
 					const sunsetUT = sunset.ut;
@@ -581,7 +600,11 @@ self.onmessage = function(e) {
 			latLabel: document.getElementById("latLabel"),
 			lonLabel: document.getElementById("lonLabel"),
 			utcOffsetLabel: document.getElementById("utcOffsetLabel"),
-			calcCriteriaLabel: document.getElementById("calcCriteriaLabel")
+			calcCriteriaLabel: document.getElementById("calcCriteriaLabel"),
+			minAltLabel: document.getElementById("minAltLabel"),
+			minElongLabel: document.getElementById("minElongLabel"),
+			calcMinAltLabel: document.getElementById("calcMinAltLabel"),
+			calcMinElongLabel: document.getElementById("calcMinElongLabel")
 		};
 
 		class HilalMap {
@@ -791,10 +814,12 @@ self.onmessage = function(e) {
 			}
 
 			calculateDetailsInner(latitude, longitude, dateString, criteria) {
-				const dateObj = new Date(dateString + "T00:00:00Z");
+				const dateObj = new Date(dateString + "T12:00:00Z");
 				const observer = new Astronomy.Observer(latitude, longitude, 0);
 				const date = Astronomy.MakeTime(dateObj);
-				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
+				// Adjust start time to approximate local noon
+				const startUT = date.ut - (longitude / 15);
+				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
 				if (!sunset) {
 					elements.results.innerHTML = "<div class=\"result-card\">Error: Sun does not set on this date/location.</div>";
 					return;
@@ -912,13 +937,13 @@ self.onmessage = function(e) {
 				this.isRendering = false;
 				elements.renderMap.disabled = false;
 				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = "Cancelled.";
+				elements.mapStatus.textContent = this.string("cancelled");
 			}
 
 			startRender() {
 				this.isRendering = true;
 				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = "Cancel";
+				elements.renderMap.textContent = this.string("cancel");
 				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
 
 				// Define bounds based on region (image is 82°N to 82°S)
@@ -974,7 +999,7 @@ self.onmessage = function(e) {
 				this.isRendering = false;
 				elements.renderMap.disabled = false;
 				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = "Done.";
+				elements.mapStatus.textContent = this.string("done");
 			}
 
 			latToMercatorY(lat) {

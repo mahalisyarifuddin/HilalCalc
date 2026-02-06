@@ -6,7 +6,7 @@ const locations = [
     { name: 'Banda Aceh', lat: 6.075, lon: 95.1125 }
 ];
 
-const months = [9, 10, 12]; // Ramadan, Shawwal, Dhu al-Hijjah
+const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // All months
 const startYear = 1000;
 const endYear = 2000;
 

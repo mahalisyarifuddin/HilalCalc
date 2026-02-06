@@ -43,8 +43,8 @@ Alat kalender yang kuat yang berfokus pada koordinat spesifik **Banda Aceh (6°0
 
 ### Kriteria MABBIMS
 Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei, Darussalam, Indonesia, Malaysia, dan Singapura) yang diadopsi pada tahun 2021:
--   **Tinggi (Altitude)**: $\ge$ 3°
--   **Elongasi**: $\ge$ 6,4°
+-   **Tinggi (Altitude)**: ≥ 3°
+-   **Elongasi**: ≥ 6,4°
 -   Titik Perhitungan: Matahari Terbenam (Sunset).
 
 ### Rumus Heuristik (HijriCalc)

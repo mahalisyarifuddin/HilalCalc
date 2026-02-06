@@ -60,6 +60,7 @@ Di mana `C` berasal dari:
 **Akurasi**: Rumus kontinu ini meminimalkan penyimpangan dari prediksi rukyat astronomis di seluruh dunia. Sebagai contoh:
 -   **Banda Aceh (95,1° BT)**: `C = 14`
 -   **Mekkah (39,9° BT)**: `C = 9`
+-   **Dakar (17,5° BB)**: `C = 5`
 
 ### Catatan Teknis: Koefisien C
 Kalender Islam Tabular mengikuti siklus 30 tahun yang berisi 11 tahun kabisat (355 hari) dan 19 tahun basita (354 hari). Distribusi tahun kabisat ini ditentukan oleh suku `floor((11*H + C) / 30)`. Koefisien `C` bertindak sebagai penggeser fase (phase shift), menentukan dengan tepat tahun mana dalam siklus tersebut yang menerima hari tambahan.

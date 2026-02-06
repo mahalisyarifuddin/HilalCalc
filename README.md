@@ -60,6 +60,7 @@ Where `C` is derived from:
 **Accuracy**: This continuous formula minimizes deviation from astronomical sighting predictions across the globe. For example:
 -   **Banda Aceh (95.1° E)**: `C = 14`
 -   **Mecca (39.9° E)**: `C = 9`
+-   **Dakar (17.5° W)**: `C = 5`
 
 ### Technical Note: The C Coefficient
 The Tabular Islamic calendar follows a 30-year cycle containing 11 leap years (355 days) and 19 common years (354 days). The distribution of these leap years is determined by the term `floor((11*H + C) / 30)`. The coefficient `C` acts as a phase shift, determining exactly which years in the cycle receive the extra day.

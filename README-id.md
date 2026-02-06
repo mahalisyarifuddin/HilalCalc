@@ -25,14 +25,13 @@ Visualisasikan di mana hilal terlihat di bola dunia untuk tanggal tertentu.
 -   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk gambar peta/CDN).
 
 ### 2. HijriCalc (Kalender & Konverter)
-Alat kalender yang kuat yang berfokus pada dua lokasi utama: **Banda Aceh** (default) dan **Arafah, Mekkah**.
+Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik Anda.
 
 **Fitur Utama:**
 -   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal astronomis.
--   **Lokasi Dapat Diganti**: Beralih antara Banda Aceh dan Arafah untuk melihat kalender relatif terhadap salah satu lokasi.
--   **Heuristik Optimal**: Menggunakan algoritma Tabular spesifik lokasi (`C=13` untuk Aceh, `C=11` untuk Arafah) untuk konversi tanggal yang akurat.
+-   **Heuristik Dinamis**: Secara otomatis menghitung koefisien Tabular (`C`) yang optimal berdasarkan bujur Anda (misal `C=14` untuk Aceh, `C=11` untuk Mekkah) untuk konversi tanggal yang akurat.
 -   **Navigasi**: Lompat ke tanggal Masehi atau Hijriyah mana pun untuk melihat susunan kalender yang sesuai.
--   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, dan Lokasi Basis.
+-   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, dan Lokasi.
 
 ## Cara Menggunakan
 1.  Unduh `HilalMap.html` atau `HijriCalc.html`.
@@ -51,31 +50,21 @@ Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei, Da
 ### Rumus Heuristik (HijriCalc)
 Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan algoritma **Tabular yang Dioptimalkan** yang berasal dari simulasi ketat visibilitas MABBIMS untuk tahun **1300-1600 H**.
 
-Algoritma beralih berdasarkan lokasi yang dipilih:
--   **Banda Aceh**: `JD = 1948440 + 354(H-1) + floor((11(H-1) + 13) / 30)`
--   **Arafah, Mekkah**: `JD = 1948440 + 354(H-1) + floor((11(H-1) + 11) / 30)`
+Algoritma ini secara dinamis menghitung koefisien `C` berdasarkan bujur pengguna:
 
-**Akurasi**: Kedua rumus ditemukan meminimalkan penyimpangan dari prediksi rukyat astronomis untuk lokasi masing-masing selama periode simulasi 300 tahun.
+`JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
+
+Di mana `C` berasal dari:
+`C = round(0,0634 * Bujur + 8,17)`
+
+**Akurasi**: Rumus kontinu ini meminimalkan penyimpangan dari prediksi rukyat astronomis di seluruh dunia. Sebagai contoh:
+-   **Banda Aceh (95,1° BT)**: `C = 14`
+-   **Mekkah (39,9° BT)**: `C = 11`
 
 ### Catatan Teknis: Koefisien C
 Kalender Islam Tabular mengikuti siklus 30 tahun yang berisi 11 tahun kabisat (355 hari) dan 19 tahun basita (354 hari). Distribusi tahun kabisat ini ditentukan oleh suku `floor((11*H + C) / 30)`. Koefisien `C` bertindak sebagai penggeser fase (phase shift), menentukan dengan tepat tahun mana dalam siklus tersebut yang menerima hari tambahan.
 
--   **Algoritma Standar (Kuwaiti) (`C=14`)**:
-    -   Tahun Kabisat: 2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29
--   **Optimasi Banda Aceh (`C=13`)**:
-    -   Tahun Kabisat: 2, 5, 7, 10, 13, 16, 18, 21, 24, **27**, 29
-    -   *Perbedaan*: Tahun 26 menjadi Tahun 27.
--   **Optimasi Arafah (`C=11`)**:
-    -   Tahun Kabisat: 2, 5, **8**, 10, 13, 16, **19**, 21, 24, **27**, 29
-    -   *Perbedaan*: Pergeseran terjadi pada tahun 7→8, 18→19, dan 26→27 dibandingkan standar.
-
-### Korelasi Geografis
-Analisis terbaru mengonfirmasi adanya korelasi linear yang kuat antara bujur (longitude) dan koefisien `C` yang optimal.
--   **Barat (-180°)**: Optimal `C ≈ 0`
--   **Tengah (0°)**: Optimal `C ≈ 3-7`
--   **Timur (+180°)**: Optimal `C ≈ 22-23`
-
-**Penjelasan**: Meningkatkan nilai `C` menghasilkan Julian Date yang lebih tinggi untuk tanggal Hijriyah yang sama, yang secara efektif memulai bulan *lebih lambat*. Hal ini selaras dengan realitas astronomis: zona visibilitas hilal biasanya dimulai di Barat dan merambat ke arah Barat. Akibatnya, lokasi di Timur (Asia/Australia) sering kali melihat bulan satu hari lebih lambat daripada lokasi di Barat (Amerika), sehingga memerlukan koefisien `C` yang lebih tinggi untuk menunda awal bulan tabular.
+Meningkatkan nilai `C` menghasilkan Julian Date yang lebih tinggi untuk tanggal Hijriyah yang sama, yang secara efektif memulai bulan *lebih lambat*. Hal ini selaras dengan realitas astronomis: zona visibilitas hilal biasanya dimulai di Barat dan merambat ke arah Barat. Akibatnya, lokasi di Timur (Asia/Australia) sering kali melihat bulan satu hari lebih lambat daripada lokasi di Barat (Amerika), sehingga memerlukan koefisien `C` yang lebih tinggi untuk menunda awal bulan tabular.
 
 ## Privasi & Data
 Semua perhitungan astronomis terjadi secara lokal di peramban Anda menggunakan **astronomy-engine**. Tidak ada data lokasi atau metrik penggunaan yang dikirim ke server mana pun.

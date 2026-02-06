@@ -485,10 +485,6 @@
 				<select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
 			</label>
 			<label>
-				<span id="variantLabel" data-i18n="variantLabel"></span>
-				<select id="heuristicVariant"><option value="aceh">Banda Aceh (Standard)</option><option value="arafah">Arafah (Mecca)</option></select>
-			</label>
-			<label>
 				<span id="themeLabel" data-i18n="themeLabel"></span>
 				<select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
 			</label>
@@ -532,7 +528,6 @@
 				formulaDesc: 'Optimized Tabular algorithm.',
 				prefTitle: 'Preferences',
 				langLabel: 'Language',
-				variantLabel: 'Base Location',
 				themeLabel: 'Theme',
 				primaryCalLabel: 'Primary Calendar',
 				weekStartLabel: 'Week starts on',
@@ -586,7 +581,6 @@
 				formulaDesc: 'Algoritma Tabular yang dioptimalkan.',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
-				variantLabel: 'Lokasi Basis',
 				themeLabel: 'Tema',
 				primaryCalLabel: 'Kalender Utama',
 				weekStartLabel: 'Awal pekan',
@@ -642,8 +636,7 @@
 			theme: 'auto',
 			weekStart: 0,
 			hijriAdj: 0,
-			primaryCalendar: 'gregorian',
-			heuristicVariant: 'aceh'
+			primaryCalendar: 'gregorian'
 		};
 
 		class HijriCalc {
@@ -678,7 +671,6 @@
 						if (parsed.weekStart !== undefined) state.weekStart = parsed.weekStart;
 						if (parsed.hijriAdj !== undefined) state.hijriAdj = parsed.hijriAdj;
 						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
-						if (parsed.heuristicVariant) state.heuristicVariant = parsed.heuristicVariant;
 					}
 				} catch (e) { console.error("Failed to load state", e); }
 			}
@@ -712,11 +704,9 @@
 				state.hijriAdj = parseInt(elements.hijriAdj.value);
 				state.primaryCalendar = elements.primaryCalendar.value;
 				state.theme = elements.theme.value;
-				// heuristicVariant is updated by its change handler directly, but we save current state
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
-					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
-					heuristicVariant: state.heuristicVariant
+					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme
 				}));
 				this.applyTheme(state.theme);
 				this.updateLanguage(state.lang);
@@ -731,7 +721,6 @@
 				state.weekStart = 0;
 				state.hijriAdj = 0;
 				state.primaryCalendar = 'gregorian';
-				state.heuristicVariant = 'aceh';
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
 				elements.language.value = state.lang;
@@ -739,7 +728,6 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
-				this.updateVariantUI();
 				this.savePreferences();
 			}
 
@@ -754,24 +742,6 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
-				elements.heuristicVariant.value = state.heuristicVariant;
-				this.updateVariantUI = () => {
-					elements.heuristicVariant.value = state.heuristicVariant;
-					this.updateFormulaDisplay();
-				};
-				elements.heuristicVariant.addEventListener('change', () => {
-					state.heuristicVariant = elements.heuristicVariant.value;
-					if (state.heuristicVariant === 'aceh') {
-						state.lat = 6.075;
-						state.lon = 95.1125;
-					} else {
-						state.lat = 21.3549;
-						state.lon = 39.9841;
-					}
-					elements.latInput.value = state.lat;
-					elements.lonInput.value = state.lon;
-					this.updateFormulaDisplay();
-				});
 
 				this.setDateToInput(elements.gDateInput, new Date());
 				text.en.months.forEach((month, index) => {
@@ -989,18 +959,20 @@
 				this.updateFormulaDisplay();
 			}
 
+			calculateC(lon) {
+				return Math.round(0.0634 * lon + 8.17);
+			}
+
 			updateFormulaDisplay() {
-				const isArafah = state.heuristicVariant === 'arafah';
-				const constant = isArafah ? 11 : 13;
-				const locationName = isArafah ? 'Arafah, Mecca' : 'Banda Aceh';
-				const formula = `JD = 1948440 + 354(H-1) + floor((11(H-1) + ${constant}) / 30)`;
+				const C = this.calculateC(state.lon);
+				const formula = `JD = 1948440 + 354(H-1) + floor((11(H-1) + ${C}) / 30)`;
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Optimized Tabular (${isArafah ? 'Arafah' : 'Aceh'}). Verified matches MABBIMS visibility (1300-1600 AH) at ${locationName}.</i>`;
+				elements.formulaNote.innerHTML = `<i>Optimized Tabular (C=${C}). Derived from Longitude ${state.lon}.</i>`;
 			}
 
 			hijriToGregorianTabular(hYear, hMonth, hDay) {
 				const epoch = 1948439.5 + state.hijriAdj;
-				const C = state.heuristicVariant === 'arafah' ? 11 : 13;
+				const C = this.calculateC(state.lon);
 				const year = hYear - 1;
 				const cycle = Math.floor(year / 30);
 				const yearInCycle = year % 30;
@@ -1054,7 +1026,7 @@
 				let cycle = Math.floor(jdNoon / 10631);
 				let dayInCycle = jdNoon % 10631;
 
-				const C = state.heuristicVariant === 'arafah' ? 11 : 13;
+				const C = this.calculateC(state.lon);
 				let yCycle = Math.floor(dayInCycle / 355);
 				if (yCycle > 29) yCycle = 29;
 				while (yCycle < 30) {

@@ -43,8 +43,8 @@ A robust calendar tool focused on the specific coordinates of **Banda Aceh (6°0
 
 ### MABBIMS Criteria
 The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Indonesia, Malaysia, dan Singapura) criteria adopted in 2021:
--   **Altitude**: $\ge$ 3°
--   **Elongation**: $\ge$ 6.4°
+-   **Altitude**: ≥ 3°
+-   **Elongation**: ≥ 6.4°
 -   Calculation Point: Sunset.
 
 ### Heuristic Formula (HijriCalc)

@@ -468,9 +468,9 @@
 		<div class="calendar-grid" id="calendar"></div>
 		<details>
 			<summary><span data-i18n="formulaTitle"></span></summary>
-			<p style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 5px;">JD = 1948440 + 354(H-1) + floor((11(H-1) + 11) / 30)</p>
+			<p id="formulaDisplay" style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 5px;"></p>
 			<p id="formulaDesc" style="font-size: 0.8rem; opacity: 0.8;" data-i18n="formulaDesc"></p>
-			<p style="font-size: 0.8rem; opacity: 0.8; margin-top:5px;"><i>Optimized Tabular (Arafah). Verified matches MABBIMS visibility (1300-1600 AH) at Arafah, Mecca.</i></p>
+			<p id="formulaNote" style="font-size: 0.8rem; opacity: 0.8; margin-top:5px;"></p>
 			<p class="info-text" id="footerNote" data-i18n="footer"></p>
 		</details>
 	</div>
@@ -483,6 +483,10 @@
 			<label>
 				<span id="langLabel" data-i18n="langLabel"></span>
 				<select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
+			</label>
+			<label>
+				<span id="variantLabel" data-i18n="variantLabel"></span>
+				<select id="heuristicVariant"><option value="aceh">Banda Aceh (Standard)</option><option value="arafah">Arafah (Mecca)</option></select>
 			</label>
 			<label>
 				<span id="themeLabel" data-i18n="themeLabel"></span>
@@ -525,9 +529,10 @@
 				gotoTitle: 'Go to Date',
 				today: 'Today',
 				formulaTitle: 'Heuristic Formula',
-				formulaDesc: 'Optimized Tabular (Arafah) algorithm.',
+				formulaDesc: 'Optimized Tabular algorithm.',
 				prefTitle: 'Preferences',
 				langLabel: 'Language',
+				variantLabel: 'Base Location',
 				themeLabel: 'Theme',
 				primaryCalLabel: 'Primary Calendar',
 				weekStartLabel: 'Week starts on',
@@ -578,9 +583,10 @@
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
 				formulaTitle: 'Rumus Heuristik',
-				formulaDesc: 'Algoritma Tabular (Arafah) yang dioptimalkan.',
+				formulaDesc: 'Algoritma Tabular yang dioptimalkan.',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
+				variantLabel: 'Lokasi Basis',
 				themeLabel: 'Tema',
 				primaryCalLabel: 'Kalender Utama',
 				weekStartLabel: 'Awal pekan',
@@ -630,13 +636,14 @@
 		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
 
 		let state = {
-			lat: 21.3549,
-			lon: 39.9841,
+			lat: 6.075,
+			lon: 95.1125,
 			lang: navigator.language?.startsWith('id') ? 'id' : 'en',
 			theme: 'auto',
 			weekStart: 0,
 			hijriAdj: 0,
-			primaryCalendar: 'gregorian'
+			primaryCalendar: 'gregorian',
+			heuristicVariant: 'aceh'
 		};
 
 		class HijriCalc {
@@ -671,6 +678,7 @@
 						if (parsed.weekStart !== undefined) state.weekStart = parsed.weekStart;
 						if (parsed.hijriAdj !== undefined) state.hijriAdj = parsed.hijriAdj;
 						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
+						if (parsed.heuristicVariant) state.heuristicVariant = parsed.heuristicVariant;
 					}
 				} catch (e) { console.error("Failed to load state", e); }
 			}
@@ -704,9 +712,11 @@
 				state.hijriAdj = parseInt(elements.hijriAdj.value);
 				state.primaryCalendar = elements.primaryCalendar.value;
 				state.theme = elements.theme.value;
+				// heuristicVariant is updated by its change handler directly, but we save current state
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
-					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme
+					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
+					heuristicVariant: state.heuristicVariant
 				}));
 				this.applyTheme(state.theme);
 				this.updateLanguage(state.lang);
@@ -714,13 +724,14 @@
 			}
 
 			resetPreferences() {
-				state.lat = 21.3549;
-				state.lon = 39.9841;
+				state.lat = 6.075;
+				state.lon = 95.1125;
 				state.lang = navigator.language?.startsWith('id') ? 'id' : 'en';
 				state.theme = 'auto';
 				state.weekStart = 0;
 				state.hijriAdj = 0;
 				state.primaryCalendar = 'gregorian';
+				state.heuristicVariant = 'aceh';
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
 				elements.language.value = state.lang;
@@ -728,6 +739,7 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
+				this.updateVariantUI();
 				this.savePreferences();
 			}
 
@@ -742,6 +754,25 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
+				elements.heuristicVariant.value = state.heuristicVariant;
+				this.updateVariantUI = () => {
+					elements.heuristicVariant.value = state.heuristicVariant;
+					this.updateFormulaDisplay();
+				};
+				elements.heuristicVariant.addEventListener('change', () => {
+					state.heuristicVariant = elements.heuristicVariant.value;
+					if (state.heuristicVariant === 'aceh') {
+						state.lat = 6.075;
+						state.lon = 95.1125;
+					} else {
+						state.lat = 21.3549;
+						state.lon = 39.9841;
+					}
+					elements.latInput.value = state.lat;
+					elements.lonInput.value = state.lon;
+					this.updateFormulaDisplay();
+				});
+
 				this.setDateToInput(elements.gDateInput, new Date());
 				text.en.months.forEach((month, index) => {
 					const option = document.createElement('option');
@@ -955,14 +986,25 @@
 					const day = weekDays[parseInt(opt.value)];
 					if (day) opt.textContent = day;
 				});
+				this.updateFormulaDisplay();
+			}
+
+			updateFormulaDisplay() {
+				const isArafah = state.heuristicVariant === 'arafah';
+				const constant = isArafah ? 11 : 13;
+				const locationName = isArafah ? 'Arafah, Mecca' : 'Banda Aceh';
+				const formula = `JD = 1948440 + 354(H-1) + floor((11(H-1) + ${constant}) / 30)`;
+				elements.formulaDisplay.textContent = formula;
+				elements.formulaNote.innerHTML = `<i>Optimized Tabular (${isArafah ? 'Arafah' : 'Aceh'}). Verified matches MABBIMS visibility (1300-1600 AH) at ${locationName}.</i>`;
 			}
 
 			hijriToGregorianTabular(hYear, hMonth, hDay) {
 				const epoch = 1948439.5 + state.hijriAdj;
+				const C = state.heuristicVariant === 'arafah' ? 11 : 13;
 				const year = hYear - 1;
 				const cycle = Math.floor(year / 30);
 				const yearInCycle = year % 30;
-				const dayInCycle = yearInCycle * 354 + Math.floor((11 * yearInCycle + 11) / 30);
+				const dayInCycle = yearInCycle * 354 + Math.floor((11 * yearInCycle + C) / 30);
 				const dayInYear = Math.ceil(29.5 * hMonth);
 				const jd = epoch + cycle * 10631 + dayInCycle + dayInYear + hDay - 1;
 
@@ -1012,15 +1054,16 @@
 				let cycle = Math.floor(jdNoon / 10631);
 				let dayInCycle = jdNoon % 10631;
 
+				const C = state.heuristicVariant === 'arafah' ? 11 : 13;
 				let yCycle = Math.floor(dayInCycle / 355);
 				if (yCycle > 29) yCycle = 29;
 				while (yCycle < 30) {
-					let daysNext = (yCycle + 1) * 354 + Math.floor((11 * (yCycle + 1) + 11) / 30);
+					let daysNext = (yCycle + 1) * 354 + Math.floor((11 * (yCycle + 1) + C) / 30);
 					if (dayInCycle < daysNext) break;
 					yCycle++;
 				}
 
-				let daysInPastYears = yCycle * 354 + Math.floor((11 * yCycle + 11) / 30);
+				let daysInPastYears = yCycle * 354 + Math.floor((11 * yCycle + C) / 30);
 				let dayInYear = dayInCycle - daysInPastYears;
 
 				let mYear = Math.floor(dayInYear / 29.5);

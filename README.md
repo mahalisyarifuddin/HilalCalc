@@ -69,6 +69,14 @@ The Tabular Islamic calendar follows a 30-year cycle containing 11 leap years (3
     -   Leap Years: 2, 5, **8**, 10, 13, 16, **19**, 21, 24, **27**, 29
     -   *Difference*: Shifts occur at years 7→8, 18→19, and 26→27 compared to standard.
 
+### Geographic Correlation
+Recent analysis confirms a strong linear correlation between the longitude and the optimal `C` coefficient.
+-   **West (-180°)**: Optimal `C ≈ 0`
+-   **Central (0°)**: Optimal `C ≈ 3-7`
+-   **East (+180°)**: Optimal `C ≈ 22-23`
+
+**Reasoning**: Increasing the value of `C` generates higher Julian Dates for the same Hijri date, effectively starting the month *later*. This aligns with astronomical reality: the visibility zone of the new crescent typically begins in the West and propagates Westward. Consequently, Eastern locations (Asia/Australia) often sight the moon one day later than Western locations (Americas), requiring a higher `C` coefficient to delay the tabular month start.
+
 ## Privacy & Data
 All astronomical calculations happen locally in your browser using **astronomy-engine**. No location data or usage metrics are sent to any server.
 

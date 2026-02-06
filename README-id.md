@@ -21,7 +21,9 @@ Visualisasikan di mana hilal terlihat di bola dunia untuk tanggal tertentu.
 -   **Peta Interaktif**: Visualisasi *heatmap* zona visibilitas (Terlihat vs Tidak Terlihat).
 -   **Perhitungan Detail**: Hitung posisi bulan yang tepat (Tinggi, Elongasi, Azimuth, Umur) untuk koordinat tertentu.
 -   **Kriteria Beragam**: Mendukung MABBIMS, Kalender Islam Global (GIC), dan kriteria kustom pengguna.
--   **Render Time-Sliced**: Merender overlay resolusi tinggi langsung di peramban tanpa membekukan antarmuka pengguna (UI).
+-   **Render Web Worker**: Memindahkan perhitungan kompleks ke *background thread* agar UI tetap responsif.
+-   **Zoom & Pan**: Navigasi peta dengan kontrol zoom dan geser.
+-   **Pilihan Wilayah**: Fokus pada wilayah tertentu (misal: Dunia, Indonesia).
 -   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk gambar peta/CDN).
 
 ### 2. HijriCalc (Kalender & Konverter)
@@ -31,7 +33,7 @@ Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik 
 -   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal astronomis.
 -   **Heuristik Dinamis**: Secara otomatis menghitung koefisien Tabular (`C`) yang optimal berdasarkan bujur Anda (misal `C=15` untuk Aceh, `C=11` untuk Mekkah) untuk konversi tanggal yang akurat.
 -   **Navigasi**: Lompat ke tanggal Masehi atau Hijriyah mana pun untuk melihat susunan kalender yang sesuai.
--   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, dan Lokasi.
+-   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, Kalender Utama, dan Mode Heuristik.
 
 ## Cara Menggunakan
 1.  Unduh `HilalMap.html` atau `HijriCalc.html`.
@@ -54,12 +56,12 @@ Algoritma ini secara dinamis menghitung koefisien `C` berdasarkan bujur pengguna
 
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
-Di mana `C` berasal dari:
-`C = round(Bujur / 12 + 7.5)`
+Di mana `C` secara default (Fase 2) berasal dari:
+`C = round(Bujur / 12,5 + 7,8)`
 
 **Akurasi**: Rumus kontinu ini meminimalkan penyimpangan dari prediksi rukyat astronomis di seluruh dunia. Sebagai contoh:
 -   **Banda Aceh (95,1° BT)**: `C = 15`
--   **Mekkah (39,9° BT)**: `C = 12`
+-   **Mekkah (39,9° BT)**: `C = 11`
 -   **Dakar (17,5° BB)**: `C = 6`
 
 **Mode Heuristik**: HijriCalc kini mendukung dua mode optimasi untuk koefisien `C`.

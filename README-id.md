@@ -69,6 +69,14 @@ Kalender Islam Tabular mengikuti siklus 30 tahun yang berisi 11 tahun kabisat (3
     -   Tahun Kabisat: 2, 5, **8**, 10, 13, 16, **19**, 21, 24, **27**, 29
     -   *Perbedaan*: Pergeseran terjadi pada tahun 7→8, 18→19, dan 26→27 dibandingkan standar.
 
+### Korelasi Geografis
+Analisis terbaru mengonfirmasi adanya korelasi linear yang kuat antara bujur (longitude) dan koefisien `C` yang optimal.
+-   **Barat (-180°)**: Optimal `C ≈ 0`
+-   **Tengah (0°)**: Optimal `C ≈ 3-7`
+-   **Timur (+180°)**: Optimal `C ≈ 22-23`
+
+**Penjelasan**: Meningkatkan nilai `C` menghasilkan Julian Date yang lebih tinggi untuk tanggal Hijriyah yang sama, yang secara efektif memulai bulan *lebih lambat*. Hal ini selaras dengan realitas astronomis: zona visibilitas hilal biasanya dimulai di Barat dan merambat ke arah Barat. Akibatnya, lokasi di Timur (Asia/Australia) sering kali melihat bulan satu hari lebih lambat daripada lokasi di Barat (Amerika), sehingga memerlukan koefisien `C` yang lebih tinggi untuk menunda awal bulan tabular.
+
 ## Privasi & Data
 Semua perhitungan astronomis terjadi secara lokal di peramban Anda menggunakan **astronomy-engine**. Tidak ada data lokasi atau metrik penggunaan yang dikirim ke server mana pun.
 

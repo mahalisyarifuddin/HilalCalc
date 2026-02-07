@@ -13,10 +13,6 @@ const endYear = 2000;
 
 const altCache = new Map();
 
-function calculateC(lon) {
-    return Math.round(lon / 12.4848 + 7.8628);
-}
-
 function hijriToGregorianTabular(hYear, hMonth, hDay, C) {
     const epoch = 1948439.5; // Standard epoch (July 15, 622)
     const year = hYear - 1;
@@ -85,7 +81,6 @@ function getMoonAltitudeAtSunsetOfEve(dateObj, lat, lon) {
 
     const utcOffset = getTimezoneOffset(lon);
     // Observation is on the evening BEFORE the Tabular Date (which starts at Maghrib)
-    // Wait, let's be precise.
     // If Tabular Date is "March 23", it starts at sunset on March 22.
     // So we check sunset on March 22.
     // dateObj represents "March 23" at noon UTC.
@@ -148,9 +143,54 @@ function getHijriMonthStart(hYear, hMonth, lat, lon) {
     return formatDate(startDate);
 }
 
+// Simple Pareto Dominance Check
+// A solution S1 dominates S2 if:
+// S1.Accuracy >= S2.Accuracy AND S1.Impossible <= S2.Impossible AND (S1.Accuracy > S2.Accuracy OR S1.Impossible < S2.Impossible)
+function findParetoFrontier(candidates) {
+    // Candidates structure: { C, accuracy, impossible }
+    // Sort by Impossible ASC (primary) then Accuracy DESC (secondary)
+    // Actually, for Pareto, sorting helps.
+    // Let's iterate and keep only non-dominated solutions.
+
+    let frontier = [];
+
+    for (const candidate of candidates) {
+        let isDominated = false;
+        for (const other of candidates) {
+            if (candidate === other) continue;
+            // Does 'other' dominate 'candidate'?
+            // Higher Accuracy is better, Lower Impossible is better.
+            if (other.accuracy >= candidate.accuracy && other.impossible <= candidate.impossible) {
+                if (other.accuracy > candidate.accuracy || other.impossible < candidate.impossible) {
+                    isDominated = true;
+                    break;
+                }
+            }
+        }
+        if (!isDominated) {
+            frontier.push(candidate);
+        }
+    }
+
+    // Sort frontier for readability: High Accuracy first
+    return frontier.sort((a, b) => b.accuracy - a.accuracy);
+}
+
+// Or select the best "knee point" or weighted sum.
+// Let's define "Best" as maximizing: Accuracy - 2 * Impossible
+// This puts a heavy penalty on impossible sightings.
+function findWeightedBest(candidates) {
+    return candidates.reduce((best, current) => {
+        const score = current.accuracy - (2 * current.impossible);
+        const bestScore = best ? best.accuracy - (2 * best.impossible) : -Infinity;
+        return score > bestScore ? current : best;
+    }, null);
+}
+
+
 async function main() {
     console.log(`Analyzing years ${startYear}-${endYear} AH`);
-    console.log('Calculating dual accuracy rates: All Months vs Obligatory Months (9, 10, 12)');
+    console.log('Finding Pareto-optimal C values (Accuracy vs Impossible Rate)');
     console.log('---');
 
     for (const loc of locations) {
@@ -166,14 +206,8 @@ async function main() {
             }
         }
 
-        let bestCAll = -100;
-        let maxAccAll = -1;
-        let bestCOblig = -100;
-        let maxAccOblig = -1;
-
-        // Track the "Impossible" rate for the BEST C
-        // We will store all stats to retrieve later
-        let stats = [];
+        let candidatesAll = [];
+        let candidatesOblig = [];
 
         for (let C = -15; C <= 30; C++) {
             let matchesAll = 0;
@@ -207,35 +241,48 @@ async function main() {
             const impAll = (impossibleAll / totalAll) * 100;
             const impOblig = (impossibleOblig / totalOblig) * 100;
 
-            stats.push({ C, accAll, accOblig, impAll, impOblig });
-
-            if (accAll > maxAccAll) { maxAccAll = accAll; bestCAll = C; }
-            if (accOblig > maxAccOblig) { maxAccOblig = accOblig; bestCOblig = C; }
+            candidatesAll.push({ C, accuracy: accAll, impossible: impAll, context: 'All' });
+            candidatesOblig.push({ C, accuracy: accOblig, impossible: impOblig, context: 'Oblig' });
         }
 
-        // Find stats for best All
-        const bestAllStats = stats.find(s => s.C === bestCAll);
-        // Find stats for best Oblig
-        const bestObligStats = stats.find(s => s.C === bestCOblig);
+        const frontierAll = findParetoFrontier(candidatesAll);
+        const frontierOblig = findParetoFrontier(candidatesOblig);
 
-        console.log(`Best C (All Months): ${bestCAll} (Acc: ${bestAllStats.accAll.toFixed(2)}%, Impossible: ${bestAllStats.impAll.toFixed(2)}%)`);
-        console.log(`Best C (Obligatory): ${bestCOblig} (Acc: ${bestObligStats.accAll.toFixed(2)}%, Impossible: ${bestObligStats.impAll.toFixed(2)}%)`); // Use impAll or impOblig? Usually we care about impossible rate for the specific months we optimized for, or overall? Let's report both contexts.
-        // Actually, if optimizing for Obligatory, we care about impossible rate for Obligatory months mainly.
-        // But let's stick to the column format: "Best C | Oblig Acc | All Acc | Impossible (relevant scope)"
-        // If Phase 1 (Oblig), "Impossible" should be for Obligatory months?
-        // Let's print extensive info.
+        const bestAll = findWeightedBest(candidatesAll);
+        const bestOblig = findWeightedBest(candidatesOblig);
 
-        console.log(`Phase 1 (Obligatory Months) C=${bestCOblig}:`);
-        console.log(`  - Obligatory Accuracy: ${bestObligStats.accOblig.toFixed(2)}%`);
-        console.log(`  - All Months Accuracy: ${bestObligStats.accAll.toFixed(2)}%`);
-        console.log(`  - Obligatory Impossible: ${bestObligStats.impOblig.toFixed(2)}%`);
-        console.log(`  - All Months Impossible: ${bestObligStats.impAll.toFixed(2)}%`);
+        console.log("Pareto Frontier (All Months):");
+        frontierAll.forEach(c => console.log(`  C=${c.C}: Acc=${c.accuracy.toFixed(2)}%, Imp=${c.impossible.toFixed(2)}%`));
+        console.log(`Selected Best (All): C=${bestAll.C} (Acc=${bestAll.accuracy.toFixed(2)}%, Imp=${bestAll.impossible.toFixed(2)}%)`);
 
-        console.log(`Phase 2 (All Months) C=${bestCAll}:`);
-        console.log(`  - Obligatory Accuracy: ${bestAllStats.accOblig.toFixed(2)}%`);
-        console.log(`  - All Months Accuracy: ${bestAllStats.accAll.toFixed(2)}%`);
-        console.log(`  - Obligatory Impossible: ${bestAllStats.impOblig.toFixed(2)}%`);
-        console.log(`  - All Months Impossible: ${bestAllStats.impAll.toFixed(2)}%`);
+        console.log("Pareto Frontier (Obligatory):");
+        frontierOblig.forEach(c => console.log(`  C=${c.C}: Acc=${c.accuracy.toFixed(2)}%, Imp=${c.impossible.toFixed(2)}%`));
+        console.log(`Selected Best (Oblig): C=${bestOblig.C} (Acc=${bestOblig.accuracy.toFixed(2)}%, Imp=${bestOblig.impossible.toFixed(2)}%)`);
+
+        // Let's also output the full stats for the selected bests to match previous report format
+        // Find the full candidate object from the original list (though findWeightedBest returns it)
+        // Wait, we need cross-stats for the report table (Oblig stats for All-Optimized C, etc)
+
+        // Helper to find stats
+        const getStats = (cVal) => {
+            const all = candidatesAll.find(x => x.C === cVal);
+            const oblig = candidatesOblig.find(x => x.C === cVal);
+            return {
+                C: cVal,
+                accAll: all.accuracy,
+                impAll: all.impossible,
+                accOblig: oblig.accuracy,
+                impOblig: oblig.impossible
+            };
+        }
+
+        const statsAll = getStats(bestAll.C);
+        const statsOblig = getStats(bestOblig.C);
+
+        console.log(`Report Data for ${loc.name}:`);
+        console.log(`Phase 1 (Oblig Best C=${statsOblig.C}): AccOblig=${statsOblig.accOblig.toFixed(2)}%, AccAll=${statsOblig.accAll.toFixed(2)}%, ImpOblig=${statsOblig.impOblig.toFixed(2)}%, ImpAll=${statsOblig.impAll.toFixed(2)}%`);
+        console.log(`Phase 2 (All Best C=${statsAll.C}): AccOblig=${statsAll.accOblig.toFixed(2)}%, AccAll=${statsAll.accAll.toFixed(2)}%, ImpOblig=${statsAll.impOblig.toFixed(2)}%, ImpAll=${statsAll.impAll.toFixed(2)}%`);
+
         console.log('---');
     }
 }

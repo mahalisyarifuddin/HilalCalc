@@ -509,6 +509,10 @@
 				<label id="locLabel" style="margin-bottom:0" data-i18n="locLabel"></label>
 				<button id="myLocBtn" style="width:auto; padding: .25rem .5rem; font-size:.8rem; background:transparent; color:var(--primary); border:none;" data-i18n="myLoc"></button>
 			</div>
+			<label style="margin-bottom: 0.5rem">
+				<span id="locPresetLabel" style="font-weight:normal; font-size:0.9em" data-i18n="locPresetLabel"></span>
+				<select id="locPreset"></select>
+			</label>
 			<div class="row">
 				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="latLabel"></label><input type="number" id="latInput" step="0.0001"></div>
 				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="lonLabel"></label><input type="number" id="lonInput" step="0.0001"></div>
@@ -581,7 +585,12 @@
 				dirN: 'N',
 				dirS: 'S',
 				dirE: 'E',
-				dirW: 'W'
+				dirW: 'W',
+				locPresetLabel: 'Location Preset',
+				locCustom: 'Custom',
+				locAceh: 'Banda Aceh',
+				locMecca: 'Makkah',
+				locDakar: 'Dakar'
 			},
 			id: {
 				appTitle: 'Kalender Hijriyah MABBIMS',
@@ -637,14 +646,27 @@
 				dirN: 'LU',
 				dirS: 'LS',
 				dirE: 'BT',
-				dirW: 'BB'
+				dirW: 'BB',
+				locPresetLabel: 'Pilihan Lokasi',
+				locCustom: 'Kustom',
+				locAceh: 'Banda Aceh',
+				locMecca: 'Makkah',
+				locDakar: 'Dakar'
 			}
 		};
+
+		const locations = {
+			aceh: { lat: 6.075, lon: 95.1125 },
+			mecca: { lat: 21.4225, lon: 39.8262 },
+			dakar: { lat: 14.7167, lon: -17.4677 }
+		};
+
 		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
 
 		let state = {
 			lat: 6.075,
 			lon: 95.1125,
+			locPreset: 'aceh',
 			lang: navigator.language?.startsWith('id') ? 'id' : 'en',
 			theme: 'auto',
 			weekStart: 0,
@@ -686,6 +708,17 @@
 						if (parsed.hijriAdj !== undefined) state.hijriAdj = parsed.hijriAdj;
 						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
 						if (parsed.formulaMode) state.formulaMode = parsed.formulaMode;
+						if (parsed.locPreset) state.locPreset = parsed.locPreset;
+						else {
+							let matched = 'custom';
+							for (const [key, loc] of Object.entries(locations)) {
+								if (Math.abs(state.lat - loc.lat) < 0.001 && Math.abs(state.lon - loc.lon) < 0.001) {
+									matched = key;
+									break;
+								}
+							}
+							state.locPreset = matched;
+						}
 					}
 				} catch (e) { console.error("Failed to load state", e); }
 			}
@@ -720,10 +753,11 @@
 				state.primaryCalendar = elements.primaryCalendar.value;
 				state.theme = elements.theme.value;
 				state.formulaMode = elements.formulaMode.value;
+				state.locPreset = elements.locPreset.value;
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
 					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
-					formulaMode: state.formulaMode
+					formulaMode: state.formulaMode, locPreset: state.locPreset
 				}));
 				this.applyTheme(state.theme);
 				this.updateLanguage(state.lang);
@@ -739,6 +773,7 @@
 				state.hijriAdj = 0;
 				state.primaryCalendar = 'gregorian';
 				state.formulaMode = 'phase1';
+				state.locPreset = 'aceh';
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
 				elements.language.value = state.lang;
@@ -747,6 +782,7 @@
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
 				elements.formulaMode.value = state.formulaMode;
+				elements.locPreset.value = state.locPreset;
 				this.savePreferences();
 			}
 
@@ -754,6 +790,31 @@
 			getTimezoneOffset() { return Math.round(state.lon / 15); }
 
 			setup() {
+				const presetSelect = elements.locPreset;
+				Object.keys(locations).forEach(key => {
+					const opt = document.createElement('option');
+					opt.value = key;
+					presetSelect.appendChild(opt);
+				});
+				const customOpt = document.createElement('option');
+				customOpt.value = 'custom';
+				presetSelect.appendChild(customOpt);
+				presetSelect.value = state.locPreset;
+
+				presetSelect.addEventListener('change', () => {
+					if (presetSelect.value !== 'custom') {
+						const loc = locations[presetSelect.value];
+						elements.latInput.value = loc.lat;
+						elements.lonInput.value = loc.lon;
+					}
+				});
+
+				[elements.latInput, elements.lonInput].forEach(el => {
+					el.addEventListener('input', () => {
+						presetSelect.value = 'custom';
+					});
+				});
+
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
 				elements.language.value = state.lang;
@@ -976,6 +1037,17 @@
 					const day = weekDays[parseInt(opt.value)];
 					if (day) opt.textContent = day;
 				});
+
+				const presetSelect = elements.locPreset;
+				for (let opt of presetSelect.options) {
+					if (opt.value === 'custom') {
+						opt.textContent = translation.locCustom;
+					} else if (locations[opt.value]) {
+						const key = 'loc' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1);
+						opt.textContent = translation[key];
+					}
+				}
+
 				this.updateFormulaDisplay();
 			}
 

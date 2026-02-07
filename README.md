@@ -59,14 +59,14 @@ The algorithm dynamically calculates the `C` coefficient based on the user's lon
 Where `C` defaults to (Phase 2):
 `C = round(Longitude / 12.5 + 7.8)`
 
-**Accuracy**: This continuous formula minimizes deviation from astronomical sighting predictions across the globe. For example:
--   **Banda Aceh (95.1° E)**: `C = 15`
--   **Mecca (39.9° E)**: `C = 11`
--   **Dakar (17.5° W)**: `C = 6`
+**Accuracy**: The algorithm adapts to the location and optimization mode. For example:
+-   **Banda Aceh (95.1° E)**: `C = 15` (General) or `22` (Obligatory)
+-   **Mecca (39.9° E)**: `C = 11` (General) or `18` (Obligatory)
+-   **Dakar (17.5° W)**: `C = 6` (General) or `12` (Obligatory)
 
 **Heuristic Mode**: HijriCalc now supports two optimization modes for the coefficient `C`.
-1.  **Phase 1 (Obligatory Months)**: Optimized for maximum accuracy during Ramadan, Shawwal, and Dhu al-Hijjah. Formula: `C = round(lon/11.25 + 14)`.
-2.  **Phase 2 (All Months)**: (Default) Optimized for the best average accuracy across the entire Hijri year. Formula: `C = round(lon/12.5 + 7.8)`.
+1.  **Phase 1 (Obligatory Months)**: Optimized for maximum accuracy during Ramadan, Shawwal, and Dhu al-Hijjah (improves accuracy by ~4-5% for these months). Formula: `C = round(lon/11.25 + 14)`.
+2.  **Phase 2 (All Months)**: (Default) Optimized for the best average accuracy across the entire Hijri year (improves general accuracy by ~3-4%). Formula: `C = round(lon/12.5 + 7.8)`.
 
 See [analysis_report.md](analysis_report.md) for detailed accuracy comparisons.
 

@@ -15,22 +15,22 @@ The analysis identified a trade-off between maximizing accuracy for the **entire
 ### Phase 1: Obligatory Months Optimization (Modes "Best")
 Optimizing specifically for Ramadan, Shawwal, and Dhu al-Hijjah.
 
-| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) |
-|------------|--------|----------------------------|---------------------|-------------------------|
-| Dakar      | 12     | **65.60%**                 | 61.72%              | 3.93%                   |
-| Mecca      | 18     | **66.07%**                 | 61.01%              | 3.33%                   |
-| Banda Aceh | 22     | **65.27%**                 | 60.53%              | 3.00%                   |
+| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
+|------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
+| Dakar      | 12     | **65.60%**                 | 61.72%              | 3.93%                   | 1.54%                   |
+| Mecca      | 18     | **66.07%**                 | 61.01%              | 3.33%                   | 1.41%                   |
+| Banda Aceh | 22     | **65.27%**                 | 60.53%              | 3.00%                   | 1.22%                   |
 
 *Derived Formula (Phase 1):* `C = Math.round(lon / 11.2455 + 13.8504)`
 
 ### Phase 2: All Months Optimization (Mode "General")
 Optimizing for the best average accuracy across the entire Hijri year.
 
-| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (All Months) |
-|------------|--------|----------------------------|---------------------|-------------------------|
-| Dakar      | 6      | 61.47%                     | **64.65%**          | 4.54%                   |
-| Mecca      | 12     | 62.24%                     | **64.55%**          | 4.12%                   |
-| Banda Aceh | 15     | 60.91%                     | **64.29%**          | 4.49%                   |
+| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
+|------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
+| Dakar      | 6      | 61.47%                     | **64.65%**          | 9.29%                   | 4.54%                   |
+| Mecca      | 12     | 62.24%                     | **64.55%**          | 8.36%                   | 4.12%                   |
+| Banda Aceh | 15     | 60.91%                     | **64.29%**          | 8.96%                   | 4.49%                   |
 
 *Derived Formula (Phase 2):* `C = Math.round(lon / 12.4848 + 7.8628)`
 

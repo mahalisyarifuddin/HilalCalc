@@ -21,7 +21,7 @@ Optimizing specifically for Ramadan, Shawwal, and Dhu al-Hijjah.
 | Mecca      | 18     | **66.07%**                 | 61.01%              |
 | Banda Aceh | 22     | **65.27%**                 | 60.53%              |
 
-*Derived Formula (Phase 1):* `C = Math.round(lon / 11.25 + 14)`
+*Derived Formula (Phase 1):* `C = Math.round(lon / 11.2455 + 13.8504)`
 
 ### Phase 2: All Months Optimization (Mode "General")
 Optimizing for the best average accuracy across the entire Hijri year.
@@ -32,7 +32,7 @@ Optimizing for the best average accuracy across the entire Hijri year.
 | Mecca      | 12     | 62.24%                     | **64.55%**          |
 | Banda Aceh | 15     | 60.91%                     | **64.29%**          |
 
-*Derived Formula (Phase 2):* `C = Math.round(lon / 12.5 + 7.8)`
+*Derived Formula (Phase 2):* `C = Math.round(lon / 12.4848 + 7.8628)`
 
 ## Conclusion
 There is a clear trade-off.

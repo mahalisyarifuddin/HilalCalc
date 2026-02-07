@@ -981,10 +981,10 @@
 
 			calculateC(lon) {
 				if (state.formulaMode === 'phase1') {
-					return Math.round(lon / 11.25 + 14);
+					return Math.round(lon / 11.2455 + 13.8504);
 				}
 				// Phase 2: All Months (General)
-				return Math.round(lon / 12.5 + 7.8);
+				return Math.round(lon / 12.4848 + 7.8628);
 			}
 
 			updateFormulaDisplay() {

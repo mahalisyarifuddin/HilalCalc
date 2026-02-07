@@ -50,7 +50,7 @@ The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Ind
 -   Calculation Point: Sunset.
 
 ### Heuristic Formula (HijriCalc)
-For quick navigation and approximation, `HijriCalc` uses an **Optimized Tabular** algorithm derived from rigorous simulation of MABBIMS visibility for years **1600-2600 AD** (approx. 1000-2050 AH).
+For quick navigation and approximation, `HijriCalc` uses an **Optimized Tabular** algorithm derived from rigorous simulation of MABBIMS visibility for years **1600-2600 AD** (approx. 1000-2000 AH).
 
 The algorithm dynamically calculates the `C` coefficient based on the user's longitude:
 

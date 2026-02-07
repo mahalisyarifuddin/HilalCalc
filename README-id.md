@@ -50,7 +50,7 @@ Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei, Da
 -   Titik Perhitungan: Matahari Terbenam (Sunset).
 
 ### Rumus Heuristik (HijriCalc)
-Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan algoritma **Tabular yang Dioptimalkan** yang berasal dari simulasi ketat visibilitas MABBIMS untuk tahun **1600-2600 M** (kira-kira 1000-2000 H).
+Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan algoritma **Tabular yang Dioptimalkan** yang berasal dari simulasi ketat visibilitas MABBIMS untuk tahun **1000-2000 H**.
 
 Algoritma ini secara dinamis menghitung koefisien `C` berdasarkan bujur pengguna:
 

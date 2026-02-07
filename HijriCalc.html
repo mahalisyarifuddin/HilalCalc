@@ -1323,6 +1323,7 @@
 						if (date >= context.startGDate && date < context.endGDate) {
 							const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
 							hijriDateDisplay = Math.round((dateNoTime - start) / 86400000) + 1;
+							hijriMonthNameDisplay = translation.months[context.hMonth];
 						} else {
 							const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
 							const diff = Math.round((dateNoTime - start) / 86400000) + 1;

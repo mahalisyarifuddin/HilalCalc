@@ -15,22 +15,22 @@ Analisis ini mengidentifikasi trade-off antara memaksimalkan akurasi untuk **sep
 ### Fase 1: Optimasi Bulan Wajib (Mode "Terbaik")
 Dioptimalkan khusus untuk Ramadhan, Syawal, dan Dzulhijjah.
 
-| Lokasi     | C Terbaik | Akurasi Bulan Wajib | Akurasi Semua Bulan |
-|------------|-----------|---------------------|---------------------|
-| Dakar      | 12        | **65.60%**          | 61.72%              |
-| Mekkah     | 18        | **66.07%**          | 61.01%              |
-| Banda Aceh | 22        | **65.27%**          | 60.53%              |
+| Lokasi     | C Terbaik | Akurasi Bulan Wajib | Akurasi Semua Bulan | Mustahil (Bulan Wajib) |
+|------------|-----------|---------------------|---------------------|------------------------|
+| Dakar      | 12        | **65.60%**          | 61.72%              | 3.93%                  |
+| Mekkah     | 18        | **66.07%**          | 61.01%              | 3.33%                  |
+| Banda Aceh | 22        | **65.27%**          | 60.53%              | 3.00%                  |
 
 *Rumus Turunan (Fase 1):* `C = Math.round(lon / 11.2455 + 13.8504)`
 
 ### Fase 2: Optimasi Semua Bulan (Mode "Umum")
 Dioptimalkan untuk akurasi rata-rata terbaik sepanjang tahun Hijriyah.
 
-| Lokasi     | C Terbaik | Akurasi Bulan Wajib | Akurasi Semua Bulan |
-|------------|-----------|---------------------|---------------------|
-| Dakar      | 6         | 61.47%              | **64.65%**          |
-| Mekkah     | 12        | 62.24%              | **64.55%**          |
-| Banda Aceh | 15        | 60.91%              | **64.29%**          |
+| Lokasi     | C Terbaik | Akurasi Bulan Wajib | Akurasi Semua Bulan | Mustahil (Semua Bulan) |
+|------------|-----------|---------------------|---------------------|------------------------|
+| Dakar      | 6         | 61.47%              | **64.65%**          | 4.54%                  |
+| Mekkah     | 12        | 62.24%              | **64.55%**          | 4.12%                  |
+| Banda Aceh | 15        | 60.91%              | **64.29%**          | 4.49%                  |
 
 *Rumus Turunan (Fase 2):* `C = Math.round(lon / 12.4848 + 7.8628)`
 

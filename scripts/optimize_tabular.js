@@ -11,8 +11,10 @@ const obligMonths = [9, 10, 12];
 const startYear = 1000;
 const endYear = 2000;
 
+const altCache = new Map();
+
 function calculateC(lon) {
-    return Math.round(lon / 12.0 + 7.5);
+    return Math.round(lon / 12.4848 + 7.8628);
 }
 
 function hijriToGregorianTabular(hYear, hMonth, hDay, C) {
@@ -76,6 +78,39 @@ function checkVisibility(dateObj, knownNewMoonUT, lat, lon) {
     return (altitude >= 3.0 && elongation >= 6.4);
 }
 
+// Get Moon Altitude at sunset for the eve of the given date (date - 1 day)
+function getMoonAltitudeAtSunsetOfEve(dateObj, lat, lon) {
+    const key = `${dateObj.toISOString().split('T')[0]}-${lat}-${lon}`;
+    if (altCache.has(key)) return altCache.get(key);
+
+    const utcOffset = getTimezoneOffset(lon);
+    // Observation is on the evening BEFORE the Tabular Date (which starts at Maghrib)
+    // Wait, let's be precise.
+    // If Tabular Date is "March 23", it starts at sunset on March 22.
+    // So we check sunset on March 22.
+    // dateObj represents "March 23" at noon UTC.
+    // So dateObj - 1 day is "March 22".
+
+    const obsDate = new Date(dateObj.getTime() - 86400000);
+    const baseUTC = new Date(obsDate);
+    baseUTC.setUTCHours(12 - utcOffset);
+
+    const date = Astronomy.MakeTime(baseUTC);
+    const observer = new Astronomy.Observer(lat, lon, 0);
+    const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
+
+    let altitude = -999;
+    if (sunset) {
+        const sunsetUT = sunset.ut;
+        const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
+        const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
+        altitude = moonHor.altitude;
+    }
+
+    altCache.set(key, altitude);
+    return altitude;
+}
+
 // Helper to format date as YYYY-MM-DD
 function formatDate(date) {
     return date.toISOString().split('T')[0];
@@ -136,7 +171,9 @@ async function main() {
         let bestCOblig = -100;
         let maxAccOblig = -1;
 
-        let summary = [];
+        // Track the "Impossible" rate for the BEST C
+        // We will store all stats to retrieve later
+        let stats = [];
 
         for (let C = -15; C <= 30; C++) {
             let matchesAll = 0;
@@ -144,34 +181,61 @@ async function main() {
             let matchesOblig = 0;
             let totalOblig = 0;
 
+            let impossibleAll = 0;
+            let impossibleOblig = 0;
+
             for (const item of groundTruths) {
                 const tabDate = hijriToGregorianTabular(item.y, item.m, 1, C);
                 const tabStr = formatDate(tabDate);
 
+                // Check if Moon was below horizon on the eve of tabDate
+                const altitude = getMoonAltitudeAtSunsetOfEve(tabDate, loc.lat, loc.lon);
+                const isImpossible = (altitude < 0);
+
                 totalAll++;
                 if (tabStr === item.gt) matchesAll++;
+                if (isImpossible) impossibleAll++;
 
                 if (obligMonths.includes(item.m)) {
                     totalOblig++;
                     if (tabStr === item.gt) matchesOblig++;
+                    if (isImpossible) impossibleOblig++;
                 }
             }
             const accAll = (matchesAll / totalAll) * 100;
             const accOblig = (matchesOblig / totalOblig) * 100;
+            const impAll = (impossibleAll / totalAll) * 100;
+            const impOblig = (impossibleOblig / totalOblig) * 100;
 
-            summary.push({ C, accAll, accOblig });
+            stats.push({ C, accAll, accOblig, impAll, impOblig });
 
             if (accAll > maxAccAll) { maxAccAll = accAll; bestCAll = C; }
             if (accOblig > maxAccOblig) { maxAccOblig = accOblig; bestCOblig = C; }
         }
 
         // Find stats for best All
-        const bestAllStats = summary.find(s => s.C === bestCAll);
+        const bestAllStats = stats.find(s => s.C === bestCAll);
         // Find stats for best Oblig
-        const bestObligStats = summary.find(s => s.C === bestCOblig);
+        const bestObligStats = stats.find(s => s.C === bestCOblig);
 
-        console.log(`Best C (All Months): ${bestCAll} (Acc: ${bestAllStats.accAll.toFixed(2)}%, Oblig Acc: ${bestAllStats.accOblig.toFixed(2)}%)`);
-        console.log(`Best C (Obligatory): ${bestCOblig} (Acc: ${bestObligStats.accAll.toFixed(2)}%, Oblig Acc: ${bestObligStats.accOblig.toFixed(2)}%)`);
+        console.log(`Best C (All Months): ${bestCAll} (Acc: ${bestAllStats.accAll.toFixed(2)}%, Impossible: ${bestAllStats.impAll.toFixed(2)}%)`);
+        console.log(`Best C (Obligatory): ${bestCOblig} (Acc: ${bestObligStats.accAll.toFixed(2)}%, Impossible: ${bestObligStats.impAll.toFixed(2)}%)`); // Use impAll or impOblig? Usually we care about impossible rate for the specific months we optimized for, or overall? Let's report both contexts.
+        // Actually, if optimizing for Obligatory, we care about impossible rate for Obligatory months mainly.
+        // But let's stick to the column format: "Best C | Oblig Acc | All Acc | Impossible (relevant scope)"
+        // If Phase 1 (Oblig), "Impossible" should be for Obligatory months?
+        // Let's print extensive info.
+
+        console.log(`Phase 1 (Obligatory Months) C=${bestCOblig}:`);
+        console.log(`  - Obligatory Accuracy: ${bestObligStats.accOblig.toFixed(2)}%`);
+        console.log(`  - All Months Accuracy: ${bestObligStats.accAll.toFixed(2)}%`);
+        console.log(`  - Obligatory Impossible: ${bestObligStats.impOblig.toFixed(2)}%`);
+        console.log(`  - All Months Impossible: ${bestObligStats.impAll.toFixed(2)}%`);
+
+        console.log(`Phase 2 (All Months) C=${bestCAll}:`);
+        console.log(`  - Obligatory Accuracy: ${bestAllStats.accOblig.toFixed(2)}%`);
+        console.log(`  - All Months Accuracy: ${bestAllStats.accAll.toFixed(2)}%`);
+        console.log(`  - Obligatory Impossible: ${bestAllStats.impOblig.toFixed(2)}%`);
+        console.log(`  - All Months Impossible: ${bestAllStats.impAll.toFixed(2)}%`);
         console.log('---');
     }
 }

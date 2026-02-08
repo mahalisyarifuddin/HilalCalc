@@ -501,6 +501,7 @@
 				<select id="formulaMode">
 					<option value="phase1" data-i18n="formulaModePhase1">Obligatory Months (Best)</option>
 					<option value="phase2" data-i18n="formulaModePhase2">All Months (General)</option>
+					<option value="phase3" data-i18n="formulaModePhase3">Balanced (4D Optimized)</option>
 				</select>
 			</label>
 		</div>
@@ -547,6 +548,7 @@
 				formulaModeLabel: 'Heuristic Mode',
 				formulaModePhase1: 'Obligatory Months (Best)',
 				formulaModePhase2: 'All Months (General)',
+				formulaModePhase3: 'Balanced (4D Optimized)',
 				save: 'Save & Close',
 				reset: 'Reset Defaults',
 				myLoc: 'Use My Location',
@@ -608,6 +610,7 @@
 				formulaModeLabel: 'Mode Heuristik',
 				formulaModePhase1: 'Bulan Wajib (Terbaik)',
 				formulaModePhase2: 'Semua Bulan (Umum)',
+				formulaModePhase3: 'Seimbang (Optimal 4D)',
 				save: 'Simpan & Tutup',
 				reset: 'Atur Ulang',
 				myLoc: 'Gunakan Lokasi Saya',
@@ -1054,6 +1057,9 @@
 			calculateC(lon) {
 				if (state.formulaMode === 'phase1') {
 					return Math.round(lon / 12.5 + 17.4);
+				} else if (state.formulaMode === 'phase3') {
+					// Phase 3: Balanced (4D Pareto Optimized)
+					return Math.round(lon / 12.5 + 16.0);
 				}
 				// Phase 2: All Months (General)
 				return Math.round(lon / 12.5 + 12.4);

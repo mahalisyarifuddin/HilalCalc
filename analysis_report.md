@@ -36,11 +36,24 @@ Optimizing for the best average accuracy across the entire Hijri year.
 
 *Derived Formula (Phase 2):* `C = Math.round(lon / 12.5 + 12.4)`
 
+### Phase 3: Balanced Optimization (4D Pareto)
+Optimizing for a balance between all four objectives: Accuracy (All), Impossible (All), Accuracy (Obligatory), and Impossible (Obligatory).
+
+| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
+|------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
+| Dakar      | 14     | 65.07%                     | 59.50%              | 2.63%                   | 0.96%                   |
+| Mecca      | 20     | 65.60%                     | 58.44%              | 2.26%                   | 0.85%                   |
+| Banda Aceh | 24     | 64.67%                     | 58.09%              | 1.86%                   | 0.75%                   |
+
+*Derived Formula (Phase 3):* `C = Math.round(lon / 12.5 + 16.0)`
+
 ## Conclusion
 There is a clear trade-off.
 - **Phase 1** prioritizes minimizing "impossible" sightings during religious months, resulting in a safer but slightly later calendar (higher C).
 - **Phase 2** balances overall accuracy for administrative use, accepting a slightly higher rate of impossible predictions to align better with visibility statistics on average.
+- **Phase 3** offers a "middle ground" solution derived from 4-dimensional Pareto optimization, providing a robust balance between accuracy and astronomical validity across both religious and general contexts.
 
-`HijriCalc.html` implements both formulas, allowing the user to choose the mode that best fits their needs.
-- **Phase 1 (Obligatory Months):** Recommended for determining religious observances.
+`HijriCalc.html` implements all three formulas, allowing the user to choose the mode that best fits their needs.
+- **Phase 1 (Obligatory Months):** Recommended for determining religious observances (Default).
 - **Phase 2 (All Months):** Recommended for general historical or administrative purposes.
+- **Phase 3 (Balanced):** Recommended for users seeking a compromise between strict astronomical validity and general accuracy.

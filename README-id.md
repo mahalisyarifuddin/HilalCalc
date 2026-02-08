@@ -64,9 +64,10 @@ Di mana `C` secara default (Fase 1) berasal dari:
 -   **Mekkah (39,9° BT)**: `C = 16` (Umum) atau `22` (Wajib)
 -   **Dakar (17,5° BB)**: `C = 11` (Umum) atau `16` (Wajib)
 
-**Mode Heuristik**: HijriCalc kini mendukung dua mode optimasi untuk koefisien `C`.
+**Mode Heuristik**: HijriCalc kini mendukung tiga mode optimasi untuk koefisien `C`.
 1.  **Fase 1 (Bulan Wajib)**: (Default) Dioptimalkan untuk akurasi maksimal selama Ramadhan, Syawal, dan Dzulhijjah (meningkatkan akurasi sekitar 4-5% untuk bulan-bulan ini). Rumus: `C = round(bujur/12,5 + 17,4)`.
 2.  **Fase 2 (Semua Bulan)**: Dioptimalkan untuk akurasi rata-rata terbaik sepanjang tahun Hijriyah (meningkatkan akurasi umum sekitar 3-4%). Rumus: `C = round(bujur/12,5 + 12,4)`.
+3.  **Fase 3 (Seimbang)**: Dioptimalkan melalui analisis Pareto 4D untuk keseimbangan yang kuat antara akurasi dan validitas astronomis baik dalam konteks keagamaan maupun umum. Rumus: `C = round(bujur/12,5 + 16,0)`.
 
 Lihat [analysis_report-id.md](analysis_report-id.md) untuk perbandingan akurasi detail.
 

@@ -18,7 +18,7 @@ Optimization for **All Months** yields the following best-fitting coefficients:
 | Mecca      | 39.9°     | **14**    | 64.94%                | 2.19%           | Highest raw accuracy. Matches standard Kuwaiti algorithm. |
 | Banda Aceh | 95.1°     | **18**    | 64.52%                | 1.98%           | Optimal balance. |
 
-*Note: For Mecca, C=15 offers a slightly lower impossible rate (1.77%) but lower raw accuracy (64.17%). C=14 is selected for higher accuracy and compatibility with the standard Kuwaiti algorithm.*
+*Note: For Mecca, C=15 offers a slightly lower impossible rate (1.77%) but lower raw accuracy (64.17%). Crucially, C=15 alters the leap year pattern (Year 15 instead of 16), breaking compatibility with the standard "Vanilla" Kuwaiti algorithm. Therefore, C=14 is the definitive optimal choice.*
 
 ## Derived Formula
 A simple linear regression based on Longitude perfectly fits these optimal coefficients:

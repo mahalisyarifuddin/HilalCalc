@@ -1,0 +1,196 @@
+
+======================================================================
+TABULAR HIJRI CALENDAR OPTIMIZATION
+Analyzing years 1000-2000 AH (1001 years, 12012 months)
+Enhanced Pareto Frontier Analysis with Multiple Selection Strategies
+======================================================================
+
+⏳ Processing Dakar (14.7167°, -17.4677°)...
+
+======================================================================
+LOCATION: Dakar
+======================================================================
+
+📊 PARETO FRONTIER (20 non-dominated solutions):
+   Accuracy Range: 40.37% - 66.06%
+   Impossible Range: 0.00% - 4.06%
+
+   [1] C=  5: Acc=66.06%, Imp=4.06%
+   [2] C=  6: Acc=66.03%, Imp=3.48% ← IDEAL DIST
+   [3] C=  7: Acc=65.82%, Imp=2.94%
+   [4] C=  8: Acc=65.47%, Imp=2.46%
+   [5] C=  9: Acc=64.93%, Imp=2.05%
+   [6] C= 10: Acc=64.14%, Imp=1.62%
+   [7] C= 11: Acc=63.15%, Imp=1.28%
+   [8] C= 12: Acc=62.03%, Imp=1.01%
+   [9] C= 13: Acc=60.86%, Imp=0.79%
+   [10] C= 14: Acc=59.47%, Imp=0.56% ← KNEE POINT
+   [11] C= 15: Acc=57.85%, Imp=0.42%
+   [12] C= 16: Acc=56.21%, Imp=0.29%
+   [13] C= 17: Acc=54.47%, Imp=0.23%
+   [14] C= 18: Acc=52.66%, Imp=0.16%
+   [15] C= 19: Acc=50.77%, Imp=0.10%
+   [16] C= 20: Acc=48.82%, Imp=0.06%
+   [17] C= 21: Acc=46.72%, Imp=0.04%
+   [18] C= 22: Acc=44.65%, Imp=0.02%
+   [19] C= 23: Acc=42.48%, Imp=0.01%
+   [20] C= 24: Acc=40.37%, Imp=0.00%
+
+📈 TRADE-OFF ANALYSIS:
+   (Moving along Pareto frontier)
+   C 5 → 6: Acc -0.03%, Imp -0.58% (ratio: 0.06)
+   C 6 → 7: Acc -0.21%, Imp -0.54% (ratio: 0.38)
+   C 7 → 8: Acc -0.35%, Imp -0.47% (ratio: 0.74)
+   C 8 → 9: Acc -0.54%, Imp -0.42% (ratio: 1.30)
+   C 9 → 10: Acc -0.78%, Imp -0.43% (ratio: 1.81)
+   C 10 → 11: Acc -1.00%, Imp -0.33% (ratio: 3.00)
+   C 11 → 12: Acc -1.12%, Imp -0.27% (ratio: 4.06)
+   C 12 → 13: Acc -1.17%, Imp -0.22% (ratio: 5.42)
+   C 13 → 14: Acc -1.38%, Imp -0.23% (ratio: 5.93)
+   C 14 → 15: Acc -1.62%, Imp -0.14% (ratio: 11.47)
+   C 15 → 16: Acc -1.64%, Imp -0.12% (ratio: 13.13)
+   C 16 → 17: Acc -1.74%, Imp -0.06% (ratio: 29.86)
+   C 17 → 18: Acc -1.81%, Imp -0.07% (ratio: 24.22)
+   C 18 → 19: Acc -1.89%, Imp -0.06% (ratio: 32.43)
+   C 19 → 20: Acc -1.95%, Imp -0.04% (ratio: 46.80)
+   C 20 → 21: Acc -2.10%, Imp -0.02% (ratio: 126.00)
+   C 21 → 22: Acc -2.07%, Imp -0.02% (ratio: 83.00)
+   C 22 → 23: Acc -2.16%, Imp -0.01% (ratio: 260.00)
+   C 23 → 24: Acc -2.11%, Imp -0.01% (ratio: 254.00)
+
+🎯 RECOMMENDED C VALUES (by strategy):
+   1. Knee Point (best trade-off):    C=14 (Acc=59.47%, Imp=0.56%)
+   2. Ideal Distance (closest to 100%/0%): C=6 (Acc=66.03%, Imp=3.48%)
+   3. Weighted (1:2 ratio):           C=10 (Acc=64.14%, Imp=1.62%)
+   4. Lexicographic (Imp≤5%, max Acc): C=5 (Acc=66.06%, Imp=4.06%)
+   5. Min Impossible (conservative):  C=30 (Acc=27.31%, Imp=0.00%)
+
+🔍 UNIFIED FORMULA COMPARISON:
+   Predicted C=15: Acc=57.85%, Imp=0.42%
+   Status: ✓ ON Pareto frontier (optimal!)
+
+⏳ Processing Mecca (21.3891°, 39.8579°)...
+
+======================================================================
+LOCATION: Mecca
+======================================================================
+
+📊 PARETO FRONTIER (20 non-dominated solutions):
+   Accuracy Range: 38.51% - 65.83%
+   Impossible Range: 0.00% - 3.66%
+
+   [1] C= 11: Acc=65.83%, Imp=3.66% ← IDEAL DIST
+   [2] C= 12: Acc=65.75%, Imp=3.15%
+   [3] C= 13: Acc=65.52%, Imp=2.66%
+   [4] C= 14: Acc=64.94%, Imp=2.19%
+   [5] C= 15: Acc=64.17%, Imp=1.77%
+   [6] C= 16: Acc=63.30%, Imp=1.46%
+   [7] C= 17: Acc=62.25%, Imp=1.21%
+   [8] C= 18: Acc=61.06%, Imp=0.93%
+   [9] C= 19: Acc=59.63%, Imp=0.72%
+   [10] C= 20: Acc=58.16%, Imp=0.51% ← KNEE POINT
+   [11] C= 21: Acc=56.46%, Imp=0.38%
+   [12] C= 22: Acc=54.78%, Imp=0.29%
+   [13] C= 23: Acc=52.98%, Imp=0.22%
+   [14] C= 24: Acc=51.15%, Imp=0.14%
+   [15] C= 25: Acc=49.16%, Imp=0.09%
+   [16] C= 26: Acc=47.04%, Imp=0.04%
+   [17] C= 27: Acc=44.96%, Imp=0.03%
+   [18] C= 28: Acc=42.83%, Imp=0.02%
+   [19] C= 29: Acc=40.63%, Imp=0.01%
+   [20] C= 30: Acc=38.51%, Imp=0.00%
+
+📈 TRADE-OFF ANALYSIS:
+   (Moving along Pareto frontier)
+   C 11 → 12: Acc -0.07%, Imp -0.52% (ratio: 0.15)
+   C 12 → 13: Acc -0.23%, Imp -0.49% (ratio: 0.47)
+   C 13 → 14: Acc -0.57%, Imp -0.47% (ratio: 1.23)
+   C 14 → 15: Acc -0.77%, Imp -0.42% (ratio: 1.86)
+   C 15 → 16: Acc -0.87%, Imp -0.32% (ratio: 2.76)
+   C 16 → 17: Acc -1.04%, Imp -0.25% (ratio: 4.17)
+   C 17 → 18: Acc -1.20%, Imp -0.27% (ratio: 4.36)
+   C 18 → 19: Acc -1.42%, Imp -0.22% (ratio: 6.58)
+   C 19 → 20: Acc -1.47%, Imp -0.21% (ratio: 7.08)
+   C 20 → 21: Acc -1.70%, Imp -0.12% (ratio: 13.60)
+   C 21 → 22: Acc -1.68%, Imp -0.09% (ratio: 18.36)
+   C 22 → 23: Acc -1.80%, Imp -0.07% (ratio: 24.00)
+   C 23 → 24: Acc -1.83%, Imp -0.07% (ratio: 24.44)
+   C 24 → 25: Acc -1.99%, Imp -0.05% (ratio: 39.83)
+   C 25 → 26: Acc -2.11%, Imp -0.05% (ratio: 42.33)
+   C 26 → 27: Acc -2.08%, Imp -0.01% (ratio: 250.00)
+   C 27 → 28: Acc -2.13%, Imp -0.01% (ratio: 256.00)
+   C 28 → 29: Acc -2.20%, Imp -0.02% (ratio: 132.00)
+   C 29 → 30: Acc -2.12%, Imp -0.01% (ratio: 255.00)
+
+🎯 RECOMMENDED C VALUES (by strategy):
+   1. Knee Point (best trade-off):    C=20 (Acc=58.16%, Imp=0.51%)
+   2. Ideal Distance (closest to 100%/0%): C=11 (Acc=65.83%, Imp=3.66%)
+   3. Weighted (1:2 ratio):           C=15 (Acc=64.17%, Imp=1.77%)
+   4. Lexicographic (Imp≤5%, max Acc): C=11 (Acc=65.83%, Imp=3.66%)
+   5. Min Impossible (conservative):  C=30 (Acc=38.51%, Imp=0.00%)
+
+🔍 UNIFIED FORMULA COMPARISON:
+   Predicted C=19: Acc=59.63%, Imp=0.72%
+   Status: ✓ ON Pareto frontier (optimal!)
+
+⏳ Processing Banda Aceh (6.075°, 95.1125°)...
+
+======================================================================
+LOCATION: Banda Aceh
+======================================================================
+
+📊 PARETO FRONTIER (17 non-dominated solutions):
+   Accuracy Range: 46.74% - 65.73%
+   Impossible Range: 0.04% - 4.04%
+
+   [1] C= 14: Acc=65.73%, Imp=4.04%
+   [2] C= 15: Acc=65.73%, Imp=3.42% ← IDEAL DIST
+   [3] C= 16: Acc=65.47%, Imp=2.89%
+   [4] C= 17: Acc=65.12%, Imp=2.40%
+   [5] C= 18: Acc=64.52%, Imp=1.98%
+   [6] C= 19: Acc=63.74%, Imp=1.64%
+   [7] C= 20: Acc=62.75%, Imp=1.33%
+   [8] C= 21: Acc=61.69%, Imp=1.05%
+   [9] C= 22: Acc=60.58%, Imp=0.79% ← KNEE POINT
+   [10] C= 23: Acc=59.23%, Imp=0.62%
+   [11] C= 24: Acc=57.74%, Imp=0.48%
+   [12] C= 25: Acc=56.12%, Imp=0.36%
+   [13] C= 26: Acc=54.37%, Imp=0.25%
+   [14] C= 27: Acc=52.58%, Imp=0.18%
+   [15] C= 28: Acc=50.74%, Imp=0.12%
+   [16] C= 29: Acc=48.73%, Imp=0.07%
+   [17] C= 30: Acc=46.74%, Imp=0.04%
+
+📈 TRADE-OFF ANALYSIS:
+   (Moving along Pareto frontier)
+   C 14 → 15: Acc -0.01%, Imp -0.62% (ratio: 0.01)
+   C 15 → 16: Acc -0.26%, Imp -0.53% (ratio: 0.48)
+   C 16 → 17: Acc -0.35%, Imp -0.49% (ratio: 0.71)
+   C 17 → 18: Acc -0.60%, Imp -0.42% (ratio: 1.44)
+   C 18 → 19: Acc -0.78%, Imp -0.34% (ratio: 2.29)
+   C 19 → 20: Acc -0.99%, Imp -0.31% (ratio: 3.22)
+   C 20 → 21: Acc -1.06%, Imp -0.28% (ratio: 3.74)
+   C 21 → 22: Acc -1.11%, Imp -0.26% (ratio: 4.29)
+   C 22 → 23: Acc -1.35%, Imp -0.17% (ratio: 7.71)
+   C 23 → 24: Acc -1.49%, Imp -0.13% (ratio: 11.19)
+   C 24 → 25: Acc -1.62%, Imp -0.12% (ratio: 13.00)
+   C 25 → 26: Acc -1.75%, Imp -0.11% (ratio: 16.15)
+   C 26 → 27: Acc -1.79%, Imp -0.07% (ratio: 26.88)
+   C 27 → 28: Acc -1.84%, Imp -0.06% (ratio: 31.57)
+   C 28 → 29: Acc -2.01%, Imp -0.05% (ratio: 40.17)
+   C 29 → 30: Acc -2.00%, Imp -0.03% (ratio: 60.00)
+
+🎯 RECOMMENDED C VALUES (by strategy):
+   1. Knee Point (best trade-off):    C=22 (Acc=60.58%, Imp=0.79%)
+   2. Ideal Distance (closest to 100%/0%): C=15 (Acc=65.73%, Imp=3.42%)
+   3. Weighted (1:2 ratio):           C=18 (Acc=64.52%, Imp=1.98%)
+   4. Lexicographic (Imp≤5%, max Acc): C=14 (Acc=65.73%, Imp=4.04%)
+   5. Min Impossible (conservative):  C=30 (Acc=46.74%, Imp=0.04%)
+
+🔍 UNIFIED FORMULA COMPARISON:
+   Predicted C=23: Acc=59.23%, Imp=0.62%
+   Status: ✓ ON Pareto frontier (optimal!)
+
+======================================================================
+ANALYSIS COMPLETE
+======================================================================

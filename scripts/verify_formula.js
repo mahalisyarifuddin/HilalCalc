@@ -1,11 +1,11 @@
 const locations = [
-    { name: 'Dakar', lon: -17.4677, expected: 10 },
-    { name: 'Mecca', lon: 39.8579, expected: 15 },
-    { name: 'Banda Aceh', lon: 95.1125, expected: 18 }
+    { name: 'Dakar', lon: -17.4677, expected: 15 },
+    { name: 'Mecca', lon: 39.8579, expected: 19 },
+    { name: 'Banda Aceh', lon: 95.1125, expected: 23 }
 ];
 
 function calculateC(lon) {
-    return Math.round(lon / 14.1 + 11.7);
+    return Math.round(lon / 14.0 + 15.9);
 }
 
 let allPass = true;

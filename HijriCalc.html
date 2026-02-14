@@ -493,6 +493,13 @@
 				<select id="primaryCalendar"><option value="gregorian">Gregorian</option><option value="hijri">Hijri</option></select>
 			</label>
 			<label>
+				<span id="calcModeLabel" data-i18n="calcModeLabel">Calculation Method</span>
+				<select id="calcMode">
+					<option value="astronomic">Astronomical (MABBIMS)</option>
+					<option value="heuristic">Heuristic (Tabular)</option>
+				</select>
+			</label>
+			<label>
 				<span id="weekStartLabel" data-i18n="weekStartLabel"></span>
 				<select id="weekStart"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select>
 			</label>
@@ -592,7 +599,11 @@
 				locMecca: 'Makkah',
 				locDakar: 'Dakar',
 				customCLabel: 'Custom Tabular Constant (C)',
-				cValueLabel: 'C Value'
+				cValueLabel: 'C Value',
+				calcModeLabel: 'Calculation Method',
+				calcModeAstronomic: 'Astronomical (MABBIMS)',
+				calcModeHeuristic: 'Heuristic (Tabular)',
+				heuristicSuffix: ' (Heuristic)'
 			},
 			id: {
 				appTitle: 'Kalender Hijriyah MABBIMS',
@@ -652,7 +663,11 @@
 				locMecca: 'Makkah',
 				locDakar: 'Dakar',
 				customCLabel: 'Konstanta Tabular Kustom (C)',
-				cValueLabel: 'Nilai C'
+				cValueLabel: 'Nilai C',
+				calcModeLabel: 'Metode Perhitungan',
+				calcModeAstronomic: 'Astronomis (MABBIMS)',
+				calcModeHeuristic: 'Heuristik (Tabular)',
+				heuristicSuffix: ' (Heuristik)'
 			}
 		};
 
@@ -674,7 +689,8 @@
 			hijriAdj: 0,
 			primaryCalendar: 'gregorian',
 			useCustomC: false,
-			customC: 15
+			customC: 15,
+			calcMode: 'astronomic'
 		};
 
 		class HijriCalc {
@@ -711,6 +727,7 @@
 						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
 						if (parsed.useCustomC !== undefined) state.useCustomC = parsed.useCustomC;
 						if (parsed.customC !== undefined) state.customC = parsed.customC;
+						if (parsed.calcMode) state.calcMode = parsed.calcMode;
 						if (parsed.locPreset) state.locPreset = parsed.locPreset;
 						else {
 							let matched = 'custom';
@@ -758,10 +775,11 @@
 				state.locPreset = elements.locPreset.value;
 				state.useCustomC = elements.useCustomC.checked;
 				state.customC = parseInt(elements.cValueInput.value);
+				state.calcMode = elements.calcMode.value;
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
 					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
-					locPreset: state.locPreset, useCustomC: state.useCustomC, customC: state.customC
+					locPreset: state.locPreset, useCustomC: state.useCustomC, customC: state.customC, calcMode: state.calcMode
 				}));
 				this.applyTheme(state.theme);
 				this.updateLanguage(state.lang);
@@ -779,6 +797,7 @@
 				state.locPreset = 'aceh';
 				state.useCustomC = false;
 				state.customC = 22;
+				state.calcMode = this.isOffline ? 'heuristic' : 'astronomic';
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
 				elements.language.value = state.lang;
@@ -790,6 +809,7 @@
 				elements.useCustomC.checked = state.useCustomC;
 				elements.cValueInput.value = state.customC;
 				elements.customCContainer.style.display = state.useCustomC ? 'block' : 'none';
+				elements.calcMode.value = state.calcMode;
 				this.savePreferences();
 			}
 
@@ -832,6 +852,12 @@
 				elements.useCustomC.checked = state.useCustomC;
 				elements.cValueInput.value = state.customC;
 				elements.customCContainer.style.display = state.useCustomC ? 'block' : 'none';
+
+				elements.calcMode.value = state.calcMode;
+				if (this.isOffline) {
+					elements.calcMode.value = 'heuristic';
+					elements.calcMode.disabled = true;
+				}
 
 				elements.useCustomC.addEventListener('change', () => {
 					elements.customCContainer.style.display = elements.useCustomC.checked ? 'block' : 'none';
@@ -1041,10 +1067,12 @@
 				});
 				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon);
 				if (this.isOffline) elements.appSubtitle.textContent += translation.offlineSuffix;
+				else if (state.calcMode === 'heuristic') elements.appSubtitle.textContent += translation.heuristicSuffix;
 				[...elements.hMonthInput.options].forEach((option, index) => { option.textContent = translation.months[index]; });
 
 				[...elements.theme.options].forEach(opt => opt.textContent = translation['theme' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
 				[...elements.primaryCalendar.options].forEach(opt => opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
+				[...elements.calcMode.options].forEach(opt => opt.textContent = translation['calcMode' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
 				const weekDays = [translation.weekSun, translation.weekMon, null, null, null, null, translation.weekSat];
 				[...elements.weekStart.options].forEach(opt => {
 					const day = weekDays[parseInt(opt.value)];
@@ -1109,7 +1137,7 @@
 			}
 
 			hijriToGregorian(hYear, hMonth, hDay) {
-				if (this.isOffline) return this.hijriToGregorianTabular(hYear, hMonth, hDay);
+				if (this.isOffline || state.calcMode === 'heuristic') return this.hijriToGregorianTabular(hYear, hMonth, hDay);
 				const start = this.getAccurateHijriMonthStart(hYear, hMonth);
 				const gregorian = new Date(start.gDate);
 				gregorian.setDate(gregorian.getDate() + (hDay - 1));
@@ -1165,7 +1193,7 @@
 			}
 
 			gregorianToHijri(date) {
-				if (this.isOffline) return this.gregorianToHijriTabular(date);
+				if (this.isOffline || state.calcMode === 'heuristic') return this.gregorianToHijriTabular(date);
 				const approx = this.gregorianToHijriTabular(date);
 				const startCurrent = this.getAccurateHijriMonthStart(approx.year, approx.month);
 				const dateTime = date.getTime();
@@ -1218,7 +1246,7 @@
 			}
 
 			getAccurateHijriMonthStart(hYear, hMonth) {
-				if (this.isOffline) return { gDate: this.hijriToGregorianTabular(hYear, hMonth, 1) };
+				if (this.isOffline || state.calcMode === 'heuristic') return { gDate: this.hijriToGregorianTabular(hYear, hMonth, 1) };
 				if (!this.cache) this.loadCache();
 				const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}`;
 				if (this.cache[cacheKey]) {

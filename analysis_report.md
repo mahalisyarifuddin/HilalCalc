@@ -35,3 +35,19 @@ A simple linear regression based on Longitude fits the Knee Point values (14, 20
 -   **Aceh:** `round(95.1 / 14.0 + 15.9) = round(22.69) = 23` (Approx Knee Point 22)
 
 This formula provides a robust, location-aware approximation that prioritizes minimizing impossible sightings, reducing the rate to well below 1% for all major locations.
+
+## Mecca-Aceh Trade-off Experiment
+An additional experiment was conducted to find a single global C value that maximizes accuracy for Mecca (the spiritual center) while minimizing impossible sightings for Banda Aceh (a challenging location due to its longitude).
+
+**Results:**
+- **Optimal Trade-off (Knee Point):** C=22
+  - Mecca Accuracy: 54.78%
+  - Aceh Impossibility: 0.79%
+- **Max Mecca Accuracy:** C=11
+  - Mecca Accuracy: 65.83%
+  - Aceh Impossibility: 6.30% (Too high)
+- **Min Aceh Impossibility:** C=30
+  - Mecca Accuracy: 38.51% (Too low)
+  - Aceh Impossibility: 0.04%
+
+**Recommendation:** C=22 provides the best balance.

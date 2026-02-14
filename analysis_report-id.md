@@ -35,3 +35,19 @@ Regresi linier sederhana berdasarkan Bujur sangat cocok dengan nilai Knee Point 
 -   **Aceh:** `round(95.1 / 14.0 + 15.9) = round(22.69) = 23` (Perkiraan Knee Point 22)
 
 Rumus ini memberikan perkiraan yang kuat dan sadar lokasi yang memprioritaskan meminimalkan penampakan mustahil, mengurangi tingkatnya hingga di bawah 1% untuk semua lokasi utama.
+
+## Eksperimen Trade-off Makkah-Aceh
+Sebuah eksperimen tambahan dilakukan untuk menemukan nilai C global tunggal yang memaksimalkan akurasi untuk Makkah (pusat spiritual) sambil meminimalkan tingkat kemustahilan rukyat untuk Banda Aceh (lokasi yang menantang karena bujurnya).
+
+**Hasil:**
+- **Optimal Trade-off (Knee Point):** C=22
+  - Akurasi Makkah: 54.78%
+  - Tingkat Kemustahilan Aceh: 0.79%
+- **Akurasi Makkah Maksimal:** C=11
+  - Akurasi Makkah: 65.83%
+  - Tingkat Kemustahilan Aceh: 6.30% (Terlalu tinggi)
+- **Tingkat Kemustahilan Aceh Minimal:** C=30
+  - Akurasi Makkah: 38.51% (Terlalu rendah)
+  - Tingkat Kemustahilan Aceh: 0.04%
+
+**Rekomendasi:** C=22 memberikan keseimbangan terbaik.

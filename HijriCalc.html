@@ -516,6 +516,16 @@
 			<input type="number" id="hijriAdj" value="0" min="-2" max="2">
 			<small style="opacity: 0.6;" data-i18n="adjNote"></small>
 		</div>
+		<div class="group">
+			<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer">
+				<input type="checkbox" id="useCustomC" style="width:auto; margin:0">
+				<span id="customCLabel" data-i18n="customCLabel"></span>
+			</label>
+			<div id="customCContainer" style="margin-top:0.5rem; display:none; padding-left: 1.5rem;">
+				<label id="cValueLabel" data-i18n="cValueLabel" style="font-weight:normal; font-size:0.9em"></label>
+				<input type="number" id="cValueInput" value="15">
+			</div>
+		</div>
 		<div style="display: flex; gap: 10px; margin-top: 1rem;">
 			<button id="resetPrefBtn" class="secondary" data-i18n="reset"></button>
 			<button id="savePrefBtn" class="primary" data-i18n="save"></button>
@@ -580,7 +590,9 @@
 				locCustom: 'Custom',
 				locAceh: 'Banda Aceh',
 				locMecca: 'Makkah',
-				locDakar: 'Dakar'
+				locDakar: 'Dakar',
+				customCLabel: 'Custom Tabular Constant (C)',
+				cValueLabel: 'C Value'
 			},
 			id: {
 				appTitle: 'Kalender Hijriyah MABBIMS',
@@ -638,7 +650,9 @@
 				locCustom: 'Kustom',
 				locAceh: 'Banda Aceh',
 				locMecca: 'Makkah',
-				locDakar: 'Dakar'
+				locDakar: 'Dakar',
+				customCLabel: 'Konstanta Tabular Kustom (C)',
+				cValueLabel: 'Nilai C'
 			}
 		};
 
@@ -658,7 +672,9 @@
 			theme: 'auto',
 			weekStart: 0,
 			hijriAdj: 0,
-			primaryCalendar: 'gregorian'
+			primaryCalendar: 'gregorian',
+			useCustomC: false,
+			customC: 15
 		};
 
 		class HijriCalc {
@@ -693,6 +709,8 @@
 						if (parsed.weekStart !== undefined) state.weekStart = parsed.weekStart;
 						if (parsed.hijriAdj !== undefined) state.hijriAdj = parsed.hijriAdj;
 						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
+						if (parsed.useCustomC !== undefined) state.useCustomC = parsed.useCustomC;
+						if (parsed.customC !== undefined) state.customC = parsed.customC;
 						if (parsed.locPreset) state.locPreset = parsed.locPreset;
 						else {
 							let matched = 'custom';
@@ -738,10 +756,12 @@
 				state.primaryCalendar = elements.primaryCalendar.value;
 				state.theme = elements.theme.value;
 				state.locPreset = elements.locPreset.value;
+				state.useCustomC = elements.useCustomC.checked;
+				state.customC = parseInt(elements.cValueInput.value);
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
 					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
-					locPreset: state.locPreset
+					locPreset: state.locPreset, useCustomC: state.useCustomC, customC: state.customC
 				}));
 				this.applyTheme(state.theme);
 				this.updateLanguage(state.lang);
@@ -757,6 +777,8 @@
 				state.hijriAdj = 0;
 				state.primaryCalendar = 'gregorian';
 				state.locPreset = 'aceh';
+				state.useCustomC = false;
+				state.customC = 22;
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
 				elements.language.value = state.lang;
@@ -765,6 +787,9 @@
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
 				elements.locPreset.value = state.locPreset;
+				elements.useCustomC.checked = state.useCustomC;
+				elements.cValueInput.value = state.customC;
+				elements.customCContainer.style.display = state.useCustomC ? 'block' : 'none';
 				this.savePreferences();
 			}
 
@@ -804,6 +829,13 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
+				elements.useCustomC.checked = state.useCustomC;
+				elements.cValueInput.value = state.customC;
+				elements.customCContainer.style.display = state.useCustomC ? 'block' : 'none';
+
+				elements.useCustomC.addEventListener('change', () => {
+					elements.customCContainer.style.display = elements.useCustomC.checked ? 'block' : 'none';
+				});
 
 				this.setDateToInput(elements.gDateInput, new Date());
 				text.en.months.forEach((month, index) => {
@@ -1033,6 +1065,7 @@
 			}
 
 			calculateC(lon) {
+				if (state.useCustomC) return state.customC;
 				// Unified Optimization (15, 19, 23) for Knee Point Strategy
 				return Math.round(lon / 14.0 + 15.9);
 			}
@@ -1041,7 +1074,11 @@
 				const C = this.calculateC(state.lon);
 				const formula = `JD = 1948440 + 354(H-1) + floor((11(H-1) + ${C}) / 30)`;
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Optimized Tabular (C=${C}). Derived from Longitude ${state.lon}.</i>`;
+				if (state.useCustomC) {
+					elements.formulaNote.innerHTML = `<i>Custom Tabular Constant (C=${C}).</i>`;
+				} else {
+					elements.formulaNote.innerHTML = `<i>Optimized Tabular (C=${C}). Derived from Longitude ${state.lon}.</i>`;
+				}
 			}
 
 			hijriToGregorianTabular(hYear, hMonth, hDay) {

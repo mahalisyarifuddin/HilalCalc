@@ -57,12 +57,12 @@ The algorithm dynamically calculates the `C` coefficient based on the user's lon
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
 Where `C` is derived from:
-`C = round(Longitude / 14.1 + 11.7)`
+`C = round(Longitude / 14.0 + 15.9)`
 
 **Accuracy**: The algorithm adapts to the location to maximize accuracy across the entire Hijri year. For example:
--   **Banda Aceh (95.1° E)**: `C = 18` (Optimal MABBIMS fit)
--   **Mecca (39.9° E)**: `C = 15` (Optimal for Mecca)
--   **Dakar (17.5° W)**: `C = 10` (Optimal for West Africa)
+-   **Banda Aceh (95.1° E)**: `C = 23` (Knee Point Optimization)
+-   **Mecca (39.9° E)**: `C = 19` (Optimal for Mecca)
+-   **Dakar (17.5° W)**: `C = 15` (Optimal for West Africa)
 
 See [analysis_report.md](analysis_report.md) for detailed accuracy comparisons.
 

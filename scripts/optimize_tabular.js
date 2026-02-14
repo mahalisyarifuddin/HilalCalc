@@ -435,7 +435,7 @@ async function main() {
         }
 
         // Calculate unified C prediction
-        const unifiedC = Math.round(loc.lon / 14.0 + 11.2);
+        const unifiedC = Math.round(loc.lon / 14.0 + 15.9);
         
         // Display comprehensive results
         displayResults(loc.name, candidates, unifiedC);

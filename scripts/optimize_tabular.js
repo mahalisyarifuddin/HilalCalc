@@ -7,7 +7,6 @@ const locations = [
 ];
 
 const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // All months
-const obligMonths = [9, 10, 12];
 const startYear = 1000;
 const endYear = 2000;
 
@@ -71,6 +70,9 @@ function checkVisibility(dateObj, knownNewMoonUT, lat, lon) {
     const age = sunsetUT - newMoonUT;
     if (age < 0) return false;
     const altitude = moonHor.altitude;
+
+    // MABBIMS Criteria: Alt >= 3.0 and Elongation >= 6.4
+    // Note: Some definitions include Age >= 8 hours, but standard MABBIMS focuses on Alt/Elong.
     return (altitude >= 3.0 && elongation >= 6.4);
 }
 
@@ -148,10 +150,6 @@ function getHijriMonthStart(hYear, hMonth, lat, lon) {
 // S1.Accuracy >= S2.Accuracy AND S1.Impossible <= S2.Impossible AND (S1.Accuracy > S2.Accuracy OR S1.Impossible < S2.Impossible)
 function findParetoFrontier(candidates) {
     // Candidates structure: { C, accuracy, impossible }
-    // Sort by Impossible ASC (primary) then Accuracy DESC (secondary)
-    // Actually, for Pareto, sorting helps.
-    // Let's iterate and keep only non-dominated solutions.
-
     let frontier = [];
 
     for (const candidate of candidates) {
@@ -176,7 +174,7 @@ function findParetoFrontier(candidates) {
     return frontier.sort((a, b) => b.accuracy - a.accuracy);
 }
 
-// Or select the best "knee point" or weighted sum.
+// Select the best "knee point" or weighted sum.
 // Let's define "Best" as maximizing: Accuracy - 2 * Impossible
 // This puts a heavy penalty on impossible sightings.
 function findWeightedBest(candidates) {
@@ -207,16 +205,11 @@ async function main() {
         }
 
         let candidatesAll = [];
-        let candidatesOblig = [];
 
         for (let C = -15; C <= 30; C++) {
             let matchesAll = 0;
             let totalAll = 0;
-            let matchesOblig = 0;
-            let totalOblig = 0;
-
             let impossibleAll = 0;
-            let impossibleOblig = 0;
 
             for (const item of groundTruths) {
                 const tabDate = hijriToGregorianTabular(item.y, item.m, 1, C);
@@ -224,69 +217,30 @@ async function main() {
 
                 // Check if Moon was below horizon on the eve of tabDate
                 const altitude = getMoonAltitudeAtSunsetOfEve(tabDate, loc.lat, loc.lon);
+                // Impossible if Altitude < 0 degrees
                 const isImpossible = (altitude < 0);
 
                 totalAll++;
                 if (tabStr === item.gt) matchesAll++;
                 if (isImpossible) impossibleAll++;
-
-                if (obligMonths.includes(item.m)) {
-                    totalOblig++;
-                    if (tabStr === item.gt) matchesOblig++;
-                    if (isImpossible) impossibleOblig++;
-                }
             }
             const accAll = (matchesAll / totalAll) * 100;
-            const accOblig = (matchesOblig / totalOblig) * 100;
             const impAll = (impossibleAll / totalAll) * 100;
-            const impOblig = (impossibleOblig / totalOblig) * 100;
 
-            candidatesAll.push({ C, accuracy: accAll, impossible: impAll, context: 'All' });
-            candidatesOblig.push({ C, accuracy: accOblig, impossible: impOblig, context: 'Oblig' });
+            candidatesAll.push({ C, accuracy: accAll, impossible: impAll });
         }
 
         const frontierAll = findParetoFrontier(candidatesAll);
-        const frontierOblig = findParetoFrontier(candidatesOblig);
-
         const bestAll = findWeightedBest(candidatesAll);
-        const bestOblig = findWeightedBest(candidatesOblig);
 
         console.log("Pareto Frontier (All Months):");
         frontierAll.forEach(c => console.log(`  C=${c.C}: Acc=${c.accuracy.toFixed(2)}%, Imp=${c.impossible.toFixed(2)}%`));
         console.log(`Selected Best (All): C=${bestAll.C} (Acc=${bestAll.accuracy.toFixed(2)}%, Imp=${bestAll.impossible.toFixed(2)}%)`);
 
-        console.log("Pareto Frontier (Obligatory):");
-        frontierOblig.forEach(c => console.log(`  C=${c.C}: Acc=${c.accuracy.toFixed(2)}%, Imp=${c.impossible.toFixed(2)}%`));
-        console.log(`Selected Best (Oblig): C=${bestOblig.C} (Acc=${bestOblig.accuracy.toFixed(2)}%, Imp=${bestOblig.impossible.toFixed(2)}%)`);
-
-        // Let's also output the full stats for the selected bests to match previous report format
-        // Find the full candidate object from the original list (though findWeightedBest returns it)
-        // Wait, we need cross-stats for the report table (Oblig stats for All-Optimized C, etc)
-
-        // Helper to find stats
-        const getStats = (cVal) => {
-            const all = candidatesAll.find(x => x.C === cVal);
-            const oblig = candidatesOblig.find(x => x.C === cVal);
-            return {
-                C: cVal,
-                accAll: all.accuracy,
-                impAll: all.impossible,
-                accOblig: oblig.accuracy,
-                impOblig: oblig.impossible
-            };
-        }
-
-        const statsAll = getStats(bestAll.C);
-        const statsOblig = getStats(bestOblig.C);
-
-        // Evaluate Unified Candidate (Formula: C = round(lon / 14.0 + 11.2))
+        // Check if Unified C matches
         const unifiedC = Math.round(loc.lon / 14.0 + 11.2);
-        const statsUnified = getStats(unifiedC);
-
-        console.log(`Report Data for ${loc.name}:`);
-        console.log(`Phase 1 (Oblig Best C=${statsOblig.C}): AccOblig=${statsOblig.accOblig.toFixed(2)}%, AccAll=${statsOblig.accAll.toFixed(2)}%, ImpOblig=${statsOblig.impOblig.toFixed(2)}%, ImpAll=${statsOblig.impAll.toFixed(2)}%`);
-        console.log(`Phase 2 (All Best C=${statsAll.C}): AccOblig=${statsAll.accOblig.toFixed(2)}%, AccAll=${statsAll.accAll.toFixed(2)}%, ImpOblig=${statsAll.impOblig.toFixed(2)}%, ImpAll=${statsAll.impAll.toFixed(2)}%`);
-        console.log(`Unified (C=${unifiedC}): AccOblig=${statsUnified.accOblig.toFixed(2)}%, AccAll=${statsUnified.accAll.toFixed(2)}%, ImpOblig=${statsUnified.impOblig.toFixed(2)}%, ImpAll=${statsUnified.impAll.toFixed(2)}%`);
+        const unifiedStats = candidatesAll.find(x => x.C === unifiedC);
+        console.log(`Unified Formula Prediction (C=${unifiedC}): Acc=${unifiedStats.accuracy.toFixed(2)}%, Imp=${unifiedStats.impossible.toFixed(2)}%`);
 
         console.log('---');
     }

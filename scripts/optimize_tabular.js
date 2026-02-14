@@ -145,54 +145,257 @@ function getHijriMonthStart(hYear, hMonth, lat, lon) {
     return formatDate(startDate);
 }
 
-// Simple Pareto Dominance Check
-// A solution S1 dominates S2 if:
-// S1.Accuracy >= S2.Accuracy AND S1.Impossible <= S2.Impossible AND (S1.Accuracy > S2.Accuracy OR S1.Impossible < S2.Impossible)
-function findParetoFrontier(candidates) {
-    // Candidates structure: { C, accuracy, impossible }
-    let frontier = [];
+// ============================================================================
+// ENHANCED PARETO FRONTIER ANALYSIS
+// ============================================================================
 
-    for (const candidate of candidates) {
-        let isDominated = false;
-        for (const other of candidates) {
-            if (candidate === other) continue;
-            // Does 'other' dominate 'candidate'?
-            // Higher Accuracy is better, Lower Impossible is better.
-            if (other.accuracy >= candidate.accuracy && other.impossible <= candidate.impossible) {
-                if (other.accuracy > candidate.accuracy || other.impossible < candidate.impossible) {
-                    isDominated = true;
-                    break;
-                }
-            }
-        }
-        if (!isDominated) {
+/**
+ * Find Pareto frontier using efficient algorithm
+ * A solution dominates another if it's better in at least one objective
+ * and not worse in any objective.
+ * 
+ * Objectives: Maximize Accuracy, Minimize Impossible Rate
+ * 
+ * @param {Array} candidates - Array of {C, accuracy, impossible}
+ * @returns {Array} Pareto frontier solutions
+ */
+function findParetoFrontier(candidates) {
+    // More efficient O(n log n) algorithm: sort by one objective first
+    const sorted = [...candidates].sort((a, b) => b.accuracy - a.accuracy);
+    let frontier = [];
+    let minImpossible = Infinity;
+
+    for (const candidate of sorted) {
+        // Since sorted by accuracy (descending), we only need to check if impossible is lower
+        if (candidate.impossible < minImpossible) {
             frontier.push(candidate);
+            minImpossible = candidate.impossible;
+        } else if (candidate.impossible === minImpossible && frontier.length > 0) {
+            // Handle ties - keep both if same impossible rate but different accuracy
+            if (candidate.accuracy > frontier[frontier.length - 1].accuracy) {
+                frontier[frontier.length - 1] = candidate;
+            }
         }
     }
 
-    // Sort frontier for readability: High Accuracy first
-    return frontier.sort((a, b) => b.accuracy - a.accuracy);
+    return frontier;
 }
 
-// Select the best "knee point" or weighted sum.
-// Let's define "Best" as maximizing: Accuracy - 2 * Impossible
-// This puts a heavy penalty on impossible sightings.
-function findWeightedBest(candidates) {
-    return candidates.reduce((best, current) => {
-        const score = current.accuracy - (2 * current.impossible);
-        const bestScore = best ? best.accuracy - (2 * best.impossible) : -Infinity;
-        return score > bestScore ? current : best;
-    }, null);
+/**
+ * Calculate Euclidean distance to ideal point (100% accuracy, 0% impossible)
+ */
+function distanceToIdeal(candidate) {
+    const accuracyGap = 100 - candidate.accuracy;
+    const impossibleGap = candidate.impossible - 0;
+    return Math.sqrt(accuracyGap ** 2 + impossibleGap ** 2);
+}
+
+/**
+ * Find knee point using maximum curvature method
+ * The knee represents the best trade-off where we get diminishing returns
+ * 
+ * Uses Menger curvature to find the point with maximum bend in the Pareto curve
+ */
+function findKneePoint(frontier) {
+    if (frontier.length <= 2) return frontier[0];
+
+    // Normalize to [0,1] range for fair comparison
+    const maxAcc = Math.max(...frontier.map(f => f.accuracy));
+    const minAcc = Math.min(...frontier.map(f => f.accuracy));
+    const maxImp = Math.max(...frontier.map(f => f.impossible));
+    const minImp = Math.min(...frontier.map(f => f.impossible));
+
+    const normalize = (f) => ({
+        acc: maxAcc === minAcc ? 0.5 : (f.accuracy - minAcc) / (maxAcc - minAcc),
+        imp: maxImp === minImp ? 0.5 : (f.impossible - minImp) / (maxImp - minImp)
+    });
+
+    let maxCurvature = -Infinity;
+    let kneeIndex = 0;
+
+    // Calculate curvature for each point (except endpoints)
+    for (let i = 1; i < frontier.length - 1; i++) {
+        const prev = normalize(frontier[i - 1]);
+        const curr = normalize(frontier[i]);
+        const next = normalize(frontier[i + 1]);
+
+        // Menger curvature: curvature of circle through 3 points
+        const a = Math.sqrt((curr.acc - prev.acc) ** 2 + (curr.imp - prev.imp) ** 2);
+        const b = Math.sqrt((next.acc - curr.acc) ** 2 + (next.imp - curr.imp) ** 2);
+        const c = Math.sqrt((next.acc - prev.acc) ** 2 + (next.imp - prev.imp) ** 2);
+        
+        const s = (a + b + c) / 2;
+        const area = Math.sqrt(Math.max(0, s * (s - a) * (s - b) * (s - c)));
+        const curvature = (a * b * c > 0) ? (4 * area) / (a * b * c) : 0;
+
+        if (curvature > maxCurvature) {
+            maxCurvature = curvature;
+            kneeIndex = i;
+        }
+    }
+
+    // If no clear knee found (flat frontier), use distance to ideal
+    if (maxCurvature === 0 || !isFinite(maxCurvature)) {
+        kneeIndex = frontier.reduce((bestIdx, curr, idx, arr) => 
+            distanceToIdeal(curr) < distanceToIdeal(arr[bestIdx]) ? idx : bestIdx, 0);
+    }
+
+    return frontier[kneeIndex];
+}
+
+/**
+ * Provide multiple selection strategies for choosing the best C value
+ */
+function selectBestSolutions(candidates) {
+    const frontier = findParetoFrontier(candidates);
+    
+    return {
+        frontier: frontier,
+        
+        // Strategy 1: Knee point (best trade-off based on curvature)
+        kneePoint: findKneePoint(frontier),
+        
+        // Strategy 2: Closest to ideal point (100% acc, 0% imp)
+        idealDistance: frontier.reduce((best, curr) => 
+            distanceToIdeal(curr) < distanceToIdeal(best) ? curr : best, frontier[0]),
+        
+        // Strategy 3: Weighted sum (configurable weights)
+        weighted: (accWeight = 1, impWeight = 2) => 
+            candidates.reduce((best, curr) => {
+                const score = accWeight * curr.accuracy - impWeight * curr.impossible;
+                const bestScore = best ? accWeight * best.accuracy - impWeight * best.impossible : -Infinity;
+                return score > bestScore ? curr : best;
+            }, null),
+        
+        // Strategy 4: Lexicographic (prioritize impossible < threshold, then max accuracy)
+        lexicographic: (maxImpossible = 5) => {
+            const feasible = candidates.filter(c => c.impossible <= maxImpossible);
+            if (feasible.length === 0) {
+                // If no solution meets threshold, pick lowest impossible rate
+                return candidates.reduce((a, b) => a.impossible < b.impossible ? a : b);
+            }
+            // Among feasible, pick highest accuracy
+            return feasible.reduce((a, b) => a.accuracy > b.accuracy ? a : b);
+        },
+        
+        // Strategy 5: Minimum impossible rate (most conservative)
+        minImpossible: candidates.reduce((a, b) => a.impossible < b.impossible ? a : b)
+    };
+}
+
+/**
+ * Calculate detailed trade-off metrics for the Pareto frontier
+ */
+function analyzeFrontier(frontier) {
+    const metrics = {
+        count: frontier.length,
+        accuracyRange: [
+            Math.min(...frontier.map(f => f.accuracy)),
+            Math.max(...frontier.map(f => f.accuracy))
+        ],
+        impossibleRange: [
+            Math.min(...frontier.map(f => f.impossible)),
+            Math.max(...frontier.map(f => f.impossible))
+        ],
+        tradeoffs: []
+    };
+
+    // Calculate marginal trade-off rates between adjacent points
+    for (let i = 0; i < frontier.length - 1; i++) {
+        const curr = frontier[i];
+        const next = frontier[i + 1];
+        const accChange = next.accuracy - curr.accuracy;
+        const impChange = next.impossible - curr.impossible;
+        
+        if (Math.abs(impChange) > 0.001) {
+            const tradeoffRate = accChange / impChange;
+            metrics.tradeoffs.push({
+                fromC: curr.C,
+                toC: next.C,
+                accuracyChange: accChange.toFixed(2),
+                impossibleChange: impChange.toFixed(2),
+                rate: tradeoffRate.toFixed(2) // % accuracy gained per % impossible added
+            });
+        }
+    }
+
+    return metrics;
+}
+
+/**
+ * Enhanced output with multiple recommendation strategies
+ */
+function displayResults(locationName, candidates, unifiedC) {
+    const solutions = selectBestSolutions(candidates);
+    const metrics = analyzeFrontier(solutions.frontier);
+    
+    console.log(`\n${'='.repeat(70)}`);
+    console.log(`LOCATION: ${locationName}`);
+    console.log(`${'='.repeat(70)}\n`);
+    
+    // Pareto Frontier
+    console.log(`📊 PARETO FRONTIER (${metrics.count} non-dominated solutions):`);
+    console.log(`   Accuracy Range: ${metrics.accuracyRange[0].toFixed(2)}% - ${metrics.accuracyRange[1].toFixed(2)}%`);
+    console.log(`   Impossible Range: ${metrics.impossibleRange[0].toFixed(2)}% - ${metrics.impossibleRange[1].toFixed(2)}%\n`);
+    
+    solutions.frontier.forEach((c, idx) => {
+        const marker = c.C === solutions.kneePoint.C ? ' ← KNEE POINT' : 
+                       c.C === solutions.idealDistance.C ? ' ← IDEAL DIST' : '';
+        console.log(`   [${idx + 1}] C=${c.C.toString().padStart(3)}: Acc=${c.accuracy.toFixed(2)}%, Imp=${c.impossible.toFixed(2)}%${marker}`);
+    });
+    
+    // Trade-off Analysis
+    if (metrics.tradeoffs.length > 0) {
+        console.log(`\n📈 TRADE-OFF ANALYSIS:`);
+        console.log(`   (Moving along Pareto frontier)`);
+        metrics.tradeoffs.forEach(t => {
+            console.log(`   C ${t.fromC} → ${t.toC}: Acc ${t.accuracyChange}%, Imp ${t.impossibleChange}% (ratio: ${t.rate})`);
+        });
+    }
+    
+    // Recommendations
+    console.log(`\n🎯 RECOMMENDED C VALUES (by strategy):`);
+    console.log(`   1. Knee Point (best trade-off):    C=${solutions.kneePoint.C} (Acc=${solutions.kneePoint.accuracy.toFixed(2)}%, Imp=${solutions.kneePoint.impossible.toFixed(2)}%)`);
+    console.log(`   2. Ideal Distance (closest to 100%/0%): C=${solutions.idealDistance.C} (Acc=${solutions.idealDistance.accuracy.toFixed(2)}%, Imp=${solutions.idealDistance.impossible.toFixed(2)}%)`);
+    
+    const weighted = solutions.weighted(1, 2);
+    console.log(`   3. Weighted (1:2 ratio):           C=${weighted.C} (Acc=${weighted.accuracy.toFixed(2)}%, Imp=${weighted.impossible.toFixed(2)}%)`);
+    
+    const lex = solutions.lexicographic(5);
+    console.log(`   4. Lexicographic (Imp≤5%, max Acc): C=${lex.C} (Acc=${lex.accuracy.toFixed(2)}%, Imp=${lex.impossible.toFixed(2)}%)`);
+    
+    const minImp = solutions.minImpossible;
+    console.log(`   5. Min Impossible (conservative):  C=${minImp.C} (Acc=${minImp.accuracy.toFixed(2)}%, Imp=${minImp.impossible.toFixed(2)}%)`);
+    
+    // Unified Formula Comparison
+    const unifiedStats = candidates.find(x => x.C === unifiedC);
+    const onFrontier = solutions.frontier.some(f => f.C === unifiedC);
+    console.log(`\n🔍 UNIFIED FORMULA COMPARISON:`);
+    console.log(`   Predicted C=${unifiedC}: Acc=${unifiedStats.accuracy.toFixed(2)}%, Imp=${unifiedStats.impossible.toFixed(2)}%`);
+    console.log(`   Status: ${onFrontier ? '✓ ON Pareto frontier (optimal!)' : '✗ NOT on Pareto frontier (dominated)'}`);
+    
+    if (!onFrontier) {
+        // Find dominating solutions
+        const dominators = solutions.frontier.filter(f => 
+            f.accuracy >= unifiedStats.accuracy && f.impossible <= unifiedStats.impossible &&
+            (f.accuracy > unifiedStats.accuracy || f.impossible < unifiedStats.impossible)
+        );
+        if (dominators.length > 0) {
+            console.log(`   Dominated by: ${dominators.map(d => `C=${d.C}`).join(', ')}`);
+        }
+    }
 }
 
 
 async function main() {
-    console.log(`Analyzing years ${startYear}-${endYear} AH`);
-    console.log('Finding Pareto-optimal C values (Accuracy vs Impossible Rate)');
-    console.log('---');
+    console.log(`\n${'='.repeat(70)}`);
+    console.log(`TABULAR HIJRI CALENDAR OPTIMIZATION`);
+    console.log(`Analyzing years ${startYear}-${endYear} AH (${endYear - startYear + 1} years, ${(endYear - startYear + 1) * 12} months)`);
+    console.log(`Enhanced Pareto Frontier Analysis with Multiple Selection Strategies`);
+    console.log(`${'='.repeat(70)}`);
 
     for (const loc of locations) {
-        console.log(`Processing ${loc.name} (${loc.lat}, ${loc.lon})...`);
+        console.log(`\n⏳ Processing ${loc.name} (${loc.lat}°, ${loc.lon}°)...`);
 
         let groundTruths = [];
 
@@ -204,12 +407,12 @@ async function main() {
             }
         }
 
-        let candidatesAll = [];
+        let candidates = [];
 
         for (let C = -15; C <= 30; C++) {
-            let matchesAll = 0;
-            let totalAll = 0;
-            let impossibleAll = 0;
+            let matches = 0;
+            let total = 0;
+            let impossible = 0;
 
             for (const item of groundTruths) {
                 const tabDate = hijriToGregorianTabular(item.y, item.m, 1, C);
@@ -220,30 +423,27 @@ async function main() {
                 // Impossible if Altitude < 0 degrees
                 const isImpossible = (altitude < 0);
 
-                totalAll++;
-                if (tabStr === item.gt) matchesAll++;
-                if (isImpossible) impossibleAll++;
+                total++;
+                if (tabStr === item.gt) matches++;
+                if (isImpossible) impossible++;
             }
-            const accAll = (matchesAll / totalAll) * 100;
-            const impAll = (impossibleAll / totalAll) * 100;
+            
+            const acc = (matches / total) * 100;
+            const imp = (impossible / total) * 100;
 
-            candidatesAll.push({ C, accuracy: accAll, impossible: impAll });
+            candidates.push({ C, accuracy: acc, impossible: imp });
         }
 
-        const frontierAll = findParetoFrontier(candidatesAll);
-        const bestAll = findWeightedBest(candidatesAll);
-
-        console.log("Pareto Frontier (All Months):");
-        frontierAll.forEach(c => console.log(`  C=${c.C}: Acc=${c.accuracy.toFixed(2)}%, Imp=${c.impossible.toFixed(2)}%`));
-        console.log(`Selected Best (All): C=${bestAll.C} (Acc=${bestAll.accuracy.toFixed(2)}%, Imp=${bestAll.impossible.toFixed(2)}%)`);
-
-        // Check if Unified C matches
+        // Calculate unified C prediction
         const unifiedC = Math.round(loc.lon / 14.0 + 11.2);
-        const unifiedStats = candidatesAll.find(x => x.C === unifiedC);
-        console.log(`Unified Formula Prediction (C=${unifiedC}): Acc=${unifiedStats.accuracy.toFixed(2)}%, Imp=${unifiedStats.impossible.toFixed(2)}%`);
-
-        console.log('---');
+        
+        // Display comprehensive results
+        displayResults(loc.name, candidates, unifiedC);
     }
+    
+    console.log(`\n${'='.repeat(70)}`);
+    console.log(`ANALYSIS COMPLETE`);
+    console.log(`${'='.repeat(70)}\n`);
 }
 
 main();

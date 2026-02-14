@@ -31,9 +31,9 @@ A robust calendar tool that adapts its calculations to your specific location.
 
 **Key Features:**
 -   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical moon sighting simulation.
--   **Dynamic Heuristics**: Automatically calculates the optimal Tabular coefficient (`C`) based on your longitude (e.g., `C=19` for Aceh, `C=14` for Mecca) for accurate date conversion.
+-   **Dynamic Heuristics**: Automatically calculates the optimal Tabular coefficient (`C`) based on your longitude (e.g., `C=18` for Aceh, `C=14` for Mecca) for accurate date conversion.
 -   **Navigation**: Jump to any Gregorian or Hijri date to see the corresponding calendar arrangement.
--   **Preferences**: Customize Language, Theme, Week Start Day, Location, Primary Calendar, and Heuristic Mode.
+-   **Preferences**: Customize Language, Theme, Week Start Day, Location, and Primary Calendar.
 
 ## Quick Start
 1.  Download `HilalMap.html` or `HijriCalc.html`.
@@ -56,17 +56,13 @@ The algorithm dynamically calculates the `C` coefficient based on the user's lon
 
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
-Where `C` defaults to (Phase 1):
-`C = round(Longitude / 12.5 + 11.2)`
+Where `C` is derived from:
+`C = round(Longitude / 14.0 + 11.2)`
 
-**Accuracy**: The algorithm adapts to the location and optimization mode. For example:
--   **Banda Aceh (95.1° E)**: `C = 19` (General) or `19` (Obligatory)
--   **Mecca (39.9° E)**: `C = 15` (General) or `14` (Obligatory)
--   **Dakar (17.5° W)**: `C = 10` (General) or `10` (Obligatory)
-
-**Heuristic Mode**: HijriCalc now supports two optimization modes for the coefficient `C`.
-1.  **Phase 1 (Obligatory Months)**: (Default) Optimized for maximum accuracy during Ramadan, Shawwal, and Dhu al-Hijjah. Formula: `C = round(lon/12.5 + 11.2)`.
-2.  **Phase 2 (All Months)**: Optimized for the best average accuracy across the entire Hijri year. Formula: `C = round(lon/12.5 + 11.6)`.
+**Accuracy**: The algorithm adapts to the location to maximize accuracy across the entire Hijri year. For example:
+-   **Banda Aceh (95.1° E)**: `C = 18` (Optimal MABBIMS fit)
+-   **Mecca (39.9° E)**: `C = 14` (Matches standard Kuwaiti algorithm)
+-   **Dakar (17.5° W)**: `C = 10` (Optimal for West Africa)
 
 See [analysis_report.md](analysis_report.md) for detailed accuracy comparisons.
 

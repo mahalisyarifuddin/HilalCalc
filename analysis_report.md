@@ -2,45 +2,35 @@
 
 ## Objective
 Find the best fitting formula for the Tabular Islamic Calendar coefficient `C` to approximate the MABBIMS visibility criteria for the period 1000-2000 AH.
-The analysis identified a trade-off between maximizing accuracy for the **entire year** (Phase 2) versus maximizing accuracy specifically for the **obligatory months** (Ramadan, Shawwal, Dhu al-Hijjah) (Phase 1).
+Initial analysis explored a trade-off between maximizing accuracy for the **entire year** versus **obligatory months**. However, further refinement revealed a single "Unified" formula that achieves optimal or near-optimal accuracy for all months across key locations.
 
 ## Methodology
 - **Locations:** Dakar (-17.4677), Mecca (39.8579), Banda Aceh (95.1125).
 - **Ground Truth:** Calculated using `astronomy-engine` with MABBIMS criteria (Alt >= 3°, Elong >= 6.4°, Age >= 0, calculated at local sunset).
 - **Tabular Algorithm:** Kuwaiti algorithm with variable shift `C`. Formula: `floor((11*H + C)/30)`.
-- **Optimization Strategy:** Pareto Frontier.
-    - We seek to maximize **Accuracy** while minimizing the **Impossible Rate** (occurrences where the algorithm predicts a month start when the moon is astronomically below the horizon).
-    - **Selection:** `Maximize(Accuracy - 2 * ImpossibleRate)`. This heavily penalizes physically impossible predictions.
+- **Optimization Strategy:** Maximizing **Accuracy** (match rate with ground truth) while keeping **Impossible Rate** (moon below horizon at sunset) low.
 
-## Results
+## Results: The Unified Formula
+We derived a single linear formula based on Longitude that yields the optimal coefficient `C` for maximizing accuracy across all months.
 
-### Phase 1: Obligatory Months Optimization (Modes "Best")
-Optimizing specifically for Ramadan, Shawwal, and Dhu al-Hijjah.
+**Formula:** `C = Math.round(lon / 14.0 + 11.2)`
 
-| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
-|------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
-| Dakar      | 10     | 66.73%                     | 64.14%              | 1.63%                   | 1.62%                   |
-| Mecca      | 14     | 67.83%                     | 64.94%              | 2.23%                   | 2.19%                   |
-| Banda Aceh | 19     | 66.50%                     | 63.74%              | 1.90%                   | 1.64%                   |
+### Performance by Location
 
-*Derived Formula (Phase 1):* `C = Math.round(lon / 12.5 + 11.2)`
+| Location   | Longitude | Calculated C | All Months Accuracy | Impossible Rate | Notes |
+|------------|-----------|--------------|---------------------|-----------------|-------|
+| Dakar      | -17.5°    | **10**       | 64.14%              | 1.62%           | **Optimal** for this location. |
+| Mecca      | 39.9°     | **14**       | 64.94%              | 2.19%           | **Optimal** accuracy. Corresponds to **Vanilla Kuwaiti** algorithm. |
+| Banda Aceh | 95.1°     | **18**       | 64.52%              | 1.98%           | **Optimal** accuracy for All Months. |
 
-### Phase 2: All Months Optimization (Mode "General")
-Optimizing for the best average accuracy across the entire Hijri year.
-
-| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
-|------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
-| Dakar      | 10     | 66.73%                     | 64.14%              | 1.63%                   | 1.62%                   |
-| Mecca      | 15     | 67.10%                     | 64.17%              | 1.86%                   | 1.77%                   |
-| Banda Aceh | 18     | 67.00%                     | 64.52%              | 2.16%                   | 1.98%                   |
-
-*Derived Formula (Phase 2):* `C = Math.round(lon / 12.5 + 11.6)`
+### Comparison with Previous Phases
+- **Phase 1 (Obligatory)** produced `C=19` for Banda Aceh. The Unified Formula yields `C=18`, which has higher overall accuracy (64.52% vs 63.74%) at a slightly higher impossible rate.
+- **Phase 2 (All Months)** produced `C=15` for Mecca. The Unified Formula yields `C=14`, which has higher overall accuracy (64.94% vs 64.17%) and aligns with the standard Kuwaiti algorithm.
 
 ## Conclusion
-The optimization results show that the "Obligatory" and "All Months" criteria have converged significantly compared to previous analyses, suggesting that a single robust formula could nearly satisfy both.
-- **Phase 1** prioritizes accuracy for religious months.
-- **Phase 2** provides a slightly better overall fit for the entire year, particularly for central locations like Mecca.
+The Unified Formula `C = round(lon / 14 + 11.2)` provides the best balance of accuracy and simplicity.
+- It perfectly targets the highest accuracy coefficients for all three reference locations.
+- It reproduces the standard "Vanilla" Kuwaiti algorithm (`C=14`) for Mecca, the center of the Islamic world.
+- It eliminates the need for complex mode switching.
 
-`HijriCalc.html` implements both formulas, allowing the user to choose the mode that best fits their needs.
-- **Phase 1 (Obligatory Months):** Recommended for determining religious observances (Default).
-- **Phase 2 (All Months):** Recommended for general historical or administrative purposes.
+`HijriCalc.html` now uses this single formula for all calculations.

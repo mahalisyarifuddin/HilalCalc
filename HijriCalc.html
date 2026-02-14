@@ -496,13 +496,6 @@
 				<span id="weekStartLabel" data-i18n="weekStartLabel"></span>
 				<select id="weekStart"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select>
 			</label>
-			<label>
-				<span id="formulaModeLabel" data-i18n="formulaModeLabel"></span>
-				<select id="formulaMode">
-					<option value="phase1" data-i18n="formulaModePhase1">Obligatory Months (Best)</option>
-					<option value="phase2" data-i18n="formulaModePhase2">All Months (General)</option>
-				</select>
-			</label>
 		</div>
 		<div class="group">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem">
@@ -536,7 +529,7 @@
 				gotoTitle: 'Go to Date',
 				today: 'Today',
 				formulaTitle: 'Heuristic Formula',
-				formulaDesc: 'Optimized Tabular algorithm.',
+				formulaDesc: 'Optimized Tabular algorithm (Unified).',
 				prefTitle: 'Preferences',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -544,9 +537,6 @@
 				weekStartLabel: 'Week starts on',
 				locLabel: 'Location',
 				adjLabel: 'Hijri Adjustment (Days)',
-				formulaModeLabel: 'Heuristic Mode',
-				formulaModePhase1: 'Obligatory Months (Best)',
-				formulaModePhase2: 'All Months (General)',
 				save: 'Save & Close',
 				reset: 'Reset Defaults',
 				myLoc: 'Use My Location',
@@ -597,7 +587,7 @@
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
 				formulaTitle: 'Rumus Heuristik',
-				formulaDesc: 'Algoritma Tabular yang dioptimalkan.',
+				formulaDesc: 'Algoritma Tabular yang dioptimalkan (Terpadu).',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -605,9 +595,6 @@
 				weekStartLabel: 'Awal pekan',
 				locLabel: 'Lokasi',
 				adjLabel: 'Penyesuaian Hijriyah (Hari)',
-				formulaModeLabel: 'Mode Heuristik',
-				formulaModePhase1: 'Bulan Wajib (Terbaik)',
-				formulaModePhase2: 'Semua Bulan (Umum)',
 				save: 'Simpan & Tutup',
 				reset: 'Atur Ulang',
 				myLoc: 'Gunakan Lokasi Saya',
@@ -671,8 +658,7 @@
 			theme: 'auto',
 			weekStart: 0,
 			hijriAdj: 0,
-			primaryCalendar: 'gregorian',
-			formulaMode: 'phase1'
+			primaryCalendar: 'gregorian'
 		};
 
 		class HijriCalc {
@@ -707,7 +693,6 @@
 						if (parsed.weekStart !== undefined) state.weekStart = parsed.weekStart;
 						if (parsed.hijriAdj !== undefined) state.hijriAdj = parsed.hijriAdj;
 						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
-						if (parsed.formulaMode) state.formulaMode = parsed.formulaMode;
 						if (parsed.locPreset) state.locPreset = parsed.locPreset;
 						else {
 							let matched = 'custom';
@@ -752,12 +737,11 @@
 				state.hijriAdj = parseInt(elements.hijriAdj.value);
 				state.primaryCalendar = elements.primaryCalendar.value;
 				state.theme = elements.theme.value;
-				state.formulaMode = elements.formulaMode.value;
 				state.locPreset = elements.locPreset.value;
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
 					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
-					formulaMode: state.formulaMode, locPreset: state.locPreset
+					locPreset: state.locPreset
 				}));
 				this.applyTheme(state.theme);
 				this.updateLanguage(state.lang);
@@ -772,7 +756,6 @@
 				state.weekStart = 0;
 				state.hijriAdj = 0;
 				state.primaryCalendar = 'gregorian';
-				state.formulaMode = 'phase1';
 				state.locPreset = 'aceh';
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
@@ -781,7 +764,6 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
-				elements.formulaMode.value = state.formulaMode;
 				elements.locPreset.value = state.locPreset;
 				this.savePreferences();
 			}
@@ -822,7 +804,6 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
-				elements.formulaMode.value = state.formulaMode;
 
 				this.setDateToInput(elements.gDateInput, new Date());
 				text.en.months.forEach((month, index) => {
@@ -1052,11 +1033,8 @@
 			}
 
 			calculateC(lon) {
-				if (state.formulaMode === 'phase1') {
-					return Math.round(lon / 12.5 + 11.2);
-				}
-				// Phase 2: All Months (General)
-				return Math.round(lon / 12.5 + 11.6);
+				// Unified Optimization (10, 14, 18)
+				return Math.round(lon / 14.0 + 11.2);
 			}
 
 			updateFormulaDisplay() {

@@ -279,9 +279,14 @@ async function main() {
         const statsAll = getStats(bestAll.C);
         const statsOblig = getStats(bestOblig.C);
 
+        // Evaluate Unified Candidate (Formula: C = round(lon / 14.0 + 11.2))
+        const unifiedC = Math.round(loc.lon / 14.0 + 11.2);
+        const statsUnified = getStats(unifiedC);
+
         console.log(`Report Data for ${loc.name}:`);
         console.log(`Phase 1 (Oblig Best C=${statsOblig.C}): AccOblig=${statsOblig.accOblig.toFixed(2)}%, AccAll=${statsOblig.accAll.toFixed(2)}%, ImpOblig=${statsOblig.impOblig.toFixed(2)}%, ImpAll=${statsOblig.impAll.toFixed(2)}%`);
         console.log(`Phase 2 (All Best C=${statsAll.C}): AccOblig=${statsAll.accOblig.toFixed(2)}%, AccAll=${statsAll.accAll.toFixed(2)}%, ImpOblig=${statsAll.impOblig.toFixed(2)}%, ImpAll=${statsAll.impAll.toFixed(2)}%`);
+        console.log(`Unified (C=${unifiedC}): AccOblig=${statsUnified.accOblig.toFixed(2)}%, AccAll=${statsUnified.accAll.toFixed(2)}%, ImpOblig=${statsUnified.impOblig.toFixed(2)}%, ImpAll=${statsUnified.impAll.toFixed(2)}%`);
 
         console.log('---');
     }

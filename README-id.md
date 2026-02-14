@@ -57,11 +57,11 @@ Algoritma ini secara dinamis menghitung koefisien `C` berdasarkan bujur pengguna
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
 Di mana `C` berasal dari:
-`C = round(Bujur / 14,0 + 11,2)`
+`C = round(Bujur / 14,1 + 11,7)`
 
 **Akurasi**: Algoritma ini beradaptasi dengan lokasi untuk memaksimalkan akurasi sepanjang tahun Hijriyah. Sebagai contoh:
 -   **Banda Aceh (95,1° BT)**: `C = 18` (Paling pas untuk MABBIMS)
--   **Mekkah (39,9° BT)**: `C = 14` (Sesuai dengan algoritma Kuwaiti standar)
+-   **Mekkah (39,9° BT)**: `C = 15` (Optimal untuk Mekkah)
 -   **Dakar (17,5° BB)**: `C = 10` (Optimal untuk Afrika Barat)
 
 Lihat [analysis_report-id.md](analysis_report-id.md) untuk perbandingan akurasi detail.

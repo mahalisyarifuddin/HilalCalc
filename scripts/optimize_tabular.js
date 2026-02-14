@@ -19,7 +19,7 @@ function hijriToGregorianTabular(hYear, hMonth, hDay, C) {
     const cycle = Math.floor(year / 30);
     const yearInCycle = year % 30;
     const dayInCycle = yearInCycle * 354 + Math.floor((11 * yearInCycle + C) / 30);
-    const dayInYear = Math.ceil(29.5 * hMonth);
+    const dayInYear = Math.ceil(29.5 * (hMonth - 1));
     const jd = epoch + cycle * 10631 + dayInCycle + dayInYear + hDay - 1;
 
     let z = Math.floor(jd + 0.5);
@@ -114,7 +114,7 @@ function formatDate(date) {
 function getHijriMonthStart(hYear, hMonth, lat, lon) {
     // 1. Approximate start
     // anchor: 1445-01 approx 2023-07-19
-    const daysSinceAnchor = ((hYear - 1445) * 354.367) + (hMonth * 29.53);
+    const daysSinceAnchor = ((hYear - 1445) * 354.367) + ((hMonth - 1) * 29.53);
     const anchorDate = new Date("2023-07-19T12:00:00Z");
     const approxTime = anchorDate.getTime() + daysSinceAnchor * 86400000;
     const approxDate = new Date(approxTime);

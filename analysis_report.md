@@ -19,41 +19,28 @@ Optimizing specifically for Ramadan, Shawwal, and Dhu al-Hijjah.
 
 | Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
 |------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
-| Dakar      | 16     | 64.20%                     | 56.60%              | 1.76%                   | 0.57%                   |
-| Mecca      | 22     | 64.04%                     | 55.39%              | 1.40%                   | 0.52%                   |
-| Banda Aceh | 25     | 64.04%                     | 56.64%              | 1.43%                   | 0.57%                   |
+| Dakar      | 10     | 66.73%                     | 64.14%              | 1.63%                   | 1.62%                   |
+| Mecca      | 14     | 67.83%                     | 64.94%              | 2.23%                   | 2.19%                   |
+| Banda Aceh | 19     | 66.50%                     | 63.74%              | 1.90%                   | 1.64%                   |
 
-*Derived Formula (Phase 1):* `C = Math.round(lon / 12.5 + 17.4)`
+*Derived Formula (Phase 1):* `C = Math.round(lon / 12.5 + 11.2)`
 
 ### Phase 2: All Months Optimization (Mode "General")
 Optimizing for the best average accuracy across the entire Hijri year.
 
 | Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
 |------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
-| Dakar      | 11     | 65.43%                     | 62.65%              | 4.60%                   | 1.89%                   |
-| Mecca      | 16     | 65.67%                     | 62.88%              | 4.76%                   | 2.10%                   |
-| Banda Aceh | 20     | 64.94%                     | 62.35%              | 4.30%                   | 1.91%                   |
+| Dakar      | 10     | 66.73%                     | 64.14%              | 1.63%                   | 1.62%                   |
+| Mecca      | 15     | 67.10%                     | 64.17%              | 1.86%                   | 1.77%                   |
+| Banda Aceh | 18     | 67.00%                     | 64.52%              | 2.16%                   | 1.98%                   |
 
-*Derived Formula (Phase 2):* `C = Math.round(lon / 12.5 + 12.4)`
-
-### Phase 3: Balanced Optimization (4D Pareto)
-Optimizing for a balance between all four objectives: Accuracy (All), Impossible (All), Accuracy (Obligatory), and Impossible (Obligatory).
-
-| Location   | Best C | Obligatory Months Accuracy | All Months Accuracy | Impossible (Obligatory) | Impossible (All Months) |
-|------------|--------|----------------------------|---------------------|-------------------------|-------------------------|
-| Dakar      | 14     | 65.07%                     | 59.50%              | 2.63%                   | 0.96%                   |
-| Mecca      | 20     | 65.60%                     | 58.44%              | 2.26%                   | 0.85%                   |
-| Banda Aceh | 24     | 64.67%                     | 58.09%              | 1.86%                   | 0.75%                   |
-
-*Derived Formula (Phase 3):* `C = Math.round(lon / 12.5 + 16.0)`
+*Derived Formula (Phase 2):* `C = Math.round(lon / 12.5 + 11.6)`
 
 ## Conclusion
-There is a clear trade-off.
-- **Phase 1** prioritizes minimizing "impossible" sightings during religious months, resulting in a safer but slightly later calendar (higher C).
-- **Phase 2** balances overall accuracy for administrative use, accepting a slightly higher rate of impossible predictions to align better with visibility statistics on average.
-- **Phase 3** offers a "middle ground" solution derived from 4-dimensional Pareto optimization, providing a robust balance between accuracy and astronomical validity across both religious and general contexts.
+The optimization results show that the "Obligatory" and "All Months" criteria have converged significantly compared to previous analyses, suggesting that a single robust formula could nearly satisfy both.
+- **Phase 1** prioritizes accuracy for religious months.
+- **Phase 2** provides a slightly better overall fit for the entire year, particularly for central locations like Mecca.
 
-`HijriCalc.html` implements all three formulas, allowing the user to choose the mode that best fits their needs.
+`HijriCalc.html` implements both formulas, allowing the user to choose the mode that best fits their needs.
 - **Phase 1 (Obligatory Months):** Recommended for determining religious observances (Default).
 - **Phase 2 (All Months):** Recommended for general historical or administrative purposes.
-- **Phase 3 (Balanced):** Recommended for users seeking a compromise between strict astronomical validity and general accuracy.

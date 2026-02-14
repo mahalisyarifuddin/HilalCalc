@@ -31,7 +31,7 @@ Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik 
 
 **Fitur Utama:**
 -   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal astronomis.
--   **Heuristik Dinamis**: Secara otomatis menghitung koefisien Tabular (`C`) yang optimal berdasarkan bujur Anda (misal `C=15` untuk Aceh, `C=11` untuk Mekkah) untuk konversi tanggal yang akurat.
+-   **Heuristik Dinamis**: Secara otomatis menghitung koefisien Tabular (`C`) yang optimal berdasarkan bujur Anda (misal `C=19` untuk Aceh, `C=14` untuk Mekkah) untuk konversi tanggal yang akurat.
 -   **Navigasi**: Lompat ke tanggal Masehi atau Hijriyah mana pun untuk melihat susunan kalender yang sesuai.
 -   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, Kalender Utama, dan Mode Heuristik.
 
@@ -57,17 +57,16 @@ Algoritma ini secara dinamis menghitung koefisien `C` berdasarkan bujur pengguna
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
 Di mana `C` secara default (Fase 1) berasal dari:
-`C = round(Bujur / 12,5 + 17,4)`
+`C = round(Bujur / 12,5 + 11,2)`
 
 **Akurasi**: Algoritma ini beradaptasi dengan lokasi dan mode optimasi. Sebagai contoh:
--   **Banda Aceh (95,1° BT)**: `C = 20` (Umum) atau `25` (Wajib)
--   **Mekkah (39,9° BT)**: `C = 16` (Umum) atau `22` (Wajib)
--   **Dakar (17,5° BB)**: `C = 11` (Umum) atau `16` (Wajib)
+-   **Banda Aceh (95,1° BT)**: `C = 19` (Umum) atau `19` (Wajib)
+-   **Mekkah (39,9° BT)**: `C = 15` (Umum) atau `14` (Wajib)
+-   **Dakar (17,5° BB)**: `C = 10` (Umum) atau `10` (Wajib)
 
-**Mode Heuristik**: HijriCalc kini mendukung tiga mode optimasi untuk koefisien `C`.
-1.  **Fase 1 (Bulan Wajib)**: (Default) Dioptimalkan untuk akurasi maksimal selama Ramadhan, Syawal, dan Dzulhijjah (meningkatkan akurasi sekitar 4-5% untuk bulan-bulan ini). Rumus: `C = round(bujur/12,5 + 17,4)`.
-2.  **Fase 2 (Semua Bulan)**: Dioptimalkan untuk akurasi rata-rata terbaik sepanjang tahun Hijriyah (meningkatkan akurasi umum sekitar 3-4%). Rumus: `C = round(bujur/12,5 + 12,4)`.
-3.  **Fase 3 (Seimbang)**: Dioptimalkan melalui analisis Pareto 4D untuk keseimbangan yang kuat antara akurasi dan validitas astronomis baik dalam konteks keagamaan maupun umum. Rumus: `C = round(bujur/12,5 + 16,0)`.
+**Mode Heuristik**: HijriCalc kini mendukung dua mode optimasi untuk koefisien `C`.
+1.  **Fase 1 (Bulan Wajib)**: (Default) Dioptimalkan untuk akurasi maksimal selama Ramadhan, Syawal, dan Dzulhijjah. Rumus: `C = round(bujur/12,5 + 11,2)`.
+2.  **Fase 2 (Semua Bulan)**: Dioptimalkan untuk akurasi rata-rata terbaik sepanjang tahun Hijriyah. Rumus: `C = round(bujur/12,5 + 11,6)`.
 
 Lihat [analysis_report-id.md](analysis_report-id.md) untuk perbandingan akurasi detail.
 

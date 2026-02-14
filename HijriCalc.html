@@ -1272,6 +1272,93 @@
 				return result;
 			}
 
+			getHijriInfoForCell(date, isGregorianMode, context, hijriStarts) {
+				const translation = text[state.lang];
+				let hijriDateDisplay = "";
+				let hijriMonthNameDisplay = "";
+				const dateNoTime = new Date(date).setHours(0, 0, 0, 0);
+
+				if (isGregorianMode) {
+					for (let k = 0; k < hijriStarts.length - 1; k++) {
+						const s1 = hijriStarts[k];
+						const s2 = hijriStarts[k + 1];
+						if (date >= s1.gDate && date < s2.gDate) {
+							const startTime = new Date(s1.gDate).setHours(0, 0, 0, 0);
+							const dayNumber = Math.round((dateNoTime - startTime) / 86400000) + 1;
+							hijriDateDisplay = dayNumber;
+							hijriMonthNameDisplay = translation.months[s1.month];
+							break;
+						}
+					}
+				} else {
+					if (date >= context.startGDate && date < context.endGDate) {
+						const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
+						hijriDateDisplay = Math.round((dateNoTime - start) / 86400000) + 1;
+						hijriMonthNameDisplay = translation.months[context.hMonth];
+					} else {
+						const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
+						const diff = Math.round((dateNoTime - start) / 86400000) + 1;
+						if (date < context.startGDate) {
+							let prevMonth = context.hMonth - 1;
+							let prevYear = context.hYear;
+							if (prevMonth < 0) { prevMonth += 12; prevYear--; }
+							const prevStart = this.getAccurateHijriMonthStart(prevYear, prevMonth);
+							let prevLength = Math.round((context.startGDate - prevStart.gDate) / 86400000);
+							if (prevLength < 29 || prevLength > 30) prevLength = 30;
+							hijriDateDisplay = prevLength + diff;
+							hijriMonthNameDisplay = translation.months[prevMonth];
+						} else {
+							let length = Math.round((context.endGDate - context.startGDate) / 86400000);
+							if (length < 29 || length > 30) length = 30;
+							hijriDateDisplay = diff - length;
+							let nm = context.hMonth + 1;
+							if (nm > 11) nm = 0;
+							hijriMonthNameDisplay = translation.months[nm];
+						}
+					}
+				}
+				return { day: hijriDateDisplay, monthName: hijriMonthNameDisplay };
+			}
+
+			createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth) {
+				const element = document.createElement('div');
+				element.className = 'day-cell';
+				element.setAttribute('role', 'gridcell');
+				element.tabIndex = -1;
+
+				if (isOtherMonth) element.classList.add('other-month');
+				if (isToday) element.classList.add('today');
+				if (isSelected) {
+					element.classList.add('selected');
+					element.setAttribute('aria-selected', 'true');
+				}
+
+				element.onclick = () => {
+					this.setDateToInput(elements.gDateInput, date);
+					this.updateHijriInputs(date);
+					this.render();
+					const selected = elements.calendar.querySelector('.day-cell.selected');
+					if (selected) selected.focus();
+				};
+
+				const fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+				element.setAttribute('aria-label', `${fullDate}, ${hijriInfo.day} ${hijriInfo.monthName}`);
+				element.dataset.date = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+				const isGregorianMode = state.primaryCalendar !== 'hijri';
+				const monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' });
+				const gregorianText = isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`;
+
+				element.innerHTML = `
+					<div class="gregorian-date">${gregorianText}</div>
+					<div class="hijri-wrapper">
+						<div class="hijri-date">${hijriInfo.day}</div>
+						<div class="hijri-month-name">${hijriInfo.monthName}</div>
+					</div>
+				`;
+				return element;
+			}
+
 			render() {
 				const grid = elements.calendar;
 				const translation = text[state.lang];
@@ -1312,13 +1399,15 @@
 				const translation = text[state.lang];
 				grid.setAttribute('role', 'grid');
 				grid.innerHTML = '';
+				const fragment = document.createDocumentFragment();
+
 				for (let index = 0; index < 7; index++) {
 					let dayIndex = (state.weekStart + index) % 7;
 					const element = document.createElement('div');
 					element.className = 'day-header';
 					element.textContent = translation.days[dayIndex];
 					element.setAttribute('role', 'columnheader');
-					grid.appendChild(element);
+					fragment.appendChild(element);
 				}
 
 				let hijriStarts = [];
@@ -1345,89 +1434,24 @@
 				for (let index = 0; index < 42; index++) {
 					const date = new Date(gridStartDate);
 					date.setDate(gridStartDate.getDate() + index);
-					const dateNoTime = new Date(date).setHours(0, 0, 0, 0);
-					let hijriDateDisplay = "";
-					let hijriMonthNameDisplay = "";
 
+					const hijriInfo = this.getHijriInfoForCell(date, isGregorianMode, context, hijriStarts);
+
+					let isOtherMonth = false;
 					if (isGregorianMode) {
-						for (let k = 0; k < hijriStarts.length - 1; k++) {
-							const s1 = hijriStarts[k];
-							const s2 = hijriStarts[k + 1];
-							if (date >= s1.gDate && date < s2.gDate) {
-								const startTime = new Date(s1.gDate).setHours(0, 0, 0, 0);
-								const dayNumber = Math.round((dateNoTime - startTime) / 86400000) + 1;
-								hijriDateDisplay = dayNumber;
-								hijriMonthNameDisplay = translation.months[s1.month];
-								break;
-							}
-						}
+						if (date.getMonth() !== context.month) isOtherMonth = true;
 					} else {
-						if (date >= context.startGDate && date < context.endGDate) {
-							const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
-							hijriDateDisplay = Math.round((dateNoTime - start) / 86400000) + 1;
-							hijriMonthNameDisplay = translation.months[context.hMonth];
-						} else {
-							const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
-							const diff = Math.round((dateNoTime - start) / 86400000) + 1;
-							if (date < context.startGDate) {
-								let prevMonth = context.hMonth - 1;
-								let prevYear = context.hYear;
-								if (prevMonth < 0) { prevMonth += 12; prevYear--; }
-								const prevStart = this.getAccurateHijriMonthStart(prevYear, prevMonth);
-								let prevLength = Math.round((context.startGDate - prevStart.gDate) / 86400000);
-								if (prevLength < 29 || prevLength > 30) prevLength = 30;
-								hijriDateDisplay = prevLength + diff;
-								hijriMonthNameDisplay = translation.months[prevMonth];
-							} else {
-								let length = Math.round((context.endGDate - context.startGDate) / 86400000);
-								if (length < 29 || length > 30) length = 30;
-								hijriDateDisplay = diff - length;
-								let nm = context.hMonth + 1;
-								if (nm > 11) nm = 0;
-								hijriMonthNameDisplay = translation.months[nm];
-							}
-						}
+						if (date < context.startGDate || date >= context.endGDate) isOtherMonth = true;
 					}
-
-					const element = document.createElement('div');
-					element.className = 'day-cell';
-					element.setAttribute('role', 'gridcell');
-					element.tabIndex = -1;
-
-					if (isGregorianMode) { if (date.getMonth() !== context.month) element.classList.add('other-month'); }
-					else { if (date < context.startGDate || date >= context.endGDate) element.classList.add('other-month'); }
 
 					const dateTime = date.getTime();
-					if (dateTime === today.getTime()) element.classList.add('today');
-					if (dateTime === selectedTime) {
-						element.classList.add('selected');
-						element.setAttribute('aria-selected', 'true');
-					}
+					const isToday = (dateTime === today.getTime());
+					const isSelected = (dateTime === selectedTime);
 
-					element.onclick = () => {
-						this.setDateToInput(elements.gDateInput, date);
-						this.updateHijriInputs(date);
-						this.render();
-						const selected = elements.calendar.querySelector('.day-cell.selected');
-						if (selected) selected.focus();
-					};
-
-					const fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-					element.setAttribute('aria-label', `${fullDate}, ${hijriDateDisplay} ${hijriMonthNameDisplay}`);
-					element.dataset.date = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-					const monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' });
-					const gregorianText = isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`;
-
-					element.innerHTML = `
-						<div class="gregorian-date">${gregorianText}</div>
-						<div class="hijri-wrapper">
-							<div class="hijri-date">${hijriDateDisplay}</div>
-							<div class="hijri-month-name">${hijriMonthNameDisplay}</div>
-						</div>
-					`;
-					grid.appendChild(element);
+					const element = this.createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth);
+					fragment.appendChild(element);
 				}
+				grid.appendChild(fragment);
 
 				const cells = grid.querySelectorAll('.day-cell');
 				let focusCandidate = grid.querySelector('.day-cell.selected');

@@ -148,6 +148,12 @@ async function run() {
     diffs.sort((a, b) => a - b);
     const median = diffs[Math.floor(diffs.length / 2)];
 
+    // 95% Confidence Interval
+    const idx2_5 = Math.floor(diffs.length * 0.025);
+    const idx97_5 = Math.floor(diffs.length * 0.975);
+    const ciLower = diffs[idx2_5];
+    const ciUpper = diffs[idx97_5];
+
     console.log(`Simulation Complete.`);
     console.log(`Total Months: ${count}`);
     console.log(`Altitude Difference (Mecca - Aceh) Stats:`);
@@ -155,6 +161,7 @@ async function run() {
     console.log(`  Median: ${median.toFixed(4)} degrees`);
     console.log(`  Min:    ${minDiff.toFixed(4)} degrees`);
     console.log(`  Max:    ${maxDiff.toFixed(4)} degrees`);
+    console.log(`  95% CI: [${ciLower.toFixed(4)}, ${ciUpper.toFixed(4)}] degrees`);
     console.log(`Data written to ${outFile}`);
 }
 

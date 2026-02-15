@@ -51,3 +51,13 @@ An additional experiment was conducted to find a single global C value that maxi
   - Aceh Impossibility: 0.04%
 
 **Recommendation:** C=22 provides the best balance.
+
+## Obligatory Months Analysis (Ramadan, Shawwal, Dhu al-Hijjah)
+The analysis was repeated specifically for the three obligatory months (Ramadan, Shawwal, and Dhu al-Hijjah), as these are the most critical for religious observance.
+
+**Results:**
+- **Optimal Trade-off (Knee Point):** C=22
+  - Mecca Accuracy: 58.01% (Higher than all-months accuracy of 54.78%)
+  - Aceh Impossibility: 0.90% (Slightly higher than all-months rate of 0.79%)
+
+This confirms that **C=22** remains the robust optimal choice even when focusing specifically on the critical months, offering a slight improvement in Mecca accuracy for these specific periods.

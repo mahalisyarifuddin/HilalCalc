@@ -51,3 +51,13 @@ Sebuah eksperimen tambahan dilakukan untuk menemukan nilai C global tunggal yang
   - Tingkat Kemustahilan Aceh: 0.04%
 
 **Rekomendasi:** C=22 memberikan keseimbangan terbaik.
+
+## Analisis Bulan Wajib (Ramadhan, Syawal, Dzulhijjah)
+Analisis diulang secara khusus untuk tiga bulan wajib (Ramadhan, Syawal, dan Dzulhijjah), karena bulan-bulan ini adalah yang paling kritis untuk pelaksanaan ibadah.
+
+**Hasil:**
+- **Optimal Trade-off (Knee Point):** C=22
+  - Akurasi Makkah: 58.01% (Lebih tinggi dari akurasi semua bulan 54.78%)
+  - Tingkat Kemustahilan Aceh: 0.90% (Sedikit lebih tinggi dari tingkat semua bulan 0.79%)
+
+Ini mengkonfirmasi bahwa **C=22** tetap menjadi pilihan optimal yang kuat bahkan ketika berfokus secara khusus pada bulan-bulan kritis, menawarkan sedikit peningkatan dalam akurasi Makkah untuk periode-periode spesifik ini.

@@ -409,7 +409,7 @@ async function main() {
 
         let candidates = [];
 
-        for (let C = -15; C <= 30; C++) {
+        for (let C = -100; C <= 100; C++) {
             let matches = 0;
             let total = 0;
             let impossible = 0;

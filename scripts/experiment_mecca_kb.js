@@ -222,8 +222,8 @@ async function main() {
 
     let results = [];
 
-    console.log(`Evaluating C from -15 to 30...`);
-    for (let C = -15; C <= 30; C++) {
+    console.log(`Evaluating C from -100 to 100...`);
+    for (let C = -100; C <= 100; C++) {
         // Mecca Accuracy
         let meccaMatches = 0;
         let total = 0;

@@ -1,14 +1,14 @@
 const Astronomy = require('astronomy-engine');
 
 const locations = [
-    { name: 'Dakar', lat: 14.7167, lon: -17.4677 },
-    { name: 'Mecca', lat: 21.3891, lon: 39.8579 },
-    { name: 'Banda Aceh', lat: 6.075, lon: 95.1125 }
+    { name: 'Dakar', lat: 14.7167, lon: -17.529953 },
+    { name: 'Mecca', lat: 21.3891, lon: 39.984078 },
+    { name: 'Kuala Belait', lat: 4.58, lon: 114.075937 }
 ];
 
 const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // All months
 const startYear = 1000;
-const endYear = 2000;
+const endYear = 6000;
 
 const altCache = new Map();
 

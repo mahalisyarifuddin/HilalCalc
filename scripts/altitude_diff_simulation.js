@@ -3,12 +3,12 @@ const fs = require('fs');
 const path = require('path');
 
 const locations = {
-    Mecca: { lat: 21.3891, lon: 39.8579 },
-    Aceh: { lat: 6.075, lon: 95.1125 }
+    Mecca: { lat: 21.3891, lon: 39.984078 },
+    KB: { lat: 4.58, lon: 114.075937 }
 };
 
 const startAH = 1000;
-const endAH = 2000;
+const endAH = 6000;
 
 function hijriToGregorianTabular(hYear, hMonth, hDay) {
     // Standard tabular arithmetic (Kuwaiti algorithm or similar)
@@ -76,9 +76,9 @@ async function run() {
     console.log(`Starting simulation from ${startAH} to ${endAH} AH...`);
 
     // Output file
-    const outFile = path.join(__dirname, '..', 'altitude_difference_1000_2000.csv');
+    const outFile = path.join(__dirname, '..', 'altitude_difference_1000_6000.csv');
     const stream = fs.createWriteStream(outFile);
-    stream.write('HijriYear,Month,ConjunctionUTC,AltMecca,AltAceh,Diff(Mecca-Aceh)\n');
+    stream.write('HijriYear,Month,ConjunctionUTC,AltMecca,AltKB,Diff(Mecca-KB)\n');
 
     let count = 0;
     let sumDiff = 0;
@@ -116,11 +116,11 @@ async function run() {
         dayOfConjunction.setUTCHours(12, 0, 0, 0); // Set to Noon UTC to represent the "Day"
 
         const altMecca = getAltitudeAtSunset(dayOfConjunction, locations.Mecca.lat, locations.Mecca.lon);
-        const altAceh = getAltitudeAtSunset(dayOfConjunction, locations.Aceh.lat, locations.Aceh.lon);
+        const altKB = getAltitudeAtSunset(dayOfConjunction, locations.KB.lat, locations.KB.lon);
 
-        const diff = altMecca - altAceh;
+        const diff = altMecca - altKB;
 
-        stream.write(`${currentHYear},${currentHMonth},${conjunctionStr},${altMecca.toFixed(4)},${altAceh.toFixed(4)},${diff.toFixed(4)}\n`);
+        stream.write(`${currentHYear},${currentHMonth},${conjunctionStr},${altMecca.toFixed(4)},${altKB.toFixed(4)},${diff.toFixed(4)}\n`);
 
         sumDiff += diff;
         if (diff < minDiff) minDiff = diff;
@@ -156,7 +156,7 @@ async function run() {
 
     console.log(`Simulation Complete.`);
     console.log(`Total Months: ${count}`);
-    console.log(`Altitude Difference (Mecca - Aceh) Stats:`);
+    console.log(`Altitude Difference (Mecca - KB) Stats:`);
     console.log(`  Mean:   ${mean.toFixed(4)} degrees`);
     console.log(`  Median: ${median.toFixed(4)} degrees`);
     console.log(`  Min:    ${minDiff.toFixed(4)} degrees`);

@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const locations = {
-    Mecca: { lat: 21.354813, lon: 39.984063 },
+    Mecca: { lat: 21.4225, lon: 39.8262 },
     KB: { lat: 4.587063, lon: 114.075937 }
 };
 
@@ -11,34 +11,21 @@ const startAH = 1000;
 const endAH = 6000;
 
 function hijriToGregorianTabular(hYear, hMonth, hDay) {
-    // Standard tabular arithmetic (Kuwaiti algorithm or similar)
-    // C=0 is fine for approximation
-    const C = 0;
-    const epoch = 1948439.5; // Standard epoch (July 15, 622)
+    // Standard tabular arithmetic (Kuwaiti algorithm C=14 for approximation)
+    const C = 14;
+    const epoch = 1948439.5; // Standard epoch (July 16, 622 AD, Julian)
     const year = hYear - 1;
     const cycle = Math.floor(year / 30);
     const yearInCycle = year % 30;
-    const dayInCycle = yearInCycle * 354 + Math.floor((11 * yearInCycle + C) / 30);
-    const dayInYear = Math.ceil(29.5 * (hMonth - 1)); // Month is 1-based, dayInYear adds days BEFORE current month
-    // Wait, let's double check optimize_tabular.js:
-    // dayInYear = Math.ceil(29.5 * hMonth); -> If hMonth is input, it seems to add full months?
-    // In optimize_tabular.js:
-    // const dayInYear = Math.ceil(29.5 * hMonth);
-    // const jd = epoch + cycle * 10631 + dayInCycle + dayInYear + hDay - 1;
-    // If hMonth=1, dayInYear=30? That seems wrong for the START of month 1.
-    // optimize_tabular.js uses hMonth to calculate END of month?
-    // Let's re-read carefully: "const dayInYear = Math.ceil(29.5 * hMonth);"
-    // If hMonth=1, it adds 30 days.
-    // Hijri month 1 (Muharram) starts at day 0 relative to year start.
-    // So for hMonth=1, we want 0 days offset.
-    // The previous code might have a bug or specific usage.
-    // I will use a standard implementation:
 
-    // Adjusted implementation for start of month M, day D
-    const daysSinceEpoch = (cycle * 10631) +
-                           (yearInCycle * 354 + Math.floor((11 * yearInCycle + 14) / 30)) + // using 14 as typical base
-                           Math.ceil(29.5 * (hMonth - 1)) +
-                           (hDay - 1);
+    // Days elapsed before the current year in the cycle
+    const daysInCycle = yearInCycle * 354 + Math.floor((11 * yearInCycle + C) / 30);
+
+    // Days elapsed in the current year before the current month
+    const daysInYear = Math.ceil(29.5 * (hMonth - 1));
+
+    // Total days since epoch
+    const daysSinceEpoch = (cycle * 10631) + daysInCycle + daysInYear + (hDay - 1);
 
     const jd = epoch + daysSinceEpoch;
     return Astronomy.MakeTime(jd - 2451545.0).date; // Returns Date object
@@ -48,10 +35,7 @@ function getAltitudeAtSunset(dateObj, lat, lon) {
     const observer = new Astronomy.Observer(lat, lon, 0);
 
     // Find sunset on this calendar day
-    // Start search at noon to avoid finding yesterday's or tomorrow's if close to midnight
     // We assume sunset is roughly 18:00 local time.
-    // dateObj is likely 00:00 UTC or Noon UTC.
-    // Let's set search time to Noon Local Time.
     const utcOffsetHours = lon / 15.0;
     const noonLocal = new Date(dateObj);
     noonLocal.setUTCHours(12 - utcOffsetHours);
@@ -59,7 +43,7 @@ function getAltitudeAtSunset(dateObj, lat, lon) {
     const searchDate = Astronomy.MakeTime(noonLocal);
     const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, searchDate.ut, 1);
 
-    if (!sunset) return -999; // Polar day/night? Unlikely at these latitudes.
+    if (!sunset) return -999;
 
     const sunsetUT = sunset.ut;
     const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
@@ -87,15 +71,10 @@ async function run() {
     let diffs = [];
 
     // Initialize search around 1000 AH
-    // 1000 AH start approx:
     const startApprox = hijriToGregorianTabular(startAH, 1, 1);
     // Go back a few days to be safe and search for New Moon
     let time = Astronomy.MakeTime(startApprox);
     let nm = Astronomy.SearchMoonPhase(0, time.ut - 10, 30);
-
-    // We need to track "Approx Hijri Month".
-    // Since we are just simulating lunations, we can just count 12 per year.
-    // We start at Month 1 of Year 1000.
 
     let currentHYear = startAH;
     let currentHMonth = 1; // 1 = Muharram
@@ -103,15 +82,10 @@ async function run() {
     while (currentHYear <= endAH) {
         if (!nm) break;
 
-        // Loop condition is <= 2000. If we pass year 2000, stop.
-        // Actually, we should just run until the end of year 2000.
-
         const conjunctionDate = nm.date;
         const conjunctionStr = formatDate(conjunctionDate);
 
         // Calculate Altitude at Sunset on the Day of Conjunction
-        // "Day of Conjunction" is the Gregorian calendar day of the event (UTC based? or Local?)
-        // Let's use UTC day as the standard "Day".
         const dayOfConjunction = new Date(conjunctionDate);
         dayOfConjunction.setUTCHours(12, 0, 0, 0); // Set to Noon UTC to represent the "Day"
 

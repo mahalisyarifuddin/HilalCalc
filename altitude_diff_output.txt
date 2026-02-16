@@ -1,0 +1,10 @@
+Starting simulation from 1000 to 6000 AH...
+Simulation Complete.
+Total Months: 60012
+Altitude Difference (Mecca - KB) Stats:
+  Mean:   2.2597 degrees
+  Median: 2.2252 degrees
+  Min:    -0.3266 degrees
+  Max:    5.1647 degrees
+  95% CI: [0.3148, 4.2399] degrees
+Data written to /app/altitude_difference_1000_6000.csv

@@ -1,5 +1,5 @@
 const locations = [
-    { name: 'Mecca', lat: 21.3891, lon: 39.8579 }
+    { name: 'Mecca', lat: 21.4225, lon: 39.8262 }
 ];
 
 // Standard Kuwaiti Leap Years (1-based)

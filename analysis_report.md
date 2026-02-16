@@ -9,8 +9,8 @@ The analysis focuses on two scenarios:
 
 ## Methodology
 - **Locations:**
-  - Dakar (14.74°, -17.53°)
-  - Mecca (21.35°, 39.98°)
+  - Dakar (14.72°, -17.47°)
+  - Mecca (21.42°, 39.83°)
   - Kuala Belait (4.59°, 114.08°) - *Easternmost MABBIMS reference point*
 - **Ground Truth:** Calculated using `astronomy-engine` with standard MABBIMS visibility criteria.
 - **Optimization Strategy:** An **Enhanced Pareto Frontier Analysis** exploring the trade-off between:
@@ -26,15 +26,15 @@ Optimization across all 12 Islamic months for 5000 years.
 
 | Location     | Longitude | Knee Point C | Accuracy | Impossible Rate |
 |--------------|-----------|--------------|----------|-----------------|
-| Dakar        | -17.53°   | **37**       | 47.15%   | 1.48%           |
-| Mecca        | 39.98°    | **48**       | 39.59%   | 0.54%           |
+| Dakar        | -17.47°   | **37**       | 47.15%   | 1.48%           |
+| Mecca        | 39.83°    | **48**       | 39.58%   | 0.54%           |
 | Kuala Belait | 114.08°   | **49**       | 45.47%   | 1.16%           |
 
 ### Global Trade-off Experiment (Mecca Accuracy vs KB Impossibility)
 Optimizing to maximize accuracy in Mecca while minimizing the impossibility rate in Kuala Belait (the stricter constraint).
 
 -   **Knee Point:** **C = 47**
-    -   Mecca Accuracy: **41.05%**
+    -   Mecca Accuracy: **41.04%**
     -   Kuala Belait Impossibility: **1.63%**
 
 ---
@@ -47,14 +47,14 @@ Optimization specifically for months 9 (Ramadan), 10 (Shawwal), and 12 (Dhu al-H
 
 | Location     | Longitude | Knee Point C | Accuracy | Impossible Rate |
 |--------------|-----------|--------------|----------|-----------------|
-| Dakar        | -17.53°   | **37**       | 48.94%   | 1.49%           |
-| Mecca        | 39.98°    | **48**       | 41.40%   | 0.57%           |
+| Dakar        | -17.47°   | **37**       | 48.94%   | 1.49%           |
+| Mecca        | 39.83°    | **48**       | 41.39%   | 0.57%           |
 | Kuala Belait | 114.08°   | **53**       | 41.78%   | 0.50%           |
 
 ### Global Trade-off Experiment (Mecca Accuracy vs KB Impossibility)
 
 -   **Knee Point:** **C = 42**
-    -   Mecca Accuracy: **49.23%**
+    -   Mecca Accuracy: **49.22%**
     -   Kuala Belait Impossibility: **3.40%**
 
 ---
@@ -69,7 +69,7 @@ The analysis for the extended 1000-6000 AH period using the **Strictly Knee Poin
     -   Kuala Belait shifts significantly higher to **C=53** for obligatory months, prioritizing a very low impossibility rate (0.50%).
 3.  **Trade-off Divergence:**
     -   The global trade-off for **All Months** suggests **C=47**, prioritizing lower impossibility (1.63%).
-    -   The global trade-off for **Obligatory Months** suggests **C=42**, which achieves higher Mecca accuracy (49.23%) but accepts a higher impossibility rate in KB (3.40%).
+    -   The global trade-off for **Obligatory Months** suggests **C=42**, which achieves higher Mecca accuracy (49.22%) but accepts a higher impossibility rate in KB (3.40%).
 
 ### Recommended Values (Strictly Knee Point)
 
@@ -88,8 +88,8 @@ Based on the single-location Knee Points for Obligatory months (Dakar=37, Mecca=
 
 **`C = Math.round(Longitude * 0.12 + 40.6)`**
 
--   **Dakar (-17.53°):** `round(-2.1 + 40.6) = 39` (Target 37, Err +2)
--   **Mecca (39.98°):** `round(4.8 + 40.6) = 45` (Target 48, Err -3)
+-   **Dakar (-17.47°):** `round(-2.1 + 40.6) = 39` (Target 37, Err +2)
+-   **Mecca (39.83°):** `round(4.8 + 40.6) = 45` (Target 48, Err -3)
 -   **Kuala Belait (114.08°):** `round(13.7 + 40.6) = 54` (Target 53, Err +1)
 
 This formula is implemented as the unified default in the application, providing a balanced approximation across longitudes.

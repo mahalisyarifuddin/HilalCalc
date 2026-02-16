@@ -140,7 +140,7 @@ async function verifyGroundTruth() {
 
     const hYear = 1445;
     const hMonth = 9;
-    const mecca = { lat: 21.3891, lon: 39.8579 };
+    const mecca = { lat: 21.4225, lon: 39.8262 };
 
     const calcDate = getHijriMonthStart(hYear, hMonth, mecca.lat, mecca.lon);
     console.log(`Calculated Start of Ramadan 1445 (Mecca, MABBIMS): ${calcDate}`);

@@ -688,7 +688,7 @@
 			hijriAdj: 0,
 			primaryCalendar: 'gregorian',
 			useCustomC: false,
-			customC: 47,
+			customC: 42,
 			calcMode: 'astronomic'
 		};
 
@@ -795,7 +795,7 @@
 				state.primaryCalendar = 'gregorian';
 				state.locPreset = 'aceh';
 				state.useCustomC = false;
-				state.customC = 47;
+				state.customC = 42;
 				state.calcMode = this.isOffline ? 'heuristic' : 'astronomic';
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
@@ -1093,8 +1093,9 @@
 
 			calculateC(lon) {
 				if (state.useCustomC) return state.customC;
-				// Unified Optimization (47, 48, 49) for Knee Point Strategy (1000-6000 AH)
-				return Math.round(lon / 66.15 + 47.31);
+				// Derived from Obligatory Months Optimization (1000-6000 AH)
+				// Best fit for Dakar (37), Mecca (48), KB (53): C = 0.12 * Lon + 40.6
+				return Math.round(lon * 0.12 + 40.6);
 			}
 
 			updateFormulaDisplay() {

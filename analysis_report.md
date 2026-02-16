@@ -81,3 +81,15 @@ The analysis for the extended 1000-6000 AH period using the **Strictly Knee Poin
 | **Safety First (KB Local)** | **49** (All) / **53** (Obligatory) | Minimizes impossibility in the most difficult location (KB). |
 
 The previous formula derived for 1000-2000 AH (`round(lon / 14.0 + 15.9)`) is dominated in this longer timeframe. The new results suggest significantly higher `C` values are required for long-term stability.
+
+## Derived Regression Formula (Obligatory Months)
+
+Based on the single-location Knee Points for Obligatory months (Dakar=37, Mecca=48, Kuala Belait=53), the best-fit linear regression formula is:
+
+**`C = Math.round(Longitude * 0.12 + 40.6)`**
+
+-   **Dakar (-17.53°):** `round(-2.1 + 40.6) = 39` (Target 37, Err +2)
+-   **Mecca (39.98°):** `round(4.8 + 40.6) = 45` (Target 48, Err -3)
+-   **Kuala Belait (114.08°):** `round(13.7 + 40.6) = 54` (Target 53, Err +1)
+
+This formula is implemented as the unified default in the application, providing a balanced approximation across longitudes.

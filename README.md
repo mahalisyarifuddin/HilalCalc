@@ -57,14 +57,14 @@ The algorithm dynamically calculates the `C` coefficient based on the user's lon
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
 Where `C` is derived from:
-`C = round(Longitude / 66.15 + 47.31)`
+`C = round(Longitude * 0.12 + 40.6)`
 
 **Accuracy**: The algorithm adapts to the location to maximize accuracy across the entire Hijri year. For example:
--   **Kuala Belait (114.1° E)**: `C = 49` (Knee Point Optimization)
--   **Mecca (39.9° E)**: `C = 48` (Optimal for Mecca)
--   **Dakar (17.5° W)**: `C = 47` (Optimal for West Africa)
+-   **Kuala Belait (114.1° E)**: `C = 54` (Optimized for Obligatory Months)
+-   **Mecca (39.9° E)**: `C = 45` (Optimized for Obligatory Months)
+-   **Dakar (17.5° W)**: `C = 39` (Optimized for Obligatory Months)
 
-For long-term stability (1000-6000 AH), the analysis recommends a conservative `C` value around **47-48** to minimize impossible sightings across all regions.
+For long-term stability (1000-6000 AH), the analysis recommends a conservative `C` value around **42** (Obligatory Global Standard) to **47** (All Months Global Standard) to minimize impossible sightings across all regions.
 
 See [analysis_report.md](analysis_report.md) for detailed accuracy comparisons.
 

@@ -3,63 +3,93 @@
 ## Tujuan
 Mencari koefisien `C` optimal untuk Kalender Islam Tabular (`floor((11*H + C)/30)`) untuk mendekati kriteria visibilitas MABBIMS (Alt >= 3°, Elong >= 6.4°) untuk periode yang diperpanjang **1000-6000 H**.
 
+Analisis ini berfokus pada dua skenario:
+1.  **Semua Bulan:** Optimalisasi umum untuk seluruh kalender.
+2.  **Bulan Wajib:** Optimalisasi khusus untuk Ramadhan (9), Syawal (10), dan Dzulhijjah (12).
+
 ## Metodologi
 - **Lokasi:**
-  - Dakar (14.740938°, -17.529938°)
-  - Mekkah (21.354813°, 39.984063°)
-  - Kuala Belait (4.587063°, 114.075937°)
-- **Ground Truth:** Dihitung menggunakan `astronomy-engine` dengan kriteria visibilitas MABBIMS standar saat matahari terbenam lokal.
-- **Strategi Optimalisasi:** **Analisis Pareto Frontier Lanjutan** dilakukan untuk mengeksplorasi trade-off antara:
-    1.  **Maksimalkan Akurasi:** Persentase kecocokan dengan ground truth astronomis.
-    2.  **Minimalkan Tingkat Mustahil (Impossible Rate):** Persentase tanggal di mana algoritma Tabular memprediksi awal bulan ketika Bulan secara astronomis berada di bawah ufuk (Altitude < 0°) saat matahari terbenam.
+  - Dakar (14.74°, -17.53°)
+  - Mekkah (21.35°, 39.98°)
+  - Kuala Belait (4.59°, 114.08°) - *Titik referensi MABBIMS paling timur*
+- **Ground Truth:** Dihitung menggunakan `astronomy-engine` dengan kriteria visibilitas MABBIMS standar.
+- **Strategi Optimalisasi:** **Analisis Pareto Frontier Lanjutan** mengeksplorasi trade-off antara:
+    1.  **Maksimalkan Akurasi:** Tingkat kecocokan dengan visibilitas astronomis.
+    2.  **Minimalkan Tingkat Mustahil:** Tingkat tanggal di mana bulan Tabular dimulai ketika Bulan secara astronomis berada di bawah ufuk (Altitude < 0°) saat matahari terbenam.
+- **Kriteria Seleksi:** **Strictly Knee Point** (Kelengkungan Maksimum), mewakili keseimbangan optimal di mana penurunan akurasi bertemu dengan peningkatan tingkat mustahil.
 
-### Strategi Seleksi
-Analisis ini mempertimbangkan beberapa strategi:
-1.  **Knee Point:** Trade-off optimal di mana penurunan akurasi bertemu dengan peningkatan tingkat mustahil.
-2.  **Jarak Ideal:** Solusi terdekat dengan titik sempurna (Akurasi 100%, Tingkat Mustahil 0%).
+## Hasil: Semua Bulan (1000-6000 H)
 
-## Hasil
+Optimalisasi di seluruh 12 bulan Islam selama 5000 tahun.
 
-Analisis yang diperpanjang (1000-6000 H) mengungkapkan bahwa mempertahankan tingkat mustahil yang rendah memerlukan nilai `C` yang jauh lebih tinggi dibandingkan dengan periode 1000-2000 H. Pergeseran dan variasi jangka panjang menyarankan pendekatan yang lebih konservatif (nilai `C` lebih tinggi) bermanfaat untuk stabilitas.
+### Optimalisasi Lokasi Tunggal (Strictly Knee Point)
 
-| Lokasi       | Bujur     | Knee Point C | Akurasi  | Tingkat Mustahil | Ideal Dist C | Akurasi Ideal | Tingkat Mustahil Ideal |
-|--------------|-----------|--------------|----------|------------------|--------------|---------------|------------------------|
-| Dakar        | -17.53°   | **47**       | 47.14%   | 1.48%            | **26**       | 54.17%        | 6.55%                  |
-| Mekkah       | 39.98°    | **48**       | 39.59%   | 0.54%            | **31**       | 54.29%        | 6.78%                  |
-| Kuala Belait | 114.08°   | **49**       | 45.47%   | 1.16%            | **36**       | 54.24%        | 7.03%                  |
+| Lokasi       | Bujur     | Knee Point C | Akurasi  | Tingkat Mustahil |
+|--------------|-----------|--------------|----------|------------------|
+| Dakar        | -17.53°   | **37**       | 47.15%   | 1.48%            |
+| Mekkah       | 39.98°    | **48**       | 39.59%   | 0.54%            |
+| Kuala Belait | 114.08°   | **49**       | 45.47%   | 1.16%            |
 
-*Catatan: "Jarak Ideal" memprioritaskan akurasi tetapi menghasilkan tingkat mustahil > 6%, yang mungkin dianggap terlalu tinggi untuk aplikasi keagamaan.*
+### Eksperimen Trade-off Global (Akurasi Mekkah vs Kemustahilan KB)
+Mengoptimalkan untuk memaksimalkan akurasi di Mekkah sambil meminimalkan tingkat mustahil di Kuala Belait (kendala yang lebih ketat).
 
-## Strategi Turunan
-Tidak seperti jangka waktu yang lebih pendek, nilai `C` "Knee Point" yang optimal untuk 1000-6000 H sangat konsisten di seluruh bujur, berkumpul di sekitar **48**.
+-   **Knee Point:** **C = 47**
+    -   Akurasi Mekkah: **41.05%**
+    -   Tingkat Mustahil Kuala Belait: **1.63%**
 
-**Rekomendasi untuk Stabilitas Jangka Panjang:**
-Konstanta **`C = 48`** memberikan solusi yang kuat di semua lokasi untuk periode 5000 tahun ini, memprioritaskan "keamanan" (tingkat mustahil rendah) daripada akurasi mentah.
+---
 
-## Rumus Turunan
-Menggunakan nilai Knee Point (47, 48, 49) dari analisis 1000-6000 H, kami menurunkan rumus regresi linier berdasarkan Bujur:
+## Hasil: Bulan Wajib (1000-6000 H)
 
-**`C = Math.round(Bujur / 66.15 + 47.31)`**
+Optimalisasi khusus untuk bulan 9 (Ramadhan), 10 (Syawal), dan 12 (Dzulhijjah).
 
--   **Dakar (-17.53°):** `round(-17.53 / 66.15 + 47.31) = round(47.04) = 47` (Cocok dengan Knee Point)
--   **Mekkah (39.98°):** `round(39.98 / 66.15 + 47.31) = round(47.91) = 48` (Cocok dengan Knee Point)
--   **Kuala Belait (114.08°):** `round(114.08 / 66.15 + 47.31) = round(49.03) = 49` (Cocok dengan Knee Point)
+### Optimalisasi Lokasi Tunggal (Strictly Knee Point)
 
-Rumus ini secara akurat memprediksi koefisien `C` optimal untuk jangka waktu yang diperpanjang, mencerminkan kebutuhan akan nilai yang lebih tinggi untuk menjaga stabilitas selama 5000 tahun.
+| Lokasi       | Bujur     | Knee Point C | Akurasi  | Tingkat Mustahil |
+|--------------|-----------|--------------|----------|------------------|
+| Dakar        | -17.53°   | **37**       | 48.94%   | 1.49%            |
+| Mekkah       | 39.98°    | **48**       | 41.40%   | 0.57%            |
+| Kuala Belait | 114.08°   | **53**       | 41.78%   | 0.50%            |
 
-## Eksperimen Trade-off Mekkah-KB
-Eksperimen khusus yang dioptimalkan untuk memaksimalkan akurasi Mekkah sambil meminimalkan tingkat mustahil Kuala Belait.
+### Eksperimen Trade-off Global (Akurasi Mekkah vs Kemustahilan KB)
 
-**Hasil:**
-- **Optimal Trade-off (Knee Point):** C=47
-  - Akurasi Mekkah: 41.05%
-  - Tingkat Kemustahilan Kuala Belait: 1.63%
-- **Tingkat Kemustahilan Rendah (< 1%):** C=50
-  - Akurasi Mekkah: 36.58%
-  - Tingkat Kemustahilan Kuala Belait: 0.97%
-- **Akurasi Mekkah Maksimal (Jarak Ideal):** C=32
-  - Akurasi Mekkah: 54.16%
-  - Tingkat Kemustahilan Kuala Belait: 10.55% (Sangat tinggi)
+-   **Knee Point:** **C = 42**
+    -   Akurasi Mekkah: **49.23%**
+    -   Tingkat Mustahil Kuala Belait: **3.40%**
 
-**Kesimpulan:**
-Untuk periode yang diperpanjang 1000-6000 H, analisis merekomendasikan pergeseran ke konstanta Tabular yang lebih tinggi, dengan **C=47 hingga C=50** menawarkan keseimbangan terbaik untuk menghindari penampakan mustahil sambil mempertahankan akurasi yang dapat diterima. Rumus sebelumnya yang diturunkan untuk 1000-2000 H (`round(bujur / 14.0 + 15.9)`) didominasi dalam jangka waktu yang lebih lama ini, karena menghasilkan tingkat mustahil melebihi 18-20%.
+---
+
+## Kesimpulan & Rekomendasi
+
+Analisis untuk periode 1000-6000 H yang diperpanjang menggunakan strategi **Strictly Knee Point** menghasilkan wawasan berikut:
+
+1.  **Konsistensi Umum:** Untuk "Semua Bulan", nilai `C` optimal berkumpul di sekitar **48-49** untuk lokasi Timur/Tengah (Mekkah, KB), sementara Dakar lebih menyukai **37**.
+2.  **Variasi Bulan Wajib:**
+    -   Mekkah (C=48) dan Dakar (C=37) tetap konsisten dengan analisis Semua Bulan.
+    -   Kuala Belait bergeser jauh lebih tinggi ke **C=53** untuk bulan-bulan wajib, memprioritaskan tingkat mustahil yang sangat rendah (0.50%).
+3.  **Divergensi Trade-off:**
+    -   Trade-off global untuk **Semua Bulan** menyarankan **C=47**, memprioritaskan tingkat mustahil yang lebih rendah (1.63%).
+    -   Trade-off global untuk **Bulan Wajib** menyarankan **C=42**, yang mencapai akurasi Mekkah yang lebih tinggi (49.23%) tetapi menerima tingkat mustahil yang lebih tinggi di KB (3.40%).
+
+### Nilai yang Direkomendasikan (Strictly Knee Point)
+
+| Kasus Penggunaan | Rekomendasi C | Rasional |
+| :--- | :--- | :--- |
+| **Standar Global (Semua Bulan)** | **47** | Trade-off optimal untuk Akurasi Mekkah vs Kemustahilan KB di semua bulan. |
+| **Standar Global (Wajib)** | **42** | Trade-off optimal khusus untuk bulan Wajib, mengutamakan akurasi lebih tinggi di Mekkah. |
+| **Lokal Mekkah (Semua/Wajib)** | **48** | Konsisten optimal untuk Mekkah secara khusus. |
+| **Keselamatan Pertama (Lokal KB)** | **49** (Semua) / **53** (Wajib) | Meminimalkan kemustahilan di lokasi yang paling sulit (KB). |
+
+Rumus sebelumnya yang diturunkan untuk 1000-2000 H (`round(bujur / 14.0 + 15.9)`) didominasi dalam jangka waktu yang lebih lama ini. Hasil baru menunjukkan nilai `C` yang jauh lebih tinggi diperlukan untuk stabilitas jangka panjang.
+
+## Rumus Regresi Turunan (Bulan Wajib)
+
+Berdasarkan Titik Lutut lokasi tunggal untuk bulan-bulan Wajib (Dakar=37, Mekkah=48, Kuala Belait=53), rumus regresi linier yang paling sesuai adalah:
+
+**`C = Math.round(Bujur * 0.12 + 40.6)`**
+
+-   **Dakar (-17.53°):** `round(-2.1 + 40.6) = 39` (Target 37, Err +2)
+-   **Mekkah (39.98°):** `round(4.8 + 40.6) = 45` (Target 48, Err -3)
+-   **Kuala Belait (114.08°):** `round(13.7 + 40.6) = 54` (Target 53, Err +1)
+
+Rumus ini diimplementasikan sebagai default terpadu dalam aplikasi, memberikan perkiraan yang seimbang di seluruh garis bujur.

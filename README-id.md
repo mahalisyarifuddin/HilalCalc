@@ -57,14 +57,14 @@ Algoritma ini secara dinamis menghitung koefisien `C` berdasarkan bujur pengguna
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
 Di mana `C` berasal dari:
-`C = round(Bujur / 66,15 + 47,31)`
+`C = round(Bujur * 0.12 + 40.6)`
 
 **Akurasi**: Algoritma ini beradaptasi dengan lokasi untuk memaksimalkan akurasi sepanjang tahun Hijriyah. Sebagai contoh:
--   **Kuala Belait (114,1° BT)**: `C = 49` (Optimalisasi Knee Point)
--   **Mekkah (39,9° BT)**: `C = 48` (Optimal untuk Mekkah)
--   **Dakar (17,5° BB)**: `C = 47` (Optimal untuk Afrika Barat)
+-   **Kuala Belait (114,1° BT)**: `C = 54` (Optimal untuk Bulan Wajib)
+-   **Mekkah (39,9° BT)**: `C = 45` (Optimal untuk Bulan Wajib)
+-   **Dakar (17,5° BB)**: `C = 39` (Optimal untuk Bulan Wajib)
 
-Untuk stabilitas jangka panjang (1000-6000 H), analisis menyarankan nilai `C` konservatif sekitar **47-48** untuk meminimalkan penampakan yang mustahil di semua wilayah.
+Untuk stabilitas jangka panjang (1000-6000 H), analisis menyarankan nilai `C` konservatif sekitar **42** (Standar Global Wajib) hingga **47** (Standar Global Semua Bulan) untuk meminimalkan penampakan yang mustahil di semua wilayah.
 
 Lihat [analysis_report-id.md](analysis_report-id.md) untuk perbandingan akurasi detail.
 

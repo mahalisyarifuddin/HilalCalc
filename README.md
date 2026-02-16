@@ -50,19 +50,21 @@ The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Ind
 -   Calculation Point: Sunset.
 
 ### Heuristic Formula (HijriCalc)
-For quick navigation and approximation, `HijriCalc` uses an **Optimized Tabular** algorithm derived from rigorous simulation of MABBIMS visibility for years **1000-2000 AH**.
+For quick navigation and approximation, `HijriCalc` uses an **Optimized Tabular** algorithm derived from rigorous simulation of MABBIMS visibility for years **1000-6000 AH**.
 
 The algorithm dynamically calculates the `C` coefficient based on the user's longitude:
 
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
 Where `C` is derived from:
-`C = round(Longitude / 14.0 + 15.9)`
+`C = round(Longitude / 66.15 + 47.31)`
 
 **Accuracy**: The algorithm adapts to the location to maximize accuracy across the entire Hijri year. For example:
--   **Banda Aceh (95.1° E)**: `C = 23` (Knee Point Optimization)
--   **Mecca (39.9° E)**: `C = 19` (Optimal for Mecca)
--   **Dakar (17.5° W)**: `C = 15` (Optimal for West Africa)
+-   **Kuala Belait (114.1° E)**: `C = 49` (Knee Point Optimization)
+-   **Mecca (39.9° E)**: `C = 48` (Optimal for Mecca)
+-   **Dakar (17.5° W)**: `C = 47` (Optimal for West Africa)
+
+For long-term stability (1000-6000 AH), the analysis recommends a conservative `C` value around **47-48** to minimize impossible sightings across all regions.
 
 See [analysis_report.md](analysis_report.md) for detailed accuracy comparisons.
 

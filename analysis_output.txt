@@ -5,50 +5,50 @@ Analyzing years 1000-6000 AH (5001 years, 60012 months)
 Enhanced Pareto Frontier Analysis with Multiple Selection Strategies
 ======================================================================
 
-⏳ Processing Dakar (14.7167°, -17.4677°)...
+⏳ Processing Dakar (14.740938°, -17.529938°)...
 
 ======================================================================
 LOCATION: Dakar
 ======================================================================
 
 📊 PARETO FRONTIER (34 non-dominated solutions):
-   Accuracy Range: 17.24% - 54.26%
+   Accuracy Range: 17.23% - 54.26%
    Impossible Range: 0.00% - 7.31%
 
    [1] C= 25: Acc=54.26%, Imp=7.31%
-   [2] C= 26: Acc=54.18%, Imp=6.55% ← IDEAL DIST
-   [3] C= 27: Acc=54.02%, Imp=5.85%
+   [2] C= 26: Acc=54.17%, Imp=6.55% ← IDEAL DIST
+   [3] C= 27: Acc=54.01%, Imp=5.85%
    [4] C= 28: Acc=53.75%, Imp=5.19%
    [5] C= 29: Acc=53.37%, Imp=4.60%
-   [6] C= 30: Acc=52.91%, Imp=4.07%
-   [7] C= 31: Acc=52.32%, Imp=3.59%
-   [8] C= 32: Acc=51.71%, Imp=3.14%
-   [9] C= 33: Acc=50.99%, Imp=2.72%
-   [10] C= 34: Acc=50.13%, Imp=2.36%
-   [11] C= 35: Acc=49.23%, Imp=2.04%
-   [12] C= 36: Acc=48.24%, Imp=1.75%
+   [6] C= 30: Acc=52.90%, Imp=4.07%
+   [7] C= 31: Acc=52.31%, Imp=3.59%
+   [8] C= 32: Acc=51.70%, Imp=3.14%
+   [9] C= 33: Acc=50.98%, Imp=2.72%
+   [10] C= 34: Acc=50.12%, Imp=2.36%
+   [11] C= 35: Acc=49.22%, Imp=2.04%
+   [12] C= 36: Acc=48.23%, Imp=1.75%
    [13] C= 37: Acc=47.15%, Imp=1.48% ← KNEE POINT
-   [14] C= 38: Acc=45.97%, Imp=1.26%
+   [14] C= 38: Acc=45.96%, Imp=1.26%
    [15] C= 39: Acc=44.73%, Imp=1.06%
-   [16] C= 40: Acc=43.44%, Imp=0.88%
+   [16] C= 40: Acc=43.43%, Imp=0.88%
    [17] C= 41: Acc=42.10%, Imp=0.73%
    [18] C= 42: Acc=40.70%, Imp=0.59%
-   [19] C= 43: Acc=39.29%, Imp=0.48%
-   [20] C= 44: Acc=37.82%, Imp=0.38%
-   [21] C= 45: Acc=36.33%, Imp=0.30%
-   [22] C= 46: Acc=34.80%, Imp=0.23%
+   [19] C= 43: Acc=39.28%, Imp=0.48%
+   [20] C= 44: Acc=37.81%, Imp=0.38%
+   [21] C= 45: Acc=36.32%, Imp=0.30%
+   [22] C= 46: Acc=34.79%, Imp=0.23%
    [23] C= 47: Acc=33.29%, Imp=0.18%
    [24] C= 48: Acc=31.73%, Imp=0.14%
    [25] C= 49: Acc=30.21%, Imp=0.10%
    [26] C= 50: Acc=28.67%, Imp=0.08%
-   [27] C= 51: Acc=27.15%, Imp=0.05%
+   [27] C= 51: Acc=27.14%, Imp=0.05%
    [28] C= 52: Acc=25.64%, Imp=0.04%
    [29] C= 53: Acc=24.15%, Imp=0.02%
-   [30] C= 54: Acc=22.69%, Imp=0.01%
+   [30] C= 54: Acc=22.68%, Imp=0.01%
    [31] C= 55: Acc=21.27%, Imp=0.01%
    [32] C= 56: Acc=19.90%, Imp=0.00%
-   [33] C= 57: Acc=18.56%, Imp=0.00%
-   [34] C= 58: Acc=17.24%, Imp=0.00%
+   [33] C= 57: Acc=18.55%, Imp=0.00%
+   [34] C= 58: Acc=17.23%, Imp=0.00%
 
 📈 TRADE-OFF ANALYSIS:
    (Moving along Pareto frontier)
@@ -63,19 +63,19 @@ LOCATION: Dakar
    C 33 → 34: Acc -0.86%, Imp -0.36% (ratio: 2.41)
    C 34 → 35: Acc -0.90%, Imp -0.32% (ratio: 2.84)
    C 35 → 36: Acc -0.99%, Imp -0.29% (ratio: 3.37)
-   C 36 → 37: Acc -1.09%, Imp -0.27% (ratio: 4.07)
+   C 36 → 37: Acc -1.08%, Imp -0.27% (ratio: 4.07)
    C 37 → 38: Acc -1.18%, Imp -0.22% (ratio: 5.38)
    C 38 → 39: Acc -1.23%, Imp -0.20% (ratio: 6.12)
-   C 39 → 40: Acc -1.29%, Imp -0.18% (ratio: 7.32)
+   C 39 → 40: Acc -1.29%, Imp -0.18% (ratio: 7.33)
    C 40 → 41: Acc -1.34%, Imp -0.15% (ratio: 8.72)
    C 41 → 42: Acc -1.40%, Imp -0.13% (ratio: 10.38)
    C 42 → 43: Acc -1.41%, Imp -0.11% (ratio: 12.29)
-   C 43 → 44: Acc -1.47%, Imp -0.10% (ratio: 14.97)
+   C 43 → 44: Acc -1.47%, Imp -0.10% (ratio: 14.95)
    C 44 → 45: Acc -1.49%, Imp -0.08% (ratio: 19.02)
    C 45 → 46: Acc -1.53%, Imp -0.07% (ratio: 22.39)
    C 46 → 47: Acc -1.51%, Imp -0.05% (ratio: 28.28)
    C 47 → 48: Acc -1.56%, Imp -0.04% (ratio: 37.40)
-   C 48 → 49: Acc -1.52%, Imp -0.03% (ratio: 43.57)
+   C 48 → 49: Acc -1.52%, Imp -0.03% (ratio: 43.48)
    C 49 → 50: Acc -1.54%, Imp -0.03% (ratio: 54.29)
    C 50 → 51: Acc -1.52%, Imp -0.02% (ratio: 70.31)
    C 51 → 52: Acc -1.51%, Imp -0.01% (ratio: 100.44)
@@ -83,117 +83,117 @@ LOCATION: Dakar
    C 53 → 54: Acc -1.46%, Imp -0.01% (ratio: 146.17)
    C 54 → 55: Acc -1.41%, Imp -0.01% (ratio: 212.25)
    C 55 → 56: Acc -1.37%, Imp -0.00% (ratio: 411.00)
-   C 56 → 57: Acc -1.34%, Imp -0.00% (ratio: 805.00)
+   C 56 → 57: Acc -1.34%, Imp -0.00% (ratio: 807.00)
    C 57 → 58: Acc -1.32%, Imp -0.00% (ratio: 792.00)
 
 🎯 RECOMMENDED C VALUES (by strategy):
    1. Knee Point (best trade-off):    C=37 (Acc=47.15%, Imp=1.48%)
-   2. Ideal Distance (closest to 100%/0%): C=26 (Acc=54.18%, Imp=6.55%)
-   3. Weighted (1:2 ratio):           C=33 (Acc=50.99%, Imp=2.72%)
+   2. Ideal Distance (closest to 100%/0%): C=26 (Acc=54.17%, Imp=6.55%)
+   3. Weighted (1:2 ratio):           C=33 (Acc=50.98%, Imp=2.72%)
    4. Lexicographic (Imp≤5%, max Acc): C=29 (Acc=53.37%, Imp=4.60%)
    5. Min Impossible (conservative):  C=100 (Acc=0.00%, Imp=0.00%)
 
 🔍 UNIFIED FORMULA COMPARISON:
-   Predicted C=15: Acc=49.36%, Imp=18.01%
+   Predicted C=15: Acc=49.37%, Imp=18.00%
    Status: ✗ NOT on Pareto frontier (dominated)
    Dominated by: C=25, C=26, C=27, C=28, C=29, C=30, C=31, C=32, C=33, C=34
 
-⏳ Processing Mecca (21.4225°, 39.8262°)...
+⏳ Processing Mecca (21.354813°, 39.984063°)...
 
 ======================================================================
 LOCATION: Mecca
 ======================================================================
 
 📊 PARETO FRONTIER (37 non-dominated solutions):
-   Accuracy Range: 10.54% - 54.33%
+   Accuracy Range: 10.54% - 54.34%
    Impossible Range: 0.00% - 7.54%
 
-   [1] C= 30: Acc=54.33%, Imp=7.54%
-   [2] C= 31: Acc=54.27%, Imp=6.78% ← IDEAL DIST
-   [3] C= 32: Acc=54.15%, Imp=6.08%
-   [4] C= 33: Acc=53.91%, Imp=5.44%
-   [5] C= 34: Acc=53.57%, Imp=4.84%
-   [6] C= 35: Acc=53.15%, Imp=4.31%
-   [7] C= 36: Acc=52.56%, Imp=3.81%
-   [8] C= 37: Acc=51.91%, Imp=3.34%
-   [9] C= 38: Acc=51.18%, Imp=2.92%
-   [10] C= 39: Acc=50.36%, Imp=2.55%
-   [11] C= 40: Acc=49.45%, Imp=2.21%
-   [12] C= 41: Acc=48.47%, Imp=1.89%
-   [13] C= 42: Acc=47.40%, Imp=1.62%
-   [14] C= 43: Acc=46.25%, Imp=1.38%
-   [15] C= 44: Acc=45.02%, Imp=1.17%
-   [16] C= 45: Acc=43.73%, Imp=1.00%
-   [17] C= 46: Acc=42.43%, Imp=0.83%
-   [18] C= 47: Acc=41.04%, Imp=0.67%
-   [19] C= 48: Acc=39.58%, Imp=0.54% ← KNEE POINT
-   [20] C= 49: Acc=38.08%, Imp=0.44%
+   [1] C= 30: Acc=54.34%, Imp=7.54%
+   [2] C= 31: Acc=54.29%, Imp=6.78% ← IDEAL DIST
+   [3] C= 32: Acc=54.16%, Imp=6.08%
+   [4] C= 33: Acc=53.92%, Imp=5.44%
+   [5] C= 34: Acc=53.59%, Imp=4.84%
+   [6] C= 35: Acc=53.17%, Imp=4.32%
+   [7] C= 36: Acc=52.57%, Imp=3.81%
+   [8] C= 37: Acc=51.93%, Imp=3.35%
+   [9] C= 38: Acc=51.20%, Imp=2.92%
+   [10] C= 39: Acc=50.37%, Imp=2.55%
+   [11] C= 40: Acc=49.46%, Imp=2.21%
+   [12] C= 41: Acc=48.48%, Imp=1.90%
+   [13] C= 42: Acc=47.41%, Imp=1.62%
+   [14] C= 43: Acc=46.26%, Imp=1.38%
+   [15] C= 44: Acc=45.03%, Imp=1.17%
+   [16] C= 45: Acc=43.74%, Imp=1.00%
+   [17] C= 46: Acc=42.44%, Imp=0.83%
+   [18] C= 47: Acc=41.05%, Imp=0.67%
+   [19] C= 48: Acc=39.59%, Imp=0.54% ← KNEE POINT
+   [20] C= 49: Acc=38.09%, Imp=0.44%
    [21] C= 50: Acc=36.58%, Imp=0.36%
    [22] C= 51: Acc=35.08%, Imp=0.28%
-   [23] C= 52: Acc=33.53%, Imp=0.22%
-   [24] C= 53: Acc=32.00%, Imp=0.17%
+   [23] C= 52: Acc=33.54%, Imp=0.22%
+   [24] C= 53: Acc=32.01%, Imp=0.17%
    [25] C= 54: Acc=30.46%, Imp=0.12%
    [26] C= 55: Acc=28.91%, Imp=0.10%
-   [27] C= 56: Acc=27.38%, Imp=0.07%
-   [28] C= 57: Acc=25.89%, Imp=0.05%
-   [29] C= 58: Acc=24.42%, Imp=0.03%
-   [30] C= 59: Acc=22.95%, Imp=0.02%
-   [31] C= 60: Acc=21.49%, Imp=0.02%
-   [32] C= 61: Acc=20.10%, Imp=0.01%
-   [33] C= 62: Acc=18.73%, Imp=0.01%
-   [34] C= 63: Acc=17.40%, Imp=0.00%
-   [35] C= 64: Acc=16.14%, Imp=0.00%
+   [27] C= 56: Acc=27.39%, Imp=0.07%
+   [28] C= 57: Acc=25.90%, Imp=0.05%
+   [29] C= 58: Acc=24.43%, Imp=0.03%
+   [30] C= 59: Acc=22.96%, Imp=0.02%
+   [31] C= 60: Acc=21.50%, Imp=0.02%
+   [32] C= 61: Acc=20.11%, Imp=0.01%
+   [33] C= 62: Acc=18.74%, Imp=0.01%
+   [34] C= 63: Acc=17.41%, Imp=0.00%
+   [35] C= 64: Acc=16.15%, Imp=0.00%
    [36] C= 65: Acc=14.89%, Imp=0.00%
    [37] C= 69: Acc=10.54%, Imp=0.00%
 
 📈 TRADE-OFF ANALYSIS:
    (Moving along Pareto frontier)
-   C 30 → 31: Acc -0.05%, Imp -0.76% (ratio: 0.07)
-   C 31 → 32: Acc -0.13%, Imp -0.70% (ratio: 0.18)
+   C 30 → 31: Acc -0.05%, Imp -0.77% (ratio: 0.07)
+   C 31 → 32: Acc -0.12%, Imp -0.70% (ratio: 0.18)
    C 32 → 33: Acc -0.24%, Imp -0.63% (ratio: 0.38)
-   C 33 → 34: Acc -0.34%, Imp -0.60% (ratio: 0.56)
-   C 34 → 35: Acc -0.43%, Imp -0.53% (ratio: 0.81)
+   C 33 → 34: Acc -0.33%, Imp -0.60% (ratio: 0.55)
+   C 34 → 35: Acc -0.42%, Imp -0.52% (ratio: 0.81)
    C 35 → 36: Acc -0.59%, Imp -0.50% (ratio: 1.17)
-   C 36 → 37: Acc -0.65%, Imp -0.47% (ratio: 1.40)
-   C 37 → 38: Acc -0.72%, Imp -0.42% (ratio: 1.71)
-   C 38 → 39: Acc -0.83%, Imp -0.37% (ratio: 2.21)
+   C 36 → 37: Acc -0.65%, Imp -0.47% (ratio: 1.39)
+   C 37 → 38: Acc -0.73%, Imp -0.42% (ratio: 1.72)
+   C 38 → 39: Acc -0.83%, Imp -0.37% (ratio: 2.22)
    C 39 → 40: Acc -0.91%, Imp -0.34% (ratio: 2.70)
    C 40 → 41: Acc -0.97%, Imp -0.32% (ratio: 3.07)
-   C 41 → 42: Acc -1.07%, Imp -0.27% (ratio: 3.89)
-   C 42 → 43: Acc -1.15%, Imp -0.24% (ratio: 4.81)
-   C 43 → 44: Acc -1.23%, Imp -0.21% (ratio: 5.94)
+   C 41 → 42: Acc -1.07%, Imp -0.27% (ratio: 3.90)
+   C 42 → 43: Acc -1.15%, Imp -0.24% (ratio: 4.78)
+   C 43 → 44: Acc -1.23%, Imp -0.21% (ratio: 5.95)
    C 44 → 45: Acc -1.28%, Imp -0.17% (ratio: 7.34)
-   C 45 → 46: Acc -1.31%, Imp -0.17% (ratio: 7.84)
+   C 45 → 46: Acc -1.30%, Imp -0.17% (ratio: 7.82)
    C 46 → 47: Acc -1.39%, Imp -0.16% (ratio: 8.58)
-   C 47 → 48: Acc -1.46%, Imp -0.13% (ratio: 11.24)
-   C 48 → 49: Acc -1.50%, Imp -0.10% (ratio: 15.50)
+   C 47 → 48: Acc -1.46%, Imp -0.13% (ratio: 11.26)
+   C 48 → 49: Acc -1.50%, Imp -0.10% (ratio: 15.52)
    C 49 → 50: Acc -1.51%, Imp -0.08% (ratio: 18.45)
-   C 50 → 51: Acc -1.50%, Imp -0.08% (ratio: 19.13)
+   C 50 → 51: Acc -1.50%, Imp -0.08% (ratio: 19.15)
    C 51 → 52: Acc -1.54%, Imp -0.06% (ratio: 24.39)
-   C 52 → 53: Acc -1.53%, Imp -0.05% (ratio: 28.75)
-   C 53 → 54: Acc -1.54%, Imp -0.04% (ratio: 37.04)
+   C 52 → 53: Acc -1.53%, Imp -0.05% (ratio: 28.69)
+   C 53 → 54: Acc -1.55%, Imp -0.04% (ratio: 37.12)
    C 54 → 55: Acc -1.55%, Imp -0.03% (ratio: 54.76)
-   C 55 → 56: Acc -1.53%, Imp -0.02% (ratio: 61.07)
-   C 56 → 57: Acc -1.49%, Imp -0.02% (ratio: 68.92)
-   C 57 → 58: Acc -1.46%, Imp -0.01% (ratio: 97.67)
-   C 58 → 59: Acc -1.47%, Imp -0.01% (ratio: 146.83)
-   C 59 → 60: Acc -1.46%, Imp -0.01% (ratio: 175.80)
+   C 55 → 56: Acc -1.52%, Imp -0.02% (ratio: 61.00)
+   C 56 → 57: Acc -1.49%, Imp -0.02% (ratio: 68.69)
+   C 57 → 58: Acc -1.47%, Imp -0.01% (ratio: 97.78)
+   C 58 → 59: Acc -1.47%, Imp -0.01% (ratio: 147.00)
+   C 59 → 60: Acc -1.47%, Imp -0.01% (ratio: 176.00)
    C 60 → 61: Acc -1.39%, Imp -0.00% (ratio: 416.50)
-   C 61 → 62: Acc -1.37%, Imp -0.00% (ratio: 273.33)
+   C 61 → 62: Acc -1.36%, Imp -0.00% (ratio: 273.00)
    C 62 → 63: Acc -1.33%, Imp -0.00% (ratio: 399.50)
-   C 63 → 64: Acc -1.26%, Imp -0.00% (ratio: 757.00)
-   C 64 → 65: Acc -1.25%, Imp -0.00% (ratio: 750.00)
-   C 65 → 69: Acc -4.36%, Imp -0.00% (ratio: 2614.00)
+   C 63 → 64: Acc -1.27%, Imp -0.00% (ratio: 760.00)
+   C 64 → 65: Acc -1.25%, Imp -0.00% (ratio: 751.00)
+   C 65 → 69: Acc -4.35%, Imp -0.00% (ratio: 2611.00)
 
 🎯 RECOMMENDED C VALUES (by strategy):
-   1. Knee Point (best trade-off):    C=48 (Acc=39.58%, Imp=0.54%)
-   2. Ideal Distance (closest to 100%/0%): C=31 (Acc=54.27%, Imp=6.78%)
-   3. Weighted (1:2 ratio):           C=38 (Acc=51.18%, Imp=2.92%)
-   4. Lexicographic (Imp≤5%, max Acc): C=34 (Acc=53.57%, Imp=4.84%)
+   1. Knee Point (best trade-off):    C=48 (Acc=39.59%, Imp=0.54%)
+   2. Ideal Distance (closest to 100%/0%): C=31 (Acc=54.29%, Imp=6.78%)
+   3. Weighted (1:2 ratio):           C=38 (Acc=51.20%, Imp=2.92%)
+   4. Lexicographic (Imp≤5%, max Acc): C=34 (Acc=53.59%, Imp=4.84%)
    5. Min Impossible (conservative):  C=100 (Acc=0.02%, Imp=0.00%)
 
 🔍 UNIFIED FORMULA COMPARISON:
-   Predicted C=19: Acc=48.20%, Imp=19.62%
+   Predicted C=19: Acc=48.20%, Imp=19.63%
    Status: ✗ NOT on Pareto frontier (dominated)
    Dominated by: C=30, C=31, C=32, C=33, C=34, C=35, C=36, C=37, C=38, C=39, C=40, C=41
 

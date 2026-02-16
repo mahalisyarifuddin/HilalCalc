@@ -9,8 +9,8 @@ Analisis ini berfokus pada dua skenario:
 
 ## Metodologi
 - **Lokasi:**
-  - Dakar (14.72°, -17.47°)
-  - Mekkah (21.42°, 39.83°)
+  - Dakar (14.74°, -17.53°)
+  - Mekkah (21.35°, 39.98°)
   - Kuala Belait (4.59°, 114.08°) - *Titik referensi MABBIMS paling timur*
 - **Ground Truth:** Dihitung menggunakan `astronomy-engine` dengan kriteria visibilitas MABBIMS standar.
 - **Strategi Optimalisasi:** **Analisis Pareto Frontier Lanjutan** mengeksplorasi trade-off antara:
@@ -26,8 +26,8 @@ Optimalisasi di seluruh 12 bulan Islam selama 5000 tahun.
 
 | Lokasi       | Bujur     | Knee Point C | Akurasi  | Tingkat Mustahil |
 |--------------|-----------|--------------|----------|------------------|
-| Dakar        | -17.47°   | **37**       | 47.15%   | 1.48%            |
-| Mekkah       | 39.83°    | **48**       | 39.58%   | 0.54%            |
+| Dakar        | -17.53°   | **37**       | 47.15%   | 1.48%            |
+| Mekkah       | 39.98°    | **48**       | 39.58%   | 0.54%            |
 | Kuala Belait | 114.08°   | **49**       | 45.47%   | 1.16%            |
 
 ### Eksperimen Trade-off Global (Akurasi Mekkah vs Kemustahilan KB)
@@ -47,8 +47,8 @@ Optimalisasi khusus untuk bulan 9 (Ramadhan), 10 (Syawal), dan 12 (Dzulhijjah).
 
 | Lokasi       | Bujur     | Knee Point C | Akurasi  | Tingkat Mustahil |
 |--------------|-----------|--------------|----------|------------------|
-| Dakar        | -17.47°   | **37**       | 48.94%   | 1.49%            |
-| Mekkah       | 39.83°    | **48**       | 41.39%   | 0.57%            |
+| Dakar        | -17.53°   | **37**       | 48.94%   | 1.49%            |
+| Mekkah       | 39.98°    | **48**       | 41.39%   | 0.57%            |
 | Kuala Belait | 114.08°   | **53**       | 41.78%   | 0.50%            |
 
 ### Eksperimen Trade-off Global (Akurasi Mekkah vs Kemustahilan KB)
@@ -88,8 +88,8 @@ Berdasarkan Titik Lutut lokasi tunggal untuk bulan-bulan Wajib (Dakar=37, Mekkah
 
 **`C = Math.round(Bujur * 0.12 + 40.6)`**
 
--   **Dakar (-17.47°):** `round(-2.1 + 40.6) = 39` (Target 37, Err +2)
--   **Mekkah (39.83°):** `round(4.8 + 40.6) = 45` (Target 48, Err -3)
+-   **Dakar (-17.53°):** `round(-2.1 + 40.6) = 39` (Target 37, Err +2)
+-   **Mekkah (39.98°):** `round(4.8 + 40.6) = 45` (Target 48, Err -3)
 -   **Kuala Belait (114.08°):** `round(13.7 + 40.6) = 54` (Target 53, Err +1)
 
 Rumus ini diimplementasikan sebagai default terpadu dalam aplikasi, memberikan perkiraan yang seimbang di seluruh garis bujur.

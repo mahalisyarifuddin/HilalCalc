@@ -1,7 +1,7 @@
 const Astronomy = require('astronomy-engine');
 
 const locations = {
-    mecca: { name: 'Mecca', lat: 21.4225, lon: 39.8262 },
+    mecca: { name: 'Mecca', lat: 21.354813, lon: 39.984063 },
     kb: { name: 'Kuala Belait', lat: 4.587063, lon: 114.075937 }
 };
 

@@ -88,7 +88,7 @@ Berdasarkan Titik Lutut lokasi tunggal untuk bulan-bulan Wajib (Dakar=37, Mekkah
 
 **`C = Math.round(Bujur * 0.12 + 40.6)`**
 
--   **Dakar (-17.53°):** `round(-2.1 + 40.6) = 39` (Target 37, Err +2)
+-   **Dakar (-17.53°):** `round(-2.1 + 40.6) = 38` (Target 37, Err +1)
 -   **Mekkah (39.98°):** `round(4.8 + 40.6) = 45` (Target 48, Err -3)
 -   **Kuala Belait (114.08°):** `round(13.7 + 40.6) = 54` (Target 53, Err +1)
 

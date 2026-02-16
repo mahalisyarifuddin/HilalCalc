@@ -61,8 +61,8 @@ Di mana `C` berasal dari:
 
 **Akurasi**: Algoritma ini beradaptasi dengan lokasi untuk memaksimalkan akurasi sepanjang tahun Hijriyah. Sebagai contoh:
 -   **Kuala Belait (114,1° BT)**: `C = 54` (Optimal untuk Bulan Wajib)
--   **Mekkah (39,9° BT)**: `C = 45` (Optimal untuk Bulan Wajib)
--   **Dakar (17,5° BB)**: `C = 39` (Optimal untuk Bulan Wajib)
+-   **Mekkah (40,0° BT)**: `C = 45` (Optimal untuk Bulan Wajib)
+-   **Dakar (17,5° BB)**: `C = 38` (Optimal untuk Bulan Wajib)
 
 Untuk stabilitas jangka panjang (1000-6000 H), analisis menyarankan nilai `C` konservatif sekitar **42** (Standar Global Wajib) hingga **47** (Standar Global Semua Bulan) untuk meminimalkan penampakan yang mustahil di semua wilayah.
 

@@ -61,8 +61,8 @@ Where `C` is derived from:
 
 **Accuracy**: The algorithm adapts to the location to maximize accuracy across the entire Hijri year. For example:
 -   **Kuala Belait (114.1° E)**: `C = 54` (Optimized for Obligatory Months)
--   **Mecca (39.9° E)**: `C = 45` (Optimized for Obligatory Months)
--   **Dakar (17.5° W)**: `C = 39` (Optimized for Obligatory Months)
+-   **Mecca (40.0° E)**: `C = 45` (Optimized for Obligatory Months)
+-   **Dakar (17.5° W)**: `C = 38` (Optimized for Obligatory Months)
 
 For long-term stability (1000-6000 AH), the analysis recommends a conservative `C` value around **42** (Obligatory Global Standard) to **47** (All Months Global Standard) to minimize impossible sightings across all regions.
 

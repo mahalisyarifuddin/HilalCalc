@@ -1,7 +1,7 @@
 const locations = [
-    { name: 'Dakar', lon: -17.4677, expected: 15 },
-    { name: 'Mecca', lon: 39.8579, expected: 19 },
-    { name: 'Banda Aceh', lon: 95.1125, expected: 23 }
+    { name: 'Dakar', lon: -17.529938, expected: 15 },
+    { name: 'Mecca', lon: 39.984063, expected: 19 },
+    { name: 'Kuala Belait', lon: 114.075937, expected: 24 }
 ];
 
 function calculateC(lon) {

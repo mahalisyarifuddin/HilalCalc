@@ -1,14 +1,14 @@
 const Astronomy = require('astronomy-engine');
 
 const locations = [
-    { name: 'Dakar', lat: 14.7167, lon: -17.4677 },
-    { name: 'Mecca', lat: 21.3891, lon: 39.8579 },
-    { name: 'Banda Aceh', lat: 6.075, lon: 95.1125 }
+    { name: 'Dakar', lat: 14.740938, lon: -17.529938 },
+    { name: 'Mecca', lat: 21.354813, lon: 39.984063 },
+    { name: 'Kuala Belait', lat: 4.587063, lon: 114.075937 }
 ];
 
 const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // All months
 const startYear = 1000;
-const endYear = 2000;
+const endYear = 6000;
 
 const altCache = new Map();
 
@@ -409,7 +409,7 @@ async function main() {
 
         let candidates = [];
 
-        for (let C = -15; C <= 30; C++) {
+        for (let C = -100; C <= 100; C++) {
             let matches = 0;
             let total = 0;
             let impossible = 0;

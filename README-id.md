@@ -50,19 +50,21 @@ Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei, Da
 -   Titik Perhitungan: Matahari Terbenam (Sunset).
 
 ### Rumus Heuristik (HijriCalc)
-Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan algoritma **Tabular yang Dioptimalkan** yang berasal dari simulasi ketat visibilitas MABBIMS untuk tahun **1000-2000 H**.
+Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan algoritma **Tabular yang Dioptimalkan** yang berasal dari simulasi ketat visibilitas MABBIMS untuk tahun **1000-6000 H**.
 
 Algoritma ini secara dinamis menghitung koefisien `C` berdasarkan bujur pengguna:
 
 `JD = 1948440 + 354(H-1) + floor((11(H-1) + C) / 30)`
 
 Di mana `C` berasal dari:
-`C = round(Bujur / 14,0 + 15,9)`
+`C = round(Bujur / 66,15 + 47,31)`
 
 **Akurasi**: Algoritma ini beradaptasi dengan lokasi untuk memaksimalkan akurasi sepanjang tahun Hijriyah. Sebagai contoh:
--   **Banda Aceh (95,1° BT)**: `C = 23` (Optimalisasi Knee Point)
--   **Mekkah (39,9° BT)**: `C = 19` (Optimal untuk Mekkah)
--   **Dakar (17,5° BB)**: `C = 15` (Optimal untuk Afrika Barat)
+-   **Kuala Belait (114,1° BT)**: `C = 49` (Optimalisasi Knee Point)
+-   **Mekkah (39,9° BT)**: `C = 48` (Optimal untuk Mekkah)
+-   **Dakar (17,5° BB)**: `C = 47` (Optimal untuk Afrika Barat)
+
+Untuk stabilitas jangka panjang (1000-6000 H), analisis menyarankan nilai `C` konservatif sekitar **47-48** untuk meminimalkan penampakan yang mustahil di semua wilayah.
 
 Lihat [analysis_report-id.md](analysis_report-id.md) untuk perbandingan akurasi detail.
 

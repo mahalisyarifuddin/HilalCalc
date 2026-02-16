@@ -1,13 +1,13 @@
 const Astronomy = require('astronomy-engine');
 
 const locations = {
-    mecca: { name: 'Mecca', lat: 21.3891, lon: 39.8579 },
-    aceh: { name: 'Banda Aceh', lat: 6.075, lon: 95.1125 }
+    mecca: { name: 'Mecca', lat: 21.354813, lon: 39.984063 },
+    kb: { name: 'Kuala Belait', lat: 4.587063, lon: 114.075937 }
 };
 
 const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const startYear = 1000;
-const endYear = 2000;
+const endYear = 6000;
 
 const altCache = new Map();
 
@@ -127,7 +127,7 @@ function getHijriMonthStart(hYear, hMonth, lat, lon) {
 }
 
 // ============================================================================
-// PARETO FRONTIER ANALYSIS FOR MECCA/ACEH
+// PARETO FRONTIER ANALYSIS FOR MECCA/KUALA BELAIT
 // ============================================================================
 
 function findParetoFrontier(candidates) {
@@ -137,11 +137,11 @@ function findParetoFrontier(candidates) {
     let minImp = Infinity;
 
     for (const candidate of sorted) {
-        // We want to MINIMIZE Aceh Impossibility
-        if (candidate.acehImp < minImp) {
+        // We want to MINIMIZE KB Impossibility
+        if (candidate.kbImp < minImp) {
             frontier.push(candidate);
-            minImp = candidate.acehImp;
-        } else if (candidate.acehImp === minImp && frontier.length > 0) {
+            minImp = candidate.kbImp;
+        } else if (candidate.kbImp === minImp && frontier.length > 0) {
             // Handle ties: keep if strictly better accuracy (which is guaranteed by sort order for equal Impossible)
              if (candidate.meccaAcc > frontier[frontier.length - 1].meccaAcc) {
                 frontier[frontier.length - 1] = candidate;
@@ -152,9 +152,9 @@ function findParetoFrontier(candidates) {
 }
 
 function distanceToIdeal(candidate) {
-    // Ideal: Mecca Acc = 100%, Aceh Imp = 0%
+    // Ideal: Mecca Acc = 100%, KB Imp = 0%
     const accGap = 100 - candidate.meccaAcc;
-    const impGap = candidate.acehImp - 0;
+    const impGap = candidate.kbImp - 0;
     return Math.sqrt(accGap ** 2 + impGap ** 2);
 }
 
@@ -164,12 +164,12 @@ function findKneePoint(frontier) {
     // Normalize to [0,1]
     const maxAcc = Math.max(...frontier.map(f => f.meccaAcc));
     const minAcc = Math.min(...frontier.map(f => f.meccaAcc));
-    const maxImp = Math.max(...frontier.map(f => f.acehImp));
-    const minImp = Math.min(...frontier.map(f => f.acehImp));
+    const maxImp = Math.max(...frontier.map(f => f.kbImp));
+    const minImp = Math.min(...frontier.map(f => f.kbImp));
 
     const normalize = (f) => ({
         acc: maxAcc === minAcc ? 0.5 : (f.meccaAcc - minAcc) / (maxAcc - minAcc),
-        imp: maxImp === minImp ? 0.5 : (f.acehImp - minImp) / (maxImp - minImp)
+        imp: maxImp === minImp ? 0.5 : (f.kbImp - minImp) / (maxImp - minImp)
     });
 
     let maxCurvature = -Infinity;
@@ -203,12 +203,12 @@ function findKneePoint(frontier) {
 
 async function main() {
     console.log(`\n${'='.repeat(70)}`);
-    console.log(`MECCA VISIBILITY vs ACEH IMPOSSIBILITY EXPERIMENT`);
+    console.log(`MECCA VISIBILITY vs KUALA BELAIT IMPOSSIBILITY EXPERIMENT`);
     console.log(`Analyzing years ${startYear}-${endYear} AH`);
     console.log(`${'='.repeat(70)}\n`);
 
     const mecca = locations.mecca;
-    const aceh = locations.aceh;
+    const kb = locations.kb;
 
     console.log(`Calculating ground truths for Mecca...`);
     let meccaGT = [];
@@ -218,12 +218,12 @@ async function main() {
         }
     }
 
-    // We don't need Aceh GT for Impossibility check, we just check moon altitude.
+    // We don't need KB GT for Impossibility check, we just check moon altitude.
 
     let results = [];
 
-    console.log(`Evaluating C from -15 to 30...`);
-    for (let C = -15; C <= 30; C++) {
+    console.log(`Evaluating C from -100 to 100...`);
+    for (let C = -100; C <= 100; C++) {
         // Mecca Accuracy
         let meccaMatches = 0;
         let total = 0;
@@ -235,21 +235,21 @@ async function main() {
         }
         const meccaAcc = (meccaMatches / total) * 100;
 
-        // Aceh Impossibility
-        let acehImpossibleCount = 0;
-        let acehTotal = 0;
-        // We iterate through all months for Aceh as well (same set of tabular dates effectively)
+        // KB Impossibility
+        let kbImpossibleCount = 0;
+        let kbTotal = 0;
+        // We iterate through all months for KB as well (same set of tabular dates effectively)
         for (let y = startYear; y <= endYear; y++) {
             for (const m of months) {
                 const tabDate = hijriToGregorianTabular(y, m, 1, C);
-                const altitude = getMoonAltitudeAtSunsetOfEve(tabDate, aceh.lat, aceh.lon);
-                if (altitude < 0) acehImpossibleCount++;
-                acehTotal++;
+                const altitude = getMoonAltitudeAtSunsetOfEve(tabDate, kb.lat, kb.lon);
+                if (altitude < 0) kbImpossibleCount++;
+                kbTotal++;
             }
         }
-        const acehImp = (acehImpossibleCount / acehTotal) * 100;
+        const kbImp = (kbImpossibleCount / kbTotal) * 100;
 
-        results.push({ C, meccaAcc, acehImp });
+        results.push({ C, meccaAcc, kbImp });
     }
 
     // Find Pareto Frontier
@@ -259,9 +259,9 @@ async function main() {
         distanceToIdeal(curr) < distanceToIdeal(best) ? curr : best, results[0]);
 
     console.log(`\n${'='.repeat(70)}`);
-    console.log(`RESULTS TABLE (C, Mecca Acc, Aceh Imp)`);
+    console.log(`RESULTS TABLE (C, Mecca Acc, KB Imp)`);
     console.log(`${'='.repeat(70)}`);
-    console.log(` C | Mecca Acc | Aceh Imp | Notes`);
+    console.log(` C | Mecca Acc | KB Imp   | Notes`);
     console.log(`---|-----------|----------|------`);
 
     results.forEach(r => {
@@ -270,20 +270,20 @@ async function main() {
         if (kneePoint.C === r.C) notes.push('KNEE POINT');
         if (idealPoint.C === r.C) notes.push('IDEAL DIST');
 
-        console.log(`${r.C.toString().padStart(3)}| ${r.meccaAcc.toFixed(2)}%    | ${r.acehImp.toFixed(2)}%    | ${notes.join(', ')}`);
+        console.log(`${r.C.toString().padStart(3)}| ${r.meccaAcc.toFixed(2)}%    | ${r.kbImp.toFixed(2)}%    | ${notes.join(', ')}`);
     });
 
     console.log(`\n${'='.repeat(70)}`);
     console.log(`OPTIMAL RECOMMENDATIONS`);
     console.log(`${'='.repeat(70)}`);
 
-    console.log(`1. Knee Point (Best Trade-off):    C=${kneePoint.C} (Mecca Acc=${kneePoint.meccaAcc.toFixed(2)}%, Aceh Imp=${kneePoint.acehImp.toFixed(2)}%)`);
-    console.log(`2. Ideal Distance (Closest to 100%/0%): C=${idealPoint.C} (Mecca Acc=${idealPoint.meccaAcc.toFixed(2)}%, Aceh Imp=${idealPoint.acehImp.toFixed(2)}%)`);
+    console.log(`1. Knee Point (Best Trade-off):    C=${kneePoint.C} (Mecca Acc=${kneePoint.meccaAcc.toFixed(2)}%, KB Imp=${kneePoint.kbImp.toFixed(2)}%)`);
+    console.log(`2. Ideal Distance (Closest to 100%/0%): C=${idealPoint.C} (Mecca Acc=${idealPoint.meccaAcc.toFixed(2)}%, KB Imp=${idealPoint.kbImp.toFixed(2)}%)`);
 
-    // Additional suggestion: Min Aceh Imp < 1% with Max Mecca Acc
-    const feasible = results.filter(r => r.acehImp < 1.0).sort((a,b) => b.meccaAcc - a.meccaAcc);
+    // Additional suggestion: Min KB Imp < 1% with Max Mecca Acc
+    const feasible = results.filter(r => r.kbImp < 1.0).sort((a,b) => b.meccaAcc - a.meccaAcc);
     if (feasible.length > 0) {
-        console.log(`3. Low Impossibility (<1%):        C=${feasible[0].C} (Mecca Acc=${feasible[0].meccaAcc.toFixed(2)}%, Aceh Imp=${feasible[0].acehImp.toFixed(2)}%)`);
+        console.log(`3. Low Impossibility (<1%):        C=${feasible[0].C} (Mecca Acc=${feasible[0].meccaAcc.toFixed(2)}%, KB Imp=${feasible[0].kbImp.toFixed(2)}%)`);
     }
 
     console.log(`\n${'='.repeat(70)}`);

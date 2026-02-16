@@ -1,9 +1,9 @@
 const Astronomy = require('astronomy-engine');
 
 const locations = [
-    { name: 'Dakar', lat: 14.7167, lon: -17.529953 },
-    { name: 'Mecca', lat: 21.3891, lon: 39.984078 },
-    { name: 'Kuala Belait', lat: 4.58, lon: 114.075937 }
+    { name: 'Dakar', lat: 14.740938, lon: -17.529938 },
+    { name: 'Mecca', lat: 21.354813, lon: 39.984063 },
+    { name: 'Kuala Belait', lat: 4.587063, lon: 114.075937 }
 ];
 
 const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // All months

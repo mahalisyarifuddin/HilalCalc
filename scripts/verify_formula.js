@@ -1,6 +1,6 @@
 const locations = [
-    { name: 'Dakar', lon: -17.529953, expected: 15 },
-    { name: 'Mecca', lon: 39.984078, expected: 19 },
+    { name: 'Dakar', lon: -17.529938, expected: 15 },
+    { name: 'Mecca', lon: 39.984063, expected: 19 },
     { name: 'Kuala Belait', lon: 114.075937, expected: 24 }
 ];
 

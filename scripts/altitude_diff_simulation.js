@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const locations = {
-    Mecca: { lat: 21.3891, lon: 39.984078 },
-    KB: { lat: 4.58, lon: 114.075937 }
+    Mecca: { lat: 21.354813, lon: 39.984063 },
+    KB: { lat: 4.587063, lon: 114.075937 }
 };
 
 const startAH = 1000;

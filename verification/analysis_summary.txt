@@ -1,0 +1,19 @@
+Composite Criteria Analysis (1400-1500 AH)
+Criteria: Mecca Alt >= 3 deg AND Mecca Elong >= 6.4 deg AND KB Alt >= 0 deg.
+
+Generated Ground Truth: verification/composite_1400_1500.csv
+
+Optimization Results:
+Best Tabular Constant (C): 11
+Accuracy Rate: 66.75%
+
+Top Candidates:
+C=11: 66.75%
+C=9: 66.67%
+C=10: 66.67%
+C=12: 66.58%
+C=8: 66.34%
+
+Derived Formula:
+JD = 1948439.5 + 354(H-1) + floor((11(H-1) + 11) / 30) + ceil(29.5(M-1)) + D - 1
+(using C=11)

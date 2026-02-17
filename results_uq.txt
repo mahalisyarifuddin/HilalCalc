@@ -1,0 +1,60 @@
+
+======================================================================
+OPTIMIZE TABULAR C FOR UMM AL-QURA (1343-1500 AH)
+Comparing against official Umm al-Qura dates (from hijridate)
+======================================================================
+
+Loaded 1896 Umm al-Qura month start dates.
+Evaluating C from -100 to 100...
+
+======================================================================
+RESULTS
+======================================================================
+Best Accuracy found: 65.03%
+Lowest Impossible rate found: 0.00%
+
+PARETO FRONTIER:
+C= -9: Acc=65.03%, Imp=28.74%
+C= -8: Acc=64.77%, Imp=26.42%
+C= -7: Acc=64.35%, Imp=24.31%
+C= -5: Acc=63.34%, Imp=20.31%
+C= -4: Acc=62.39%, Imp=18.46%
+C= -3: Acc=61.97%, Imp=16.82%
+C= -2: Acc=61.66%, Imp=15.03% [IDEAL DIST]
+C= -1: Acc=60.55%, Imp=13.66%
+C=  1: Acc=59.92%, Imp=11.13% [KNEE POINT]
+C=  2: Acc=58.39%, Imp=10.07%
+C=  3: Acc=57.33%, Imp=8.86%
+C=  4: Acc=55.38%, Imp=7.75%
+C=  5: Acc=53.74%, Imp=6.80%
+C=  6: Acc=52.53%, Imp=5.96%
+C=  7: Acc=50.58%, Imp=5.27%
+C=  8: Acc=48.52%, Imp=4.59%
+C=  9: Acc=46.78%, Imp=3.96%
+C= 10: Acc=44.46%, Imp=3.38%
+C= 11: Acc=42.25%, Imp=2.85%
+C= 12: Acc=40.56%, Imp=2.48%
+C= 13: Acc=38.55%, Imp=2.06%
+C= 14: Acc=36.08%, Imp=1.69%
+C= 15: Acc=33.86%, Imp=1.32%
+C= 16: Acc=32.33%, Imp=0.95%
+C= 17: Acc=29.80%, Imp=0.69%
+C= 18: Acc=28.38%, Imp=0.47%
+C= 19: Acc=26.32%, Imp=0.26%
+C= 21: Acc=22.63%, Imp=0.11%
+C= 22: Acc=20.94%, Imp=0.05%
+C= 24: Acc=18.72%, Imp=0.00%
+
+RECOMMENDATIONS:
+1. Knee Point: C=1
+2. Ideal Distance: C=-2
+3. Lexicographic (Imp<=1%, Max Acc): C=16 (Acc=32.33%, Imp=0.95%)
+
+Top 5 by Accuracy:
+C=-9: Acc=65.03%, Imp=28.74%
+C=-10: Acc=64.77%, Imp=30.64%
+C=-8: Acc=64.77%, Imp=26.42%
+C=-7: Acc=64.35%, Imp=24.31%
+C=-11: Acc=63.50%, Imp=33.02%
+
+Check C=48 (Mecca Opt): Acc=0.32%, Imp=0.00%

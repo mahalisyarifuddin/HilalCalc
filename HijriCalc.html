@@ -990,14 +990,14 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = floor((18161.3 * Index + 1503182641.2) / 615)`;
+				const formula = `JD = floor((18161.3 * Index + 256.2) / 615) + 2444199`;
 				elements.formulaDisplay.textContent = formula;
 				elements.formulaNote.innerHTML = `<i>Linear Approximation (Composite Criteria). Index = (Year-1400)*12 + (Month-1).</i>`;
 			}
 
 			hijriToGregorianLinear(hYear, hMonth, hDay) {
 				const index = (hYear - 1400) * 12 + (hMonth - 1);
-				const jdMonthStart = Math.floor((18161.3 * index + 1503182641.2) / 615);
+				const jdMonthStart = Math.floor((18161.3 * index + 256.2) / 615) + 2444199;
 				const jd = jdMonthStart + hDay - 1 + state.hijriAdj;
 
 				let z = Math.floor(jd + 0.5);
@@ -1042,11 +1042,11 @@
 				let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524;
 				jd -= state.hijriAdj;
 
-				let index = Math.round((jd * 615 - 1503182641.2) / 18161.3);
-				let jdStart = Math.floor((18161.3 * index + 1503182641.2) / 615);
+				let index = Math.round(((jd - 2444199) * 615 - 256.2) / 18161.3);
+				let jdStart = Math.floor((18161.3 * index + 256.2) / 615) + 2444199;
 				if (jd < jdStart) {
 					index--;
-					jdStart = Math.floor((18161.3 * index + 1503182641.2) / 615);
+					jdStart = Math.floor((18161.3 * index + 256.2) / 615) + 2444199;
 				}
 				const hDay = jd - jdStart + 1;
 				const hYear = Math.floor(index / 12) + 1400;

@@ -990,19 +990,19 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = floor(29.530584908 * Index + 2444199.39) + Day - 1`;
+				const formula = `JD = floor(29.5306828885 * Index + 2444199) + Day - 1`;
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (Composite Criteria). Index = (Year-1400)*12 + (Month-1).</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation (Composite Criteria). Index = (Year-1400)*12 + Month.</i>`;
 			}
 
 			// Core Linear Logic Refactored
 			getLinearMonthStartJD(index) {
-				return Math.floor(29.530584908 * index + 2444199.39);
+				return Math.floor(29.5306828885 * index + 2444199);
 			}
 
 			getLinearIndexFromJD(jd) {
-				let index = Math.round((jd - 2444199.39) / 29.530584908);
-				let jdStart = Math.floor(29.530584908 * index + 2444199.39);
+				let index = Math.round((jd - 2444199) / 29.5306828885);
+				let jdStart = Math.floor(29.5306828885 * index + 2444199);
 				if (jd < jdStart) index--;
 				return index;
 			}
@@ -1043,7 +1043,7 @@
 			}
 
 			hijriToGregorianLinear(hYear, hMonth, hDay) {
-				const index = (hYear - 1400) * 12 + (hMonth - 1);
+				const index = (hYear - 1400) * 12 + hMonth;
 				const jd = this.getLinearMonthStartJD(index) + hDay - 1 + state.hijriAdj;
 				return this.jdToGregorianDate(jd);
 			}

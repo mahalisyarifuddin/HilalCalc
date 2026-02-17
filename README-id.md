@@ -63,7 +63,7 @@ Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Me
 **Rumus:**
 Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah adalah:
 
-`JD = floor(29.530584908 * Index + 2444199.39) + Hari - 1`
+`JD = floor(29.5306828885 * Index + 2444199) + Hari - 1`
 
 Di mana:
 -   `Index = (TahunHijriyah - 1400) * 12 + (BulanHijriyah - 1)`
@@ -71,7 +71,7 @@ Di mana:
 -   `Hari` adalah tanggal dalam bulan Hijriyah tersebut.
 
 **Akurasi:**
-Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~72,8%** untuk awal bulan terhadap *Ground Truth* astronomis selama periode 500 tahun (1400-1900 H). Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [GT_1400_1900-id.md](GT_1400_1900-id.md).
+Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69,5%** untuk awal bulan terhadap *Ground Truth* astronomis selama periode 500 tahun (1400-1900 H). Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [GT_1400_1900-id.md](GT_1400_1900-id.md).
 
 ## Privasi & Data
 Semua perhitungan astronomis terjadi secara lokal di peramban Anda menggunakan **astronomy-engine**. Tidak ada data lokasi atau metrik penggunaan yang dikirim ke server mana pun.

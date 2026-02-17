@@ -63,7 +63,7 @@ This ensures that the predicted month start satisfies the visibility criteria in
 **The Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is:
 
-`JD = floor(29.530584908 * Index + 2444199.39) + Day - 1`
+`JD = floor(29.5306828885 * Index + 2444199) + Day - 1`
 
 Where:
 -   `Index = (HijriYear - 1400) * 12 + (HijriMonth - 1)`
@@ -71,7 +71,7 @@ Where:
 -   `Day` is the day of the Hijri month.
 
 **Accuracy:**
-This simple linear formula achieves **~72.8%** exact match accuracy for month starts against the astronomical Ground Truth over the 500-year period (1400-1900 AH). For detailed documentation on the methodology and data, see [GT_1400_1900.md](GT_1400_1900.md).
+This simple linear formula achieves **~69.5%** exact match accuracy for month starts against the astronomical Ground Truth over the 500-year period (1400-1900 AH). For detailed documentation on the methodology and data, see [GT_1400_1900.md](GT_1400_1900.md).
 
 ## Privacy & Data
 All astronomical calculations happen locally in your browser using **astronomy-engine**. No location data or usage metrics are sent to any server.

@@ -508,10 +508,6 @@
 				<label id="locLabel" style="margin-bottom:0" data-i18n="locLabel"></label>
 				<button id="myLocBtn" style="width:auto; padding: .25rem .5rem; font-size:.8rem; background:transparent; color:var(--primary); border:none;" data-i18n="myLoc"></button>
 			</div>
-			<label style="margin-bottom: 0.5rem">
-				<span id="locPresetLabel" style="font-weight:normal; font-size:0.9em" data-i18n="locPresetLabel"></span>
-				<select id="locPreset"></select>
-			</label>
 			<div class="row">
 				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="latLabel"></label><input type="number" id="latInput" step="0.0001"></div>
 				<div style="flex:1"><label style="font-weight:normal; font-size:0.8em" data-i18n="lonLabel"></label><input type="number" id="lonInput" step="0.0001"></div>
@@ -521,16 +517,6 @@
 			<label id="adjLabel" data-i18n="adjLabel"></label>
 			<input type="number" id="hijriAdj" value="0" min="-2" max="2">
 			<small style="opacity: 0.6;" data-i18n="adjNote"></small>
-		</div>
-		<div class="group">
-			<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer">
-				<input type="checkbox" id="useCustomC" style="width:auto; margin:0">
-				<span id="customCLabel" data-i18n="customCLabel"></span>
-			</label>
-			<div id="customCContainer" style="margin-top:0.5rem; display:none; padding-left: 1.5rem;">
-				<label id="cValueLabel" data-i18n="cValueLabel" style="font-weight:normal; font-size:0.9em"></label>
-				<input type="number" id="cValueInput" value="47">
-			</div>
 		</div>
 		<div style="display: flex; gap: 10px; margin-top: 1rem;">
 			<button id="resetPrefBtn" class="secondary" data-i18n="reset"></button>
@@ -544,8 +530,8 @@
 				appTitle: 'MABBIMS Hijri Calendar',
 				gotoTitle: 'Go to Date',
 				today: 'Today',
-				formulaTitle: 'Heuristic Formula',
-				formulaDesc: 'Optimized Tabular algorithm (Unified).',
+				formulaTitle: 'Linear Approximation',
+				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; KB Alt≥0).',
 				prefTitle: 'Preferences',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -573,13 +559,13 @@
 				prevBtn: '← Prev',
 				nextBtn: 'Next →',
 				yearPlaceholder: 'Year',
-				offlineWarning: 'Offline Mode: Using approximate Tabular algorithm',
+				offlineWarning: 'Offline Mode: Using Linear Approximation',
 				geoNotSupported: 'Geolocation is not supported by this browser.',
 				errorLocation: 'Error getting location: ',
-				offlineSuffix: ' (Offline/Heuristic)',
+				offlineSuffix: ' (Offline/Linear)',
 				latLabel: 'Lat',
 				lonLabel: 'Lon',
-				adjNote: 'Shifts the Tabular formula.',
+				adjNote: 'Shifts the Linear formula.',
 				themeAuto: 'Auto',
 				themeLight: 'Light',
 				themeDark: 'Dark',
@@ -592,24 +578,17 @@
 				dirS: 'S',
 				dirE: 'E',
 				dirW: 'W',
-				locPresetLabel: 'Location Preset',
-				locCustom: 'Custom',
-				locAceh: 'Banda Aceh',
-				locMecca: 'Makkah',
-				locDakar: 'Dakar',
-				customCLabel: 'Custom Tabular Constant (C)',
-				cValueLabel: 'C Value',
 				calcModeLabel: 'Calculation Method',
 				calcModeAstronomic: 'Astronomical (MABBIMS)',
-				calcModeHeuristic: 'Heuristic (Tabular)',
-				heuristicSuffix: ' (Heuristic)'
+				calcModeHeuristic: 'Linear Approximation',
+				heuristicSuffix: ' (Linear)'
 			},
 			id: {
 				appTitle: 'Kalender Hijriyah MABBIMS',
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
-				formulaTitle: 'Rumus Heuristik',
-				formulaDesc: 'Algoritma Tabular yang dioptimalkan (Terpadu).',
+				formulaTitle: 'Aproksimasi Linear',
+				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; KB Alt≥0).',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -637,13 +616,13 @@
 				prevBtn: '← Sblm',
 				nextBtn: 'Lanjut →',
 				yearPlaceholder: 'Tahun',
-				offlineWarning: 'Mode Offline: Menggunakan algoritma Tabular perkiraan',
+				offlineWarning: 'Mode Offline: Menggunakan Aproksimasi Linear',
 				geoNotSupported: 'Geolokasi tidak didukung oleh browser ini.',
 				errorLocation: 'Gagal mendapatkan lokasi: ',
-				offlineSuffix: ' (Offline/Heuristik)',
+				offlineSuffix: ' (Offline/Linear)',
 				latLabel: 'Lintang',
 				lonLabel: 'Bujur',
-				adjNote: 'Menggeser rumus Tabular.',
+				adjNote: 'Menggeser rumus Linear.',
 				themeAuto: 'Otomatis',
 				themeLight: 'Terang',
 				themeDark: 'Gelap',
@@ -656,24 +635,11 @@
 				dirS: 'LS',
 				dirE: 'BT',
 				dirW: 'BB',
-				locPresetLabel: 'Pilihan Lokasi',
-				locCustom: 'Kustom',
-				locAceh: 'Banda Aceh',
-				locMecca: 'Makkah',
-				locDakar: 'Dakar',
-				customCLabel: 'Konstanta Tabular Kustom (C)',
-				cValueLabel: 'Nilai C',
 				calcModeLabel: 'Metode Perhitungan',
 				calcModeAstronomic: 'Astronomis (MABBIMS)',
-				calcModeHeuristic: 'Heuristik (Tabular)',
-				heuristicSuffix: ' (Heuristik)'
+				calcModeHeuristic: 'Aproksimasi Linear',
+				heuristicSuffix: ' (Linear)'
 			}
-		};
-
-		const locations = {
-			aceh: { lat: 6.075, lon: 95.1125 },
-			mecca: { lat: 21.354813, lon: 39.984063 },
-			dakar: { lat: 14.740938, lon: -17.529938 }
 		};
 
 		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
@@ -681,14 +647,11 @@
 		let state = {
 			lat: 6.075,
 			lon: 95.1125,
-			locPreset: 'aceh',
 			lang: navigator.language?.startsWith('id') ? 'id' : 'en',
 			theme: 'auto',
 			weekStart: 0,
 			hijriAdj: 0,
 			primaryCalendar: 'gregorian',
-			useCustomC: false,
-			customC: 42,
 			calcMode: 'astronomic'
 		};
 
@@ -724,20 +687,7 @@
 						if (parsed.weekStart !== undefined) state.weekStart = parsed.weekStart;
 						if (parsed.hijriAdj !== undefined) state.hijriAdj = parsed.hijriAdj;
 						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
-						if (parsed.useCustomC !== undefined) state.useCustomC = parsed.useCustomC;
-						if (parsed.customC !== undefined) state.customC = parsed.customC;
 						if (parsed.calcMode) state.calcMode = parsed.calcMode;
-						if (parsed.locPreset) state.locPreset = parsed.locPreset;
-						else {
-							let matched = 'custom';
-							for (const [key, loc] of Object.entries(locations)) {
-								if (Math.abs(state.lat - loc.lat) < 0.001 && Math.abs(state.lon - loc.lon) < 0.001) {
-									matched = key;
-									break;
-								}
-							}
-							state.locPreset = matched;
-						}
 					}
 				} catch (e) { console.error("Failed to load state", e); }
 			}
@@ -771,14 +721,11 @@
 				state.hijriAdj = parseInt(elements.hijriAdj.value);
 				state.primaryCalendar = elements.primaryCalendar.value;
 				state.theme = elements.theme.value;
-				state.locPreset = elements.locPreset.value;
-				state.useCustomC = elements.useCustomC.checked;
-				state.customC = parseInt(elements.cValueInput.value);
 				state.calcMode = elements.calcMode.value;
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
 					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
-					locPreset: state.locPreset, useCustomC: state.useCustomC, customC: state.customC, calcMode: state.calcMode
+					calcMode: state.calcMode
 				}));
 				this.applyTheme(state.theme);
 				this.updateLanguage(state.lang);
@@ -793,9 +740,6 @@
 				state.weekStart = 0;
 				state.hijriAdj = 0;
 				state.primaryCalendar = 'gregorian';
-				state.locPreset = 'aceh';
-				state.useCustomC = false;
-				state.customC = 42;
 				state.calcMode = this.isOffline ? 'heuristic' : 'astronomic';
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
@@ -804,10 +748,6 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
-				elements.locPreset.value = state.locPreset;
-				elements.useCustomC.checked = state.useCustomC;
-				elements.cValueInput.value = state.customC;
-				elements.customCContainer.style.display = state.useCustomC ? 'block' : 'none';
 				elements.calcMode.value = state.calcMode;
 				this.savePreferences();
 			}
@@ -816,31 +756,6 @@
 			getTimezoneOffset() { return Math.round(state.lon / 15); }
 
 			setup() {
-				const presetSelect = elements.locPreset;
-				Object.keys(locations).forEach(key => {
-					const opt = document.createElement('option');
-					opt.value = key;
-					presetSelect.appendChild(opt);
-				});
-				const customOpt = document.createElement('option');
-				customOpt.value = 'custom';
-				presetSelect.appendChild(customOpt);
-				presetSelect.value = state.locPreset;
-
-				presetSelect.addEventListener('change', () => {
-					if (presetSelect.value !== 'custom') {
-						const loc = locations[presetSelect.value];
-						elements.latInput.value = loc.lat;
-						elements.lonInput.value = loc.lon;
-					}
-				});
-
-				[elements.latInput, elements.lonInput].forEach(el => {
-					el.addEventListener('input', () => {
-						presetSelect.value = 'custom';
-					});
-				});
-
 				elements.latInput.value = state.lat;
 				elements.lonInput.value = state.lon;
 				elements.language.value = state.lang;
@@ -848,19 +763,12 @@
 				elements.hijriAdj.value = state.hijriAdj;
 				elements.primaryCalendar.value = state.primaryCalendar;
 				elements.theme.value = state.theme;
-				elements.useCustomC.checked = state.useCustomC;
-				elements.cValueInput.value = state.customC;
-				elements.customCContainer.style.display = state.useCustomC ? 'block' : 'none';
 
 				elements.calcMode.value = state.calcMode;
 				if (this.isOffline) {
 					elements.calcMode.value = 'heuristic';
 					elements.calcMode.disabled = true;
 				}
-
-				elements.useCustomC.addEventListener('change', () => {
-					elements.customCContainer.style.display = elements.useCustomC.checked ? 'block' : 'none';
-				});
 
 				this.setDateToInput(elements.gDateInput, new Date());
 				text.en.months.forEach((month, index) => {
@@ -1078,46 +986,19 @@
 					if (day) opt.textContent = day;
 				});
 
-				const presetSelect = elements.locPreset;
-				for (let opt of presetSelect.options) {
-					if (opt.value === 'custom') {
-						opt.textContent = translation.locCustom;
-					} else if (locations[opt.value]) {
-						const key = 'loc' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1);
-						opt.textContent = translation[key];
-					}
-				}
-
 				this.updateFormulaDisplay();
 			}
 
-			calculateC(lon) {
-				if (state.useCustomC) return state.customC;
-				// Derived from Obligatory Months Optimization (1000-6000 AH)
-				// Best fit for Dakar (37), Mecca (48), KB (53): C = 0.12 * Lon + 40.6
-				return Math.round(lon * 0.12 + 40.6);
-			}
-
 			updateFormulaDisplay() {
-				const C = this.calculateC(state.lon);
-				const formula = `JD = 1948440 + 354(H-1) + floor((11(H-1) + ${C}) / 30)`;
+				const formula = `JD = floor(29.530569 * Index + 2444199.4197)`;
 				elements.formulaDisplay.textContent = formula;
-				if (state.useCustomC) {
-					elements.formulaNote.innerHTML = `<i>Custom Tabular Constant (C=${C}).</i>`;
-				} else {
-					elements.formulaNote.innerHTML = `<i>Optimized Tabular (C=${C}). Derived from Longitude ${state.lon}.</i>`;
-				}
+				elements.formulaNote.innerHTML = `<i>Linear Approximation (Composite Criteria). Index = (Year-1400)*12 + (Month-1).</i>`;
 			}
 
-			hijriToGregorianTabular(hYear, hMonth, hDay) {
-				const epoch = 1948439.5 + state.hijriAdj;
-				const C = this.calculateC(state.lon);
-				const year = hYear - 1;
-				const cycle = Math.floor(year / 30);
-				const yearInCycle = year % 30;
-				const dayInCycle = yearInCycle * 354 + Math.floor((11 * yearInCycle + C) / 30);
-				const dayInYear = Math.ceil(29.5 * hMonth);
-				const jd = epoch + cycle * 10631 + dayInCycle + dayInYear + hDay - 1;
+			hijriToGregorianLinear(hYear, hMonth, hDay) {
+				const index = (hYear - 1400) * 12 + (hMonth - 1);
+				const jdMonthStart = Math.floor(29.530569 * index + 2444199.4197);
+				const jd = jdMonthStart + hDay - 1 + state.hijriAdj;
 
 				let z = Math.floor(jd + 0.5);
 				let f = jd + 0.5 - z;
@@ -1137,14 +1018,14 @@
 			}
 
 			hijriToGregorian(hYear, hMonth, hDay) {
-				if (this.isOffline || state.calcMode === 'heuristic') return this.hijriToGregorianTabular(hYear, hMonth, hDay);
+				if (this.isOffline || state.calcMode === 'heuristic') return this.hijriToGregorianLinear(hYear, hMonth, hDay);
 				const start = this.getAccurateHijriMonthStart(hYear, hMonth);
 				const gregorian = new Date(start.gDate);
 				gregorian.setDate(gregorian.getDate() + (hDay - 1));
 				return gregorian;
 			}
 
-			gregorianToHijriTabular(date) {
+			gregorianToHijriLinear(date) {
 				let day = date.getDate();
 				let month = date.getMonth();
 				let year = date.getFullYear();
@@ -1159,42 +1040,24 @@
 					if (m === 10) { b = 0; if (day > 4) b = -10; }
 				}
 				let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524;
+				jd -= state.hijriAdj;
 
-				const epoch = 1948439.5 + state.hijriAdj;
-				let jdNoon = jd - epoch;
-				let cycle = Math.floor(jdNoon / 10631);
-				let dayInCycle = jdNoon % 10631;
-
-				const C = this.calculateC(state.lon);
-				let yCycle = Math.floor(dayInCycle / 355);
-				if (yCycle > 29) yCycle = 29;
-				while (yCycle < 30) {
-					let daysNext = (yCycle + 1) * 354 + Math.floor((11 * (yCycle + 1) + C) / 30);
-					if (dayInCycle < daysNext) break;
-					yCycle++;
+				let index = Math.round((jd - 2444199.4197) / 29.530569);
+				let jdStart = Math.floor(29.530569 * index + 2444199.4197);
+				if (jd < jdStart) {
+					index--;
+					jdStart = Math.floor(29.530569 * index + 2444199.4197);
 				}
-
-				let daysInPastYears = yCycle * 354 + Math.floor((11 * yCycle + C) / 30);
-				let dayInYear = dayInCycle - daysInPastYears;
-
-				let mYear = Math.floor(dayInYear / 29.5);
-				if (mYear > 11) mYear = 11;
-				while (mYear < 12) {
-					let daysNext = Math.ceil(29.5 * (mYear + 1));
-					if (dayInYear < daysNext) break;
-					mYear++;
-				}
-
-				let daysInPastMonths = Math.ceil(29.5 * mYear);
-				let dMonth = dayInYear - daysInPastMonths + 1;
-
-				let hYear = cycle * 30 + yCycle + 1;
-				return { day: Math.floor(dMonth), month: mYear, year: hYear };
+				const hDay = jd - jdStart + 1;
+				const hYear = Math.floor(index / 12) + 1400;
+				let hMonth = (index % 12);
+				if (hMonth < 0) hMonth += 12;
+				return { day: hDay, month: hMonth, year: hYear };
 			}
 
 			gregorianToHijri(date) {
-				if (this.isOffline || state.calcMode === 'heuristic') return this.gregorianToHijriTabular(date);
-				const approx = this.gregorianToHijriTabular(date);
+				if (this.isOffline || state.calcMode === 'heuristic') return this.gregorianToHijriLinear(date);
+				const approx = this.gregorianToHijriLinear(date);
 				const startCurrent = this.getAccurateHijriMonthStart(approx.year, approx.month);
 				const dateTime = date.getTime();
 				const startTime = startCurrent.gDate.getTime();

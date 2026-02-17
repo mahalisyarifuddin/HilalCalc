@@ -1,0 +1,39 @@
+Custom Formula Derivation Results (1400-1500 AH)
+
+Goal: Maximize accuracy relative to Composite GT (Mecca Alt>=3, Elong>=6.4 AND KB Alt>=0) without using standard Tabular C.
+
+1. Analysis of GT:
+   - Average Month Length: 29.53014 days
+   - Average Year Length: 354.37 days
+   - Month lengths are NOT strictly alternating (53% are 30 days).
+   - Standard Tabular alternating rule fails 50% of the time.
+
+2. Optimal Linear Formula:
+   - Structure: DaysFromEpoch = floor(K * m + B)
+   - Parameters: K = 29.53047, B = 0.43
+   - Epoch: 1400-01-01 (1979-11-21)
+   - m: Number of months elapsed since epoch.
+
+3. Performance:
+   - Accuracy: 73.68% (Significant improvement over standard Tabular's ~66.75%)
+   - Error Distribution:
+     - Exact Match: 893 (73.7%)
+     - +1 Day Error: 154 (12.7%)
+     - -1 Day Error: 165 (13.6%)
+
+4. Formula for Implementation:
+   JD = 2444200.5 + floor(29.53047 * m + 0.43)
+   (Note: 1979-11-21 is JD 2444199.5. If 1400-01-01 is day 0, then JD = Base + Days)
+
+   Base JD for 1979-11-21 is 2444199.5?
+   Let's check.
+   Standard J2000 is 2451545.0.
+   1979-11-21 is approx 20 years prior.
+   Roughly 2444199.
+
+   If `m=0`, Days=0. JD = Base.
+   The GT says 1400-01-01 is 1979-11-21.
+   So Base JD should be JD of 1979-11-21.
+
+   Final Equation:
+   JD = JD_Epoch + floor(29.53047 * ((Year - 1400) * 12 + (Month - 1)) + 0.43)

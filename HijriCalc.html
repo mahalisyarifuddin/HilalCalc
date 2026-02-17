@@ -990,16 +990,24 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = floor(29.530569 * Index + 2444199.4197)`;
+				const formula = `JD = floor(29.5306828885 * Index + 2444199) + Day - 1`;
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (Composite Criteria). Index = (Year-1400)*12 + (Month-1).</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation (Composite Criteria). Index = (Year-1400)*12 + Month.</i>`;
 			}
 
-			hijriToGregorianLinear(hYear, hMonth, hDay) {
-				const index = (hYear - 1400) * 12 + (hMonth - 1);
-				const jdMonthStart = Math.floor(29.530569 * index + 2444199.4197);
-				const jd = jdMonthStart + hDay - 1 + state.hijriAdj;
+			// Core Linear Logic Refactored
+			getLinearMonthStartJD(index) {
+				return Math.floor(29.5306828885 * index + 2444199);
+			}
 
+			getLinearIndexFromJD(jd) {
+				let index = Math.round((jd - 2444199) / 29.5306828885);
+				let jdStart = Math.floor(29.5306828885 * index + 2444199);
+				if (jd < jdStart) index--;
+				return index;
+			}
+
+			jdToGregorianDate(jd) {
 				let z = Math.floor(jd + 0.5);
 				let f = jd + 0.5 - z;
 				let alpha = Math.floor((z - 1867216.25) / 36524.25);
@@ -1009,23 +1017,15 @@
 				let d = Math.floor(365.25 * c);
 				let e = Math.floor((b - d) / 30.6001);
 				let day = b - d - Math.floor(30.6001 * e) + f;
-				let monthResult = e - 1;
-				if (monthResult > 12) monthResult -= 12;
-				let yearResult = c - 4715;
-				if (e < 14) monthResult = e - 1; else monthResult = e - 13;
-				if (monthResult > 2) yearResult = c - 4716; else yearResult = c - 4715;
-				return new Date(yearResult, monthResult - 1, Math.floor(day));
+				let month = e - 1;
+				if (month > 12) month -= 12;
+				let year = c - 4715;
+				if (e < 14) month = e - 1; else month = e - 13;
+				if (month > 2) year = c - 4716; else year = c - 4715;
+				return new Date(year, month - 1, Math.floor(day));
 			}
 
-			hijriToGregorian(hYear, hMonth, hDay) {
-				if (this.isOffline || state.calcMode === 'heuristic') return this.hijriToGregorianLinear(hYear, hMonth, hDay);
-				const start = this.getAccurateHijriMonthStart(hYear, hMonth);
-				const gregorian = new Date(start.gDate);
-				gregorian.setDate(gregorian.getDate() + (hDay - 1));
-				return gregorian;
-			}
-
-			gregorianToHijriLinear(date) {
+			gregorianDateToJD(date) {
 				let day = date.getDate();
 				let month = date.getMonth();
 				let year = date.getFullYear();
@@ -1039,15 +1039,28 @@
 					if (m > 10) b = -10;
 					if (m === 10) { b = 0; if (day > 4) b = -10; }
 				}
-				let jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524;
-				jd -= state.hijriAdj;
+				return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524;
+			}
 
-				let index = Math.round((jd - 2444199.4197) / 29.530569);
-				let jdStart = Math.floor(29.530569 * index + 2444199.4197);
-				if (jd < jdStart) {
-					index--;
-					jdStart = Math.floor(29.530569 * index + 2444199.4197);
-				}
+			hijriToGregorianLinear(hYear, hMonth, hDay) {
+				const index = (hYear - 1400) * 12 + hMonth;
+				const jd = this.getLinearMonthStartJD(index) + hDay - 1 + state.hijriAdj;
+				return this.jdToGregorianDate(jd);
+			}
+
+			hijriToGregorian(hYear, hMonth, hDay) {
+				if (this.isOffline || state.calcMode === 'heuristic') return this.hijriToGregorianLinear(hYear, hMonth, hDay);
+				const start = this.getAccurateHijriMonthStart(hYear, hMonth);
+				const gregorian = new Date(start.gDate);
+				gregorian.setDate(gregorian.getDate() + (hDay - 1));
+				return gregorian;
+			}
+
+			gregorianToHijriLinear(date) {
+				let jd = this.gregorianDateToJD(date);
+				jd -= state.hijriAdj;
+				let index = this.getLinearIndexFromJD(jd);
+				let jdStart = this.getLinearMonthStartJD(index);
 				const hDay = jd - jdStart + 1;
 				const hYear = Math.floor(index / 12) + 1400;
 				let hMonth = (index % 12);
@@ -1109,7 +1122,7 @@
 			}
 
 			getAccurateHijriMonthStart(hYear, hMonth) {
-				if (this.isOffline || state.calcMode === 'heuristic') return { gDate: this.hijriToGregorianTabular(hYear, hMonth, 1) };
+				if (this.isOffline || state.calcMode === 'heuristic') return { gDate: this.hijriToGregorianLinear(hYear, hMonth, 1) };
 				if (!this.cache) this.loadCache();
 				const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}`;
 				if (this.cache[cacheKey]) {
@@ -1279,7 +1292,7 @@
 					const startHijri = this.gregorianToHijri(gridStartDate);
 					let hMonthIndex = startHijri.month;
 					let hYear = startHijri.year;
-					for (let index = -1; index <= 2; index++) {
+					for (let index = -1; index <= 3; index++) {
 						let month = hMonthIndex + index;
 						let year = hYear;
 						while (month > 11) { month -= 12; year++; }

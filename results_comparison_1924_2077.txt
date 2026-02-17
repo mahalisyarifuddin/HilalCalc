@@ -1,0 +1,30 @@
+
+======================================================================
+COMPREHENSIVE TABULAR HIJRI COMPARISON (1343-1500 AH / 1924-2077 CE)
+======================================================================
+
+MATCHING OFFICIAL UMM AL-QURA CALENDAR (1343-1500 AH)
+-----------------------------------------------------
+Umm al-Qura Approx   (C=1): Accuracy = 59.92%
+Kuwaiti (Standard)   (C=14): Accuracy = 36.08%
+Mecca Visibility     (C=48): Accuracy = 0.32%
+
+
+MATCHING ASTRONOMICAL VISIBILITY (MABBIMS) - 1343-1500 AH
+---------------------------------------------------------
+| Location       | Algorithm            | C  | Accuracy | Impossibility |
+|----------------|----------------------|----|----------|---------------|
+| Dakar Visibility | Umm al-Qura Approx   |  1 | 66.61%   | 6.28%        |
+| Dakar Visibility | Kuwaiti (Standard)   | 14 | 59.55%   | 0.32%        |
+| Dakar Visibility | Mecca Visibility     | 48 | 2.64%   | 0.00%        |
+|----------------|----------------------|----|----------|---------------|
+| Mecca Visibility | Umm al-Qura Approx   |  1 | 60.28%   | 11.13%        |
+| Mecca Visibility | Kuwaiti (Standard)   | 14 | 65.30%   | 1.69%        |
+| Mecca Visibility | Mecca Visibility     | 48 | 5.85%   | 0.00%        |
+|----------------|----------------------|----|----------|---------------|
+| KB Visibility  | Umm al-Qura Approx   |  1 | 49.53%   | 20.04%        |
+| KB Visibility  | Kuwaiti (Standard)   | 14 | 66.88%   | 4.11%        |
+| KB Visibility  | Mecca Visibility     | 48 | 12.71%   | 0.00%        |
+|----------------|----------------------|----|----------|---------------|
+
+Done.

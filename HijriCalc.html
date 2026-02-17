@@ -773,7 +773,7 @@
 				this.setDateToInput(elements.gDateInput, new Date());
 				text.en.months.forEach((month, index) => {
 					const option = document.createElement('option');
-					option.value = index;
+					option.value = index + 1;
 					option.textContent = month;
 					elements.hMonthInput.appendChild(option);
 				});
@@ -894,8 +894,9 @@
 
 			updateHijriInputs(date) {
 				const hijri = this.gregorianToHijri(date);
+				console.log(`updateHijriInputs: month=${hijri.month} type=${typeof hijri.month}`);
 				elements.hDayInput.value = hijri.day;
-				elements.hMonthInput.value = hijri.month;
+				elements.hMonthInput.value = String(hijri.month);
 				elements.hYearInput.value = hijri.year;
 				this.updateHijriDayLimit();
 			}
@@ -1043,7 +1044,7 @@
 			}
 
 			hijriToGregorianLinear(hYear, hMonth, hDay) {
-				const index = (hYear - 1400) * 12 + hMonth;
+				const index = (hYear - 1400) * 12 + hMonth - 1;
 				const jd = this.getLinearMonthStartJD(index) + hDay - 1 + state.hijriAdj;
 				return this.jdToGregorianDate(jd);
 			}
@@ -1065,7 +1066,7 @@
 				const hYear = Math.floor(index / 12) + 1400;
 				let hMonth = (index % 12);
 				if (hMonth < 0) hMonth += 12;
-				return { day: hDay, month: hMonth, year: hYear };
+				return { day: hDay, month: hMonth + 1, year: hYear };
 			}
 
 			gregorianToHijri(date) {
@@ -1077,14 +1078,14 @@
 				if (dateTime < startTime) {
 					let prevMonth = approx.month - 1;
 					let prevYear = approx.year;
-					if (prevMonth < 0) { prevMonth = 11; prevYear--; }
+					if (prevMonth < 1) { prevMonth = 12; prevYear--; }
 					const startPrev = this.getAccurateHijriMonthStart(prevYear, prevMonth);
 					const day = Math.round((dateTime - startPrev.gDate.getTime()) / 86400000) + 1;
 					return { day: day, month: prevMonth, year: prevYear };
 				}
 				let nextMonth = approx.month + 1;
 				let nextYear = approx.year;
-				if (nextMonth > 11) { nextMonth = 0; nextYear++; }
+				if (nextMonth > 12) { nextMonth = 1; nextYear++; }
 				const startNext = this.getAccurateHijriMonthStart(nextYear, nextMonth);
 				const nextTime = startNext.gDate.getTime();
 				if (dateTime >= nextTime) {

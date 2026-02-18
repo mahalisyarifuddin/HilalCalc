@@ -531,7 +531,7 @@
 				gotoTitle: 'Go to Date',
 				today: 'Today',
 				formulaTitle: 'Linear Approximation',
-				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; KB Alt≥0). Accuracy: 73.29% (1000-2000 AH). Optimized for Obligatory Months.',
+				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 71.91% (1000-6000 AH). Optimized for Obligatory Months.',
 				prefTitle: 'Preferences',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -588,7 +588,7 @@
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
 				formulaTitle: 'Aproksimasi Linear',
-				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; KB Alt≥0). Akurasi: 73.29% (1000-2000 H). Dioptimalkan untuk Bulan Wajib.',
+				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 71.91% (1000-6000 H). Dioptimalkan untuk Bulan Wajib.',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -990,23 +990,23 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = 2302456 + floor(29.53059072 * Index - 3.48420866) + Day - 1\nIndex = floor((JD - 2302456 + 4.48420866) / 29.53059072)`;
+				const formula = `JD = 2302456 + floor(29.5305794 * Index - 3.2913238) + Day - 1\nIndex = floor((JD - 2302456 + 4.2913238) / 29.5305794)`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (1000-2000 AH). Index = (Year-1000)*12 + Month - 1. Epoch 1000 AH = 2302456.</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation (1000-6000 AH). Index = (Year-1000)*12 + Month - 1. Epoch 1000 AH = 2302456.</i>`;
 			}
 
 			// Core Linear Logic Refactored
 			getLinearMonthStartJD(Index) {
-				// Intercept at 1000 AH (Index 0) is 2302456 + floor(-3.4842) = 2302452.
-				// Phase shift -3.4842 maximizes accuracy (73.29% for obligatory months 1000-2000 AH).
-				return 2302456 + Math.floor(29.53059072 * Index - 3.48420866);
+				// Intercept at 1000 AH (Index 0) is 2302456 + floor(-3.2913238) = 2302452.
+				// Phase shift -3.2913238 maximizes accuracy (71.91% for obligatory months 1000-6000 AH).
+				return 2302456 + Math.floor(29.5305794 * Index - 3.2913238);
 			}
 
 			getLinearIndexFromJD(JD) {
-				// Derived from 1000-2000 AH analysis.
-				// Inverse offset = 1.0 - (-3.48420866) = 4.48420866.
-				return Math.floor((JD - 2302456 + 4.48420866) / 29.53059072);
+				// Derived from 1000-6000 AH analysis.
+				// Inverse offset = 1.0 - (-3.2913238) = 4.2913238.
+				return Math.floor((JD - 2302456 + 4.2913238) / 29.5305794);
 			}
 
 			jdToGregorianDate(jd) {

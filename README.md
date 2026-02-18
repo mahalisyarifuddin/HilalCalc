@@ -31,7 +31,7 @@ A robust calendar tool that adapts its calculations to your specific location.
 
 **Key Features:**
 -   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical moon sighting simulation.
--   **Linear Approximation**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates, optimized for the Composite Criteria (Mecca + Kuala Belait).
+-   **Linear Approximation**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates, optimized for the Composite Criteria (Mecca + Viwa Island).
 -   **Navigation**: Jump to any Gregorian or Hijri date to see the corresponding calendar arrangement.
 -   **Preferences**: Customize Language, Theme, Week Start Day, Location, and Primary Calendar.
 
@@ -50,20 +50,20 @@ The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Ind
 -   Calculation Point: Sunset.
 
 ### Linear Approximation (HijriCalc)
-For quick navigation and approximation, `HijriCalc` uses a **Linear Formula** derived from a rigorous composite analysis for years **1000-2000 AH**.
+For quick navigation and approximation, `HijriCalc` uses a **Linear Formula** derived from a rigorous composite analysis for years **1000-6000 AH**.
 
 **Composite Criteria:**
 The ground truth data was generated using a strict composite rule:
 -   **Mecca**: Altitude ≥ 3° AND Elongation ≥ 6.4°
 -   **AND**
--   **Kuala Belait (KB)**: Altitude ≥ 0°
+-   **Viwa Island (Fiji)**: Altitude ≥ 0°
 
-This ensures that the predicted month start satisfies the visibility criteria in Mecca while ensuring the moon is physically above the horizon in East Asia (KB).
+This ensures that the predicted month start satisfies the visibility criteria in Mecca while ensuring the moon is physically above the horizon in the easternmost Pacific (Viwa).
 
 **The Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is:
 
-`JD = 2302456 + floor(29.53059072 * Index - 3.48420866) + Day - 1`
+`JD = 2302456 + floor(29.5305794 * Index - 3.2913238) + Day - 1`
 
 Where:
 -   `Index = (HijriYear - 1000) * 12 + (HijriMonth - 1)`
@@ -71,7 +71,7 @@ Where:
 -   `Day` is the day of the Hijri month.
 
 **Accuracy:**
-This simple linear formula achieves **~72.85%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1000-2000 AH period, with an optimized accuracy of **~73.29%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
+This simple linear formula achieves **~71.86%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1000-6000 AH period, with an optimized accuracy of **~71.91%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
 
 ## Privacy & Data
 All astronomical calculations happen locally in your browser using **astronomy-engine**. No location data or usage metrics are sent to any server.

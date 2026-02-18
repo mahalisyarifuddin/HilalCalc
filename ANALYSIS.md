@@ -1,4 +1,4 @@
-# Hijri Calendar Analysis (1000-2000 AH)
+# Hijri Calendar Analysis (1000-6000 AH)
 
 ## Generation Criteria
 The Ground Truth (GT) data for Hijri months was generated using the following composite criteria:
@@ -7,25 +7,25 @@ The Ground Truth (GT) data for Hijri months was generated using the following co
 - **Condition**: Both sets of criteria must be met for the new month to begin the next day. Otherwise, the month has 30 days.
 - **Base Date**: Muharram 1400 AH corresponds to JD 2444199. Muharram 1000 AH corresponds to JD 2302456.
 
-## Linear Formula Approximation (1000-2000 AH)
-A linear formula was derived based on the **1000-2000 AH** range (12000 months) to optimize accuracy for this period, using a fixed integer epoch for 1 Muharram 1000 AH.
+## Linear Formula Approximation (1000-6000 AH)
+A linear formula was derived based on the **1000-6000 AH** range (60000 months) to optimize accuracy for this period, using a fixed integer epoch for 1 Muharram 1000 AH.
 
 ```
-JD = 2302456 + floor(29.53059072 * Index - 3.48420866) + Day - 1
-Index = floor((JD - 2302456 + 4.48420866) / 29.53059072)
+JD = 2302456 + floor(29.53057944 * Index - 3.32280866) + Day - 1
+Index = floor((JD - 2302456 + 4.32280866) / 29.53057944)
 ```
 
 Where:
 - `Index = (Year - 1000) * 12 + (Month - 1)`
 - `Month` is 1-based (1=Muharram, ..., 12=Dhu al-Hijjah).
 - `Day` is the day of the Hijri month.
-- `Slope` = 29.53059072
+- `Slope` = 29.53057944181403
 - `Epoch (Integer)` = 2302456
-- `Phase Shift` = -3.48420866 (to maximize accuracy for obligatory months)
-- `Inverse Offset` = 4.48420866 (1.0 - Phase Shift, for round-trip consistency)
+- `Phase Shift` = -3.3228086554445326 (to maximize accuracy for obligatory months)
+- `Inverse Offset` = 4.322808655444533 (1.0 - Phase Shift, for round-trip consistency)
 
 ## Accuracy
-- **Range**: 1000 AH to 2000 AH (12000 months).
-- **Exact Matches (Month Starts)**: 8751 (72.85%).
-- **Obligatory Months Accuracy**: ~73.29% (Ramadan, Shawwal, Dhu al-Hijjah).
-- **Comparison**: This formula uses an optimized slope and phase shift relative to the Epoch (2302456) to prioritize accuracy for obligatory months over a 1000-year span (1000-2000 AH).
+- **Range**: 1000 AH to 6000 AH (60000 months).
+- **Exact Matches (Month Starts)**: 43501 (72.50%).
+- **Obligatory Months Accuracy**: ~72.64% (Ramadan, Shawwal, Dhu al-Hijjah).
+- **Comparison**: This formula uses an optimized slope and phase shift relative to the Epoch (2302456) to prioritize accuracy for obligatory months over a 5000-year span (1000-6000 AH).

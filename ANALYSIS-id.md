@@ -11,20 +11,20 @@ Data Ground Truth (GT) untuk bulan Hijriyah dari tahun 1400 H hingga 1900 H diha
 Formula linear telah diturunkan berdasarkan rentang **1400-1500 H** (1200 bulan) untuk mengoptimalkan akurasi pada periode ini, menggunakan epoch bilangan bulat tetap untuk 1 Muharram 1400 H.
 
 ```
-JD = 2444199 + floor(29.5305879136 * Index + 0.3733791285) + Hari - 1
-Index = floor((JD - 2444199 + 0.6266208715) / 29.5305879136)
+JD = 2444199 + floor(29.5305019136 * Index + 0.4293635088) + Hari - 1
+Index = floor((JD - 2444199 + 0.5706364912) / 29.5305019136)
 ```
 
 Dimana:
 - `Index = (Tahun - 1400) * 12 + (Bulan - 1)`
 - `Bulan` dimulai dari 1 (1=Muharram, ..., 12=Dzulhijjah).
 - `Hari` adalah tanggal bulan Hijriyah.
-- `Slope (Kemiringan)` = 29.5305879136
+- `Slope (Kemiringan)` = 29.5305019136
 - `Epoch (Bilangan Bulat)` = 2444199
-- `Phase Shift (Pergeseran Fase)` = 0.3733791285 (untuk memaksimalkan akurasi floor)
-- `Inverse Offset` = 0.6266208715 (1.0 - Phase Shift, untuk konsistensi bolak-balik)
+- `Phase Shift (Pergeseran Fase)` = 0.4293635088 (untuk memaksimalkan akurasi floor)
+- `Inverse Offset` = 0.5706364912 (1.0 - Phase Shift, untuk konsistensi bolak-balik)
 
 ## Akurasi
 - **Rentang**: 1400 H hingga 1500 H (1200 bulan).
-- **Kecocokan Tepat (Awal Bulan)**: 877 (73.08%).
+- **Kecocokan Tepat (Awal Bulan)**: 879 (73.25%).
 - **Perbandingan**: Formula ini menggunakan kemiringan dan pergeseran fase yang dioptimalkan relatif terhadap Epoch standar (2444199) untuk mencapai akurasi setinggi mungkin (~73%) bagi aproksimasi linear terhadap kriteria komposit MABBIMS yang tidak beraturan.

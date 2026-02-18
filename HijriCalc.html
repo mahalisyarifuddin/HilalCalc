@@ -894,7 +894,6 @@
 
 			updateHijriInputs(date) {
 				const hijri = this.gregorianToHijri(date);
-				console.log(`updateHijriInputs: month=${hijri.month} type=${typeof hijri.month}`);
 				elements.hDayInput.value = hijri.day;
 				elements.hMonthInput.value = String(hijri.month);
 				elements.hYearInput.value = hijri.year;

@@ -1103,24 +1103,36 @@
 				baseUTC.setHours(12 - utcOffset);
 				const date = Astronomy.MakeTime(baseUTC);
 				const observer = new Astronomy.Observer(state.lat, state.lon, 0);
+				return this.checkLocationVisibility(date, observer, 3.0, 6.4, knownNewMoonUT);
+			}
+
+			checkVisibility(dateObj, knownNewMoonUT) {
+				// dateObj is expected to be a Date object centered roughly on the check day (e.g. noon UTC).
+				const date = Astronomy.MakeTime(dateObj);
+				const observer = new Astronomy.Observer(state.lat, state.lon, 0);
+
+				// Search for sunset on the given date (limit search window to +/- 1 day to be safe, but start at dateObj)
 				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, date.ut, 1);
 				if (!sunset) return false;
 				const sunsetUT = sunset.ut;
+
+				let newMoonUT = knownNewMoonUT;
+				if (newMoonUT === undefined || newMoonUT === null) {
+					const bestNewMoon = Astronomy.SearchMoonPhase(0, date.ut, -35);
+					if (!bestNewMoon) return false;
+					newMoonUT = bestNewMoon.ut;
+				}
+
+				const age = sunsetUT - newMoonUT;
+				if (age < 0) return false;
+
 				const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
 				const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
 				const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
 				const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
-				let newMoonUT = knownNewMoonUT;
-				if (newMoonUT === undefined || newMoonUT === null) {
-					const searchCenter = Astronomy.MakeTime(dateObj);
-					const bestNewMoon = Astronomy.SearchMoonPhase(0, searchCenter.ut, -35);
-					if (!bestNewMoon) return false;
-					newMoonUT = bestNewMoon.ut;
-				}
-				const age = sunsetUT - newMoonUT;
-				if (age < 0) return false;
-				const altitude = moonHor.altitude;
-				return (altitude >= 3.0 && elongation >= 6.4);
+
+				// MABBIMS Criteria: Altitude >= 3 deg, Elongation >= 6.4 deg, Age > 0 (implied)
+				return (moonHor.altitude >= 3.0 && elongation >= 6.4);
 			}
 
 			getAccurateHijriMonthStart(hYear, hMonth) {
@@ -1138,14 +1150,37 @@
 				const timeStart = Astronomy.MakeTime(searchStart);
 				let bestNewMoon = Astronomy.SearchMoonPhase(0, timeStart.ut, 10);
 				if (!bestNewMoon || Math.abs(bestNewMoon.date - approxDate) > 4 * 86400000) return { gDate: approxDate };
-				const newMoonDate = bestNewMoon.date;
-				const utcOffset = this.getTimezoneOffset();
-				newMoonDate.setMinutes(newMoonDate.getMinutes() + utcOffset * 60);
-				let checkDate = new Date(newMoonDate.getFullYear(), newMoonDate.getMonth(), newMoonDate.getDate());
-				let isVisible = this.checkVisibility(checkDate, bestNewMoon.ut);
-				const startDate = new Date(checkDate);
-				startDate.setDate(checkDate.getDate() + (isVisible ? 1 : 2));
-				const result = { gDate: startDate };
+				const newMoonDate = bestNewMoon.date; // This is a Date object in UTC
+
+				// Determine "Local Day of Conjunction" using UTC math
+				// Avoid system timezone dependency by calculating offset manually
+				const utcOffset = this.getTimezoneOffset(); // Hours
+
+				// Shift New Moon to Local Time (UTC+Offset) to find the local date
+				const localNMTime = newMoonDate.getTime() + (utcOffset * 3600000);
+				const localNMDate = new Date(localNMTime);
+
+				// Extract YMD components relative to UTC (which is now effectively Local Time)
+				const y = localNMDate.getUTCFullYear();
+				const m = localNMDate.getUTCMonth();
+				const d = localNMDate.getUTCDate();
+
+				// Create a Date object representing "Noon on Local Day of Conjunction" in UTC
+				// Noon at Longitude X corresponds to (12 - Offset) UTC
+				// We use this as the search center for sunset.
+				const searchCenterUTC = new Date(Date.UTC(y, m, d, 12 - utcOffset, 0, 0));
+
+				let isVisible = this.checkVisibility(searchCenterUTC, bestNewMoon.ut);
+
+				// Result date is 1st of Hijri Month
+				// If visible on Day D -> 1st is D + 1
+				// If not visible on Day D -> 1st is D + 2
+				const startDay = d + (isVisible ? 1 : 2);
+
+				// Construct the result Date object using Local System Timezone for UI compatibility
+				// (The app uses new Date(y, m, d) which creates local midnight)
+				const result = { gDate: new Date(y, m, startDay) };
+
 				this.cache[cacheKey] = result;
 				this.scheduleSaveCache();
 				return result;

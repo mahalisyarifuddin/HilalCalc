@@ -31,7 +31,7 @@ Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik 
 
 **Fitur Utama:**
 -   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal astronomis.
--   **Aproksimasi Linear**: Menggunakan rumus linear yang sangat akurat untuk konversi antara tanggal Hijriyah dan Masehi, dioptimalkan untuk Kriteria Komposit (Mekkah + Kuala Belait).
+-   **Aproksimasi Linear**: Menggunakan rumus linear yang sangat akurat untuk konversi antara tanggal Hijriyah dan Masehi, dioptimalkan untuk Kriteria Komposit (Mekkah + Pulau Viwa).
 -   **Navigasi**: Lompat ke tanggal Masehi atau Hijriyah mana pun untuk melihat susunan kalender yang sesuai.
 -   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, dan Kalender Utama.
 
@@ -50,20 +50,20 @@ Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei, Da
 -   Titik Perhitungan: Matahari Terbenam (Sunset).
 
 ### Aproksimasi Linear (HijriCalc)
-Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan **Rumus Linear** yang berasal dari analisis komposit yang ketat untuk tahun **1000-2000 H**.
+Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan **Rumus Linear** yang berasal dari analisis komposit yang ketat untuk tahun **1000-6000 H**.
 
 **Kriteria Komposit:**
 Data *ground truth* dihasilkan menggunakan aturan komposit yang ketat:
 -   **Mekkah**: Tinggi ≥ 3° DAN Elongasi ≥ 6,4°
 -   **DAN**
--   **Kuala Belait (KB)**: Tinggi ≥ 0°
+-   **Pulau Viwa (Fiji)**: Tinggi ≥ 0°
 
-Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Mekkah sambil memastikan bulan secara fisik berada di atas ufuk di Asia Timur (KB).
+Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Mekkah sambil memastikan bulan secara fisik berada di atas ufuk di Pasifik paling timur (Viwa).
 
 **Rumus:**
 Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah adalah:
 
-`JD = 2302456 + floor(29.53059072 * Index - 3.48420866) + Hari - 1`
+`JD = 2302456 + floor(29.5305794 * Index - 3.2913238) + Hari - 1`
 
 Di mana:
 -   `Index = (TahunHijriyah - 1000) * 12 + (BulanHijriyah - 1)`
@@ -71,7 +71,7 @@ Di mana:
 -   `Hari` adalah tanggal dalam bulan Hijriyah tersebut.
 
 **Akurasi:**
-Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~72.85%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1000-2000 H, dengan akurasi yang dioptimalkan sekitar **~73.29%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah). Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
+Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~71.86%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1000-6000 H, dengan akurasi yang dioptimalkan sekitar **~71.91%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah). Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
 
 ## Privasi & Data
 Semua perhitungan astronomis terjadi secara lokal di peramban Anda menggunakan **astronomy-engine**. Tidak ada data lokasi atau metrik penggunaan yang dikirim ke server mana pun.

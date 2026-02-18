@@ -1131,7 +1131,7 @@
 					if (typeof this.cache[cacheKey].gDate === 'string') this.cache[cacheKey].gDate = new Date(this.cache[cacheKey].gDate);
 					return this.cache[cacheKey];
 				}
-				const daysSinceAnchor = ((hYear - 1445) * 354.367) + (hMonth * 29.53);
+				const daysSinceAnchor = ((hYear - 1445) * 354.367) + ((hMonth - 1) * 29.53);
 				const anchorDate = new Date("2023-07-19T12:00:00Z");
 				const approxDate = new Date(anchorDate.getTime() + daysSinceAnchor * 86400000);
 				const searchStart = new Date(approxDate.getTime() - 5 * 86400000);

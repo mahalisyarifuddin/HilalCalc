@@ -990,21 +990,20 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = floor(29.5306828885 * Index + 2444199) + Day - 1`;
+				const formula = `JD = floor(29.5306828885 * HD + 2444199) + Day - 1\nHD = floor((JD - 2444198) / 29.5306828885)`;
+				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (Composite Criteria). Index = (Year-1400)*12 + Month.</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation. HD = Hijri Month Index = (Year-1400)*12 + Month - 1.</i>`;
 			}
 
 			// Core Linear Logic Refactored
-			getLinearMonthStartJD(index) {
-				return Math.floor(29.5306828885 * index + 2444199);
+			getLinearMonthStartJD(HD) {
+				return Math.floor(29.5306828885 * HD + 2444199);
 			}
 
-			getLinearIndexFromJD(jd) {
-				let index = Math.round((jd - 2444199) / 29.5306828885);
-				let jdStart = Math.floor(29.5306828885 * index + 2444199);
-				if (jd < jdStart) index--;
-				return index;
+			getLinearIndexFromJD(JD) {
+				// Offset 2444198.00004 handles both positive and negative indices (Pre-1400 AH)
+				return Math.floor((JD - 2444198.00004) / 29.5306828885);
 			}
 
 			jdToGregorianDate(jd) {
@@ -1043,9 +1042,9 @@
 			}
 
 			hijriToGregorianLinear(hYear, hMonth, hDay) {
-				const index = (hYear - 1400) * 12 + hMonth - 1;
-				const jd = this.getLinearMonthStartJD(index) + hDay - 1 + state.hijriAdj;
-				return this.jdToGregorianDate(jd);
+				const HD = (hYear - 1400) * 12 + hMonth - 1;
+				const JD = this.getLinearMonthStartJD(HD) + hDay - 1 + state.hijriAdj;
+				return this.jdToGregorianDate(JD);
 			}
 
 			hijriToGregorian(hYear, hMonth, hDay) {
@@ -1057,13 +1056,13 @@
 			}
 
 			gregorianToHijriLinear(date) {
-				let jd = this.gregorianDateToJD(date);
-				jd -= state.hijriAdj;
-				let index = this.getLinearIndexFromJD(jd);
-				let jdStart = this.getLinearMonthStartJD(index);
-				const hDay = jd - jdStart + 1;
-				const hYear = Math.floor(index / 12) + 1400;
-				let hMonth = (index % 12);
+				let JD = this.gregorianDateToJD(date);
+				JD -= state.hijriAdj;
+				let HD = this.getLinearIndexFromJD(JD);
+				let jdStart = this.getLinearMonthStartJD(HD);
+				const hDay = JD - jdStart + 1;
+				const hYear = Math.floor(HD / 12) + 1400;
+				let hMonth = (HD % 12);
 				if (hMonth < 0) hMonth += 12;
 				return { day: hDay, month: hMonth + 1, year: hYear };
 			}

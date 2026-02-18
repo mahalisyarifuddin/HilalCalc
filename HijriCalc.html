@@ -990,20 +990,21 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = floor(29.528822552 * (Index + 4800) + 2302467) + Day - 1\nIndex = floor((JD - 2302467 + 1) / 29.528822552) - 4800`;
+				const formula = `JD = floor(29.5304260828 * Index + 2444199) + Day - 1\nIndex = floor((JD - 2444199 + 1.0) / 29.5304260828)`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (1000-2000 AH). Index = (Year-1400)*12 + Month - 1. Intercept at 1000 AH.</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation (1400-1500 AH). Index = (Year-1400)*12 + Month - 1. Intercept at 1400 AH.</i>`;
 			}
 
 			// Core Linear Logic Refactored
 			getLinearMonthStartJD(Index) {
-				return Math.floor(29.528822552 * (Index + 4800) + 2302467);
+				// Intercept at 1400 AH (Index 0). c = 2444199.
+				return Math.floor(29.5304260828 * Index + 2444199);
 			}
 
 			getLinearIndexFromJD(JD) {
-				// Derived from 1000-2000 AH analysis. Intercept at 1000 AH (JD 2302467).
-				return Math.floor((JD - 2302467 + 1) / 29.528822552) - 4800;
+				// Derived from 1400-1500 AH analysis. Intercept at 1400 AH (JD 2444199).
+				return Math.floor((JD - 2444199 + 1.0) / 29.5304260828);
 			}
 
 			jdToGregorianDate(jd) {

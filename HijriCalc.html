@@ -1215,7 +1215,7 @@
 						if (date < context.startGDate) {
 							let prevMonth = context.hMonth - 1;
 							let prevYear = context.hYear;
-							if (prevMonth < 0) { prevMonth += 12; prevYear--; }
+							if (prevMonth < 1) { prevMonth += 12; prevYear--; }
 							const prevStart = this.getAccurateHijriMonthStart(prevYear, prevMonth);
 							let prevLength = Math.round((context.startGDate - prevStart.gDate) / 86400000);
 							if (prevLength < 29 || prevLength > 30) prevLength = 30;

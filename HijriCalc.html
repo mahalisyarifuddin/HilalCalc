@@ -990,20 +990,20 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = floor(29.5306828885 * HD + 2444199) + Day - 1\nHD = floor((JD - 2444198) / 29.5306828885)`;
+				const formula = `JD = floor(29.5306828885 * Index + 2444199) + Day - 1\nIndex = floor((JD - 2444199 + 0.99996) / 29.5306828885)`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation. HD = Hijri Month Index = (Year-1400)*12 + Month - 1.</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation. Index = (Year-1400)*12 + Month - 1.</i>`;
 			}
 
 			// Core Linear Logic Refactored
-			getLinearMonthStartJD(HD) {
-				return Math.floor(29.5306828885 * HD + 2444199);
+			getLinearMonthStartJD(Index) {
+				return Math.floor(29.5306828885 * Index + 2444199);
 			}
 
 			getLinearIndexFromJD(JD) {
-				// Offset 2444198.00004 handles both positive and negative indices (Pre-1400 AH)
-				return Math.floor((JD - 2444198.00004) / 29.5306828885);
+				// 0.99996 ensures correctness for negative indices (e.g. 1300 AH)
+				return Math.floor((JD - 2444199 + 0.99996) / 29.5306828885);
 			}
 
 			jdToGregorianDate(jd) {
@@ -1042,8 +1042,8 @@
 			}
 
 			hijriToGregorianLinear(hYear, hMonth, hDay) {
-				const HD = (hYear - 1400) * 12 + hMonth - 1;
-				const JD = this.getLinearMonthStartJD(HD) + hDay - 1 + state.hijriAdj;
+				const Index = (hYear - 1400) * 12 + hMonth - 1;
+				const JD = this.getLinearMonthStartJD(Index) + hDay - 1 + state.hijriAdj;
 				return this.jdToGregorianDate(JD);
 			}
 
@@ -1058,11 +1058,11 @@
 			gregorianToHijriLinear(date) {
 				let JD = this.gregorianDateToJD(date);
 				JD -= state.hijriAdj;
-				let HD = this.getLinearIndexFromJD(JD);
-				let jdStart = this.getLinearMonthStartJD(HD);
+				let Index = this.getLinearIndexFromJD(JD);
+				let jdStart = this.getLinearMonthStartJD(Index);
 				const hDay = JD - jdStart + 1;
-				const hYear = Math.floor(HD / 12) + 1400;
-				let hMonth = (HD % 12);
+				const hYear = Math.floor(Index / 12) + 1400;
+				let hMonth = (Index % 12);
 				if (hMonth < 0) hMonth += 12;
 				return { day: hDay, month: hMonth + 1, year: hYear };
 			}

@@ -531,7 +531,7 @@
 				gotoTitle: 'Go to Date',
 				today: 'Today',
 				formulaTitle: 'Linear Approximation',
-				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; KB Alt≥0).',
+				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; KB Alt≥0). Accuracy: 73.25% (1400-1500 AH).',
 				prefTitle: 'Preferences',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -588,7 +588,7 @@
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
 				formulaTitle: 'Aproksimasi Linear',
-				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; KB Alt≥0).',
+				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; KB Alt≥0). Akurasi: 73.25% (1400-1500 H).',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -990,20 +990,23 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = floor(29.531088083 * (Index + 4800) + 2302464) + Day - 1\nIndex = floor((JD - 2302464 + 0.9987) / 29.531088083) - 4800`;
+				const formula = `JD = 2444199 + floor(29.5305019136 * Index + 0.4293635088) + Day - 1\nIndex = floor((JD - 2444199 + 0.5706364912) / 29.5305019136)`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (1000-2000 AH). Index = (Year-1400)*12 + Month - 1. Intercept at 1000 AH.</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation (1400-1500 AH). Index = (Year-1400)*12 + Month - 1. Epoch 1400 AH = 2444199.</i>`;
 			}
 
 			// Core Linear Logic Refactored
 			getLinearMonthStartJD(Index) {
-				return Math.floor(29.531088083 * (Index + 4800) + 2302464);
+				// Intercept at 1400 AH (Index 0) is 2444199 + floor(0.42...) = 2444199.
+				// Phase shift 0.4293635088 maximizes accuracy (73.25%).
+				return 2444199 + Math.floor(29.5305019136 * Index + 0.4293635088);
 			}
 
 			getLinearIndexFromJD(JD) {
-				// Derived from 1000-2000 AH analysis. Intercept at 1000 AH (JD 2302464).
-				return Math.floor((JD - 2302464 + 0.9987) / 29.531088083) - 4800;
+				// Derived from 1400-1500 AH analysis.
+				// Inverse offset = 1.0 - 0.4293635088 = 0.5706364912.
+				return Math.floor((JD - 2444199 + 0.5706364912) / 29.5305019136);
 			}
 
 			jdToGregorianDate(jd) {

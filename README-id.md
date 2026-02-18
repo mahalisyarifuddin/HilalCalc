@@ -50,7 +50,7 @@ Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei, Da
 -   Titik Perhitungan: Matahari Terbenam (Sunset).
 
 ### Aproksimasi Linear (HijriCalc)
-Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan **Rumus Linear** yang berasal dari analisis komposit yang ketat untuk tahun **1400-1900 H**.
+Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan **Rumus Linear** yang berasal dari analisis komposit yang ketat untuk tahun **1400-1500 H**.
 
 **Kriteria Komposit:**
 Data *ground truth* dihasilkan menggunakan aturan komposit yang ketat:
@@ -63,7 +63,7 @@ Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Me
 **Rumus:**
 Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah adalah:
 
-`JD = floor(29.5306828885 * Index + 2444199) + Hari - 1`
+`JD = 2444199 + floor(29.5305019136 * Index + 0.4293635088) + Hari - 1`
 
 Di mana:
 -   `Index = (TahunHijriyah - 1400) * 12 + (BulanHijriyah - 1)`
@@ -71,7 +71,7 @@ Di mana:
 -   `Hari` adalah tanggal dalam bulan Hijriyah tersebut.
 
 **Akurasi:**
-Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69,5%** untuk awal bulan terhadap *Ground Truth* astronomis selama periode 500 tahun (1400-1900 H). Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
+Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~73.25%** untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1400-1500 H. Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
 
 ## Privasi & Data
 Semua perhitungan astronomis terjadi secara lokal di peramban Anda menggunakan **astronomy-engine**. Tidak ada data lokasi atau metrik penggunaan yang dikirim ke server mana pun.

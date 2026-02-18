@@ -50,7 +50,7 @@ The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Ind
 -   Calculation Point: Sunset.
 
 ### Linear Approximation (HijriCalc)
-For quick navigation and approximation, `HijriCalc` uses a **Linear Formula** derived from a rigorous composite analysis for years **1400-1500 AH**.
+For quick navigation and approximation, `HijriCalc` uses a **Linear Formula** derived from a rigorous composite analysis for years **1000-2000 AH**.
 
 **Composite Criteria:**
 The ground truth data was generated using a strict composite rule:
@@ -63,15 +63,15 @@ This ensures that the predicted month start satisfies the visibility criteria in
 **The Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is:
 
-`JD = 2444199 + floor(29.530497 * Index + 0.4325) + Day - 1`
+`JD = 2302456 + floor(29.53059072 * Index - 3.48420866) + Day - 1`
 
 Where:
--   `Index = (HijriYear - 1400) * 12 + (HijriMonth - 1)`
+-   `Index = (HijriYear - 1000) * 12 + (HijriMonth - 1)`
 -   `HijriMonth` is 1-based (1=Muharram, ..., 12=Dhu al-Hijjah).
 -   `Day` is the day of the Hijri month.
 
 **Accuracy:**
-This simple linear formula achieves **~73.27%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1400-1500 AH period, with an optimized accuracy of **~75.25%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
+This simple linear formula achieves **~72.85%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1000-2000 AH period, with an optimized accuracy of **~73.29%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
 
 ## Privacy & Data
 All astronomical calculations happen locally in your browser using **astronomy-engine**. No location data or usage metrics are sent to any server.

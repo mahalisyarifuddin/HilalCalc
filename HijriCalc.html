@@ -658,7 +658,7 @@
 		class HijriCalc {
 			constructor() {
 				this.isOffline = (typeof Astronomy === 'undefined');
-				this.cacheVersion = 1;
+				this.cacheVersion = 2; // Bumped to invalidate old/incorrect calculations
 				this.loadState();
 				state.viewDate = new Date();
 				this.setup();

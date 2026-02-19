@@ -50,7 +50,7 @@ The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Ind
 -   Calculation Point: Sunset.
 
 ### Linear Approximation (HijriCalc)
-For quick navigation and approximation, `HijriCalc` uses a **Linear Formula** derived from a rigorous composite analysis for years **1000-11000 AH**.
+For quick navigation and approximation, `HijriCalc` uses a **Linear Formula** derived from a rigorous composite analysis for years **1-10000 AH**.
 
 **Composite Criteria:**
 The ground truth data was generated using a strict composite rule:
@@ -63,15 +63,15 @@ This ensures that the predicted month start satisfies the visibility criteria in
 **The Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is:
 
-`JD = 2302456 + floor(29.5305702429 * Index - 3.0970000000) + Day - 1`
+`JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Day - 1`
 
 Where:
--   `Index = (HijriYear - 1000) * 12 + (HijriMonth - 1)`
+-   `Index = (HijriYear - 1) * 12 + (HijriMonth - 1)`
 -   `HijriMonth` is 1-based (1=Muharram, ..., 12=Dhu al-Hijjah).
 -   `Day` is the day of the Hijri month.
 
 **Accuracy:**
-This simple linear formula achieves **~69.27%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1000-11000 AH period, with an optimized accuracy of **~69.34%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). The constants were derived using a Knee Point Analysis to ensure optimal floating-point precision. For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
+This simple linear formula achieves **~69.02%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1-10000 AH period, with an optimized accuracy of **~69.01%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). The constants were derived using a Knee Point Analysis to ensure optimal floating-point precision. For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
 
 ## Privacy & Data
 All astronomical calculations happen locally in your browser using **astronomy-engine**. No location data or usage metrics are sent to any server.

@@ -17,134 +17,88 @@ def optimize():
     print(f"Loaded {count} records.")
 
     oblig_indices = {8, 9, 11}
-
-    start_jd = data[0][1]
-    end_jd = data[-1][1]
-    # Accurate Average Slope
-    avg_slope = (end_jd - start_jd) / (count - 1)
-    print(f"Average Slope: {avg_slope}")
-
-    # Cache indices for speed
     indices = [d[0] for d in data]
     jds = [d[1] for d in data]
     is_oblig = [(i % 12) in oblig_indices for i in indices]
 
-    # Pre-calculate counts
-    total_oblig_count = sum(is_oblig)
+    # Base estimates
+    base_slope = 29.530570243
+    base_phase = -3.097
+    epoch = 2302456
 
-    def get_score(slope, intercept):
+    def get_score(slope, phase):
+        intercept = epoch + phase
         matches = 0
         oblig_matches = 0
-
-        # Vectorized-like operation in loop
         for k in range(count):
             idx = indices[k]
             jd_gt = jds[k]
-            # Inline calculation
             jd_calc = math.floor(slope * idx + intercept)
-
             if jd_calc == jd_gt:
                 matches += 1
                 if is_oblig[k]:
                     oblig_matches += 1
-
         return matches, oblig_matches
 
-    # Iterative Search
+    print(f"{'Prec':<5} {'Slope':<20} {'Phase':<20} {'Oblig Acc':<10} {'Total Acc':<10}")
+    print("-" * 70)
 
-    # 1. Search Intercept with fixed avg_slope
-    best_params = (avg_slope, start_jd + 0.5)
-    best_oblig = -1
-    best_total = -1
+    best_known_s = 29.530570243
+    best_known_p = -3.097
 
-    current_s = avg_slope
+    for precision in range(4, 13):
+        step = 10**(-precision)
 
-    # Search Intercept in [start_jd - 2, start_jd + 3]
-    print("Step 1: Coarse Intercept Search")
-    step_i = 0.05
-    for i in range(-40, 60):
-        inter = start_jd + i * step_i
-        m, o = get_score(current_s, inter)
-        if o > best_oblig or (o == best_oblig and m > best_total):
-            best_oblig = o
-            best_total = m
-            best_params = (current_s, inter)
+        current_s = round(best_known_s, precision)
+        current_p = round(best_known_p, precision)
 
-    print(f"Best after Step 1: {best_params}, Oblig: {best_oblig}")
+        best_params = (current_s, current_p)
+        m, o = get_score(current_s, current_p)
+        best_oblig = o
+        best_total = m
 
-    # 2. Search Slope with fixed Best Intercept
-    current_i = best_params[1]
-    print("Step 2: Coarse Slope Search")
-    # Slope range: +/- 1e-5
-    step_s = 1e-7
-    for i in range(-100, 101):
-        s = avg_slope + i * step_s
-        m, o = get_score(s, current_i)
-        if o > best_oblig or (o == best_oblig and m > best_total):
-            best_oblig = o
-            best_total = m
-            best_params = (s, current_i)
+        # Alternating Optimization
+        max_iter = 5
+        for _ in range(max_iter):
+            changed = False
 
-    print(f"Best after Step 2: {best_params}, Oblig: {best_oblig}")
+            # 1. Optimize Phase
+            best_p_local = best_params[1]
+            for dp in range(-100, 101):
+                if dp == 0: continue
+                p = round(best_params[1] + dp * step, precision)
+                m_new, o_new = get_score(best_params[0], p)
 
-    # 3. Fine Search Intercept
-    current_s = best_params[0]
-    print("Step 3: Fine Intercept Search")
-    center_i = best_params[1]
-    step_i = 0.001
-    for i in range(-100, 101):
-        inter = center_i + i * step_i
-        m, o = get_score(current_s, inter)
-        if o > best_oblig or (o == best_oblig and m > best_total):
-            best_oblig = o
-            best_total = m
-            best_params = (current_s, inter)
+                if o_new > best_oblig or (o_new == best_oblig and m_new > best_total):
+                    best_oblig = o_new
+                    best_total = m_new
+                    best_p_local = p
+                    changed = True
 
-    print(f"Best after Step 3: {best_params}, Oblig: {best_oblig}")
+            best_params = (best_params[0], best_p_local)
 
-    # 4. Fine Search Slope
-    current_i = best_params[1]
-    print("Step 4: Fine Slope Search")
-    center_s = best_params[0]
-    step_s = 1e-8
-    for i in range(-100, 101):
-        s = center_s + i * step_s
-        m, o = get_score(s, current_i)
-        if o > best_oblig or (o == best_oblig and m > best_total):
-            best_oblig = o
-            best_total = m
-            best_params = (s, current_i)
+            # 2. Optimize Slope
+            best_s_local = best_params[0]
+            for ds in range(-100, 101):
+                if ds == 0: continue
+                s = round(best_params[0] + ds * step, precision)
+                m_new, o_new = get_score(s, best_params[1])
 
-    # 5. Very Fine Refinement (Manual/Center)
-    print("Step 5: Very Fine Refinement")
-    center_s = best_params[0]
-    center_i = best_params[1]
-    # Slope +/- 1e-9, Intercept +/- 0.001
-    for i in range(-50, 51):
-        for j in range(-50, 51):
-            s = center_s + i * 1e-9
-            inter = center_i + j * 0.001
-            m, o = get_score(s, inter)
-            if o > best_oblig or (o == best_oblig and m > best_total):
-                best_oblig = o
-                best_total = m
-                best_params = (s, inter)
+                if o_new > best_oblig or (o_new == best_oblig and m_new > best_total):
+                    best_oblig = o_new
+                    best_total = m_new
+                    best_s_local = s
+                    changed = True
 
-    final_s, final_i = best_params
-    print(f"\nFinal Result: Slope={final_s:.9f}, Intercept={final_i:.4f}")
-    print(f"Oblig Accuracy: {best_oblig}/{total_oblig_count} ({(best_oblig/total_oblig_count)*100:.4f}%)")
-    print(f"Total Accuracy: {best_total}/{count} ({(best_total/count)*100:.4f}%)")
+            best_params = (best_s_local, best_params[1])
 
-    epoch_default = 2302456
-    phase_default = final_i - epoch_default
+            if not changed:
+                break
 
-    print("\nProposed Constants for HijriCalc.html:")
-    print(f"Slope: {final_s:.9f}")
-    print(f"Epoch: {epoch_default}")
-    print(f"Phase: {phase_default:.9f}")
+        print(f"{precision:<5} {best_params[0]:<20} {best_params[1]:<20} {best_oblig:<10} {best_total:<10}")
 
-    offset = 1.0 - phase_default
-    print(f"Inverse Offset: {offset:.9f}")
+    print("-" * 70)
+    print("Knee Point Analysis Complete.")
 
 if __name__ == "__main__":
     optimize()

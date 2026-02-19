@@ -50,7 +50,7 @@ Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei, Da
 -   Titik Perhitungan: Matahari Terbenam (Sunset).
 
 ### Aproksimasi Linear (HijriCalc)
-Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan **Rumus Linear** yang berasal dari analisis komposit yang ketat untuk tahun **1000-11000 H**.
+Untuk navigasi cepat dan pendekatan, `HijriCalc` menggunakan **Rumus Linear** yang berasal dari analisis komposit yang ketat untuk tahun **1-10000 H**.
 
 **Kriteria Komposit:**
 Data *ground truth* dihasilkan menggunakan aturan komposit yang ketat:
@@ -63,15 +63,15 @@ Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Me
 **Rumus:**
 Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah adalah:
 
-`JD = 2302456 + floor(29.5305702429 * Index - 3.0970000000) + Hari - 1`
+`JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Hari - 1`
 
 Di mana:
--   `Index = (TahunHijriyah - 1000) * 12 + (BulanHijriyah - 1)`
+-   `Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1)`
 -   `BulanHijriyah` adalah 1-based (1=Muharram, ..., 12=Dzulhijjah).
 -   `Hari` adalah tanggal dalam bulan Hijriyah tersebut.
 
 **Akurasi:**
-Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69.27%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1000-11000 H, dengan akurasi yang dioptimalkan sekitar **~69.34%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah). Konstanta diturunkan menggunakan "Knee Point Analysis" untuk memastikan presisi floating-point yang optimal. Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
+Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69.02%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1-10000 H, dengan akurasi yang dioptimalkan sekitar **~69.01%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah). Konstanta diturunkan menggunakan "Knee Point Analysis" untuk memastikan presisi floating-point yang optimal. Untuk dokumentasi lengkap mengenai metodologi dan data, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
 
 ## Privasi & Data
 Semua perhitungan astronomis terjadi secara lokal di peramban Anda menggunakan **astronomy-engine**. Tidak ada data lokasi atau metrik penggunaan yang dikirim ke server mana pun.

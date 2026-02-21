@@ -1098,15 +1098,6 @@
 			}
 
 			checkVisibility(dateObj, knownNewMoonUT) {
-				const utcOffset = this.getTimezoneOffset();
-				const baseUTC = new Date(dateObj);
-				baseUTC.setHours(12 - utcOffset);
-				const date = Astronomy.MakeTime(baseUTC);
-				const observer = new Astronomy.Observer(state.lat, state.lon, 0);
-				return this.checkLocationVisibility(date, observer, 3.0, 6.4, knownNewMoonUT);
-			}
-
-			checkVisibility(dateObj, knownNewMoonUT) {
 				// dateObj is expected to be a Date object centered roughly on the check day (e.g. noon UTC).
 				const date = Astronomy.MakeTime(dateObj);
 				const observer = new Astronomy.Observer(state.lat, state.lon, 0);

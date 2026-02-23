@@ -476,125 +476,65 @@
 
 		const WORKER_CODE = `importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
 
-function calculateSunset(lat, lon, baseDateUT) {
-	const observer = new Astronomy.Observer(lat, lon, 0);
-	const startUT = baseDateUT - (lon / 15 / 24);
-	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
-}
+const calculateSunset = (lat,lon,baseDateUT)=>{
+	const observer = new Astronomy.Observer(lat,lon,0);
+	return Astronomy.SearchRiseSet(Astronomy.Body.Sun,observer,-1,baseDateUT - (lon / 15 / 24),1);
+};
 
-self.onmessage = function(e) {
+self.onmessage = e=>{
 	try {
-		const params = e.data;
-		const {bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong} = params;
-
-		// Optimize grid size - max 245x245 grid for better resolution (target ~20s)
-		const maxGridSize = 245;
-		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
-		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
-		const height = Math.min(Math.ceil(heightDeg / cellSizeDeg), maxGridSize);
-
-		const buffer = new Uint8ClampedArray(width * height * 4);
-		const dateObj = new Date(dateTimestamp);
-		const date = Astronomy.MakeTime(dateObj);
-		const criteriaParams =
-			(criteria === "mabbims") ? {minAlt: 3, minElong: 6.4, isGIC: false} :
-			(criteria === "gic") ? {minAlt: 5, minElong: 8, isGIC: true} :
-			(criteria === "alt0") ? {minAlt: 0, minElong: -100, isGIC: false} :
-			{minAlt: minAlt, minElong: minElong, isGIC: false};
-		const {minAlt: criteriaMinAlt, minElong: criteriaMinElong, isGIC} = criteriaParams;
-
-		// Mercator functions
-		const DEG_TO_RAD = Math.PI / 180;
-		const RAD_TO_DEG = 180 / Math.PI;
-		function latToMercatorY(lat) {
-			return Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2));
-		}
-		function mercatorYToLat(y) {
-			return (2 * Math.atan(Math.exp(y)) - Math.PI / 2) * RAD_TO_DEG;
-		}
-
-		// Calculate Y range for the bounds using Mercator
-		const minY = latToMercatorY(bounds.minLat);
-		const maxY = latToMercatorY(bounds.maxLat);
-		const yRange = maxY - minY;
-
-		const STEP = 10;
+		const {bounds,widthDeg,heightDeg,criteria,dateTimestamp,minAlt,minElong} = e.data,
+			maxGridSize = 245,
+			cellSizeDeg = Math.max(widthDeg / maxGridSize,heightDeg / maxGridSize,0.1),
+			width = Math.min(Math.ceil(widthDeg / cellSizeDeg),maxGridSize),
+			height = Math.min(Math.ceil(heightDeg / cellSizeDeg),maxGridSize),
+			buffer = new Uint8ClampedArray(width * height * 4),
+			date = Astronomy.MakeTime(new Date(dateTimestamp)),
+			{criteriaMinAlt,criteriaMinElong,isGIC} = (criteria === "mabbims" ? {criteriaMinAlt:3,criteriaMinElong:6.4,isGIC:false} :
+				criteria === "gic" ? {criteriaMinAlt:5,criteriaMinElong:8,isGIC:true} :
+				criteria === "alt0" ? {criteriaMinAlt:0,criteriaMinElong:-100,isGIC:false} :
+				{criteriaMinAlt:minAlt,criteriaMinElong:minElong,isGIC:false}),
+			DEG_TO_RAD = Math.PI / 180,
+			RAD_TO_DEG = 180 / Math.PI,
+			latToMercatorY = lat=>Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2)),
+			mercatorYToLat = y=>(2 * Math.atan(Math.exp(y)) - Math.PI / 2) * RAD_TO_DEG,
+			minY = latToMercatorY(bounds.minLat),
+			maxY = latToMercatorY(bounds.maxLat),
+			yRange = maxY - minY,
+			STEP = 10;
 
 		for (let row = 0; row < height; row++) {
-			// Calculate latitude for this row (Mercator interpolation)
-			// Row 0 is top (maxY), Row height is bottom (minY)
-			const normY = row / (height - 1 || 1);
-			const mercY = maxY - normY * yRange;
-			const lat = mercatorYToLat(mercY);
-
-			let prevCol = -1;
-			let nextCol = -1;
-			let prevSunset = null;
-			let nextSunset = null;
+			const lat = mercatorYToLat(maxY - (row / (height - 1 || 1)) * yRange);
+			let prevCol = -1, nextCol = -1, prevSunset = null, nextSunset = null;
 
 			for (let col = 0; col < width; col++) {
 				const lon = bounds.minLon + (col * cellSizeDeg);
-
 				let sunset = null;
-				// Interpolation logic
-				if (col >= nextCol) {
-					prevCol = col;
-					if (col === nextCol && nextSunset !== null) {
-						prevSunset = nextSunset;
-					} else {
-						prevSunset = calculateSunset(lat, lon, date.ut);
-					}
+				col >= nextCol && (
+					prevCol = col,
+					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunset(lat,lon,date.ut),
+					nextCol = Math.min(col + STEP,width - 1),
+					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunset(lat,bounds.minLon + (nextCol * cellSizeDeg),date.ut)
+				),
+				sunset = (prevSunset && nextSunset) ? {ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((col - prevCol) / (nextCol - prevCol || 1))} : calculateSunset(lat,lon,date.ut);
 
-					nextCol = Math.min(col + STEP, width - 1);
-					if (nextCol === prevCol) {
-						nextSunset = prevSunset;
-					} else {
-						const nextLon = bounds.minLon + (nextCol * cellSizeDeg);
-						nextSunset = calculateSunset(lat, nextLon, date.ut);
-					}
-				}
-
-				if (prevSunset && nextSunset) {
-					const fraction = (col - prevCol) / (nextCol - prevCol || 1);
-					const interpolatedUT = prevSunset.ut + (nextSunset.ut - prevSunset.ut) * fraction;
-					sunset = { ut: interpolatedUT };
-				} else {
-					sunset = calculateSunset(lat, lon, date.ut);
-				}
-
-				let visible = false;
-				if (sunset) {
-					const sunsetUT = sunset.ut;
-					if (!isGIC || sunsetUT < date.ut + 0.5) {
-						const observer = new Astronomy.Observer(lat, lon, 0);
-						const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-						const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
-						const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
-						const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
-						if (moonHor.altitude >= criteriaMinAlt && elongation >= criteriaMinElong) {
-							visible = true;
-						}
-					}
-				}
-				const idx = (row * width + col) * 4;
-				if (visible) {
-					buffer[idx] = 0; buffer[idx+1] = 200; buffer[idx+2] = 0; buffer[idx+3] = 180;
-				} else {
-					buffer[idx] = 255; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 180;
-				}
+				const visible = sunset && (!isGIC || sunset.ut < date.ut + 0.5) && (()=>{
+					const obs = new Astronomy.Observer(lat,lon,0),
+						mEq = Astronomy.Equator(Astronomy.Body.Moon,sunset.ut,obs,true,true),
+						mHor = Astronomy.Horizon(sunset.ut,obs,mEq.ra,mEq.dec,"normal"),
+						sEq = Astronomy.Equator(Astronomy.Body.Sun,sunset.ut,obs,true,true);
+					return mHor.altitude >= criteriaMinAlt && Astronomy.AngleBetween(sEq.vec,mEq.vec) >= criteriaMinElong;
+				})(),
+				idx = (row * width + col) * 4;
+				visible ? (buffer[idx]=0,buffer[idx+1]=200,buffer[idx+2]=0,buffer[idx+3]=180) : (buffer[idx]=255,buffer[idx+1]=0,buffer[idx+2]=0,buffer[idx+3]=180);
 			}
-			// Report progress every 10 rows
-			if (row % 10 === 0) {
-				self.postMessage({progress: (row / height * 100).toFixed(0)});
-			}
+			row % 10 === 0 && self.postMessage({progress: (row / height * 100).toFixed(0)});
 		}
-		self.postMessage({width, height, buffer: buffer.buffer}, [buffer.buffer]);
-	} catch(err) {
-		self.postMessage({error: err.message});
-	}
+		self.postMessage({width,height,buffer:buffer.buffer},[buffer.buffer]);
+	} catch(err) { self.postMessage({error: err.message}); }
 };`;
 
-		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
+		const elements = new Proxy({},{get:(_,id)=>document.getElementById(id) });
 
 		class HilalMap {
 			constructor() {
@@ -605,16 +545,16 @@ self.onmessage = function(e) {
 			}
 
 			setup() {
-				elements.language.onchange = event => this.lang(event.target.value);
-				elements.theme.onchange = event => this.theme(event.target.value);
-				elements.renderMap.onclick = () => this.handleRenderClick();
-				elements.mapCriteria.onchange = () => this.toggleCustom();
-				elements.mapRegion.onchange = () => this.handleRegionChange();
-				elements.tabMap.onclick = () => this.switchTab("map");
-				elements.tabCalc.onclick = () => this.switchTab("calc");
-				elements.calcCriteria.onchange = () => this.toggleCustomCalc();
-				elements.calculateBtn.onclick = () => this.calculateDetails();
-				elements.getLocation.onclick = () => this.getCurrentLocation();
+				elements.language.onchange = event=>this.lang(event.target.value);
+				elements.theme.onchange = event=>this.theme(event.target.value);
+				elements.renderMap.onclick = ()=>this.handleRenderClick();
+				elements.mapCriteria.onchange = ()=>this.toggleCustom();
+				elements.mapRegion.onchange = ()=>this.handleRegionChange();
+				elements.tabMap.onclick = ()=>this.switchTab("map");
+				elements.tabCalc.onclick = ()=>this.switchTab("calc");
+				elements.calcCriteria.onchange = ()=>this.toggleCustomCalc();
+				elements.calculateBtn.onclick = ()=>this.calculateDetails();
+				elements.getLocation.onclick = ()=>this.getCurrentLocation();
 
 				// Zoom and pan setup
 				this.scale = 1;
@@ -624,35 +564,34 @@ self.onmessage = function(e) {
 				this.startX = 0;
 				this.startY = 0;
 
-				elements['zoom-in'].onclick = () => this.zoom(1.2);
-				elements['zoom-out'].onclick = () => this.zoom(0.8);
-				elements['zoom-reset'].onclick = () => this.resetZoom();
+				elements['zoom-in'].onclick = ()=>this.zoom(1.2);
+				elements['zoom-out'].onclick = ()=>this.zoom(0.8);
+				elements['zoom-reset'].onclick = ()=>this.resetZoom();
 
-				elements['map-container'].addEventListener('wheel', (e) => {
+				elements['map-container'].addEventListener('wheel',(e)=>{
 					e.preventDefault();
 					const delta = e.deltaY > 0 ? 0.9 : 1.1;
 					this.zoom(delta);
 				});
 
-				elements['map-container'].addEventListener('mousedown', (e) => {
+				elements['map-container'].addEventListener('mousedown',(e)=>{
 					this.isDragging = true;
 					this.startX = e.clientX - this.translateX;
 					this.startY = e.clientY - this.translateY;
 				});
 
-				elements['map-container'].addEventListener('mousemove', (e) => {
-					if (!this.isDragging) return;
-					this.translateX = e.clientX - this.startX;
-					this.translateY = e.clientY - this.startY;
-					this.limitPan();
-					this.updateTransform();
-				});
+				elements['map-container'].addEventListener('mousemove',e=>this.isDragging && (
+					this.translateX = e.clientX - this.startX,
+					this.translateY = e.clientY - this.startY,
+					this.limitPan(),
+					this.updateTransform()
+				));
 
-				elements['map-container'].addEventListener('mouseup', () => {
+				elements['map-container'].addEventListener('mouseup',()=>{
 					this.isDragging = false;
 				});
 
-				elements['map-container'].addEventListener('mouseleave', () => {
+				elements['map-container'].addEventListener('mouseleave',()=>{
 					this.isDragging = false;
 				});
 
@@ -664,13 +603,13 @@ self.onmessage = function(e) {
 				const canvas = elements['map-overlay'];
 				const img = elements['map-image'];
 
-				img.onload = () => {
+				img.onload = ()=>{
 					canvas.width = img.naturalWidth;
 					canvas.height = img.naturalHeight;
 					this.redrawOverlay();
 				};
 
-				window.addEventListener('resize', () => {
+				window.addEventListener('resize',()=>{
 					this.redrawOverlay();
 				});
 
@@ -724,12 +663,12 @@ self.onmessage = function(e) {
 
 			lang(language) {
 				this.language = elements.language.value = document.documentElement.lang = language;
-				Object.keys(text.en).forEach(key => { if (elements[key]) elements[key].textContent = this.string(key); });
-				[...elements.theme.options].forEach(option => option.textContent = this.string(option.value + "Theme"));
+				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.string(key); });
+				[...elements.theme.options].forEach(option=>option.textContent = this.string(option.value + "Theme"));
 				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.string("utcPlaceholder");
 
-				const translateOptions = (selectId, prefix) => {
-					[...elements[selectId].options].forEach(option => {
+				const translateOptions = (selectId,prefix)=>{
+					[...elements[selectId].options].forEach(option=>{
 						const val = option.value;
 						const key = prefix + val.charAt(0).toUpperCase() + val.slice(1);
 						const translated = this.string(key);
@@ -752,45 +691,32 @@ self.onmessage = function(e) {
 			}
 
 			switchTab(tab) {
-				if (tab === "map") {
-					elements.tabMap.classList.add("active");
-					elements.tabCalc.classList.remove("active");
-					elements.mapView.classList.remove("hidden");
-					elements.calcView.classList.add("hidden");
-				} else {
-					elements.tabMap.classList.remove("active");
-					elements.tabCalc.classList.add("active");
-					elements.mapView.classList.add("hidden");
-					elements.calcView.classList.remove("hidden");
-				}
+				tab === "map" ? (
+					elements.tabMap.classList.add("active"),
+					elements.tabCalc.classList.remove("active"),
+					elements.mapView.classList.remove("hidden"),
+					elements.calcView.classList.add("hidden")
+				) : (
+					elements.tabMap.classList.remove("active"),
+					elements.tabCalc.classList.add("active"),
+					elements.mapView.classList.add("hidden"),
+					elements.calcView.classList.remove("hidden")
+				);
 			}
 
 			getCurrentLocation() {
-				const button = elements.getLocation;
-				const originalText = button.innerHTML;
-				button.disabled = true;
-				button.innerHTML = `<span class="spinner"></span> ${this.string("locating")}`;
-				if (navigator.geolocation) {
-					navigator.geolocation.getCurrentPosition(
-						position => {
-							const longitude = position.coords.longitude;
-							elements.calcLat.value = position.coords.latitude.toFixed(4);
-							elements.calcLon.value = longitude.toFixed(4);
-							elements.calcUtcOffset.value = Math.round(longitude / 15);
-							button.disabled = false;
-							button.innerHTML = originalText;
-						},
-						error => {
-							alert("Error getting location: " + error.message);
-							button.disabled = false;
-							button.innerHTML = originalText;
-						}
-					);
-				} else {
-					alert("Geolocation is not supported by this browser.");
-					button.disabled = false;
-					button.innerHTML = originalText;
-				}
+				const button = elements.getLocation, originalText = button.innerHTML;
+				(button.disabled = true, button.innerHTML = `<span class="spinner"></span> ${this.string("locating")}`),
+				navigator.geolocation ? navigator.geolocation.getCurrentPosition(
+					p=>(
+						elements.calcLat.value = p.coords.latitude.toFixed(4),
+						elements.calcLon.value = p.coords.longitude.toFixed(4),
+						elements.calcUtcOffset.value = Math.round(p.coords.longitude / 15),
+						button.disabled = false,
+						button.innerHTML = originalText
+					),
+					e=>(alert("Error getting location: " + e.message), button.disabled = false, button.innerHTML = originalText)
+				) : (alert("Geolocation is not supported by this browser."), button.disabled = false, button.innerHTML = originalText);
 			}
 
 			calculateDetails() {
@@ -816,53 +742,43 @@ self.onmessage = function(e) {
 				this.calculateDetailsWithSunset(sunset, observer, date, criteria);
 			}
 
-			calculateDetailsWithSunset(sunset, observer, date, criteria) {
-				const sunsetUT = sunset.ut;
-				const moonEq = Astronomy.Equator(Astronomy.Body.Moon, sunsetUT, observer, true, true);
-				const moonHor = Astronomy.Horizon(sunsetUT, observer, moonEq.ra, moonEq.dec, "normal");
-				const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
-				const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
-				const prevNewMoon = Astronomy.SearchMoonPhase(0, date.ut, -1);
-				const ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0;
-				const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon, sunsetUT);
-				const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon, observer, -1, sunsetUT, 1);
-				const offset = parseFloat(elements.calcUtcOffset.value) || 0;
-				const formatTime = ut => {
-					if (!ut) return "N/A";
-					const d = ut.date;
-					d.setMinutes(d.getMinutes() + offset * 60);
-					const timeString = d.toISOString().substring(11, 19);
-					const sign = offset >= 0 ? "+" : "";
-					return `${timeString} (UTC${sign}${offset})`;
-				};
-				const customMinAlt = parseFloat(elements.calcMinAlt.value) || 0;
-				const customMinElong = parseFloat(elements.calcMinElong.value) || 0;
-				const criteriaParams =
-					(criteria === "mabbims") ? { minAlt: 3, minElong: 6.4, isGIC: false } :
-					(criteria === "gic") ? { minAlt: 5, minElong: 8, isGIC: true } :
-					(criteria === "alt0") ? { minAlt: 0, minElong: -100, isGIC: false } :
-					{ minAlt: customMinAlt, minElong: customMinElong, isGIC: false };
-				const { minAlt, minElong, isGIC } = criteriaParams;
-				const visible = ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong);
-				const visibleStatus = visible ? this.string("visible") : this.string("notVisible");
-				const color = visible ? "var(--success)" : "var(--danger)";
-				const displayData = [
-					{ label: "visibilityStatus", value: visibleStatus, color: color },
-					{ label: "sunsetTime", value: formatTime(sunset) },
-					{ label: "moonsetTime", value: formatTime(moonset) },
-					{ label: "moonAlt", value: moonHor.altitude.toFixed(2) + "°" },
-					{ label: "moonElong", value: elongation.toFixed(2) + "°" },
-					{ label: "moonAzimuth", value: moonHor.azimuth.toFixed(2) + "°" },
-					{ label: "moonAge", value: ageInDays.toFixed(2) + " days" },
-					{ label: "illuminatedFraction", value: (moonPhase.phase_fraction * 100).toFixed(2) + "%" }
-				];
-				let html = "";
-				displayData.forEach(item => {
-					const style = item.color ? `color: ${item.color};` : "";
-					const label = this.string(item.label) || item.label;
-					html += `<div class="result-card"><div class="result-label">${label}</div><div class="result-value" style="${style}">${item.value}</div></div>`;
-				});
-				elements.results.innerHTML = html;
+			calculateDetailsWithSunset(sunset,observer,date,criteria) {
+				const sunsetUT = sunset.ut,
+					moonEq = Astronomy.Equator(Astronomy.Body.Moon,sunsetUT,observer,true,true),
+					moonHor = Astronomy.Horizon(sunsetUT,observer,moonEq.ra,moonEq.dec,"normal"),
+					sunEq = Astronomy.Equator(Astronomy.Body.Sun,sunsetUT,observer,true,true),
+					elongation = Astronomy.AngleBetween(sunEq.vec,moonEq.vec),
+					prevNewMoon = Astronomy.SearchMoonPhase(0,date.ut,-1),
+					ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0,
+					moonPhase = Astronomy.Illumination(Astronomy.Body.Moon,sunsetUT),
+					moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon,observer,-1,sunsetUT,1),
+					offset = parseFloat(elements.calcUtcOffset.value) || 0,
+					formatTime = ut=>(!ut ? "N/A" : (()=>{
+						const d = ut.date;
+						d.setMinutes(d.getMinutes() + offset * 60);
+						const timeString = d.toISOString().substring(11,19), sign = offset >= 0 ? "+" : "";
+						return `${timeString} (UTC${sign}${offset})`;
+					})()),
+					customMinAlt = parseFloat(elements.calcMinAlt.value) || 0,
+					customMinElong = parseFloat(elements.calcMinElong.value) || 0,
+					{minAlt,minElong,isGIC} = (criteria === "mabbims" ? {minAlt:3,minElong:6.4,isGIC:false} :
+						criteria === "gic" ? {minAlt:5,minElong:8,isGIC:true} :
+						criteria === "alt0" ? {minAlt:0,minElong:-100,isGIC:false} :
+						{minAlt:customMinAlt,minElong:customMinElong,isGIC:false}),
+					visible = ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong),
+					displayData = [
+						{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
+						{label:"sunsetTime",value:formatTime(sunset)},
+						{label:"moonsetTime",value:formatTime(moonset)},
+						{label:"moonAlt",value:moonHor.altitude.toFixed(2) + "°"},
+						{label:"moonElong",value:elongation.toFixed(2) + "°"},
+						{label:"moonAzimuth",value:moonHor.azimuth.toFixed(2) + "°"},
+						{label:"moonAge",value:ageInDays.toFixed(2) + " days"},
+						{label:"illuminatedFraction",value:(moonPhase.phase_fraction * 100).toFixed(2) + "%"}
+					];
+				elements.results.innerHTML = displayData
+					.map(item=>`<div class="result-card"><div class="result-label">${this.string(item.label) || item.label}</div><div class="result-value" style="${item.color ? `color:${item.color}` : ""}">${item.value}</div></div>`)
+					.join("");
 			}
 
 			handleRegionChange() {
@@ -966,7 +882,7 @@ self.onmessage = function(e) {
 					this.worker = new Worker(URL.createObjectURL(blob));
 				}
 
-				this.worker.onmessage = (e) => {
+				this.worker.onmessage = (e)=>{
 					const data = e.data;
 					if (data.progress) {
 						elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;

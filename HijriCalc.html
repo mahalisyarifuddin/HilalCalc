@@ -642,7 +642,7 @@
 			}
 		};
 
-		const elements = new Proxy({}, { get: (_, id) => document.getElementById(id) });
+		const elements = new Proxy({},{get:(_,id)=>document.getElementById(id) });
 
 		let state = {
 			lat: 6.075,
@@ -657,38 +657,38 @@
 
 		class HijriCalc {
 			constructor() {
-				this.isOffline = (typeof Astronomy === 'undefined');
-				this.cacheVersion = 3; // Bumped to invalidate old/incorrect calculations
-				this.loadState();
-				state.viewDate = new Date();
-				this.setup();
-				this.updateLanguage(state.lang);
-				this.applyTheme(state.theme);
-				this.render();
-				if (this.isOffline) {
+				(this.isOffline = (typeof Astronomy === 'undefined'),
+				this.cacheVersion = 3,
+				this.loadState(),
+				state.viewDate = new Date(),
+				this.setup(),
+				this.updateLanguage(state.lang),
+				this.applyTheme(state.theme),
+				this.render(),
+				this.isOffline && (()=>{
 					console.warn("Astronomy Engine not loaded. Using Tabular method.");
 					const warning = document.createElement('div');
-					warning.style.cssText = 'color:var(--danger);text-align:center;font-weight:400;margin-bottom:1rem';
-					warning.setAttribute('data-i18n', 'offlineWarning');
-					warning.textContent = text[state.lang].offlineWarning;
-					document.querySelector('.container')?.insertBefore(warning, document.querySelector('.container').firstChild);
-				}
+					(warning.style.cssText = 'color:var(--danger);text-align:center;font-weight:400;margin-bottom:1rem',
+					warning.setAttribute('data-i18n', 'offlineWarning'),
+					warning.textContent = text[state.lang].offlineWarning,
+					document.querySelector('.container')?.insertBefore(warning, document.querySelector('.container').firstChild));
+				})());
 			}
 
 			loadState() {
 				try {
 					const saved = localStorage.getItem('hijriCalcState');
-					if (saved) {
+					saved && (()=>{
 						const parsed = JSON.parse(saved);
-						if (parsed.lat !== undefined) state.lat = parsed.lat;
-						if (parsed.lon !== undefined) state.lon = parsed.lon;
-						if (parsed.lang) state.lang = parsed.lang;
-						if (parsed.theme) state.theme = parsed.theme;
-						if (parsed.weekStart !== undefined) state.weekStart = parsed.weekStart;
-						if (parsed.hijriAdj !== undefined) state.hijriAdj = parsed.hijriAdj;
-						if (parsed.primaryCalendar) state.primaryCalendar = parsed.primaryCalendar;
-						if (parsed.calcMode) state.calcMode = parsed.calcMode;
-					}
+						parsed.lat !== undefined && (state.lat = parsed.lat),
+						parsed.lon !== undefined && (state.lon = parsed.lon),
+						parsed.lang && (state.lang = parsed.lang),
+						parsed.theme && (state.theme = parsed.theme),
+						parsed.weekStart !== undefined && (state.weekStart = parsed.weekStart),
+						parsed.hijriAdj !== undefined && (state.hijriAdj = parsed.hijriAdj),
+						parsed.primaryCalendar && (state.primaryCalendar = parsed.primaryCalendar),
+						parsed.calcMode && (state.calcMode = parsed.calcMode);
+					})();
 				} catch (e) { console.error("Failed to load state", e); }
 			}
 
@@ -705,7 +705,7 @@
 
 			scheduleSaveCache() {
 				if (this.saveTimeout) clearTimeout(this.saveTimeout);
-				this.saveTimeout = setTimeout(() => this.saveCache(), 1000);
+				this.saveTimeout = setTimeout(()=>this.saveCache(), 1000);
 			}
 
 			saveCache() {
@@ -714,173 +714,143 @@
 			}
 
 			savePreferences() {
-				state.lat = parseFloat(elements.latInput.value);
-				state.lon = parseFloat(elements.lonInput.value);
-				state.lang = elements.language.value;
-				state.weekStart = parseInt(elements.weekStart.value);
-				state.hijriAdj = parseInt(elements.hijriAdj.value);
-				state.primaryCalendar = elements.primaryCalendar.value;
-				state.theme = elements.theme.value;
-				state.calcMode = elements.calcMode.value;
+				(state.lat = parseFloat(elements.latInput.value),
+				state.lon = parseFloat(elements.lonInput.value),
+				state.lang = elements.language.value,
+				state.weekStart = parseInt(elements.weekStart.value),
+				state.hijriAdj = parseInt(elements.hijriAdj.value),
+				state.primaryCalendar = elements.primaryCalendar.value,
+				state.theme = elements.theme.value,
+				state.calcMode = elements.calcMode.value,
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
 					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
 					calcMode: state.calcMode
-				}));
-				this.applyTheme(state.theme);
-				this.updateLanguage(state.lang);
-				this.render();
+				})),
+				this.applyTheme(state.theme),
+				this.updateLanguage(state.lang),
+				this.render());
 			}
 
 			resetPreferences() {
-				state.lat = 6.075;
-				state.lon = 95.1125;
-				state.lang = navigator.language?.startsWith('id') ? 'id' : 'en';
-				state.theme = 'auto';
-				state.weekStart = 0;
-				state.hijriAdj = 0;
-				state.primaryCalendar = 'gregorian';
-				state.calcMode = this.isOffline ? 'heuristic' : 'astronomic';
-				elements.latInput.value = state.lat;
-				elements.lonInput.value = state.lon;
-				elements.language.value = state.lang;
-				elements.weekStart.value = state.weekStart;
-				elements.hijriAdj.value = state.hijriAdj;
-				elements.primaryCalendar.value = state.primaryCalendar;
-				elements.theme.value = state.theme;
-				elements.calcMode.value = state.calcMode;
-				this.savePreferences();
+				[state.lat, state.lon, state.lang, state.theme, state.weekStart, state.hijriAdj, state.primaryCalendar, state.calcMode] =
+					[6.075, 95.1125, navigator.language?.startsWith('id') ? 'id' : 'en', 'auto', 0, 0, 'gregorian', this.isOffline ? 'heuristic' : 'astronomic'],
+				(elements.latInput.value = state.lat,
+				elements.lonInput.value = state.lon,
+				elements.language.value = state.lang,
+				elements.weekStart.value = state.weekStart,
+				elements.hijriAdj.value = state.hijriAdj,
+				elements.primaryCalendar.value = state.primaryCalendar,
+				elements.theme.value = state.theme,
+				elements.calcMode.value = state.calcMode,
+				this.savePreferences());
 			}
 
 			applyTheme(theme) { document.documentElement.className = theme === 'auto' ? '' : theme; elements.theme.value = theme; }
 			getTimezoneOffset() { return Math.round(state.lon / 15); }
 
 			setup() {
-				elements.latInput.value = state.lat;
-				elements.lonInput.value = state.lon;
-				elements.language.value = state.lang;
-				elements.weekStart.value = state.weekStart;
-				elements.hijriAdj.value = state.hijriAdj;
-				elements.primaryCalendar.value = state.primaryCalendar;
-				elements.theme.value = state.theme;
-
-				elements.calcMode.value = state.calcMode;
-				if (this.isOffline) {
-					elements.calcMode.value = 'heuristic';
-					elements.calcMode.disabled = true;
-				}
-
-				this.setDateToInput(elements.gDateInput, new Date());
-				text.en.months.forEach((month, index) => {
+				(elements.latInput.value = state.lat,
+				elements.lonInput.value = state.lon,
+				elements.language.value = state.lang,
+				elements.weekStart.value = state.weekStart,
+				elements.hijriAdj.value = state.hijriAdj,
+				elements.primaryCalendar.value = state.primaryCalendar,
+				elements.theme.value = state.theme,
+				elements.calcMode.value = state.calcMode,
+				this.isOffline && (elements.calcMode.value = 'heuristic', elements.calcMode.disabled = true),
+				this.setDateToInput(elements.gDateInput, new Date()),
+				text.en.months.forEach((month,index)=>{
 					const option = document.createElement('option');
-					option.value = index + 1;
-					option.textContent = month;
-					elements.hMonthInput.appendChild(option);
-				});
-				const hijri = this.gregorianToHijri(new Date());
-				elements.hDayInput.value = hijri.day;
-				elements.hMonthInput.value = hijri.month;
-				elements.hYearInput.value = hijri.year;
-				this.updateHijriDayLimit();
-
-				elements.hMonthInput.addEventListener('change', () => this.updateHijriDayLimit());
-				elements.hYearInput.addEventListener('change', () => this.updateHijriDayLimit());
-				elements.hYearInput.addEventListener('input', () => this.updateHijriDayLimit());
-				elements.prefBtn.onclick = () => elements.prefDialog.showModal();
-				elements.closePref.onclick = () => elements.prefDialog.close();
-				elements.savePrefBtn.onclick = () => { this.savePreferences(); elements.prefDialog.close(); };
-				elements.resetPrefBtn.onclick = () => { this.resetPreferences(); elements.prefDialog.close(); };
-				elements.myLocBtn.onclick = () => this.getLocation();
-				elements.todayBtn.onclick = () => {
-					state.viewDate = new Date();
-					this.setDateToInput(elements.gDateInput, state.viewDate);
-					this.updateHijriInputs(state.viewDate);
-					this.render();
-				};
-				elements.prevMonthBtn.onclick = () => this.navigateMonth(-1);
-				elements.nextMonthBtn.onclick = () => this.navigateMonth(1);
-
-				const handleGo = () => {
-					const date = this.getDateFromInput(elements.gDateInput);
-					if (date) { state.viewDate = date; this.updateHijriInputs(date); this.render(); }
-				};
-				elements.gDateInput.addEventListener('change', handleGo);
-				elements.gDateInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') handleGo(); });
-
-				const handleGoH = () => {
-					const day = parseInt(elements.hDayInput.value);
-					const month = parseInt(elements.hMonthInput.value);
-					const year = parseInt(elements.hYearInput.value);
-					if (day && !isNaN(month) && year) {
-						const gregorian = this.hijriToGregorian(year, month, day);
-						state.viewDate = gregorian;
-						this.render();
-						this.setDateToInput(elements.gDateInput, gregorian);
-					}
-				};
-				elements.goHBtn.onclick = handleGoH;
-				[elements.hDayInput, elements.hMonthInput, elements.hYearInput].forEach(el => {
-					el.addEventListener('keydown', (event) => { if (event.key === 'Enter') handleGoH(); });
-				});
-
-				elements.calendar.addEventListener('keydown', (event) => {
+					(option.value = index + 1, option.textContent = month, elements.hMonthInput.appendChild(option));
+				}),
+				(()=>{
+					const hijri = this.gregorianToHijri(new Date());
+					(elements.hDayInput.value = hijri.day,
+					elements.hMonthInput.value = hijri.month,
+					elements.hYearInput.value = hijri.year);
+				})(),
+				this.updateHijriDayLimit(),
+				elements.hMonthInput.addEventListener('change',()=>this.updateHijriDayLimit()),
+				elements.hYearInput.addEventListener('change',()=>this.updateHijriDayLimit()),
+				elements.hYearInput.addEventListener('input',()=>this.updateHijriDayLimit()),
+				elements.prefBtn.onclick = ()=>elements.prefDialog.showModal(),
+				elements.closePref.onclick = ()=>elements.prefDialog.close(),
+				elements.savePrefBtn.onclick = ()=>(this.savePreferences(), elements.prefDialog.close()),
+				elements.resetPrefBtn.onclick = ()=>(this.resetPreferences(), elements.prefDialog.close()),
+				elements.myLocBtn.onclick = ()=>this.getLocation(),
+				elements.todayBtn.onclick = ()=>(
+					state.viewDate = new Date(),
+					this.setDateToInput(elements.gDateInput, state.viewDate),
+					this.updateHijriInputs(state.viewDate),
+					this.render()
+				),
+				elements.prevMonthBtn.onclick = ()=>this.navigateMonth(-1),
+				elements.nextMonthBtn.onclick = ()=>this.navigateMonth(1),
+				(()=>{
+					const handleGo = ()=>{
+						const date = this.getDateFromInput(elements.gDateInput);
+						date && (state.viewDate = date, this.updateHijriInputs(date), this.render());
+					};
+					(elements.gDateInput.addEventListener('change', handleGo),
+					elements.gDateInput.addEventListener('keydown',e=>e.key === 'Enter' && handleGo()));
+				})(),
+				(()=>{
+					const handleGoH = ()=>{
+						const day = parseInt(elements.hDayInput.value), month = parseInt(elements.hMonthInput.value), year = parseInt(elements.hYearInput.value);
+						(day && !isNaN(month) && year) && (()=>{
+							const gregorian = this.hijriToGregorian(year, month, day);
+							(state.viewDate = gregorian, this.render(), this.setDateToInput(elements.gDateInput, gregorian));
+						})();
+					};
+					(elements.goHBtn.onclick = handleGoH,
+					[elements.hDayInput, elements.hMonthInput, elements.hYearInput].forEach(el=>el.addEventListener('keydown',e=>e.key === 'Enter' && handleGoH())));
+				})(),
+				elements.calendar.addEventListener('keydown',e=>{
 					const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown', 'Enter', ' '];
-					if (!keys.includes(event.key)) return;
-					const cell = event.target.closest('.day-cell');
+					if (!keys.includes(e.key)) return;
+					const cell = e.target.closest('.day-cell');
 					if (!cell) return;
-					if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); cell.click(); return; }
-					if (event.key === 'PageUp' || event.key === 'PageDown') {
-						event.preventDefault();
+					if (e.key === 'Enter' || e.key === ' ') return (e.preventDefault(), cell.click());
+					if (e.key === 'PageUp' || e.key === 'PageDown') {
+						e.preventDefault();
 						const currentDateStr = cell.dataset.date;
 						if (!currentDateStr) return;
-						const delta = (event.key === 'PageDown') ? 1 : -1;
-						let targetDate;
-						if (state.primaryCalendar === 'hijri') {
-							const [year, month, day] = currentDateStr.split('-').map(Number);
-							const date = new Date(year, month - 1, day);
-							const hijri = this.gregorianToHijri(date);
-							let newMonth = hijri.month + delta;
-							let newYear = hijri.year;
-							while (newMonth > 11) { newMonth -= 12; newYear++; }
-							while (newMonth < 0) { newMonth += 12; newYear--; }
-							targetDate = this.hijriToGregorian(newYear, newMonth, hijri.day);
-						} else {
-							const [year, month, day] = currentDateStr.split('-').map(Number);
-							const targetMonthValue = month - 1 + delta;
-							const checkDate = new Date(year, targetMonthValue, 1);
-							const daysInMonth = new Date(checkDate.getFullYear(), checkDate.getMonth() + 1, 0).getDate();
-							let targetDay = day;
-							if (day > daysInMonth) targetDay = daysInMonth;
-							targetDate = new Date(checkDate.getFullYear(), checkDate.getMonth(), targetDay);
-						}
+						const delta = (e.key === 'PageDown') ? 1 : -1;
+						const targetDate = (()=>{
+							if (state.primaryCalendar === 'hijri') {
+								const [year, month, day] = currentDateStr.split('-').map(Number);
+								const hijri = this.gregorianToHijri(new Date(year, month - 1, day));
+								let newMonth = hijri.month + delta, newYear = hijri.year;
+								while (newMonth > 11) (newMonth -= 12, newYear++);
+								while (newMonth < 0) (newMonth += 12, newYear--);
+								return this.hijriToGregorian(newYear, newMonth, hijri.day);
+							}
+							const [year, month, day] = currentDateStr.split('-').map(Number),
+								checkDate = new Date(year, month - 1 + delta, 1),
+								daysInMonth = new Date(checkDate.getFullYear(), checkDate.getMonth() + 1, 0).getDate();
+							return new Date(checkDate.getFullYear(), checkDate.getMonth(), Math.min(day, daysInMonth));
+						})();
 						this.navigateMonth(delta);
-						const targetIso = `${targetDate.getFullYear()}-${String(targetDate.getMonth()+1).padStart(2,'0')}-${String(targetDate.getDate()).padStart(2,'0')}`;
-						const targetCell = elements.calendar.querySelector(`.day-cell[data-date="${targetIso}"]`);
-						if (targetCell) { cell.tabIndex = -1; targetCell.tabIndex = 0; targetCell.focus(); }
-						else { const first = elements.calendar.querySelector('.day-cell'); if (first) { cell.tabIndex = -1; first.tabIndex = 0; first.focus(); } }
-						return;
+						const targetIso = `${targetDate.getFullYear()}-${String(targetDate.getMonth()+1).padStart(2,'0')}-${String(targetDate.getDate()).padStart(2,'0')}`,
+							targetCell = elements.calendar.querySelector(`.day-cell[data-date="${targetIso}"]`);
+						return targetCell ? (cell.tabIndex = -1, targetCell.tabIndex = 0, targetCell.focus()) : (()=>{
+							const first = elements.calendar.querySelector('.day-cell');
+							first && (cell.tabIndex = -1, first.tabIndex = 0, first.focus());
+						})();
 					}
-					event.preventDefault();
-					const cells = Array.from(elements.calendar.querySelectorAll('.day-cell'));
-					const index = cells.indexOf(cell);
+					e.preventDefault();
+					const cells = Array.from(elements.calendar.querySelectorAll('.day-cell')),
+						index = cells.indexOf(cell);
 					if (index === -1) return;
 					let newIndex = index;
-					if (event.key === 'ArrowRight') newIndex++;
-					else if (event.key === 'ArrowLeft') newIndex--;
-					else if (event.key === 'ArrowDown') newIndex += 7;
-					else if (event.key === 'ArrowUp') newIndex -= 7;
-					else if (event.key === 'Home') newIndex = 0;
-					else if (event.key === 'End') newIndex = cells.length - 1;
-					if (newIndex >= 0 && newIndex < cells.length) {
-						cell.tabIndex = -1;
-						cells[newIndex].tabIndex = 0;
-						cells[newIndex].focus();
-					}
-				});
+					(e.key === 'ArrowRight' ? newIndex++ : e.key === 'ArrowLeft' ? newIndex-- : e.key === 'ArrowDown' ? newIndex += 7 : e.key === 'ArrowUp' ? newIndex -= 7 : e.key === 'Home' ? newIndex = 0 : e.key === 'End' ? newIndex = cells.length - 1 : 0);
+					(newIndex >= 0 && newIndex < cells.length) && (cell.tabIndex = -1, cells[newIndex].tabIndex = 0, cells[newIndex].focus());
+				}));
 			}
 
 			navigateMonth(delta) {
-				if (state.primaryCalendar === 'hijri') {
+				state.primaryCalendar === 'hijri' ? (()=>{
 					const hijri = this.gregorianToHijri(state.viewDate);
 					let newMonth = hijri.month + delta;
 					let newYear = hijri.year;
@@ -888,7 +858,7 @@
 					while (newMonth < 0) { newMonth += 12; newYear--; }
 					const start = this.getAccurateHijriMonthStart(newYear, newMonth);
 					state.viewDate = new Date(start.gDate.getTime() + 15 * 86400000);
-				} else state.viewDate.setMonth(state.viewDate.getMonth() + delta);
+				})() : state.viewDate.setMonth(state.viewDate.getMonth() + delta),
 				this.render();
 			}
 
@@ -903,39 +873,40 @@
 			updateHijriDayLimit() {
 				const month = parseInt(elements.hMonthInput.value);
 				const year = parseInt(elements.hYearInput.value);
-				if (isNaN(month) || isNaN(year)) return;
-				const currentStart = this.getAccurateHijriMonthStart(year, month);
-				let nextMonth = month + 1;
-				let nextYear = year;
-				if (nextMonth > 11) { nextMonth = 0; nextYear++; }
-				const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
-				const daysInMonth = Math.round((nextStart.gDate - currentStart.gDate) / 86400000);
-				elements.hDayInput.max = daysInMonth;
-				elements.hDayInput.placeholder = `1-${daysInMonth}`;
-				if (parseInt(elements.hDayInput.value) > daysInMonth) elements.hDayInput.value = daysInMonth;
+				(!isNaN(month) && !isNaN(year)) && (()=>{
+					const currentStart = this.getAccurateHijriMonthStart(year, month);
+					let nextMonth = month + 1;
+					let nextYear = year;
+					nextMonth > 11 && (nextMonth = 0, nextYear++);
+					const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
+					const daysInMonth = Math.round((nextStart.gDate - currentStart.gDate) / 86400000);
+					elements.hDayInput.max = daysInMonth,
+					elements.hDayInput.placeholder = `1-${daysInMonth}`,
+					parseInt(elements.hDayInput.value) > daysInMonth && (elements.hDayInput.value = daysInMonth);
+				})();
 			}
 
 			getLocation() {
 				const translation = text[state.lang];
-				if (navigator.geolocation) {
+				navigator.geolocation ? (()=>{
 					const button = elements.myLocBtn;
-					button.disabled = true;
-					button.innerHTML = `<span class="spinner"></span> ${translation.locating}`;
+					(button.disabled = true,
+					button.innerHTML = `<span class="spinner"></span> ${translation.locating}`,
 					navigator.geolocation.getCurrentPosition(
-						position => {
-							elements.latInput.value = position.coords.latitude.toFixed(4);
-							elements.lonInput.value = position.coords.longitude.toFixed(4);
-							button.disabled = false;
-							button.textContent = translation.myLoc;
-						},
-						error => {
-							console.error(error);
-							alert(translation.errorLocation + error.message);
-							button.disabled = false;
-							button.textContent = translation.myLoc;
-						}
-					);
-				} else alert(translation.geoNotSupported);
+						p=>(
+							elements.latInput.value = p.coords.latitude.toFixed(4),
+							elements.lonInput.value = p.coords.longitude.toFixed(4),
+							button.disabled = false,
+							button.textContent = translation.myLoc
+						),
+						e=>(
+							console.error(e),
+							alert(translation.errorLocation + e.message),
+							button.disabled = false,
+							button.textContent = translation.myLoc
+						)
+					));
+				})() : alert(translation.geoNotSupported);
 			}
 
 			formatCoordinates(latitude, longitude) {
@@ -959,34 +930,27 @@
 			}
 
 			updateLanguage(language) {
-				const translation = text[language];
-				document.querySelectorAll('[data-i18n]').forEach(el => {
+				const translation = text[language],
+					weekDays = [translation.weekSun, translation.weekMon, null, null, null, null, translation.weekSat];
+				(document.querySelectorAll('[data-i18n]').forEach(el=>{
 					const key = el.getAttribute('data-i18n');
-					if (translation[key]) el.textContent = translation[key];
-				});
-				document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+					translation[key] && (el.textContent = translation[key]);
+				}),
+				document.querySelectorAll('[data-i18n-aria]').forEach(el=>{
 					const key = el.getAttribute('data-i18n-aria');
-					if (translation[key]) el.setAttribute('aria-label', translation[key]);
-				});
-				document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+					translation[key] && (el.setAttribute('aria-label', translation[key]));
+				}),
+				document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
 					const key = el.getAttribute('data-i18n-placeholder');
-					if (translation[key]) el.placeholder = translation[key];
-				});
-				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon);
-				if (this.isOffline) elements.appSubtitle.textContent += translation.offlineSuffix;
-				else if (state.calcMode === 'heuristic') elements.appSubtitle.textContent += translation.heuristicSuffix;
-				[...elements.hMonthInput.options].forEach((option, index) => { option.textContent = translation.months[index]; });
-
-				[...elements.theme.options].forEach(opt => opt.textContent = translation['theme' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
-				[...elements.primaryCalendar.options].forEach(opt => opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
-				[...elements.calcMode.options].forEach(opt => opt.textContent = translation['calcMode' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]);
-				const weekDays = [translation.weekSun, translation.weekMon, null, null, null, null, translation.weekSat];
-				[...elements.weekStart.options].forEach(opt => {
-					const day = weekDays[parseInt(opt.value)];
-					if (day) opt.textContent = day;
-				});
-
-				this.updateFormulaDisplay();
+					translation[key] && (el.placeholder = translation[key]);
+				}),
+				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon) + (this.isOffline ? translation.offlineWarning : state.calcMode === 'heuristic' ? translation.heuristicSuffix : ""),
+				[...elements.hMonthInput.options].forEach((opt,i)=>opt.textContent = translation.months[i]),
+				[...elements.theme.options].forEach(opt=>opt.textContent = translation['theme' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
+				[...elements.primaryCalendar.options].forEach(opt=>opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
+				[...elements.calcMode.options].forEach(opt=>opt.textContent = translation['calcMode' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
+				[...elements.weekStart.options].forEach(opt=>(weekDays[parseInt(opt.value)] && (opt.textContent = weekDays[parseInt(opt.value)]))),
+				this.updateFormulaDisplay());
 			}
 
 			updateFormulaDisplay() {
@@ -1127,242 +1091,173 @@
 			}
 
 			getAccurateHijriMonthStart(hYear, hMonth) {
-				if (this.isOffline || state.calcMode === 'heuristic') return { gDate: this.hijriToGregorianLinear(hYear, hMonth, 1) };
-				if (!this.cache) this.loadCache();
-				const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}`;
-				if (this.cache[cacheKey]) {
-					if (typeof this.cache[cacheKey].gDate === 'string') this.cache[cacheKey].gDate = new Date(this.cache[cacheKey].gDate);
-					return this.cache[cacheKey];
-				}
-				const daysSinceAnchor = ((hYear - 1445) * 354.367) + ((hMonth - 1) * 29.53);
-				const anchorDate = new Date("2023-07-19T12:00:00Z");
-				const approxDate = new Date(anchorDate.getTime() + daysSinceAnchor * 86400000);
-				const searchStart = new Date(approxDate.getTime() - 5 * 86400000);
-				const timeStart = Astronomy.MakeTime(searchStart);
-				let bestNewMoon = Astronomy.SearchMoonPhase(0, timeStart.ut, 10);
-				if (!bestNewMoon || Math.abs(bestNewMoon.date - approxDate) > 4 * 86400000) return { gDate: approxDate };
-				const newMoonDate = bestNewMoon.date; // This is a Date object in UTC
-
-				// Determine "Local Day of Conjunction" using UTC math
-				// Avoid system timezone dependency by calculating offset manually
-				const utcOffset = this.getTimezoneOffset(); // Hours
-
-				// Shift New Moon to Local Time (UTC+Offset) to find the local date
-				const localNMTime = newMoonDate.getTime() + (utcOffset * 3600000);
-				const localNMDate = new Date(localNMTime);
-
-				// Extract YMD components relative to UTC (which is now effectively Local Time)
-				const y = localNMDate.getUTCFullYear();
-				const m = localNMDate.getUTCMonth();
-				const d = localNMDate.getUTCDate();
-
-				// Create a Date object representing "Noon on Local Day of Conjunction" in UTC
-				// Noon at Longitude X corresponds to (12 - Offset) UTC
-				// We use this as the search center for sunset.
-				const searchCenterUTC = new Date(Date.UTC(y, m, d, 12 - utcOffset, 0, 0));
-
-				let isVisible = this.checkVisibility(searchCenterUTC, bestNewMoon.ut);
-
-				// Result date is 1st of Hijri Month
-				// If visible on Day D -> 1st is D + 1
-				// If not visible on Day D -> 1st is D + 2
-				const startDay = d + (isVisible ? 1 : 2);
-
-				// Construct the result Date object using Local System Timezone for UI compatibility
-				// (The app uses new Date(y, m, d) which creates local midnight)
-				const result = { gDate: new Date(y, m, startDay) };
-
-				this.cache[cacheKey] = result;
-				this.scheduleSaveCache();
-				return result;
+				return (this.isOffline || state.calcMode === 'heuristic') ? { gDate: this.hijriToGregorianLinear(hYear, hMonth, 1) } :
+				((!this.cache && this.loadCache()), (()=>{
+					const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}`;
+					if (this.cache[cacheKey]) {
+						(typeof this.cache[cacheKey].gDate === 'string') && (this.cache[cacheKey].gDate = new Date(this.cache[cacheKey].gDate));
+						return this.cache[cacheKey];
+					}
+					const daysSinceAnchor = ((hYear - 1445) * 354.367) + ((hMonth - 1) * 29.53),
+						anchorDate = new Date("2023-07-19T12:00:00Z"),
+						approxDate = new Date(anchorDate.getTime() + daysSinceAnchor * 86400000),
+						searchStart = new Date(approxDate.getTime() - 5 * 86400000),
+						timeStart = Astronomy.MakeTime(searchStart);
+					let bestNewMoon = Astronomy.SearchMoonPhase(0, timeStart.ut, 10);
+					if (!bestNewMoon || Math.abs(bestNewMoon.date - approxDate) > 4 * 86400000) return { gDate: approxDate };
+					const newMoonDate = bestNewMoon.date,
+						utcOffset = this.getTimezoneOffset(),
+						localNMTime = newMoonDate.getTime() + (utcOffset * 3600000),
+						localNMDate = new Date(localNMTime),
+						y = localNMDate.getUTCFullYear(),
+						m = localNMDate.getUTCMonth(),
+						d = localNMDate.getUTCDate(),
+						searchCenterUTC = new Date(Date.UTC(y, m, d, 12 - utcOffset, 0, 0)),
+						isVisible = this.checkVisibility(searchCenterUTC, bestNewMoon.ut),
+						startDay = d + (isVisible ? 1 : 2),
+						result = { gDate: new Date(y, m, startDay) };
+					return (this.cache[cacheKey] = result, this.scheduleSaveCache(), result);
+				})());
 			}
 
 			getHijriInfoForCell(date, isGregorianMode, context, hijriStarts) {
-				const translation = text[state.lang];
-				let hijriDateDisplay = "";
-				let hijriMonthNameDisplay = "";
-				const dateNoTime = new Date(date).setHours(0, 0, 0, 0);
+				const translation = text[state.lang], dateNoTime = new Date(date).setHours(0, 0, 0, 0);
+				let hijriDateDisplay = "", hijriMonthNameDisplay = "";
 
-				if (isGregorianMode) {
+				isGregorianMode ? (()=>{
 					for (let k = 0; k < hijriStarts.length - 1; k++) {
-						const s1 = hijriStarts[k];
-						const s2 = hijriStarts[k + 1];
-						if (date >= s1.gDate && date < s2.gDate) {
-							const startTime = new Date(s1.gDate).setHours(0, 0, 0, 0);
-							const dayNumber = Math.round((dateNoTime - startTime) / 86400000) + 1;
-							hijriDateDisplay = dayNumber;
-							hijriMonthNameDisplay = translation.months[s1.month - 1];
-							break;
-						}
+						const s1 = hijriStarts[k], s2 = hijriStarts[k + 1];
+						(date >= s1.gDate && date < s2.gDate) && (
+							hijriDateDisplay = Math.round((dateNoTime - new Date(s1.gDate).setHours(0, 0, 0, 0)) / 86400000) + 1,
+							hijriMonthNameDisplay = translation.months[s1.month - 1],
+							k = hijriStarts.length
+						);
 					}
-				} else {
-					if (date >= context.startGDate && date < context.endGDate) {
-						const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
-						hijriDateDisplay = Math.round((dateNoTime - start) / 86400000) + 1;
-						hijriMonthNameDisplay = translation.months[context.hMonth - 1];
-					} else {
-						const start = new Date(context.startGDate).setHours(0, 0, 0, 0);
-						const diff = Math.round((dateNoTime - start) / 86400000) + 1;
-						if (date < context.startGDate) {
-							let prevMonth = context.hMonth - 1;
-							let prevYear = context.hYear;
-							if (prevMonth < 1) { prevMonth += 12; prevYear--; }
+				})() : (
+					(date >= context.startGDate && date < context.endGDate) ? (
+						hijriDateDisplay = Math.round((dateNoTime - new Date(context.startGDate).setHours(0, 0, 0, 0)) / 86400000) + 1,
+						hijriMonthNameDisplay = translation.months[context.hMonth - 1]
+					) : (()=>{
+						const start = new Date(context.startGDate).setHours(0, 0, 0, 0),
+							diff = Math.round((dateNoTime - start) / 86400000) + 1;
+						date < context.startGDate ? (()=>{
+							let prevMonth = context.hMonth - 1, prevYear = context.hYear;
+							(prevMonth < 1 && (prevMonth += 12, prevYear--));
 							const prevStart = this.getAccurateHijriMonthStart(prevYear, prevMonth);
 							let prevLength = Math.round((context.startGDate - prevStart.gDate) / 86400000);
-							if (prevLength < 29 || prevLength > 30) prevLength = 30;
-							hijriDateDisplay = prevLength + diff;
+							(prevLength < 29 || prevLength > 30) && (prevLength = 30),
+							hijriDateDisplay = prevLength + diff,
 							hijriMonthNameDisplay = translation.months[prevMonth - 1];
-						} else {
+						})() : (()=>{
 							let length = Math.round((context.endGDate - context.startGDate) / 86400000);
-							if (length < 29 || length > 30) length = 30;
-							hijriDateDisplay = diff - length;
+							(length < 29 || length > 30) && (length = 30);
 							let nm = context.hMonth + 1;
-							if (nm > 12) nm = 1;
+							(nm > 12 && (nm = 1)),
+							hijriDateDisplay = diff - length,
 							hijriMonthNameDisplay = translation.months[nm - 1];
-						}
-					}
-				}
+						})();
+					})()
+				);
 				return { day: hijriDateDisplay, monthName: hijriMonthNameDisplay };
 			}
 
 			createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth) {
-				const element = document.createElement('div');
-				element.className = 'day-cell';
-				element.setAttribute('role', 'gridcell');
-				element.tabIndex = -1;
-
-				if (isOtherMonth) element.classList.add('other-month');
-				if (isToday) element.classList.add('today');
-				if (isSelected) {
-					element.classList.add('selected');
-					element.setAttribute('aria-selected', 'true');
-				}
-
-				element.onclick = () => {
-					this.setDateToInput(elements.gDateInput, date);
-					this.updateHijriInputs(date);
-					this.render();
-					const selected = elements.calendar.querySelector('.day-cell.selected');
-					if (selected) selected.focus();
-				};
-
-				const fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-				element.setAttribute('aria-label', `${fullDate}, ${hijriInfo.day} ${hijriInfo.monthName}`);
-				element.dataset.date = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-				const isGregorianMode = state.primaryCalendar !== 'hijri';
-				const monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' });
-				const gregorianText = isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`;
-
+				const element = document.createElement('div'),
+					isGregorianMode = state.primaryCalendar !== 'hijri',
+					monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' }),
+					gregorianText = isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`,
+					fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+				return (element.className = 'day-cell',
+				element.setAttribute('role', 'gridcell'),
+				element.tabIndex = -1,
+				isOtherMonth && element.classList.add('other-month'),
+				isToday && element.classList.add('today'),
+				isSelected && (element.classList.add('selected'), element.setAttribute('aria-selected', 'true')),
+				element.onclick = ()=>(
+					this.setDateToInput(elements.gDateInput, date),
+					this.updateHijriInputs(date),
+					this.render(),
+					(()=>{
+						const selected = elements.calendar.querySelector('.day-cell.selected');
+						selected && selected.focus();
+					})()
+				),
+				element.setAttribute('aria-label', `${fullDate}, ${hijriInfo.day} ${hijriInfo.monthName}`),
+				element.dataset.date = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
 				element.innerHTML = `
 					<div class="gregorian-date">${gregorianText}</div>
 					<div class="hijri-wrapper">
 						<div class="hijri-date">${hijriInfo.day}</div>
 						<div class="hijri-month-name">${hijriInfo.monthName}</div>
 					</div>
-				`;
-				return element;
+				`,
+				element);
 			}
 
 			render() {
-				const grid = elements.calendar;
-				const translation = text[state.lang];
-				if (state.primaryCalendar === 'hijri') grid.classList.add('hijri-primary');
-				else grid.classList.remove('hijri-primary');
-
-				if (state.primaryCalendar !== 'hijri') {
-					const year = state.viewDate.getFullYear();
-					const month = state.viewDate.getMonth();
-					const langCode = state.lang === 'id' ? 'id-ID' : 'en-US';
+				const grid = elements.calendar, translation = text[state.lang];
+				(state.primaryCalendar === 'hijri' ? grid.classList.add('hijri-primary') : grid.classList.remove('hijri-primary'),
+				state.primaryCalendar !== 'hijri' ? (()=>{
+					const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth(), langCode = state.lang === 'id' ? 'id-ID' : 'en-US';
 					elements.monthDisplay.textContent = state.viewDate.toLocaleDateString(langCode, { month: 'long', year: 'numeric' });
-					const firstDayOfMonth = new Date(year, month, 1);
-					let dayOfWeek = firstDayOfMonth.getDay();
-					let offset = dayOfWeek - state.weekStart;
-					if (offset < 0) offset += 7;
-					const gridStartDate = new Date(year, month, 1 - offset);
-					this.renderGrid(gridStartDate, true, { month, year });
-					return;
-				}
-
-				const hijri = this.gregorianToHijri(state.viewDate);
-				const currentStart = this.getAccurateHijriMonthStart(hijri.year, hijri.month);
-				let nextMonth = hijri.month + 1;
-				let nextYear = hijri.year;
-				if (nextMonth > 12) { nextMonth = 1; nextYear++; }
-				const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
-				elements.monthDisplay.textContent = `${translation.months[hijri.month - 1]} ${hijri.year}`;
-				const startDayOfWeek = currentStart.gDate.getDay();
-				let offset = startDayOfWeek - state.weekStart;
-				if (offset < 0) offset += 7;
-				const gridStartDate = new Date(currentStart.gDate);
-				gridStartDate.setDate(gridStartDate.getDate() - offset);
-				this.renderGrid(gridStartDate, false, { hMonth: hijri.month, hYear: hijri.year, startGDate: currentStart.gDate, endGDate: nextStart.gDate });
+					let offset = new Date(year, month, 1).getDay() - state.weekStart;
+					(offset < 0 && (offset += 7)),
+					this.renderGrid(new Date(year, month, 1 - offset), true, { month, year });
+				})() : (()=>{
+					const hijri = this.gregorianToHijri(state.viewDate), currentStart = this.getAccurateHijriMonthStart(hijri.year, hijri.month);
+					let nextMonth = hijri.month + 1, nextYear = hijri.year;
+					(nextMonth > 12 && (nextMonth = 1, nextYear++));
+					const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
+					elements.monthDisplay.textContent = `${translation.months[hijri.month - 1]} ${hijri.year}`;
+					let offset = currentStart.gDate.getDay() - state.weekStart;
+					(offset < 0 && (offset += 7));
+					const gridStartDate = new Date(currentStart.gDate);
+					(gridStartDate.setDate(gridStartDate.getDate() - offset),
+					this.renderGrid(gridStartDate, false, { hMonth: hijri.month, hYear: hijri.year, startGDate: currentStart.gDate, endGDate: nextStart.gDate }));
+				})());
 			}
 
 			renderGrid(gridStartDate, isGregorianMode, context) {
-				const grid = elements.calendar;
-				const translation = text[state.lang];
-				grid.setAttribute('role', 'grid');
-				grid.innerHTML = '';
-				const fragment = document.createDocumentFragment();
+				const grid = elements.calendar, translation = text[state.lang], fragment = document.createDocumentFragment();
+				(grid.setAttribute('role', 'grid'), grid.innerHTML = '');
 
 				for (let index = 0; index < 7; index++) {
-					let dayIndex = (state.weekStart + index) % 7;
-					const element = document.createElement('div');
-					element.className = 'day-header';
-					element.textContent = translation.days[dayIndex];
-					element.setAttribute('role', 'columnheader');
-					fragment.appendChild(element);
+					const dayIndex = (state.weekStart + index) % 7, element = document.createElement('div');
+					(element.className = 'day-header', element.textContent = translation.days[dayIndex], element.setAttribute('role', 'columnheader'), fragment.appendChild(element));
 				}
 
 				let hijriStarts = [];
-				if (isGregorianMode) {
+				isGregorianMode && (()=>{
 					const startHijri = this.gregorianToHijri(gridStartDate);
-					let hMonthIndex = startHijri.month;
-					let hYear = startHijri.year;
+					let hMonthIndex = startHijri.month, hYear = startHijri.year;
 					for (let index = -1; index <= 3; index++) {
-						let month = hMonthIndex + index;
-						let year = hYear;
-						while (month > 12) { month -= 12; year++; }
-						while (month < 1) { month += 12; year--; }
+						let month = hMonthIndex + index, year = hYear;
+						while (month > 12) (month -= 12, year++);
+						while (month < 1) (month += 12, year--);
 						const start = this.getAccurateHijriMonthStart(year, month);
-						hijriStarts.push({ year: year, month: month, gDate: start.gDate });
+						hijriStarts.push({ year, month, gDate: start.gDate });
 					}
-					hijriStarts.sort((a, b) => a.gDate - b.gDate);
-				}
+					hijriStarts.sort((a,b)=>a.gDate - b.gDate);
+				})();
 
-				const today = new Date();
-				today.setHours(0, 0, 0, 0);
-				const selectedDate = this.getDateFromInput(elements.gDateInput);
-				const selectedTime = selectedDate ? selectedDate.getTime() : -1;
+				const today = new Date().setHours(0, 0, 0, 0), selectedDate = this.getDateFromInput(elements.gDateInput), selectedTime = selectedDate ? selectedDate.getTime() : -1;
 
 				for (let index = 0; index < 42; index++) {
 					const date = new Date(gridStartDate);
 					date.setDate(gridStartDate.getDate() + index);
-
-					const hijriInfo = this.getHijriInfoForCell(date, isGregorianMode, context, hijriStarts);
-
-					let isOtherMonth = false;
-					if (isGregorianMode) {
-						if (date.getMonth() !== context.month) isOtherMonth = true;
-					} else {
-						if (date < context.startGDate || date >= context.endGDate) isOtherMonth = true;
-					}
-
-					const dateTime = date.getTime();
-					const isToday = (dateTime === today.getTime());
-					const isSelected = (dateTime === selectedTime);
-
-					const element = this.createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth);
+					const hijriInfo = this.getHijriInfoForCell(date, isGregorianMode, context, hijriStarts),
+						isOtherMonth = isGregorianMode ? (date.getMonth() !== context.month) : (date < context.startGDate || date >= context.endGDate),
+						dateTime = date.getTime(),
+						isToday = (dateTime === today),
+						isSelected = (dateTime === selectedTime),
+						element = this.createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth);
 					fragment.appendChild(element);
 				}
-				grid.appendChild(fragment);
-
-				const cells = grid.querySelectorAll('.day-cell');
-				let focusCandidate = grid.querySelector('.day-cell.selected');
-				if (!focusCandidate) focusCandidate = grid.querySelector('.day-cell.today');
-				if (!focusCandidate && cells.length > 0) focusCandidate = cells[0];
-				if (focusCandidate) focusCandidate.tabIndex = 0;
+				(grid.appendChild(fragment), (()=>{
+					const cells = grid.querySelectorAll('.day-cell');
+					let focusCandidate = grid.querySelector('.day-cell.selected') || grid.querySelector('.day-cell.today') || (cells.length > 0 ? cells[0] : null);
+					focusCandidate && (focusCandidate.tabIndex = 0);
+				})());
 			}
 		}
 		new HijriCalc();

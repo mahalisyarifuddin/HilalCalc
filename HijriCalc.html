@@ -954,10 +954,10 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Day - 1\nIndex = floor((JD - 1948440 + 0.81951600) / 29.53057334)`;
+				const formula = `JD = 1948440 + \u230a29.53057334 \u00b7 N + 0.18048400\u230b + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (1-10000 AH). Index = (Year-1)*12 + Month - 1. Epoch 1 AH = 1948440.</i>`;
+				elements.formulaNote.innerHTML = `<i>Linear Approximation (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
 			}
 
 			// Core Linear Logic Refactored

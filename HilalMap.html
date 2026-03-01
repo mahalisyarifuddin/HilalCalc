@@ -279,15 +279,15 @@
 <body>
 	<div class="container">
 		<div class="selectors">
-			<select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
-			<select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
+			<select id="language" aria-label="Language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
+			<select id="theme" aria-label="Theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
 		</div>
 		<h1 id="mapTitle">Hilal Visibility Map</h1>
-		<div class="tabs">
-			<button id="tabMap" class="tab active">Map</button>
-			<button id="tabCalc" class="tab">Detailed Calculations</button>
+		<div class="tabs" role="tablist">
+			<button id="tabMap" class="tab active" role="tab" aria-selected="true" aria-controls="mapView">Map</button>
+			<button id="tabCalc" class="tab" role="tab" aria-selected="false" aria-controls="calcView">Detailed Calculations</button>
 		</div>
-		<div id="mapView">
+		<div id="mapView" role="tabpanel" aria-labelledby="tabMap">
 			<div id="controls">
 				<div class="row">
 					<div class="group">
@@ -326,9 +326,9 @@
 			</div>
 			<div id="map-container">
 				<div class="map-controls">
-					<button id="zoom-in" title="Zoom In">+</button>
-					<button id="zoom-out" title="Zoom Out">−</button>
-					<button id="zoom-reset" title="Reset">⟲</button>
+					<button id="zoom-in" title="Zoom In" aria-label="Zoom In">+</button>
+					<button id="zoom-out" title="Zoom Out" aria-label="Zoom Out">−</button>
+					<button id="zoom-reset" title="Reset" aria-label="Reset Zoom">⟲</button>
 				</div>
 				<div id="map-wrapper">
 					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Mercator_projection_SW.jpg" alt="World Map" draggable="false">
@@ -336,7 +336,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="calcView" class="hidden">
+		<div id="calcView" class="hidden" role="tabpanel" aria-labelledby="tabCalc">
 			<div class="row">
 				<div class="group">
 					<label id="calcDateLabel" for="calcDate">Date</label>
@@ -693,12 +693,16 @@ self.onmessage = e=>{
 			switchTab(tab) {
 				tab === "map" ? (
 					elements.tabMap.classList.add("active"),
+					elements.tabMap.setAttribute("aria-selected", "true"),
 					elements.tabCalc.classList.remove("active"),
+					elements.tabCalc.setAttribute("aria-selected", "false"),
 					elements.mapView.classList.remove("hidden"),
 					elements.calcView.classList.add("hidden")
 				) : (
 					elements.tabMap.classList.remove("active"),
+					elements.tabMap.setAttribute("aria-selected", "false"),
 					elements.tabCalc.classList.add("active"),
+					elements.tabCalc.setAttribute("aria-selected", "true"),
 					elements.mapView.classList.add("hidden"),
 					elements.calcView.classList.remove("hidden")
 				);

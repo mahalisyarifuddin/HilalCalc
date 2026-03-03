@@ -24,6 +24,17 @@ A "Knee Point Analysis" was performed to find the optimal precision for the cons
 
 Precision 8 was selected as the knee point, offering the highest accuracy before diminishing returns.
 
+### Comparison of Rounding Methods
+A comparative analysis was conducted between `math.floor`, `math.ceil`, and `math.round` to determine the most accurate method for the linear approximation. The `math.floor` method proved significantly superior for this application.
+
+| Method | Best Obligatory Accuracy | Best Total Accuracy |
+| :--- | :--- | :--- |
+| **math.floor** | **20702 (69.01%)** | **82820 (69.02%)** |
+| math.ceil | 15178 (50.59%) | 60801 (50.67%) |
+| math.round | 15238 (50.79%) | 61025 (50.85%) |
+
+The `math.floor` method aligns best with the lunar cycle's forward-progressing nature and the specific visibility criteria used for month starts.
+
 ```
 JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Day - 1
 Index = floor((JD - 1948440 + 0.81951600) / 29.53057334)

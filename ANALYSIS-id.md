@@ -24,6 +24,17 @@ Rumus linear diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk m
 
 Presisi 8 dipilih sebagai knee point, memberikan akurasi tertinggi sebelum peningkatan hasil menurun.
 
+### Perbandingan Metode Pembulatan
+Analisis komparatif dilakukan antara `math.floor`, `math.ceil`, dan `math.round` untuk menentukan metode yang paling akurat untuk aproksimasi linear. Metode `math.floor` terbukti jauh lebih unggul untuk aplikasi ini.
+
+| Metode | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
+| :--- | :--- | :--- |
+| **math.floor** | **20702 (69.01%)** | **82820 (69.02%)** |
+| math.ceil | 15178 (50.59%) | 60801 (50.67%) |
+| math.round | 15238 (50.79%) | 61025 (50.85%) |
+
+Metode `math.floor` paling selaras dengan sifat siklus bulan yang bergerak maju dan kriteria visibilitas spesifik yang digunakan untuk awal bulan.
+
 ```
 JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Day - 1
 Index = floor((JD - 1948440 + 0.81951600) / 29.53057334)

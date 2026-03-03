@@ -27,13 +27,14 @@ Visualize where the new crescent moon is visible on the globe for any given date
 -   **Offline Capable**: Works locally (requires internet only for the map image/CDN).
 
 ### 2. HijriCalc (Calendar & Converter)
-A robust calendar tool that adapts its calculations to your specific location.
+A robust calendar tool that adapts its calculations to your specific location and historical context.
 
 **Key Features:**
--   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical moon sighting simulation.
--   **Linear Approximation**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates, optimized for the Composite Criteria (Mecca + Viwa Island).
+-   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical moon sighting simulation ("Local Sighting").
+-   **Global Formula**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates over 10,000 years, optimized for the Composite Criteria (Mecca + Viwa Island).
+-   **Historical Transition**: Fully supports the 1582 Gregorian reform. Dates prior to the reform are correctly labeled as Julian.
 -   **Navigation**: Jump to any Gregorian or Hijri date to see the corresponding calendar arrangement.
--   **Preferences**: Customize Language, Theme, Week Start Day, Location, and Primary Calendar.
+-   **Settings**: Customize Language, Theme, Week Start Day, Location, Main Calendar, and Gregorian Mode (Historical vs. Continuous).
 
 ## Quick Start
 1.  Download `HilalMap.html` or `HijriCalc.html`.
@@ -49,8 +50,8 @@ The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Ind
 -   **Elongation**: ≥ 6.4°
 -   Calculation Point: Sunset.
 
-### Linear Approximation (HijriCalc)
-For quick navigation and approximation, `HijriCalc` uses a **Linear Formula** derived from a rigorous composite analysis for years **1-10000 AH**.
+### Global Approximation (HijriCalc)
+For quick navigation and broad historical coverage, `HijriCalc` uses a **Global Formula** derived from a rigorous composite analysis for years **1-10000 AH**.
 
 **Composite Criteria:**
 The ground truth data was generated using a strict composite rule:
@@ -61,9 +62,9 @@ The ground truth data was generated using a strict composite rule:
 This ensures that the predicted month start satisfies the visibility criteria in Mecca while ensuring the moon is physically above the horizon in the easternmost Pacific (Viwa).
 
 **The Formula:**
-The derived linear formula for the Julian Date (JD) of a Hijri date is:
+The derived linear formula for the Julian Date (JD) of a Hijri date is mathematically equivalent to:
 
-`JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Day - 1`
+`JD = 1948440 + round(29.53057334 * Index - 0.31951600) + Day - 1`
 
 Where:
 -   `Index = (HijriYear - 1) * 12 + (HijriMonth - 1)`
@@ -72,6 +73,12 @@ Where:
 
 **Accuracy:**
 This simple linear formula achieves **~69.02%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1-10000 AH period, with an optimized accuracy of **~69.01%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). The constants were derived using a Knee Point Analysis to ensure optimal floating-point precision. For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
+
+## Historical Context
+`HijriCalc` is designed to handle deep historical dates with care:
+-   **Gregorian Reform**: In "Historical" mode, the calendar correctly handles the jump from October 4, 1582 (Julian) to October 15, 1582 (Gregorian). Prior dates are labeled as Julian.
+-   **Proleptic Mode**: For modern compatibility, users can toggle to "Continuous (Modern)" mode to use proleptic Gregorian rules globally.
+-   **Medieval Hijri Dates**: For years prior to 1300 AH, the tool automatically switches to the Global Formula method, as modern sighting criteria (like MABBIMS) are not historically applicable to those periods.
 
 ## Privacy & Data
 All astronomical calculations happen locally in your browser using **astronomy-engine**. No location data or usage metrics are sent to any server.

@@ -207,6 +207,12 @@
 			font-size: 0.75rem; 
 			opacity: 0.8; 
 		}
+		.julian-label {
+			display: block;
+			font-size: 0.65rem;
+			font-weight: 400;
+			opacity: 0.7;
+		}
 		.calendar-grid.hijri-primary .gregorian-date {
 			order: 2;
 			font-size: 0.9rem;
@@ -1176,7 +1182,8 @@
 					jd = this.gregorianDateToJD(date),
 					isJulian = (state.gMode === 'transition' && jd < 2299161),
 					monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' }),
-					gregorianText = (isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`) + (isJulian ? ` (${translation.julian})` : ""),
+					gregorianValue = isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`,
+					gregorianText = gregorianValue + (isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
 					fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + (isJulian ? ` (${translation.julian})` : "");
 				return (element.className = 'day-cell',
 				element.setAttribute('role', 'gridcell'),

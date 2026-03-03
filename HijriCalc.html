@@ -969,7 +969,7 @@
 
 			getLinearIndexFromJD(JD) {
 				// Derived from 1-10000 AH analysis.
-				// Inverse offset = 0.5 + 0.31951600 = 0.81951600.
+				// Inverse offset = 1.0 - (0.18048400) = 0.81951600.
 				return Math.floor((JD - 1948440 + 0.81951600) / 29.53057334);
 			}
 

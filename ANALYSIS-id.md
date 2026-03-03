@@ -7,8 +7,8 @@ Data Ground Truth (GT) untuk bulan-bulan Hijriyah dibuat menggunakan kriteria ko
 - **Kondisi**: Kedua set kriteria harus terpenuhi agar bulan baru dimulai pada hari berikutnya. Jika tidak, bulan tersebut memiliki 30 hari.
 - **Tanggal Dasar**: Muharram 1 H sesuai dengan JD 1948440 (16 Juli 622 M, Siang).
 
-## Aproksimasi Rumus Linear (1-10000 H)
-Rumus linear diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk mengoptimalkan akurasi pada periode ini, menggunakan epoch integer tetap untuk 1 Muharram 1 H.
+## Aproksimasi Rumus Global (1-10000 H)
+Rumus global diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk mengoptimalkan akurasi pada periode ini, menggunakan epoch integer tetap untuk 1 Muharram 1 H.
 
 "Knee Point Analysis" dilakukan untuk menemukan presisi optimal konstanta. Kami mencari Slope dan Phase Shift terbaik dengan presisi floating-point (jumlah desimal) yang setara untuk memaksimalkan akurasi bulan wajib.
 
@@ -47,7 +47,7 @@ JD = 1948440 + ceil(29.53057334 * Index - 0.81951600) + Day - 1
 Index = ceil((JD - 1948440 - 0.18048400) / 29.53057334)
 ```
 
-#### Rumus Linear (Menggunakan round):
+#### Rumus Global (Menggunakan round):
 ```
 JD = 1948440 + round(29.53057334 * Index - 0.31951600) + Day - 1
 Index = round((JD - 1948440 - 13.94577067) / 29.53057334)

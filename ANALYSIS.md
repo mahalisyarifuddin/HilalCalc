@@ -7,8 +7,8 @@ The Ground Truth (GT) data for Hijri months was generated using the following co
 - **Condition**: Both sets of criteria must be met for the new month to begin the next day. Otherwise, the month has 30 days.
 - **Base Date**: Muharram 1 AH corresponds to JD 1948440 (July 16, 622 AD, Noon).
 
-## Linear Formula Approximation (1-10000 AH)
-A linear formula was derived based on the **1-10000 AH** range (120000 months) to optimize accuracy for this extended period, using a fixed integer epoch for 1 Muharram 1 AH.
+## Global Formula Approximation (1-10000 AH)
+A global formula was derived based on the **1-10000 AH** range (120000 months) to optimize accuracy for this extended period, using a fixed integer epoch for 1 Muharram 1 AH.
 
 A "Knee Point Analysis" was performed to find the optimal precision for the constants. We searched for the best Slope and Phase Shift having equal floating-point precision (number of decimal places) to maximize obligatory month accuracy.
 
@@ -47,7 +47,7 @@ JD = 1948440 + ceil(29.53057334 * Index - 0.81951600) + Day - 1
 Index = ceil((JD - 1948440 - 0.18048400) / 29.53057334)
 ```
 
-#### Linear Formula (Using round):
+#### Global Formula (Using round):
 ```
 JD = 1948440 + round(29.53057334 * Index - 0.31951600) + Day - 1
 Index = round((JD - 1948440 - 13.94577067) / 29.53057334)

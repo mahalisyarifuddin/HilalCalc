@@ -540,12 +540,12 @@
 				appTitle: 'MABBIMS Hijri Calendar',
 				gotoTitle: 'Go to Date',
 				today: 'Today',
-				formulaTitle: 'Linear Approximation',
+				formulaTitle: 'Global Approximation',
 				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.01% (1-10000 AH). Optimized for Obligatory Months.',
-				prefTitle: 'Preferences',
+				prefTitle: 'Settings',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
-				primaryCalLabel: 'Primary Calendar',
+				primaryCalLabel: 'Main Calendar',
 				weekStartLabel: 'Week starts on',
 				locLabel: 'Location',
 				adjLabel: 'Hijri Adjustment (Days)',
@@ -588,20 +588,20 @@
 				dirS: 'S',
 				dirE: 'E',
 				dirW: 'W',
-				calcModeLabel: 'Calculation Method',
-				calcModeAstronomic: 'Astronomical (MABBIMS)',
-				calcModeHeuristic: 'Linear Approximation',
-				heuristicSuffix: ' (Linear)',
+				calcModeLabel: 'Hijri Calculation',
+				calcModeAstronomic: 'Local Sighting (MABBIMS)',
+				calcModeHeuristic: 'Global Formula (Linear)',
+				heuristicSuffix: ' (Formula)',
 				gModeLabel: 'Gregorian Calendar',
-				gModeTransition: 'Transition (1582)',
-				gModeProleptic: 'Proleptic (Pure)',
+				gModeTransition: 'Historical (Switch 1582)',
+				gModeProleptic: 'Continuous (Modern)',
 				julian: 'Julian'
 			},
 			id: {
 				appTitle: 'Kalender Hijriyah MABBIMS',
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
-				formulaTitle: 'Aproksimasi Linear',
+				formulaTitle: 'Aproksimasi Global',
 				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.01% (1-10000 H). Dioptimalkan untuk Bulan Wajib.',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
@@ -649,13 +649,13 @@
 				dirS: 'LS',
 				dirE: 'BT',
 				dirW: 'BB',
-				calcModeLabel: 'Metode Perhitungan',
-				calcModeAstronomic: 'Astronomis (MABBIMS)',
-				calcModeHeuristic: 'Aproksimasi Linear',
-				heuristicSuffix: ' (Linear)',
+				calcModeLabel: 'Perhitungan Hijriyah',
+				calcModeAstronomic: 'Rukyat Lokal (MABBIMS)',
+				calcModeHeuristic: 'Rumus Global (Linear)',
+				heuristicSuffix: ' (Rumus)',
 				gModeLabel: 'Kalender Masehi',
-				gModeTransition: 'Transisi (1582)',
-				gModeProleptic: 'Proleptik (Murni)',
+				gModeTransition: 'Sejarah (Transisi 1582)',
+				gModeProleptic: 'Berkelanjutan (Modern)',
 				julian: 'Julian'
 			}
 		};
@@ -981,7 +981,7 @@
 				const formula = `JD = 1948440 + round(29.53057334 \u00b7 N \u2212 0.31951600) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Linear Approximation (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
+				elements.formulaNote.innerHTML = `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
 			}
 
 			// Core Linear Logic Refactored

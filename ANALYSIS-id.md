@@ -47,6 +47,12 @@ JD = 1948440 + ceil(29.53057334 * Index - 0.81951600) + Day - 1
 Index = ceil((JD - 1948440 - 0.18048400) / 29.53057334)
 ```
 
+#### Rumus Linear (Menggunakan round):
+```
+JD = 1948440 + round(29.53057334 * Index - 0.31951600) + Day - 1
+Index = floor((JD - 1948440 + 0.81951600) / 29.53057334)
+```
+
 Di mana:
 - `Index = (Year - 1) * 12 + (Month - 1)`
 - `Month` adalah berbasis 1 (1=Muharram, ..., 12=Dzulhijjah).

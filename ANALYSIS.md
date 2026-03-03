@@ -25,19 +25,26 @@ A "Knee Point Analysis" was performed to find the optimal precision for the cons
 Precision 8 was selected as the knee point, offering the highest accuracy before diminishing returns.
 
 ### Comparison of Rounding Methods
-A comparative analysis was conducted between `math.floor`, `math.ceil`, and `math.round` to determine the most accurate method for the linear approximation. The `math.floor` method proved significantly superior for this application.
+A comparative analysis shows that `math.floor`, `math.ceil`, and `math.round` can all achieve the same peak accuracy when their respective constants are properly fitted. The choice of method simply shifts the required phase constant.
 
-| Method | Best Obligatory Accuracy | Best Total Accuracy |
-| :--- | :--- | :--- |
-| **math.floor** | **20702 (69.01%)** | **82820 (69.02%)** |
-| math.ceil | 15178 (50.59%) | 60801 (50.67%) |
-| math.round | 15238 (50.79%) | 61025 (50.85%) |
+| Method | Optimal Slope | Optimal Phase | Best Obligatory Acc | Best Total Acc |
+| :--- | :--- | :--- | :--- | :--- |
+| **math.floor** | **29.53057334** | **0.18048400** | **20702 (69.01%)** | **82820 (69.02%)** |
+| **math.ceil** | **29.53057334** | **-0.81951600** | **20702 (69.01%)** | **82820 (69.02%)** |
+| **math.round** | **29.53057334** | **-0.31951600** | **20702 (69.01%)** | **82820 (69.02%)** |
 
-The `math.floor` method aligns best with the lunar cycle's forward-progressing nature and the specific visibility criteria used for month starts.
+All methods align equally well with the lunar cycle provided the Phase Shift is adjusted by 1.0 (for floor vs ceil) or 0.5 (for floor vs round).
 
+#### Linear Formula (Using floor):
 ```
 JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Day - 1
 Index = floor((JD - 1948440 + 0.81951600) / 29.53057334)
+```
+
+#### Linear Formula (Using ceil):
+```
+JD = 1948440 + ceil(29.53057334 * Index - 0.81951600) + Day - 1
+Index = ceil((JD - 1948440 - 0.18048400) / 29.53057334)
 ```
 
 Where:
@@ -46,8 +53,6 @@ Where:
 - `Day` is the day of the Hijri month.
 - `Slope` = 29.53057334 (8 decimal digits)
 - `Epoch (Integer)` = 1948440 (1 Muharram 1 AH)
-- `Phase Shift` = 0.18048400 (8 decimal digits)
-- `Inverse Offset` = 0.81951600 (1.0 - Phase Shift)
 
 ## Accuracy
 - **Range**: 1 AH to 10000 AH (120000 months).

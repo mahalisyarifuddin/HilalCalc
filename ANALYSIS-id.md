@@ -25,19 +25,26 @@ Rumus linear diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk m
 Presisi 8 dipilih sebagai knee point, memberikan akurasi tertinggi sebelum peningkatan hasil menurun.
 
 ### Perbandingan Metode Pembulatan
-Analisis komparatif dilakukan antara `math.floor`, `math.ceil`, dan `math.round` untuk menentukan metode yang paling akurat untuk aproksimasi linear. Metode `math.floor` terbukti jauh lebih unggul untuk aplikasi ini.
+Analisis komparatif menunjukkan bahwa `math.floor`, `math.ceil`, dan `math.round` semuanya dapat mencapai akurasi puncak yang sama jika konstanta masing-masing disesuaikan dengan benar. Pilihan metode hanya menggeser konstanta phase yang diperlukan.
 
-| Metode | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
-| :--- | :--- | :--- |
-| **math.floor** | **20702 (69.01%)** | **82820 (69.02%)** |
-| math.ceil | 15178 (50.59%) | 60801 (50.67%) |
-| math.round | 15238 (50.79%) | 61025 (50.85%) |
+| Metode | Slope Optimal | Phase Optimal | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
+| :--- | :--- | :--- | :--- | :--- |
+| **math.floor** | **29.53057334** | **0.18048400** | **20702 (69.01%)** | **82820 (69.02%)** |
+| **math.ceil** | **29.53057334** | **-0.81951600** | **20702 (69.01%)** | **82820 (69.02%)** |
+| **math.round** | **29.53057334** | **-0.31951600** | **20702 (69.01%)** | **82820 (69.02%)** |
 
-Metode `math.floor` paling selaras dengan sifat siklus bulan yang bergerak maju dan kriteria visibilitas spesifik yang digunakan untuk awal bulan.
+Semua metode selaras dengan siklus lunar asalkan Phase Shift disesuaikan sebesar 1,0 (untuk floor vs ceil) atau 0,5 (untuk floor vs round).
 
+#### Rumus Linear (Menggunakan floor):
 ```
 JD = 1948440 + floor(29.53057334 * Index + 0.18048400) + Day - 1
 Index = floor((JD - 1948440 + 0.81951600) / 29.53057334)
+```
+
+#### Rumus Linear (Menggunakan ceil):
+```
+JD = 1948440 + ceil(29.53057334 * Index - 0.81951600) + Day - 1
+Index = ceil((JD - 1948440 - 0.18048400) / 29.53057334)
 ```
 
 Di mana:
@@ -46,8 +53,6 @@ Di mana:
 - `Day` adalah hari dalam bulan Hijriyah.
 - `Slope` = 29.53057334 (8 digit desimal)
 - `Epoch (Integer)` = 1948440 (1 Muharram 1 H)
-- `Phase Shift` = 0.18048400 (8 digit desimal)
-- `Inverse Offset` = 0.81951600 (1.0 - Phase Shift)
 
 ## Akurasi
 - **Rentang**: 1 H hingga 10000 H (120000 bulan).

@@ -954,7 +954,7 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = 1948440 + \u230a29.53057334 \u00b7 N + 0.18048400\u230b + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
+				const formula = `JD = 1948440 + round(29.53057334 \u00b7 N \u2212 0.31951600) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
 				elements.formulaNote.innerHTML = `<i>Linear Approximation (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
@@ -962,15 +962,15 @@
 
 			// Core Linear Logic Refactored
 			getLinearMonthStartJD(Index) {
-				// Intercept at 1 AH (Index 0) is 1948440 + floor(0.18048400) = 1948440.
-				// Phase shift 0.18048400 maximizes accuracy (~69.01% for obligatory months 1-10000 AH).
-				return 1948440 + Math.floor(29.53057334 * Index + 0.18048400);
+				// Intercept at 1 AH (Index 0) is 1948440 + round(-0.31951600) = 1948440.
+				// Phase shift -0.31951600 maximizes accuracy (~69.01% for obligatory months 1-10000 AH).
+				return 1948440 + Math.round(29.53057334 * Index - 0.31951600);
 			}
 
 			getLinearIndexFromJD(JD) {
 				// Derived from 1-10000 AH analysis.
-				// Inverse offset = 1.0 - (0.18048400) = 0.81951600.
-				return Math.floor((JD - 1948440 + 0.81951600) / 29.53057334);
+				// Inverse offset = -13.94577067 (constant for round-based inverse).
+				return Math.round((JD - 1948440 - 13.94577067) / 29.53057334);
 			}
 
 			jdToGregorianDate(jd) {

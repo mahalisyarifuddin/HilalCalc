@@ -176,7 +176,7 @@ def optimize():
 
 	results = []
 
-	for func_type in ["floor", "ceil"]:
+	for func_type in ["floor", "ceil", "round"]:
 		params, oblig, total = optimize_for_func(func_type, indices, targets, is_oblig, slope_lr, phase_lr, count)
 		results.append((func_type, params, oblig, total))
 

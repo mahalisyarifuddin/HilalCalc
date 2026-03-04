@@ -978,7 +978,7 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = 1948440 + round(29.530573295162593 \u00b7 N \u2212 0.315165528893008) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
+				const formula = `JD = 1948440 + round(29.530573295199901 \u00b7 N \u2212 0.315166448759056) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
 				elements.formulaNote.innerHTML = `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
@@ -988,13 +988,13 @@
 			getLinearMonthStartJD(Index) {
 				// Intercept at 1 AH (Index 0) is 1948440 + round(-0.315119408) = 1948440.
 				// Phase shift -0.315119408 maximizes accuracy (~69.03% for obligatory months 1-10000 AH).
-				return 1948440 + Math.round(29.530573295162593 * Index - 0.315165528893008);
+				return 1948440 + Math.round(29.530573295199901 * Index - 0.315166448759056);
 			}
 
 			getLinearIndexFromJD(JD) {
 				// Derived from 1-10000 AH analysis.
 				// Inverse offset = -0.315119408 (matches forward phase).
-				return Math.round((JD - 1948440 + 0.315165528893008) / 29.530573295162593);
+				return Math.round((JD - 1948440 + 0.315166448759056) / 29.530573295199901);
 			}
 
 			jdToGregorianDate(jd) {

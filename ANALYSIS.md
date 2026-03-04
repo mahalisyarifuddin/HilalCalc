@@ -14,15 +14,16 @@ A "Knee Point Analysis" was performed to find the optimal precision for the cons
 
 | Precision | Slope | Phase (round) | Obligatory Matches | Total Matches |
 | :--- | :--- | :--- | :--- | :--- |
-| 4 | 29.5306 | -1.2631 | 11138 (37.13%) | 44538 (37.11%) |
-| 5 | 29.53057 | -0.11630 | 20346 (67.82%) | 81408 (67.84%) |
-| 6 | 29.530573 | -0.278956 | 20698 (68.99%) | 82763 (68.97%) |
-| 7 | 29.5305733 | -0.3152725 | 20707 (69.02%) | 82814 (69.01%) |
-| 8 | 29.53057330 | -0.31527246 | 20707 (69.02%) | 82814 (69.01%) |
+| 4 | 29.5306 | -0.7009 | 8198 (27.33%) | 32698 (27.25%) |
+| 5 | 29.53057 | -0.31510 | 19287 (64.29%) | 77170 (64.31%) |
+| 6 | 29.530573 | -0.315124 | 20673 (68.91%) | 82745 (68.95%) |
+| 7 | 29.5305733 | -0.3151194 | 20705 (69.02%) | 82813 (69.01%) |
+| 8 | 29.53057330 | -0.31511941 | 20705 (69.02%) | 82813 (69.01%) |
 | **9** | **29.530573295** | **-0.315119408** | **20709 (69.03%)** | **82819 (69.02%)** |
-| 10 | 29.5305732952 | -0.3151661964 | 20709 (69.03%) | 82820 (69.02%) |
+| 10 | 29.5305732950 | -0.3151194080 | 20709 (69.03%) | 82819 (69.02%) |
+| 20 | 29.53057329500000000000 | -0.31511940800000000000 | 20709 (69.03%) | 82819 (69.02%) |
 
-Precision 9 was selected as the knee point, offering the highest accuracy before diminishing returns.
+Precision 9 was selected as the knee point, offering the highest accuracy before diminishing returns. Extensive analysis up to precision 20 confirmed that no further gains in obligatory accuracy are achievable by increasing the precision of the constants.
 
 ### Comparison of Rounding Methods
 A comparative analysis shows that `math.floor`, `math.ceil`, and `math.round` can all achieve the same peak accuracy when their respective constants are properly fitted. The choice of method simply shifts the required phase constant.

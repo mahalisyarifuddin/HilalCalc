@@ -10,9 +10,9 @@ Data Ground Truth (GT) untuk bulan-bulan Hijriyah dibuat menggunakan kriteria ko
 ## Aproksimasi Rumus Global (1-10000 H)
 Rumus global diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk mengoptimalkan akurasi pada periode ini, menggunakan epoch integer tetap untuk 1 Muharram 1 H.
 
-"Knee Point Analysis" dilakukan untuk menemukan presisi optimal konstanta dengan menargetkan metode **math.round**. Kami mencari Slope dan Phase Shift terbaik dengan presisi floating-point (jumlah desimal) yang setara untuk memaksimalkan akurasi bulan wajib dan meminimalkan False Positives (Awal Bulan yang Prematur).
+"Knee Point Analysis" dilakukan untuk menemukan presisi optimal konstanta dengan menargetkan metode **math.round**. Kami mencari Slope dan Phase Shift terbaik dengan presisi floating-point (jumlah desimal) yang setara untuk memaksimalkan akurasi bulan wajib dan meminimalkan presisi floating-point.
 
-| Presisi | Slope | Phase (round) | Cocok Wajib | Cocok Total | FP (Awal) |
+| Presisi | Slope | Phase (round) | Cocok Wajib | Cocok Total | Mulai Awal |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 5 | 29.53057 | -0.11631 | 20346 (67.82%) | 81408 (67.84%) | 19402 |
 | 6 | 29.530573 | -0.278962 | 20698 (68.99%) | 82763 (68.97%) | 17659 |

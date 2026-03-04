@@ -10,9 +10,9 @@ The Ground Truth (GT) data for Hijri months was generated using the following co
 ## Global Formula Approximation (1-10000 AH)
 A global formula was derived based on the **1-10000 AH** range (120000 months) to optimize accuracy for this extended period, using a fixed integer epoch for 1 Muharram 1 AH.
 
-A "Knee Point Analysis" was performed to find the optimal precision for the constants targeting the **math.round** method. We searched for the best Slope and Phase Shift having equal floating-point precision (number of decimal places) to maximize obligatory month accuracy and minimize False Positives (Early Starts).
+A "Knee Point Analysis" was performed to find the optimal precision for the constants targeting the **math.round** method. We searched for the best Slope and Phase Shift having equal floating-point precision (number of decimal places) to maximize obligatory month accuracy and minimize float precision.
 
-| Precision | Slope | Phase (round) | Oblig Matches | Total Matches | FP (Early) |
+| Precision | Slope | Phase (round) | Oblig Matches | Total Matches | Early Starts |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 5 | 29.53057 | -0.11631 | 20346 (67.82%) | 81408 (67.84%) | 19402 |
 | 6 | 29.530573 | -0.278962 | 20698 (68.99%) | 82763 (68.97%) | 17659 |

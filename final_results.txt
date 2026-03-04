@@ -1,4 +1,4 @@
-| Precision | Slope | Phase (round) | Oblig Matches | Total Matches | FP (Early) |
+| Precision | Slope | Phase (round) | Oblig Matches | Total Matches | Early Starts |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 5 | 29.53057 | -0.11631 | 20346 | 81408 | 19402 |
 | 6 | 29.530573 | -0.278962 | 20698 | 82763 | 17659 |

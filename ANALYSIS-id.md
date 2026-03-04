@@ -26,42 +26,42 @@ Rumus global diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk m
 | 14 | 29.53057329516261 | -0.31516552931216 | 20709 | 82820 | 18737 |
 | **15** | **29.530573295199901** | **-0.315166448759056** | **20709** | **82820** | **18737** |
 
-Presisi 9 adalah Knee Point di mana akurasi mendatar. Presisi 15 dipilih untuk implementasi akhir guna memastikan presisi representasi maksimum dalam float 64-bit sambil mempertahankan akurasi tertinggi dan meminimalkan kesalahan representasi.
+Precision 9 adalah Knee Point di mana akurasi mendatar. Ini dipilih untuk implementasi akhir guna memaksimalkan akurasi sambil meminimalkan presisi floating-point.
 
 ### Perbandingan Metode Pembulatan
 Analisis komparatif menunjukkan bahwa `math.floor`, `math.ceil`, dan `math.round` semuanya dapat mencapai akurasi puncak yang sama jika konstanta masing-masing disesuaikan dengan benar. Pilihan metode hanya menggeser konstanta phase yang diperlukan.
 
 | Metode | Slope Optimal | Phase Optimal | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
 | :--- | :--- | :--- | :--- | :--- |
-| **math.floor** | **29.530573295199901** | **0.184833551240944** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.ceil** | **29.530573295199901** | **-0.815166448759055** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.round** | **29.530573295199901** | **-0.315166448759056** | **20709 (69.03%)** | **82820 (69.02%)** |
+| **math.floor** | **29.530573295** | **0.184851770** | **20709 (69.03%)** | **82819 (69.02%)** |
+| **math.ceil** | **29.530573295** | **-0.815148229** | **20709 (69.03%)** | **82819 (69.02%)** |
+| **math.round** | **29.530573295** | **-0.315148230** | **20709 (69.03%)** | **82819 (69.02%)** |
 
 Semua metode selaras dengan siklus lunar asalkan Phase Shift disesuaikan sebesar 1,0 (untuk floor vs ceil) atau 0,5 (untuk floor vs round).
 
 #### Rumus Linear (Menggunakan floor):
 ```
-JD = 1948440 + floor(29.530573295199901 * Index + 0.184833551240944) + Day - 1
-Index = floor((JD - 1948440 + 0.815166448759055) / 29.530573295199901)
+JD = 1948440 + floor(29.530573295 * Index + 0.184851770) + Day - 1
+Index = floor((JD - 1948440 + 0.815148229) / 29.530573295)
 ```
 
 #### Rumus Linear (Menggunakan ceil):
 ```
-JD = 1948440 + ceil(29.530573295199901 * Index - 0.815166448759055) + Day - 1
-Index = ceil((JD - 1948440 - 0.184833551240944) / 29.530573295199901)
+JD = 1948440 + ceil(29.530573295 * Index - 0.815148229) + Day - 1
+Index = ceil((JD - 1948440 - 0.184851770) / 29.530573295)
 ```
 
 #### Rumus Global (Menggunakan round):
 ```
-JD = 1948440 + round(29.530573295199901 * Index - 0.315166448759056) + Day - 1
-Index = round((JD - 1948440 + 0.315166448759056) / 29.530573295199901)
+JD = 1948440 + round(29.530573295 * Index - 0.315148230) + Day - 1
+Index = round((JD - 1948440 + 0.315148230) / 29.530573295)
 ```
 
 Di mana:
 - `Index = (Year - 1) * 12 + (Month - 1)`
 - `Month` adalah berbasis 1 (1=Muharram, ..., 12=Dzulhijjah).
 - `Day` adalah hari dalam bulan Hijriyah.
-- `Slope` = 29.530573295199901 (15 digit desimal)
+- `Slope` = 29.530573295 (9 digit desimal)
 - `Epoch (Integer)` = 1948440 (1 Muharram 1 H)
 
 ## Akurasi

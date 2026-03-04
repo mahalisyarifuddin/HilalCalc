@@ -26,42 +26,42 @@ A "Knee Point Analysis" was performed to find the optimal precision for the cons
 | 14 | 29.53057329516261 | -0.31516552931216 | 20709 | 82820 | 18737 |
 | **15** | **29.530573295199901** | **-0.315166448759056** | **20709** | **82820** | **18737** |
 
-Precision 9 is the Knee Point where accuracy plateaus. Precision 15 was selected for the final implementation to ensure maximum representable precision in 64-bit floats while maintaining the highest accuracy and minimizing representation errors.
+Precision 9 is the Knee Point where accuracy plateaus. It was selected for the final implementation to maximize accuracy while minimizing floating-point precision.
 
 ### Comparison of Rounding Methods
 A comparative analysis shows that `math.floor`, `math.ceil`, and `math.round` can all achieve the same peak accuracy when their respective constants are properly fitted. The choice of method simply shifts the required phase constant.
 
 | Method | Optimal Slope | Optimal Phase | Best Obligatory Acc | Best Total Acc |
 | :--- | :--- | :--- | :--- | :--- |
-| **math.floor** | **29.530573295199901** | **0.184833551240944** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.ceil** | **29.530573295199901** | **-0.815166448759055** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.round** | **29.530573295199901** | **-0.315166448759056** | **20709 (69.03%)** | **82820 (69.02%)** |
+| **math.floor** | **29.530573295** | **0.184851770** | **20709 (69.03%)** | **82819 (69.02%)** |
+| **math.ceil** | **29.530573295** | **-0.815148229** | **20709 (69.03%)** | **82819 (69.02%)** |
+| **math.round** | **29.530573295** | **-0.315148230** | **20709 (69.03%)** | **82819 (69.02%)** |
 
 All methods align equally well with the lunar cycle provided the Phase Shift is adjusted by 1.0 (for floor vs ceil) or 0.5 (for floor vs round).
 
 #### Linear Formula (Using floor):
 ```
-JD = 1948440 + floor(29.530573295199901 * Index + 0.184833551240944) + Day - 1
-Index = floor((JD - 1948440 + 0.815166448759055) / 29.530573295199901)
+JD = 1948440 + floor(29.530573295 * Index + 0.184851770) + Day - 1
+Index = floor((JD - 1948440 + 0.815148229) / 29.530573295)
 ```
 
 #### Linear Formula (Using ceil):
 ```
-JD = 1948440 + ceil(29.530573295199901 * Index - 0.815166448759055) + Day - 1
-Index = ceil((JD - 1948440 - 0.184833551240944) / 29.530573295199901)
+JD = 1948440 + ceil(29.530573295 * Index - 0.815148229) + Day - 1
+Index = ceil((JD - 1948440 - 0.184851770) / 29.530573295)
 ```
 
 #### Global Formula (Using round):
 ```
-JD = 1948440 + round(29.530573295199901 * Index - 0.315166448759056) + Day - 1
-Index = round((JD - 1948440 + 0.315166448759056) / 29.530573295199901)
+JD = 1948440 + round(29.530573295 * Index - 0.315148230) + Day - 1
+Index = round((JD - 1948440 + 0.315148230) / 29.530573295)
 ```
 
 Where:
 - `Index = (Year - 1) * 12 + (Month - 1)`
 - `Month` is 1-based (1=Muharram, ..., 12=Dhu al-Hijjah).
 - `Day` is the day of the Hijri month.
-- `Slope` = 29.530573295199901 (15 decimal digits)
+- `Slope` = 29.530573295 (9 decimal digits)
 - `Epoch (Integer)` = 1948440 (1 Muharram 1 AH)
 
 ## Accuracy

@@ -10,23 +10,23 @@ The Ground Truth (GT) data for Hijri months was generated using the following co
 ## Global Formula Approximation (1-10000 AH)
 A global formula was derived based on the **1-10000 AH** range (120000 months) to optimize accuracy for this extended period, using a fixed integer epoch for 1 Muharram 1 AH.
 
-A "Knee Point Analysis" was performed to find the optimal precision for the constants targeting the **math.round** method. We searched for the best Slope and Phase Shift having equal floating-point precision (number of decimal places) to maximize obligatory month accuracy and minimize float precision.
+A "Knee Point Analysis" was performed to find the optimal FP (float precision) for the constants targeting the **math.round** method. We searched for the best Slope and Phase Shift having equal FP to maximize obligatory month accuracy and minimize computational cost.
 
-| Precision | Slope | Phase (round) | Oblig Matches | Total Matches | Early Starts |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| 5 | 29.53057 | -0.11631 | 20346 (67.82%) | 81408 (67.84%) | 19402 |
-| 6 | 29.530573 | -0.278962 | 20698 (68.99%) | 82763 (68.97%) | 17659 |
-| 7 | 29.5305733 | -0.3152752 | 20707 (69.02%) | 82814 (69.01%) | 18730 |
-| 8 | 29.53057329 | -0.31475692 | 20707 (69.02%) | 82813 (69.01%) | 18735 |
-| **9** | **29.530573295** | **-0.315148230** | **20709 (69.03%)** | **82819 (69.02%)** | **18737** |
-| 10 | 29.5305732952 | -0.3151664512 | 20709 (69.03%) | 82820 (69.02%) | 18737 |
-| 11 | 29.53057329517 | -0.31516571152 | 20709 (69.03%) | 82820 (69.02%) | 18737 |
-| 12 | 29.530573295163 | -0.315165538928 | 20709 (69.03%) | 82820 (69.02%) | 18737 |
-| 13 | 29.5305732951626 | -0.3151655290656 | 20709 (69.03%) | 82820 (69.02%) | 18737 |
-| 14 | 29.53057329516261 | -0.31516552931216 | 20709 (69.03%) | 82820 (69.02%) | 18737 |
-| 15 | 29.530573295199901 | -0.315166448759056 | 20709 (69.03%) | 82820 (69.02%) | 18737 |
+| FP | Slope | Phase (round) | Oblig Matches | Total Matches |
+| :--- | :--- | :--- | :--- | :--- |
+| 5 | 29.53057 | -0.11631 | 20346 (67.82%) | 81408 (67.84%) |
+| 6 | 29.530573 | -0.278962 | 20698 (68.99%) | 82763 (68.97%) |
+| 7 | 29.5305733 | -0.3152752 | 20707 (69.02%) | 82814 (69.01%) |
+| 8 | 29.53057329 | -0.31475692 | 20707 (69.02%) | 82813 (69.01%) |
+| **9** | **29.530573295** | **-0.315148230** | **20709 (69.03%)** | **82819 (69.02%)** |
+| 10 | 29.5305732952 | -0.3151664512 | 20709 (69.03%) | 82820 (69.02%) |
+| 11 | 29.53057329517 | -0.31516571152 | 20709 (69.03%) | 82820 (69.02%) |
+| 12 | 29.530573295163 | -0.315165538928 | 20709 (69.03%) | 82820 (69.02%) |
+| 13 | 29.5305732951626 | -0.3151655290656 | 20709 (69.03%) | 82820 (69.02%) |
+| 14 | 29.53057329516261 | -0.31516552931216 | 20709 (69.03%) | 82820 (69.02%) |
+| 15 | 29.530573295199901 | -0.315166448759056 | 20709 (69.03%) | 82820 (69.02%) |
 
-Precision 9 is the Knee Point where accuracy plateaus. It was selected for the final implementation to maximize accuracy while minimizing floating-point precision.
+FP 9 is the Knee Point where accuracy plateaus. It was selected for the final implementation to maximize accuracy while minimizing FP.
 
 ### Comparison of Rounding Methods
 A comparative analysis shows that `math.floor`, `math.ceil`, and `math.round` can all achieve the same peak accuracy when their respective constants are properly fitted. The choice of method simply shifts the required phase constant.

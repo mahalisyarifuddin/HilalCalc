@@ -69,3 +69,18 @@ Where:
 - **Exact Matches (Month Starts)**: 82820 (69.02%).
 - **Obligatory Months Accuracy**: 20709 (69.03%) (Ramadan, Shawwal, Dhu al-Hijjah).
 - **Comparison**: The formula constants (Slope and Phase) are balanced with equal 15-digit precision to ensure consistency and optimal fit.
+
+## Hypothesis: Criteria Strictness vs. Formula Accuracy
+An investigation was conducted to determine if the ~69% accuracy plateau was caused by the strictness of the composite criteria (Mecca + Viwa Island). The hypothesis was that a simpler, looser criterion might align better with a linear interpolation.
+
+### Process
+1. **New Ground Truth**: A secondary ground truth was generated using only the **Mecca visibility criteria** (Altitude >= 3°, Elongation >= 6.4°), ignoring the Viwa Island altitude check.
+2. **Optimization**: The linear constants were re-optimized for this Mecca-only dataset across 120,000 months using the same exhaustive grid search and precision levels.
+
+### Results (Mecca-Only)
+| Method | Optimal Slope | Optimal Phase | Best Obligatory Acc | Best Total Acc |
+| :--- | :--- | :--- | :--- | :--- |
+| **math.round** | 29.53057334 | -0.3195159 | 20702 (69.01%) | 82820 (69.02%) |
+
+### Conclusion
+The accuracy for the Mecca-only criteria (~69.02%) is nearly identical to that of the composite criteria (~69.03%). This confirms that the limitation is not the specific geographical criteria or their strictness, but rather the **inherent astronomical variance** of the lunar cycle. Perturbations in the Moon's orbit cause its synodic period to fluctuate, making it impossible for any fixed linear formula to achieve near-perfect alignment with observation-based calendars over long durations.

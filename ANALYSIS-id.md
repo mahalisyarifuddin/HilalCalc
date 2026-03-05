@@ -69,3 +69,18 @@ Di mana:
 - **Kecocokan Tepat (Awal Bulan)**: 82820 (69.02%).
 - **Akurasi Bulan Wajib**: 20709 (69.03%) (Ramadhan, Syawal, Dzulhijjah).
 - **Perbandingan**: Konstanta rumus (Slope dan Phase) diseimbangkan dengan presisi setara 15 digit untuk memastikan konsistensi dan kecocokan optimal.
+
+## Hipotesis: Keketatan Kriteria vs. Akurasi Rumus
+Investigasi dilakukan untuk menentukan apakah plateau akurasi ~69% disebabkan oleh keketatan kriteria komposit (Makkah + Viwa Island). Hipotesisnya adalah bahwa kriteria yang lebih sederhana dan longgar mungkin selaras lebih baik dengan interpolasi linear.
+
+### Proses
+1. **Ground Truth Baru**: Ground truth sekunder dibuat hanya menggunakan **kriteria visibilitas Makkah** (Altitude >= 3°, Elongasi >= 6.4°), mengabaikan pengecekan ketinggian Viwa Island.
+2. **Optimalisasi**: Konstanta linear dioptimalkan kembali untuk dataset khusus Makkah ini mencakup 120.000 bulan menggunakan grid search menyeluruh dan tingkat presisi yang sama.
+
+### Hasil (Khusus Makkah)
+| Metode | Slope Optimal | Phase Optimal | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
+| :--- | :--- | :--- | :--- | :--- |
+| **math.round** | 29.53057334 | -0.3195159 | 20702 (69.01%) | 82820 (69.02%) |
+
+### Kesimpulan
+Akurasi untuk kriteria khusus Makkah (~69,02%) hampir identik dengan kriteria komposit (~69,03%). Ini mengonfirmasi bahwa batasan tersebut bukan pada kriteria geografis tertentu atau keketatannya, melainkan pada **varians astronomis bawaan** dari siklus lunar. Gangguan pada orbit Bulan menyebabkan periode sinodiknya berfluktuasi, sehingga tidak mungkin bagi rumus linear tetap apa pun untuk mencapai keselarasan sempurna dengan kalender berbasis observasi dalam jangka waktu lama.

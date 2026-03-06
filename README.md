@@ -64,7 +64,7 @@ This ensures that the predicted month start satisfies the visibility criteria in
 **The Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is mathematically equivalent to:
 
-`JD = 1948440 + round(29.530573295 * Index - 0.315119408) + Day - 1`
+`JD = 1948440 + round(29.5305732952 * Index - 0.3151664512) + Day - 1`
 
 Where:
 -   `Index = (HijriYear - 1) * 12 + (HijriMonth - 1)`

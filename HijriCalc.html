@@ -541,7 +541,7 @@
 				gotoTitle: 'Go to Date',
 				today: 'Today',
 				formulaTitle: 'Global Approximation',
-				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for Obligatory Months.',
+				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for Obligatory Months (FP 10).',
 				prefTitle: 'Settings',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -602,7 +602,7 @@
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
 				formulaTitle: 'Aproksimasi Global',
-				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.03% (1-10000 H). Dioptimalkan untuk Bulan Wajib.',
+				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.03% (1-10000 H). Dioptimalkan untuk Bulan Wajib (FP 10).',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -978,7 +978,7 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = 1948440 + round(29.530573295 \u00b7 N \u2212 0.315148230) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
+				const formula = `JD = 1948440 + round(29.5305732952 \u00b7 N \u2212 0.3151664512) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula;
 				elements.formulaNote.innerHTML = `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
@@ -986,15 +986,15 @@
 
 			// Core Linear Logic Refactored
 			getLinearMonthStartJD(Index) {
-				// Intercept at 1 AH (Index 0) is 1948440 + round(-0.315119408) = 1948440.
-				// Phase shift -0.315119408 maximizes accuracy (~69.03% for obligatory months 1-10000 AH).
-				return 1948440 + Math.round(29.530573295 * Index - 0.315148230);
+				// Intercept at 1 AH (Index 0) is 1948440 + round(-0.3151664512) = 1948440.
+				// Phase shift -0.3151664512 maximizes accuracy (~69.03% for obligatory months 1-10000 AH).
+				return 1948440 + Math.round(29.5305732952 * Index - 0.3151664512);
 			}
 
 			getLinearIndexFromJD(JD) {
 				// Derived from 1-10000 AH analysis.
-				// Inverse offset = -0.315119408 (matches forward phase).
-				return Math.round((JD - 1948440 + 0.315148230) / 29.530573295);
+				// Inverse offset = -0.3151664512 (matches forward phase).
+				return Math.round((JD - 1948440 + 0.3151664512) / 29.5305732952);
 			}
 
 			jdToGregorianDate(jd) {

@@ -10,21 +10,21 @@ Data Ground Truth (GT) untuk bulan-bulan Hijriyah dibuat menggunakan kriteria ko
 ## Aproksimasi Rumus Global (1-10000 H)
 Rumus global diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk mengoptimalkan akurasi pada periode ini, menggunakan epoch integer tetap untuk 1 Muharram 1 H.
 
-"Knee Point Analysis" dilakukan untuk menemukan FP (presisi floating-point) optimal konstanta dengan menargetkan metode **math.round**. Kami mencari Slope dan Phase Shift terbaik dengan FP setara untuk memaksimalkan akurasi bulan wajib dan meminimalkan biaya komputasi.
+"Knee Point Analysis" dilakukan untuk menemukan FP (presisi floating-point) optimal konstanta dengan menargetkan metode **math.floor**. Kami mencari Slope dan Phase Shift terbaik dengan FP setara untuk memaksimalkan akurasi bulan wajib dan meminimalkan biaya komputasi.
 
-| FP | Slope | Phase (round) | Cocok Wajib | Cocok Total |
+| FP | Slope | Phase (floor) | Cocok Wajib | Cocok Total |
 | :--- | :--- | :--- | :--- | :--- |
-| 5 | 29.53057 | -0.11631 | 20346 (67.82%) | 81408 (67.84%) |
-| 6 | 29.530573 | -0.278962 | 20698 (68.99%) | 82763 (68.97%) |
-| 7 | 29.5305733 | -0.3152752 | 20707 (69.02%) | 82814 (69.01%) |
-| 8 | 29.53057329 | -0.31475692 | 20707 (69.02%) | 82813 (69.01%) |
-| 9 | 29.530573295 | -0.315148230 | 20709 (69.03%) | 82819 (69.02%) |
-| **10** | **29.5305732952** | **-0.3151664512** | **20709 (69.03%)** | **82820 (69.02%)** |
-| 11 | 29.53057329517 | -0.31516571152 | 20709 (69.03%) | 82820 (69.02%) |
-| 12 | 29.530573295163 | -0.315165538928 | 20709 (69.03%) | 82820 (69.02%) |
-| 13 | 29.5305732951626 | -0.3151655290656 | 20709 (69.03%) | 82820 (69.02%) |
-| 14 | 29.53057329516261 | -0.31516552931216 | 20709 (69.03%) | 82820 (69.02%) |
-| 15 | 29.530573295199901 | -0.315166448759056 | 20709 (69.03%) | 82820 (69.02%) |
+| 5 | 29.53057 | 0.38369 | 20346 (67.82%) | 81408 (67.84%) |
+| 6 | 29.530573 | 0.221038 | 20698 (68.99%) | 82763 (68.97%) |
+| 7 | 29.5305733 | 0.1847248 | 20707 (69.02%) | 82814 (69.01%) |
+| 8 | 29.53057329 | 0.18524308 | 20707 (69.02%) | 82813 (69.01%) |
+| 9 | 29.530573295 | 0.184851770 | 20709 (69.03%) | 82819 (69.02%) |
+| **10** | **29.5305732952** | **0.1848335488** | **20709 (69.03%)** | **82820 (69.02%)** |
+| 11 | 29.53057329517 | 0.18483428848 | 20709 (69.03%) | 82820 (69.02%) |
+| 12 | 29.530573295163 | 0.184834461072 | 20709 (69.03%) | 82820 (69.02%) |
+| 13 | 29.5305732951626 | 0.1848344709344 | 20709 (69.03%) | 82820 (69.02%) |
+| 14 | 29.53057329516261 | 0.18483447068784 | 20709 (69.03%) | 82820 (69.02%) |
+| 15 | 29.530573295199901 | 0.184833551240944 | 20709 (69.03%) | 82820 (69.02%) |
 
 FP 10 adalah Knee Point di mana akurasi mendatar untuk kecocokan total. Ini dipilih untuk implementasi akhir guna memaksimalkan akurasi sambil meminimalkan FP.
 
@@ -39,22 +39,22 @@ Analisis komparatif menunjukkan bahwa `math.floor`, `math.ceil`, dan `math.round
 
 Semua metode selaras dengan siklus lunar asalkan Phase Shift disesuaikan sebesar 1,0 (untuk floor vs ceil) atau 0,5 (untuk floor vs round).
 
-#### Rumus Linear (Menggunakan floor):
+#### Rumus Global (Menggunakan floor):
 ```
 JD = 1948440 + floor(29.5305732952 * Index + 0.1848335488) + Day - 1
 Index = floor((JD - 1948440 + 0.8151664512) / 29.5305732952)
 ```
 
-#### Rumus Linear (Menggunakan ceil):
-```
-JD = 1948440 + ceil(29.5305732952 * Index - 0.815166451) + Day - 1
-Index = ceil((JD - 1948440 - 0.184833549) / 29.5305732952)
-```
-
-#### Rumus Global (Menggunakan round):
+#### Alternatif (Menggunakan round):
 ```
 JD = 1948440 + round(29.5305732952 * Index - 0.3151664512) + Day - 1
 Index = round((JD - 1948440 + 0.3151664512) / 29.5305732952)
+```
+
+#### Alternatif (Menggunakan ceil):
+```
+JD = 1948440 + ceil(29.5305732952 * Index - 0.815166451) + Day - 1
+Index = ceil((JD - 1948440 - 0.184833549) / 29.5305732952)
 ```
 
 Di mana:

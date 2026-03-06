@@ -64,7 +64,7 @@ Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Me
 **Rumus:**
 Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah secara matematis setara dengan:
 
-`JD = 1948440 + round(29.5305732952 * Index - 0.3151664512) + Hari - 1`
+`JD = 1948440 + floor(29.5305732952 * Index + 0.1848335488) + Hari - 1`
 
 Di mana:
 -   `Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1)`

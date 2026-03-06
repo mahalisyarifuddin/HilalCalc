@@ -986,7 +986,7 @@
 				const isTabular = state.calcMode === 'tabular';
 				const formula = isTabular ?
 					`JD = 1948440 + floor((10631 \u00b7 N + 539) / 360) + Day \u2212 1` :
-					`JD = 1948440 + round(29.5305732952 \u00b7 N \u2212 0.3151664512) + Day \u2212 1`;
+					`JD = 1948440 + floor(29.5305732952 \u00b7 N + 0.1848335488) + Day \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula + `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
 				elements.formulaNote.innerHTML = isTabular ?
@@ -994,19 +994,19 @@
 					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
 				elements.formulaDesc.textContent = isTabular ?
 					(state.lang === 'id' ? "Berdasarkan siklus 30 tahun yang dioptimalkan. Akurasi: 48,04% (1-10000 H)." : "Based on an optimized 30-year cycle. Accuracy: 48.04% (1-10000 AH).") :
-					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H)." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH).");
+					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for math.floor.");
 			}
 
 			getLinearMonthStartJD(Index) {
 				return state.calcMode === 'tabular' ?
 					(1948440 + Math.floor((10631 * Index + 539) / 360)) :
-					(1948440 + Math.round(29.5305732952 * Index - 0.3151664512));
+					(1948440 + Math.floor(29.5305732952 * Index + 0.1848335488));
 			}
 
 			getLinearIndexFromJD(JD) {
 				return state.calcMode === 'tabular' ?
 					Math.round((JD - 1948440 - (539 / 360)) / (10631 / 360)) :
-					Math.round((JD - 1948440 + 0.3151664512) / 29.5305732952);
+					Math.floor((JD - 1948440 + 0.8151664512) / 29.5305732952);
 			}
 
 			jdToGregorianDate(jd) {

@@ -506,7 +506,7 @@
 				<select id="calcMode">
 					<option value="astronomic" data-i18n="calcModeAstronomic">Local Sighting (MABBIMS)</option>
 					<option value="linear" data-i18n="calcModeLinear">Global Formula (Linear)</option>
-					<option value="tabular" data-i18n="calcModeTabular">Tabular (30-Year)</option>
+					<option value="tabular" data-i18n="calcModeTabular">Global Tabular (Linear-style)</option>
 				</select>
 			</label>
 			<label>
@@ -592,7 +592,7 @@
 				calcModeLabel: 'Hijri Calculation',
 				calcModeAstronomic: 'Local Sighting (MABBIMS)',
 				calcModeLinear: 'Global Formula (Linear)',
-				calcModeTabular: 'Tabular (30-Year)',
+				calcModeTabular: 'Global Tabular (Linear-style)',
 				linearSuffix: ' (Linear)',
 				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Gregorian Calendar',
@@ -655,7 +655,7 @@
 				calcModeLabel: 'Perhitungan Hijriyah',
 				calcModeAstronomic: 'Rukyat Lokal (MABBIMS)',
 				calcModeLinear: 'Rumus Global (Linear)',
-				calcModeTabular: 'Tabular (30 Tahun)',
+				calcModeTabular: 'Tabular Global (Gaya Linear)',
 				linearSuffix: ' (Linear)',
 				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Kalender Masehi',
@@ -990,10 +990,10 @@
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula + `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
 				elements.formulaNote.innerHTML = isTabular ?
-					`<i>HilalCalc Tabular (30-Year Cycle). Epoch: 1 Muharram 1 AH = JD 1948440.</i>` :
+					`<i>Global Tabular (Linear-style). Epoch: 1 Muharram 1 AH = JD 1948440.</i>` :
 					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
 				elements.formulaDesc.textContent = isTabular ?
-					(state.lang === 'id' ? "Berdasarkan siklus 30 tahun yang dioptimalkan. Akurasi: 48,04% (1-10000 H)." : "Based on an optimized 30-year cycle. Accuracy: 48.04% (1-10000 AH).") :
+					(state.lang === 'id' ? "Aproksimasi tabular dengan distribusi linear (10.631 hari). Akurasi: 48,04% (1-10000 H)." : "Tabular approximation with linear distribution (10,631 days). Accuracy: 48.04% (1-10000 AH).") :
 					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for math.floor.");
 			}
 

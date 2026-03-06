@@ -75,12 +75,12 @@ Kami membandingkan akurasi Rumus Global Linear dengan skema tabular 30 tahun tra
 
 ### Metode Tabular Tradisional dan Teroptimasi
 
-#### 1. Tabular HilalCalc (Gaya Linear)
+#### 1. Global Tabular (Gaya Linear)
 Ini adalah aproksimasi tabular utama kami. Berbeda dengan metode tradisional yang memaksa pola bulan 30/29 yang kaku, rumus ini mendistribusikan 10.631 hari di seluruh siklus 360 bulan menggunakan distribusi linear:
 **JD = 1948440 + floor((10631 * Index + 539) / 360) + Hari - 1**
 Dengan membiarkan panjang bulan bervariasi lebih alami (tidak selalu bergantian 30/29), metode ini mencapai akurasi tertinggi (**48,04%**) untuk metode apa pun yang dibatasi pada siklus 30 tahun (10.631 hari).
 
-#### 2. Tabular (Optimasi Kabisat)
+#### 2. Global Tabular (Alternasi Tetap)
 Menggunakan pemrograman dinamis, kami mengidentifikasi distribusi tahun kabisat 30 tahun terbaik mutlak untuk kalender standar (yang menggunakan panjang bulan 30/29 bergantian secara kaku dengan hari kabisat hanya di akhir tahun kabisat):
 - **Tahun Kabisat**: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27
 - **Akurasi**: **44,62%**. Ini adalah performa puncak untuk arsitektur "Classic Tabular".
@@ -89,18 +89,19 @@ Menggunakan pemrograman dinamis, kami mengidentifikasi distribusi tahun kabisat 
 Skema tabular tradisional sering didefinisikan dengan rumus `(11y + k) % 30 < 11`. Kami menguji ke-30 nilai `k` yang mungkin dan menemukan bahwa **k=29** memberikan kecocokan terbaik untuk kriteria kami. Skema ini dapat didefinisikan oleh salah satu dari rumus setara berikut:
 - **Aturan**: `(11y + 29) % 30 < 11` atau `(19y) % 30 > 18`
 - **Tahun Kabisat**: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28
-- **Akurasi**: **40,52%**. Ini secara signifikan mengungguli Scheme II yang banyak digunakan (k=14, 29,20%).
+- **Akurasi**: **40,52%**. Ini secara signifikan mengungguli Scheme II (k=14).
 
 ### Perbandingan Akurasi
 **Rumus Global Linear** tetap menjadi metode definitif untuk aproksimasi Hijriyah jangka panjang. Rumus ini mengungguli skema tabular siklus tetap karena slope presisi tingginya (29,53057...) memungkinkannya memodelkan "pergeseran" nyata siklus lunar selama ribuan tahun, yang tidak dapat ditangkap oleh siklus sederhana 30 tahun.
 
+Di antara varian tradisional, **Scheme I (Al-Khwarizmi)** adalah yang paling akurat (29,95%). Hal ini karena konstanta fasenya (k=15) selaras lebih baik dengan Ground Truth dibandingkan offset tradisional lainnya (k=14, 11, atau 9). Dengan memicu tahun kabisat lebih awal, skema ini lebih baik dalam mengompensasi keterlambatan antara panjang siklus rata-rata 30 tahun dan penampakan astronomis yang sebenarnya.
+
 | Metode | Kecocokan Total | Kecocokan Wajib |
 | :--- | :--- | :--- |
 | **Rumus Global Linear** | **82820 (69.02%)** | **20709 (69.03%)** |
-| Tabular HilalCalc (Linear) | 57647 (48.04%) | 14441 (48.14%) |
-| Tabular (Optimasi Kabisat) | 53550 (44.62%) | 13609 (45.36%) |
+| Global Tabular (Linear-style) | 57647 (48.04%) | 14441 (48.14%) |
+| Global Tabular (Fixed Alternating) | 53550 (44.62%) | 13609 (45.36%) |
 | Tabular (Rumus k=29) | 48630 (40.52%) | 12031 (40.10%) |
 | Tradisional (Scheme I) | 35935 (29.95%) | 8704 (29.01%) |
-| Tradisional (Scheme II) | 35036 (29.20%) | 8478 (28.26%) |
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~21%** dibandingkan rumus tabular terbaik yang disusun dan **keuntungan ~40%** dibandingkan skema sejarah standar.

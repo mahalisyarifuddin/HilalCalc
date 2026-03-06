@@ -504,8 +504,9 @@
 			<label>
 				<span id="calcModeLabel" data-i18n="calcModeLabel">Calculation Method</span>
 				<select id="calcMode">
-					<option value="astronomic">Astronomical (MABBIMS)</option>
-					<option value="heuristic">Heuristic (Tabular)</option>
+					<option value="astronomic" data-i18n="calcModeAstronomic">Local Sighting (MABBIMS)</option>
+					<option value="linear" data-i18n="calcModeLinear">Global Formula (Linear)</option>
+					<option value="tabular" data-i18n="calcModeTabular">Tabular (30-Year)</option>
 				</select>
 			</label>
 			<label>
@@ -590,8 +591,10 @@
 				dirW: 'W',
 				calcModeLabel: 'Hijri Calculation',
 				calcModeAstronomic: 'Local Sighting (MABBIMS)',
-				calcModeHeuristic: 'Global Formula (Linear)',
-				heuristicSuffix: ' (Formula)',
+				calcModeLinear: 'Global Formula (Linear)',
+				calcModeTabular: 'Tabular (30-Year)',
+				linearSuffix: ' (Linear)',
+				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Gregorian Calendar',
 				gModeTransition: 'Historical (Switch 1582)',
 				gModeProleptic: 'Continuous (Modern)',
@@ -651,8 +654,10 @@
 				dirW: 'BB',
 				calcModeLabel: 'Perhitungan Hijriyah',
 				calcModeAstronomic: 'Rukyat Lokal (MABBIMS)',
-				calcModeHeuristic: 'Rumus Global (Linear)',
-				heuristicSuffix: ' (Rumus)',
+				calcModeLinear: 'Rumus Global (Linear)',
+				calcModeTabular: 'Tabular (30 Tahun)',
+				linearSuffix: ' (Linear)',
+				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Kalender Masehi',
 				gModeTransition: 'Sejarah (Transisi 1582)',
 				gModeProleptic: 'Berkelanjutan (Modern)',
@@ -677,7 +682,7 @@
 		class HijriCalc {
 			constructor() {
 				(this.isOffline = (typeof Astronomy === 'undefined'),
-				this.cacheVersion = 3,
+				this.cacheVersion = 4,
 				this.loadState(),
 				state.viewDate = new Date(),
 				this.setup(),
@@ -685,7 +690,7 @@
 				this.applyTheme(state.theme),
 				this.render(),
 				this.isOffline && (()=>{
-					console.warn("Astronomy Engine not loaded. Using Tabular method.");
+					console.warn("Astronomy Engine not loaded. Using Linear method.");
 					const warning = document.createElement('div');
 					(warning.style.cssText = 'color:var(--danger);text-align:center;font-weight:400;margin-bottom:1rem',
 					warning.setAttribute('data-i18n', 'offlineWarning'),
@@ -755,7 +760,7 @@
 
 			resetPreferences() {
 				[state.lat, state.lon, state.lang, state.theme, state.weekStart, state.hijriAdj, state.primaryCalendar, state.calcMode, state.gMode] =
-					[6.075, 95.1125, navigator.language?.startsWith('id') ? 'id' : 'en', 'auto', 0, 0, 'gregorian', this.isOffline ? 'heuristic' : 'astronomic', 'transition'],
+					[6.075, 95.1125, navigator.language?.startsWith('id') ? 'id' : 'en', 'auto', 0, 0, 'gregorian', this.isOffline ? 'linear' : 'astronomic', 'transition'],
 				(elements.latInput.value = state.lat,
 				elements.lonInput.value = state.lon,
 				elements.language.value = state.lang,
@@ -781,7 +786,7 @@
 				elements.theme.value = state.theme,
 				elements.calcMode.value = state.calcMode,
 				elements.gModeSelect.value = state.gMode,
-				this.isOffline && (elements.calcMode.value = 'heuristic', elements.calcMode.disabled = true),
+				this.isOffline && (elements.calcMode.value = 'linear', elements.calcMode.disabled = true),
 				this.setDateToInput(elements.gDateInput, new Date()),
 				text.en.months.forEach((month,index)=>{
 					const option = document.createElement('option');
@@ -967,7 +972,7 @@
 					const key = el.getAttribute('data-i18n-placeholder');
 					translation[key] && (el.placeholder = translation[key]);
 				}),
-				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon) + (this.isOffline ? translation.offlineWarning : state.calcMode === 'heuristic' ? translation.heuristicSuffix : ""),
+				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon) + (this.isOffline ? translation.offlineWarning : state.calcMode === 'linear' ? translation.linearSuffix : state.calcMode === 'tabular' ? translation.tabularSuffix : ""),
 				[...elements.hMonthInput.options].forEach((opt,i)=>opt.textContent = translation.months[i]),
 				[...elements.theme.options].forEach(opt=>opt.textContent = translation['theme' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
 				[...elements.primaryCalendar.options].forEach(opt=>opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
@@ -978,23 +983,30 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = 1948440 + round(29.5305732952 \u00b7 N \u2212 0.3151664512) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
+				const isTabular = state.calcMode === 'tabular';
+				const formula = isTabular ?
+					`JD = 1948440 + floor((10631 \u00b7 N + 539) / 360) + Day \u2212 1` :
+					`JD = 1948440 + round(29.5305732952 \u00b7 N \u2212 0.3151664512) + Day \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
-				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
+				elements.formulaDisplay.textContent = formula + `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
+				elements.formulaNote.innerHTML = isTabular ?
+					`<i>HilalCalc Tabular (30-Year Cycle). Epoch: 1 Muharram 1 AH = JD 1948440.</i>` :
+					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
+				elements.formulaDesc.textContent = isTabular ?
+					(state.lang === 'id' ? "Berdasarkan siklus 30 tahun yang dioptimalkan. Akurasi: 48,04% (1-10000 H)." : "Based on an optimized 30-year cycle. Accuracy: 48.04% (1-10000 AH).") :
+					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H)." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH).");
 			}
 
-			// Core Linear Logic Refactored
 			getLinearMonthStartJD(Index) {
-				// Intercept at 1 AH (Index 0) is 1948440 + round(-0.3151664512) = 1948440.
-				// Phase shift -0.3151664512 maximizes accuracy (~69.03% for obligatory months 1-10000 AH).
-				return 1948440 + Math.round(29.5305732952 * Index - 0.3151664512);
+				return state.calcMode === 'tabular' ?
+					(1948440 + Math.floor((10631 * Index + 539) / 360)) :
+					(1948440 + Math.round(29.5305732952 * Index - 0.3151664512));
 			}
 
 			getLinearIndexFromJD(JD) {
-				// Derived from 1-10000 AH analysis.
-				// Inverse offset = -0.3151664512 (matches forward phase).
-				return Math.round((JD - 1948440 + 0.3151664512) / 29.5305732952);
+				return state.calcMode === 'tabular' ?
+					Math.round((JD - 1948440 - (539 / 360)) / (10631 / 360)) :
+					Math.round((JD - 1948440 + 0.3151664512) / 29.5305732952);
 			}
 
 			jdToGregorianDate(jd) {
@@ -1029,7 +1041,7 @@
 			}
 
 			hijriToGregorian(hYear, hMonth, hDay) {
-				if (this.isOffline || state.calcMode === 'heuristic') return this.hijriToGregorianLinear(hYear, hMonth, hDay);
+				if (this.isOffline || state.calcMode !== 'astronomic') return this.hijriToGregorianLinear(hYear, hMonth, hDay);
 				const start = this.getAccurateHijriMonthStart(hYear, hMonth);
 				const gregorian = new Date(start.gDate);
 				gregorian.setDate(gregorian.getDate() + (hDay - 1));
@@ -1049,7 +1061,7 @@
 			}
 
 			gregorianToHijri(date) {
-				if (this.isOffline || state.calcMode === 'heuristic') return this.gregorianToHijriLinear(date);
+				if (this.isOffline || state.calcMode !== 'astronomic') return this.gregorianToHijriLinear(date);
 				const approx = this.gregorianToHijriLinear(date);
 				const startCurrent = this.getAccurateHijriMonthStart(approx.year, approx.month);
 				const dateTime = date.getTime();
@@ -1105,7 +1117,7 @@
 			}
 
 			getAccurateHijriMonthStart(hYear, hMonth) {
-				return (this.isOffline || state.calcMode === 'heuristic' || (hYear < 1300)) ? { gDate: this.hijriToGregorianLinear(hYear, hMonth, 1) } :
+				return (this.isOffline || state.calcMode !== 'astronomic' || (hYear < 1300)) ? { gDate: this.hijriToGregorianLinear(hYear, hMonth, 1) } :
 				((!this.cache && this.loadCache()), (()=>{
 					const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}-${state.gMode}`;
 					if (this.cache[cacheKey]) {

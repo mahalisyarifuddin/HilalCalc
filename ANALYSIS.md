@@ -86,7 +86,8 @@ Using dynamic programming, we identified the absolute best 30-year leap year dis
 - **Accuracy**: **44.62%**. This is the peak performance for the "Classic Tabular" architecture.
 
 #### 3. Tabular (Formula k=29)
-Traditional tabular schemes are often defined by the formula `(11y + k) % 30 < 11`. We tested all 30 possible values for `k` and found that **k=29** provides the best fit for our criteria:
+Traditional tabular schemes are often defined by the formula `(11y + k) % 30 < 11`. We tested all 30 possible values for `k` and found that **k=29** provides the best fit for our criteria. This scheme can be defined by either of the following equivalent formulas:
+- **Rule**: `(11y + 29) % 30 < 11` or `(19y) % 30 > 18`
 - **Leap Years**: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28
 - **Accuracy**: **40.52%**. This significantly outperforms the widely used Scheme II (k=14, 29.20%).
 

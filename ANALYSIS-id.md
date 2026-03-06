@@ -86,7 +86,8 @@ Menggunakan pemrograman dinamis, kami mengidentifikasi distribusi tahun kabisat 
 - **Akurasi**: **44,62%**. Ini adalah performa puncak untuk arsitektur "Classic Tabular".
 
 #### 3. Tabular (Rumus k=29)
-Skema tabular tradisional sering didefinisikan dengan rumus `(11y + k) % 30 < 11`. Kami menguji ke-30 nilai `k` yang mungkin dan menemukan bahwa **k=29** memberikan kecocokan terbaik untuk kriteria kami:
+Skema tabular tradisional sering didefinisikan dengan rumus `(11y + k) % 30 < 11`. Kami menguji ke-30 nilai `k` yang mungkin dan menemukan bahwa **k=29** memberikan kecocokan terbaik untuk kriteria kami. Skema ini dapat didefinisikan oleh salah satu dari rumus setara berikut:
+- **Aturan**: `(11y + 29) % 30 < 11` atau `(19y) % 30 > 18`
 - **Tahun Kabisat**: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28
 - **Akurasi**: **40,52%**. Ini secara signifikan mengungguli Scheme II yang banyak digunakan (k=14, 29,20%).
 

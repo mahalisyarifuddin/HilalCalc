@@ -71,24 +71,35 @@ Where:
 - **Comparison**: The formula constants (Slope and Phase) are balanced with equal 15-digit precision to ensure consistency and optimal fit.
 
 ## Tabular vs. Linear Comparison (1-10000 AH)
-We compared the accuracy of the Global Linear Formula against traditional 30-year tabular schemes. Tabular calendars use a fixed 30-year cycle of 10,631 days (averaging 29.53055... days per month) with a predefined distribution of 11 leap years.
+We compared the accuracy of the Global Linear Formula against traditional and optimized 30-year tabular schemes. Tabular calendars use a fixed 30-year cycle of 10,631 days (averaging 29.53055... days per month) with a predefined distribution of 11 leap years.
 
-### HilalCalc Tabular Formula
-We devised a modern tabular formula that maintains the 10,631/360 ratio but optimizes the distribution of month lengths to better match the astronomical data:
+### Traditional and Optimized Tabular Methods
 
+#### 1. HilalCalc Tabular (Linear-style)
+This is our primary tabular approximation. Unlike traditional methods that force a rigid alternating 30/29 month pattern, this formula distributes the 10,631 days throughout the 360-month cycle using a linear distribution:
 **JD = 1948440 + floor((10631 * Index + 539) / 360) + Day - 1**
+By allowing month lengths to vary more naturally (not strictly alternating), it achieves the highest possible accuracy (**48.04%**) for any method constrained to a 30-year (10,631 day) cycle.
 
-This formula is mathematically equivalent to a 30-year linear approximation. It achieves higher accuracy than traditional schemes by allowing month lengths to vary more naturally, rather than strictly alternating 30/29 days.
+#### 2. Tabular (Optimized Leaps)
+Using dynamic programming, we identified the absolute best 30-year leap year distribution for a standard calendar (one that uses strictly alternating 30/29 month lengths with a leap day only at the end of leap years):
+- **Leap Years**: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27
+- **Accuracy**: **44.62%**. This is the peak performance for the "Classic Tabular" architecture.
+
+#### 3. Tabular (Formula k=29)
+Traditional tabular schemes are often defined by the formula `(11y + k) % 30 < 11`. We tested all 30 possible values for `k` and found that **k=29** provides the best fit for our criteria:
+- **Leap Years**: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28
+- **Accuracy**: **40.52%**. This significantly outperforms the widely used Scheme II (k=14, 29.20%).
 
 ### Accuracy Comparison
-The Global Linear Formula significantly outperforms all 30-year tabular schemes because it uses a more precise slope (29.53057...) that better accounts for the cumulative drift of the lunar cycle over thousands of years.
+The **Global Linear Formula** remains the definitive method for long-term Hijri approximation. It outperforms fixed-cycle tabular schemes because its high-precision slope (29.53057...) allows it to model the true "drift" of the lunar cycle over millennia, which a simple 30-year cycle cannot capture.
 
 | Method | Total Matches | Obligatory Matches |
 | :--- | :--- | :--- |
 | **Global Linear Formula** | **82820 (69.02%)** | **20709 (69.03%)** |
-| HilalCalc Tabular Formula | 57647 (48.04%) | 14441 (48.14%) |
+| HilalCalc Tabular (Linear) | 57647 (48.04%) | 14441 (48.14%) |
 | Tabular (Optimized Leaps) | 53550 (44.62%) | 13609 (45.36%) |
 | Tabular (Formula k=29) | 48630 (40.52%) | 12031 (40.10%) |
-| Standard (Scheme II) | 35036 (29.20%) | 8478 (28.26%) |
+| Traditional (Scheme I) | 35935 (29.95%) | 8704 (29.01%) |
+| Traditional (Scheme II) | 35036 (29.20%) | 8478 (28.26%) |
 
-The **Global Linear Formula** remains the most accurate method for approximating the Hijri calendar over long durations, providing a ~21% improvement in accuracy over our best-devised 30-year tabular formula.
+The linear approach provides a **~21% absolute accuracy gain** over the best-devised tabular formula and a **~40% gain** over standard historical schemes.

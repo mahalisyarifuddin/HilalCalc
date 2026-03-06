@@ -69,3 +69,23 @@ Di mana:
 - **Kecocokan Tepat (Awal Bulan)**: 82820 (69.02%).
 - **Akurasi Bulan Wajib**: 20709 (69.03%) (Ramadhan, Syawal, Dzulhijjah).
 - **Perbandingan**: Konstanta rumus (Slope dan Phase) diseimbangkan dengan presisi setara 15 digit untuk memastikan konsistensi dan kecocokan optimal.
+
+## Perbandingan Tabular vs. Linear (1-10000 H)
+Kami membandingkan akurasi Rumus Global Linear dengan skema tabular 30 tahun tradisional. Kalender tabular menggunakan siklus tetap 30 tahun (10.631 hari) dengan distribusi 11 tahun kabisat yang telah ditentukan sebelumnya.
+
+### Skema Tabular Teroptimasi
+Melalui pemrograman dinamis, kami mengidentifikasi distribusi tahun kabisat 30 tahun yang dioptimalkan untuk memaksimalkan akurasi terhadap kriteria komposit kami pada rentang 1-10000 H:
+- **Tahun Kabisat**: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27
+- **Pola Dasar**: Bulan bergantian antara 30 dan 29 hari (M1=30, M2=29, ...).
+
+### Perbandingan Akurasi
+Rumus linear secara signifikan mengungguli semua skema tabular siklus tetap karena memungkinkan "pergeseran" kumulatif siklus lunar dimodelkan dengan presisi yang jauh lebih tinggi daripada rasio integer 30 tahun yang sederhana (11/30).
+
+| Metode | Kecocokan Total | Kecocokan Wajib |
+| :--- | :--- | :--- |
+| **Rumus Global Linear** | **82820 (69.02%)** | **20709 (69.03%)** |
+| Tabular (Optimasi Kabisat) | 53550 (44.62%) | 13609 (45.36%) |
+| Tabular (Rumus k=29) | 48630 (40.52%) | 12031 (40.10%) |
+| Standar (Scheme II) | 35036 (29.20%) | 8478 (28.26%) |
+
+**Rumus Global Linear** tetap menjadi metode paling akurat untuk mendekati kalender Hijriyah dalam jangka waktu lama, memberikan peningkatan akurasi ~24% dibandingkan siklus tabular 30 tahun terbaik yang mungkin dilakukan.

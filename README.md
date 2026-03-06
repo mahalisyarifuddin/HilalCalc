@@ -72,7 +72,11 @@ Where:
 -   `Day` is the day of the Hijri month.
 
 **Accuracy:**
-This simple linear formula achieves **~69.02%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1-10000 AH period, with an optimized accuracy of **~69.03%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah). The constants were derived using a Knee Point Analysis to ensure optimal floating-point precision. For detailed documentation on the methodology and data, see [ANALYSIS.md](ANALYSIS.md).
+This simple linear formula achieves **~69.02%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1-10000 AH period, with an optimized accuracy of **~69.03%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah).
+
+A comparative study against traditional **30-year tabular schemes** (such as Scheme II) shows that this Global Linear Formula provides a ~24% improvement in accuracy over the best possible fixed-cycle tabular arrangement.
+
+The constants were derived using a Knee Point Analysis to ensure optimal floating-point precision. For detailed documentation on the methodology and data, including the tabular comparison, see [ANALYSIS.md](ANALYSIS.md).
 
 ## Historical Context
 `HijriCalc` is designed to handle deep historical dates with care:

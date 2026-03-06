@@ -74,7 +74,7 @@ Di mana:
 **Akurasi:**
 Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69.02%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1-10000 H, dengan akurasi yang dioptimalkan sekitar **~69.03%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah).
 
-Studi komparatif terhadap **skema tabular 30 tahun** tradisional (seperti Scheme II) menunjukkan bahwa Rumus Global Linear ini memberikan peningkatan akurasi ~24% dibandingkan pengaturan tabular siklus tetap terbaik yang mungkin dilakukan.
+Studi komparatif terhadap **skema tabular 30 tahun** tradisional (seperti Scheme II) dan **Rumus Tabular HilalCalc** kami sendiri yang dioptimalkan menunjukkan bahwa Rumus Global Linear memberikan peningkatan akurasi ~21% dibandingkan pengaturan tabular siklus tetap terbaik yang mungkin dilakukan.
 
 Konstanta diturunkan menggunakan "Knee Point Analysis" untuk memastikan presisi floating-point yang optimal. Untuk dokumentasi lengkap mengenai metodologi dan data, termasuk perbandingan tabular, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
 

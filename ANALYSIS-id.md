@@ -71,21 +71,24 @@ Di mana:
 - **Perbandingan**: Konstanta rumus (Slope dan Phase) diseimbangkan dengan presisi setara 15 digit untuk memastikan konsistensi dan kecocokan optimal.
 
 ## Perbandingan Tabular vs. Linear (1-10000 H)
-Kami membandingkan akurasi Rumus Global Linear dengan skema tabular 30 tahun tradisional. Kalender tabular menggunakan siklus tetap 30 tahun (10.631 hari) dengan distribusi 11 tahun kabisat yang telah ditentukan sebelumnya.
+Kami membandingkan akurasi Rumus Global Linear dengan skema tabular 30 tahun tradisional. Kalender tabular menggunakan siklus tetap 30 tahun sebanyak 10.631 hari (rata-rata 29,53055... hari per bulan) dengan distribusi 11 tahun kabisat yang telah ditentukan sebelumnya.
 
-### Skema Tabular Teroptimasi
-Melalui pemrograman dinamis, kami mengidentifikasi distribusi tahun kabisat 30 tahun yang dioptimalkan untuk memaksimalkan akurasi terhadap kriteria komposit kami pada rentang 1-10000 H:
-- **Tahun Kabisat**: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27
-- **Pola Dasar**: Bulan bergantian antara 30 dan 29 hari (M1=30, M2=29, ...).
+### Rumus Tabular HilalCalc
+Kami menyusun rumus tabular modern yang tetap menggunakan rasio 10.631/360 tetapi mengoptimalkan distribusi panjang bulan agar lebih sesuai dengan data astronomis:
+
+**JD = 1948440 + floor((10631 * Index + 539) / 360)**
+
+Rumus ini secara matematis setara dengan aproksimasi linear 30 tahun. Rumus ini mencapai akurasi yang lebih tinggi daripada skema tradisional karena memungkinkan panjang bulan bervariasi lebih alami, alih-alih secara kaku bergantian 30/29 hari.
 
 ### Perbandingan Akurasi
-Rumus linear secara signifikan mengungguli semua skema tabular siklus tetap karena memungkinkan "pergeseran" kumulatif siklus lunar dimodelkan dengan presisi yang jauh lebih tinggi daripada rasio integer 30 tahun yang sederhana (11/30).
+Rumus Global Linear secara signifikan mengungguli semua skema tabular 30 tahun karena menggunakan slope yang lebih presisi (29,53057...) yang lebih baik dalam memperhitungkan pergeseran kumulatif siklus lunar selama ribuan tahun.
 
 | Metode | Kecocokan Total | Kecocokan Wajib |
 | :--- | :--- | :--- |
 | **Rumus Global Linear** | **82820 (69.02%)** | **20709 (69.03%)** |
+| Rumus Tabular HilalCalc | 57647 (48.04%) | 14441 (48.14%) |
 | Tabular (Optimasi Kabisat) | 53550 (44.62%) | 13609 (45.36%) |
 | Tabular (Rumus k=29) | 48630 (40.52%) | 12031 (40.10%) |
 | Standar (Scheme II) | 35036 (29.20%) | 8478 (28.26%) |
 
-**Rumus Global Linear** tetap menjadi metode paling akurat untuk mendekati kalender Hijriyah dalam jangka waktu lama, memberikan peningkatan akurasi ~24% dibandingkan siklus tabular 30 tahun terbaik yang mungkin dilakukan.
+**Rumus Global Linear** tetap menjadi metode paling akurat untuk mendekati kalender Hijriyah dalam jangka waktu lama, memberikan peningkatan akurasi ~21% dibandingkan rumus tabular 30 tahun terbaik yang kami susun.

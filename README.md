@@ -45,7 +45,7 @@ A robust calendar tool that adapts its calculations to your specific location an
 ## Technical Details
 
 ### MABBIMS Criteria
-The tools primarily implement the MABBIMS (Menteri Agama Brunei, Darussalam, Indonesia, Malaysia, dan Singapura) criteria adopted in 2021:
+The tools primarily implement the MABBIMS (Menteri Agama Brunei Darussalam, Indonesia, Malaysia, dan Singapura) criteria adopted in 2021:
 -   **Altitude**: ≥ 3°
 -   **Elongation**: ≥ 6.4°
 -   Calculation Point: Sunset.

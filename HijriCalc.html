@@ -993,7 +993,7 @@
 					`<i>Global Tabular (Fixed Cycle). Leap Years: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27.</i>` :
 					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
 				elements.formulaDesc.textContent = isTabular ?
-					(state.lang === 'id' ? "Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,62% (1-10000 H)." : "30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.62% (1-10000 AH).") :
+					(state.lang === 'id' ? "Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,62% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah." : "30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.62% (1-10000 AH). Leap years add a 30th day to Dhu al-Hijjah.") :
 					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for math.floor.");
 			}
 

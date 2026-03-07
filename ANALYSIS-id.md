@@ -99,3 +99,30 @@ Di antara varian tradisional, **Scheme I (Al-Khwarizmi)** adalah yang paling aku
 | Tradisional (Scheme I) | 35935 (29.95%) | 8704 (29.01%) |
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~21%** dibandingkan rumus tabular terbaik yang disusun dan **keuntungan ~40%** dibandingkan skema sejarah standar.
+
+## Edukasi: Cara Kerja Tahun Kabisat Hijriyah
+
+Kalender Hijriyah Islam adalah kalender murni lunar (bulan), yang artinya bulan-bulannya mengikuti fase Bulan. Namun, karena rata-rata bulan sinodik (fase ke fase) adalah sekitar **29,53059 hari**, maka standar tahun lunar 12 bulan adalah sekitar **354,367 hari**.
+
+Karena hari kalender harus berupa angka bulat, satu tahun lunar standar biasanya memiliki **354 hari**. Untuk menjaga agar kalender tetap selaras dengan Bulan yang sebenarnya dari waktu ke waktu, "tahun kabisat" diperkenalkan untuk memperhitungkan sisa **~0,367 hari** per tahun tersebut.
+
+### Siklus Tabular 30 Tahun
+Untuk mengelola pecahan ini secara sistematis, kalender Hijriyah tabular menggunakan **siklus 30 tahun** dengan total **10.631 hari**.
+- **10.631 / 30 = 354,366... hari per tahun**.
+- **10.631 / 360 = 29,53055... hari per bulan**.
+
+Dalam siklus 30 tahun ini:
+- **19 Tahun Basitah (Biasa)**: Masing-masing 354 hari.
+- **11 Tahun Kabisat**: Masing-masing 355 hari.
+
+### Di Mana Hari Kabisat Ditambahkan?
+Dalam kalender Hijriyah, bulan-bulan biasanya bergantian antara 30 dan 29 hari:
+1.  Muharram (30)
+2.  Safar (29)
+3.  Rabiul Awal (30)
+... dan seterusnya.
+
+Bulan ke-12, **Dzulhijjah**, biasanya memiliki **29 hari**. Pada **Tahun Kabisat**, satu hari ditambahkan ke bulan Dzulhijjah, sehingga panjangnya menjadi **30 hari**. Ini adalah satu-satunya bulan yang berubah panjangnya berdasarkan status kabisat tahun tersebut.
+
+### Memilih Tahun Kabisat
+Tidak ada satu cara "resmi" untuk memilih 11 tahun mana dalam siklus 30 tahun yang menjadi tahun kabisat. Skema yang berbeda (seperti Skema I atau II) memilih tahun yang berbeda pula. **Tabular Global (Siklus Tetap)** kami yang teroptimasi menggunakan urutan (1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27) yang paling sesuai dengan kriteria astronomis modern selama periode 10.000 tahun.

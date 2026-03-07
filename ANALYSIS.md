@@ -99,3 +99,30 @@ Among traditional variants, **Scheme I (Al-Khwarizmi)** is the most accurate (29
 | Traditional (Scheme I) | 35935 (29.95%) | 8704 (29.01%) |
 
 The linear approach provides a **~21% absolute accuracy gain** over the best-devised tabular formula and a **~40% gain** over standard historical schemes.
+
+## Educational: How Hijri Leap Years Work
+
+The Islamic Hijri calendar is strictly lunar, meaning its months follow the phases of the Moon. However, because the average lunar (synodic) month is approximately **29.53059 days**, a standard 12-month lunar year is approximately **354.367 days**.
+
+Since a calendar day must be a whole number, a standard lunar year typically has **354 days**. To keep the calendar in sync with the actual Moon over time, "leap years" are introduced to account for the remaining **~0.367 days** per year.
+
+### The 30-Year Tabular Cycle
+To manage these fractions systematically, tabular Hijri calendars use a **30-year cycle** totaling **10,631 days**.
+- **10,631 / 30 = 354.366... days per year**.
+- **10,631 / 360 = 29.53055... days per month**.
+
+Within this 30-year cycle:
+- **19 Common Years**: 354 days each.
+- **11 Leap Years**: 355 days each.
+
+### Where is the Leap Day Added?
+In the Hijri calendar, the months normally alternate between 30 and 29 days:
+1.  Muharram (30)
+2.  Safar (29)
+3.  Rabi' al-awwal (30)
+... and so on.
+
+The 12th month, **Dhu al-Hijjah**, normally has **29 days**. In a **Leap Year**, a single day is added to Dhu al-Hijjah, making it **30 days** long. This is the only month that changes length based on the leap status of the year.
+
+### Choosing Leap Years
+There is no single "official" way to choose which 11 years in the 30-year cycle are leap years. Different schemes (like Scheme I or II) select different years. Our optimized **Global Tabular (Fixed Cycle)** uses a sequence (1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27) that best matches modern astronomical criteria over a 10,000-year period.

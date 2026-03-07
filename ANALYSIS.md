@@ -12,30 +12,30 @@ A global formula was derived based on the **1-10000 AH** range (120000 months) t
 
 A "Knee Point Analysis" was performed to find the optimal FP (float precision) for the constants targeting the **math.floor** method. We searched for the best Slope and Phase Shift having equal FP to maximize obligatory month accuracy and minimize computational cost.
 
-| FP | Slope | Phase (floor) | Oblig Matches | Total Matches |
-| :--- | :--- | :--- | :--- | :--- |
-| 5 | 29.53057 | 0.38369 | 20346 (67.82%) | 81408 (67.84%) |
-| 6 | 29.530573 | 0.221038 | 20698 (68.99%) | 82763 (68.97%) |
-| 7 | 29.5305733 | 0.1847248 | 20707 (69.02%) | 82814 (69.01%) |
-| 8 | 29.53057329 | 0.18524308 | 20707 (69.02%) | 82813 (69.01%) |
-| 9 | 29.530573295 | 0.184851770 | 20709 (69.03%) | 82819 (69.02%) |
-| **10** | **29.5305732952** | **0.1848335488** | **20709 (69.03%)** | **82820 (69.02%)** |
-| 11 | 29.53057329517 | 0.18483428848 | 20709 (69.03%) | 82820 (69.02%) |
-| 12 | 29.530573295163 | 0.184834461072 | 20709 (69.03%) | 82820 (69.02%) |
-| 13 | 29.5305732951626 | 0.1848344709344 | 20709 (69.03%) | 82820 (69.02%) |
-| 14 | 29.53057329516261 | 0.18483447068784 | 20709 (69.03%) | 82820 (69.02%) |
-| 15 | 29.530573295199901 | 0.184833551240944 | 20709 (69.03%) | 82820 (69.02%) |
+| FP     | Slope              | Phase (floor)      | Oblig Matches  | Total Matches  |
+| :----- | :----------------- | :----------------- | :------------- | :------------- |
+| 5      | 29.53057           | 0.38369            | 20346 (67.82%) | 81408 (67.84%) |
+| 6      | 29.530573          | 0.221038           | 20698 (68.99%) | 82763 (68.97%) |
+| 7      | 29.5305733         | 0.1847248          | 20707 (69.02%) | 82814 (69.01%) |
+| 8      | 29.53057329        | 0.18524308         | 20707 (69.02%) | 82813 (69.01%) |
+| 9      | 29.530573295       | 0.184851770        | 20709 (69.03%) | 82819 (69.02%) |
+| **10** | **29.5305732952**  | **0.1848335488**   | **20709 (69.03%)** | **82820 (69.02%)** |
+| 11     | 29.53057329517     | 0.18483428848      | 20709 (69.03%) | 82820 (69.02%) |
+| 12     | 29.530573295163    | 0.184834461072     | 20709 (69.03%) | 82820 (69.02%) |
+| 13     | 29.5305732951626   | 0.1848344709344    | 20709 (69.03%) | 82820 (69.02%) |
+| 14     | 29.53057329516261  | 0.18483447068784   | 20709 (69.03%) | 82820 (69.02%) |
+| 15     | 29.530573295199901 | 0.184833551240944  | 20709 (69.03%) | 82820 (69.02%) |
 
 FP 10 is the Knee Point where accuracy plateaus for total matches. It was selected for the final implementation to maximize accuracy while minimizing FP.
 
 ### Comparison of Rounding Methods
 A comparative analysis shows that `math.floor`, `math.ceil`, and `math.round` can all achieve the same peak accuracy when their respective constants are properly fitted. The choice of method simply shifts the required phase constant.
 
-| Method | Optimal Slope | Optimal Phase | Best Obligatory Acc | Best Total Acc |
-| :--- | :--- | :--- | :--- | :--- |
-| **math.floor** | **29.5305732952** | **0.1848335488** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.ceil** | **29.5305732952** | **-0.815166451** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.round** | **29.5305732952** | **-0.3151664512** | **20709 (69.03%)** | **82820 (69.02%)** |
+| Method         | Optimal Slope     | Optimal Phase      | Best Obligatory Acc | Best Total Acc  |
+| :------------- | :---------------- | :----------------- | :------------------ | :-------------- |
+| **math.floor** | **29.5305732952** | **0.1848335488**   | **20709 (69.03%)**  | **82820 (69.02%)** |
+| **math.ceil**  | **29.5305732952** | **-0.815166451**   | **20709 (69.03%)**  | **82820 (69.02%)** |
+| **math.round** | **29.5305732952** | **-0.3151664512**  | **20709 (69.03%)**  | **82820 (69.02%)** |
 
 All methods align equally well with the lunar cycle provided the Phase Shift is adjusted by 1.0 (for floor vs ceil) or 0.5 (for floor vs round).
 
@@ -68,7 +68,7 @@ Where:
 - **Range**: 1 AH to 10000 AH (120000 months).
 - **Exact Matches (Month Starts)**: 82820 (69.02%).
 - **Obligatory Months Accuracy**: 20709 (69.03%) (Ramadan, Shawwal, Dhu al-Hijjah).
-- **Comparison**: The formula constants (Slope and Phase) are balanced with equal 15-digit precision to ensure consistency and optimal fit.
+- **Comparison**: The formula constants (Slope and Phase) were balanced at up to 15-digit precision to ensure an optimal fit, but 10-digit precision was chosen for implementation as the 'knee point' where total accuracy plateaus.
 
 ## Tabular vs. Linear Comparison (1-10000 AH)
 We compared the accuracy of the Global Linear Formula against traditional and optimized 30-year tabular schemes. Tabular calendars use a fixed 30-year cycle of 10,631 days (averaging 29.53055... days per month) with a predefined distribution of 11 leap years.
@@ -91,12 +91,12 @@ The **Global Linear Formula** remains the definitive method for long-term Hijri 
 
 Among traditional variants, **Scheme I (Al-Khwarizmi)** is the most accurate (29.95%). This is because its phase constant (k=15) aligns better with the Ground Truth than other traditional offsets (k=14, 11, or 9). By triggering leap years earlier, it better compensates for the lag between the mean 30-year cycle length and actual astronomical sightings.
 
-| Method | Total Matches | Obligatory Matches |
-| :--- | :--- | :--- |
-| **Global Linear Formula** | **82820 (69.02%)** | **20709 (69.03%)** |
-| Global Tabular (Fixed Cycle) | 53550 (44.62%) | 13609 (45.36%) |
-| Tabular (Formula k=29) | 48630 (40.52%) | 12031 (40.10%) |
-| Traditional (Scheme I) | 35935 (29.95%) | 8704 (29.01%) |
+| Method                       | Total Matches      | Obligatory Matches |
+| :--------------------------- | :----------------- | :----------------- |
+| **Global Linear Formula**    | **82820 (69.02%)** | **20709 (69.03%)** |
+| Global Tabular (Fixed Cycle) | 53550 (44.62%)     | 13609 (45.36%)     |
+| Tabular (Formula k=29)       | 48630 (40.52%)     | 12031 (40.10%)     |
+| Traditional (Scheme I)       | 35935 (29.95%)     | 8704 (29.01%)      |
 
 The linear approach provides a **~21% absolute accuracy gain** over the best-devised tabular formula and a **~40% gain** over standard historical schemes.
 

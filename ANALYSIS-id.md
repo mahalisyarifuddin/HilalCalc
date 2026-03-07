@@ -2,8 +2,8 @@
 
 ## Kriteria Pembuatan
 Data Ground Truth (GT) untuk bulan-bulan Hijriyah dibuat menggunakan kriteria komposit berikut:
-- **Makkah**: Altitude >= 3°, Elongasi >= 6.4° (saat matahari terbenam pada hari ke-29).
-- **Viwa Island (Fiji)**: Altitude >= 0° (saat matahari terbenam pada hari ke-29).
+- **Mekkah**: Tinggi >= 3°, Elongasi >= 6.4° (saat matahari terbenam pada hari ke-29).
+- **Pulau Viwa (Fiji)**: Tinggi >= 0° (saat matahari terbenam pada hari ke-29).
 - **Kondisi**: Kedua set kriteria harus terpenuhi agar bulan baru dimulai pada hari berikutnya. Jika tidak, bulan tersebut memiliki 30 hari.
 - **Tanggal Dasar**: Muharram 1 H sesuai dengan JD 1948440 (16 Juli 622 M, Siang).
 
@@ -12,30 +12,30 @@ Rumus global diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk m
 
 "Knee Point Analysis" dilakukan untuk menemukan FP (presisi floating-point) optimal konstanta dengan menargetkan metode **math.floor**. Kami mencari Slope dan Phase Shift terbaik dengan FP setara untuk memaksimalkan akurasi bulan wajib dan meminimalkan biaya komputasi.
 
-| FP | Slope | Phase (floor) | Cocok Wajib | Cocok Total |
-| :--- | :--- | :--- | :--- | :--- |
-| 5 | 29.53057 | 0.38369 | 20346 (67.82%) | 81408 (67.84%) |
-| 6 | 29.530573 | 0.221038 | 20698 (68.99%) | 82763 (68.97%) |
-| 7 | 29.5305733 | 0.1847248 | 20707 (69.02%) | 82814 (69.01%) |
-| 8 | 29.53057329 | 0.18524308 | 20707 (69.02%) | 82813 (69.01%) |
-| 9 | 29.530573295 | 0.184851770 | 20709 (69.03%) | 82819 (69.02%) |
-| **10** | **29.5305732952** | **0.1848335488** | **20709 (69.03%)** | **82820 (69.02%)** |
-| 11 | 29.53057329517 | 0.18483428848 | 20709 (69.03%) | 82820 (69.02%) |
-| 12 | 29.530573295163 | 0.184834461072 | 20709 (69.03%) | 82820 (69.02%) |
-| 13 | 29.5305732951626 | 0.1848344709344 | 20709 (69.03%) | 82820 (69.02%) |
-| 14 | 29.53057329516261 | 0.18483447068784 | 20709 (69.03%) | 82820 (69.02%) |
-| 15 | 29.530573295199901 | 0.184833551240944 | 20709 (69.03%) | 82820 (69.02%) |
+| FP     | Slope              | Phase (floor)      | Cocok Wajib    | Cocok Total    |
+| :----- | :----------------- | :----------------- | :------------- | :------------- |
+| 5      | 29.53057           | 0.38369            | 20346 (67.82%) | 81408 (67.84%) |
+| 6      | 29.530573          | 0.221038           | 20698 (68.99%) | 82763 (68.97%) |
+| 7      | 29.5305733         | 0.1847248          | 20707 (69.02%) | 82814 (69.01%) |
+| 8      | 29.53057329        | 0.18524308         | 20707 (69.02%) | 82813 (69.01%) |
+| 9      | 29.530573295       | 0.184851770        | 20709 (69.03%) | 82819 (69.02%) |
+| **10** | **29.5305732952**  | **0.1848335488**   | **20709 (69.03%)** | **82820 (69.02%)** |
+| 11     | 29.53057329517     | 0.18483428848      | 20709 (69.03%) | 82820 (69.02%) |
+| 12     | 29.530573295163    | 0.184834461072     | 20709 (69.03%) | 82820 (69.02%) |
+| 13     | 29.5305732951626   | 0.1848344709344    | 20709 (69.03%) | 82820 (69.02%) |
+| 14     | 29.53057329516261  | 0.18483447068784   | 20709 (69.03%) | 82820 (69.02%) |
+| 15     | 29.530573295199901 | 0.184833551240944  | 20709 (69.03%) | 82820 (69.02%) |
 
 FP 10 adalah Knee Point di mana akurasi mendatar untuk kecocokan total. Ini dipilih untuk implementasi akhir guna memaksimalkan akurasi sambil meminimalkan FP.
 
 ### Perbandingan Metode Pembulatan
 Analisis komparatif menunjukkan bahwa `math.floor`, `math.ceil`, dan `math.round` semuanya dapat mencapai akurasi puncak yang sama jika konstanta masing-masing disesuaikan dengan benar. Pilihan metode hanya menggeser konstanta phase yang diperlukan.
 
-| Metode | Slope Optimal | Phase Optimal | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
-| :--- | :--- | :--- | :--- | :--- |
-| **math.floor** | **29.5305732952** | **0.1848335488** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.ceil** | **29.5305732952** | **-0.815166451** | **20709 (69.03%)** | **82820 (69.02%)** |
-| **math.round** | **29.5305732952** | **-0.3151664512** | **20709 (69.03%)** | **82820 (69.02%)** |
+| Metode         | Slope Optimal     | Phase Optimal      | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
+| :------------- | :---------------- | :----------------- | :-------------------- | :-------------------- |
+| **math.floor** | **29.5305732952** | **0.1848335488**   | **20709 (69.03%)**    | **82820 (69.02%)**    |
+| **math.ceil**  | **29.5305732952** | **-0.815166451**   | **20709 (69.03%)**    | **82820 (69.02%)**    |
+| **math.round** | **29.5305732952** | **-0.3151664512**  | **20709 (69.03%)**    | **82820 (69.02%)**    |
 
 Semua metode selaras dengan siklus lunar asalkan Phase Shift disesuaikan sebesar 1,0 (untuk floor vs ceil) atau 0,5 (untuk floor vs round).
 
@@ -68,7 +68,7 @@ Di mana:
 - **Rentang**: 1 H hingga 10000 H (120000 bulan).
 - **Kecocokan Tepat (Awal Bulan)**: 82820 (69.02%).
 - **Akurasi Bulan Wajib**: 20709 (69.03%) (Ramadhan, Syawal, Dzulhijjah).
-- **Perbandingan**: Konstanta rumus (Slope dan Phase) diseimbangkan dengan presisi setara 15 digit untuk memastikan konsistensi dan kecocokan optimal.
+- **Perbandingan**: Konstanta rumus (Slope dan Phase) diseimbangkan hingga presisi 15 digit untuk memastikan kecocokan optimal, tetapi presisi 10 digit dipilih untuk implementasi akhir sebagai 'knee point' di mana akurasi total mendatar.
 
 ## Perbandingan Tabular vs. Linear (1-10000 H)
 Kami membandingkan akurasi Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi. Kalender tabular menggunakan siklus tetap 30 tahun sebanyak 10.631 hari (rata-rata 29,53055... hari per bulan) dengan distribusi 11 tahun kabisat yang telah ditentukan sebelumnya.
@@ -91,12 +91,12 @@ Skema tabular tradisional sering didefinisikan dengan rumus `(11y + k) % 30 < 11
 
 Di antara varian tradisional, **Scheme I (Al-Khwarizmi)** adalah yang paling akurat (29,95%). Hal ini karena konstanta fasenya (k=15) selaras lebih baik dengan Ground Truth dibandingkan offset tradisional lainnya (k=14, 11, atau 9). Dengan memicu tahun kabisat lebih awal, skema ini lebih baik dalam mengompensasi keterlambatan antara panjang siklus rata-rata 30 tahun dan penampakan astronomis yang sebenarnya.
 
-| Metode | Kecocokan Total | Kecocokan Wajib |
-| :--- | :--- | :--- |
-| **Rumus Global Linear** | **82820 (69.02%)** | **20709 (69.03%)** |
-| Global Tabular (Siklus Tetap) | 53550 (44.62%) | 13609 (45.36%) |
-| Tabular (Rumus k=29) | 48630 (40.52%) | 12031 (40.10%) |
-| Tradisional (Scheme I) | 35935 (29.95%) | 8704 (29.01%) |
+| Metode                       | Kecocokan Total    | Kecocokan Wajib    |
+| :--------------------------- | :----------------- | :----------------- |
+| **Rumus Global Linear**      | **82820 (69.02%)** | **20709 (69.03%)** |
+| Global Tabular (Siklus Tetap) | 53550 (44.62%)     | 13609 (45.36%)     |
+| Tabular (Rumus k=29)         | 48630 (40.52%)     | 12031 (40.10%)     |
+| Tradisional (Scheme I)       | 35935 (29.95%)     | 8704 (29.01%)      |
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~21%** dibandingkan rumus tabular terbaik yang disusun dan **keuntungan ~40%** dibandingkan skema sejarah standar.
 

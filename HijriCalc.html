@@ -504,8 +504,9 @@
 			<label>
 				<span id="calcModeLabel" data-i18n="calcModeLabel">Calculation Method</span>
 				<select id="calcMode">
-					<option value="astronomic">Astronomical (MABBIMS)</option>
-					<option value="heuristic">Heuristic (Tabular)</option>
+					<option value="astronomic" data-i18n="calcModeAstronomic">Local Sighting (MABBIMS)</option>
+					<option value="linear" data-i18n="calcModeLinear">Global Formula (Linear)</option>
+					<option value="tabular" data-i18n="calcModeTabular">Global Tabular (Fixed Cycle)</option>
 				</select>
 			</label>
 			<label>
@@ -590,8 +591,10 @@
 				dirW: 'W',
 				calcModeLabel: 'Hijri Calculation',
 				calcModeAstronomic: 'Local Sighting (MABBIMS)',
-				calcModeHeuristic: 'Global Formula (Linear)',
-				heuristicSuffix: ' (Formula)',
+				calcModeLinear: 'Global Formula (Linear)',
+				calcModeTabular: 'Global Tabular (Fixed Cycle)',
+				linearSuffix: ' (Linear)',
+				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Gregorian Calendar',
 				gModeTransition: 'Historical (Switch 1582)',
 				gModeProleptic: 'Continuous (Modern)',
@@ -651,8 +654,10 @@
 				dirW: 'BB',
 				calcModeLabel: 'Perhitungan Hijriyah',
 				calcModeAstronomic: 'Rukyat Lokal (MABBIMS)',
-				calcModeHeuristic: 'Rumus Global (Linear)',
-				heuristicSuffix: ' (Rumus)',
+				calcModeLinear: 'Rumus Global (Linear)',
+				calcModeTabular: 'Tabular Global (Siklus Tetap)',
+				linearSuffix: ' (Linear)',
+				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Kalender Masehi',
 				gModeTransition: 'Sejarah (Transisi 1582)',
 				gModeProleptic: 'Berkelanjutan (Modern)',
@@ -677,7 +682,7 @@
 		class HijriCalc {
 			constructor() {
 				(this.isOffline = (typeof Astronomy === 'undefined'),
-				this.cacheVersion = 3,
+				this.cacheVersion = 4,
 				this.loadState(),
 				state.viewDate = new Date(),
 				this.setup(),
@@ -685,7 +690,7 @@
 				this.applyTheme(state.theme),
 				this.render(),
 				this.isOffline && (()=>{
-					console.warn("Astronomy Engine not loaded. Using Tabular method.");
+					console.warn("Astronomy Engine not loaded. Using Linear method.");
 					const warning = document.createElement('div');
 					(warning.style.cssText = 'color:var(--danger);text-align:center;font-weight:400;margin-bottom:1rem',
 					warning.setAttribute('data-i18n', 'offlineWarning'),
@@ -755,7 +760,7 @@
 
 			resetPreferences() {
 				[state.lat, state.lon, state.lang, state.theme, state.weekStart, state.hijriAdj, state.primaryCalendar, state.calcMode, state.gMode] =
-					[6.075, 95.1125, navigator.language?.startsWith('id') ? 'id' : 'en', 'auto', 0, 0, 'gregorian', this.isOffline ? 'heuristic' : 'astronomic', 'transition'],
+					[6.075, 95.1125, navigator.language?.startsWith('id') ? 'id' : 'en', 'auto', 0, 0, 'gregorian', this.isOffline ? 'linear' : 'astronomic', 'transition'],
 				(elements.latInput.value = state.lat,
 				elements.lonInput.value = state.lon,
 				elements.language.value = state.lang,
@@ -781,7 +786,7 @@
 				elements.theme.value = state.theme,
 				elements.calcMode.value = state.calcMode,
 				elements.gModeSelect.value = state.gMode,
-				this.isOffline && (elements.calcMode.value = 'heuristic', elements.calcMode.disabled = true),
+				this.isOffline && (elements.calcMode.value = 'linear', elements.calcMode.disabled = true),
 				this.setDateToInput(elements.gDateInput, new Date()),
 				text.en.months.forEach((month,index)=>{
 					const option = document.createElement('option');
@@ -967,7 +972,7 @@
 					const key = el.getAttribute('data-i18n-placeholder');
 					translation[key] && (el.placeholder = translation[key]);
 				}),
-				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon) + (this.isOffline ? translation.offlineWarning : state.calcMode === 'heuristic' ? translation.heuristicSuffix : ""),
+				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon) + (this.isOffline ? translation.offlineWarning : state.calcMode === 'linear' ? translation.linearSuffix : state.calcMode === 'tabular' ? translation.tabularSuffix : ""),
 				[...elements.hMonthInput.options].forEach((opt,i)=>opt.textContent = translation.months[i]),
 				[...elements.theme.options].forEach(opt=>opt.textContent = translation['theme' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
 				[...elements.primaryCalendar.options].forEach(opt=>opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
@@ -978,23 +983,40 @@
 			}
 
 			updateFormulaDisplay() {
-				const formula = `JD = 1948440 + round(29.5305732952 \u00b7 N \u2212 0.3151664512) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
+				const isLinear = state.calcMode === 'linear', isTabular = state.calcMode === 'tabular';
+				const formula = isTabular ?
+					`JD = 1948440 + (Cycle \u00b7 10631) + YearStarts[Y_in_Cycle] + MonthOffsets[M_in_Year] + Day \u2212 1` :
+					`JD = 1948440 + floor(29.5305732952 \u00b7 N + 0.1848335488) + Day \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
-				elements.formulaDisplay.textContent = formula;
-				elements.formulaNote.innerHTML = `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
+				elements.formulaDisplay.textContent = formula + (isTabular ? "" : `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`);
+				elements.formulaNote.innerHTML = isTabular ?
+					`<i>Global Tabular (Fixed Cycle). Leap Years: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27.</i>` :
+					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
+				elements.formulaDesc.textContent = isTabular ?
+					(state.lang === 'id' ? "Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,62% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah." : "30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.62% (1-10000 AH). Leap years add a 30th day to Dhu al-Hijjah.") :
+					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for math.floor.");
 			}
 
-			// Core Linear Logic Refactored
 			getLinearMonthStartJD(Index) {
-				// Intercept at 1 AH (Index 0) is 1948440 + round(-0.3151664512) = 1948440.
-				// Phase shift -0.3151664512 maximizes accuracy (~69.03% for obligatory months 1-10000 AH).
-				return 1948440 + Math.round(29.5305732952 * Index - 0.3151664512);
+				if (state.calcMode === 'tabular') {
+					const cycle = Math.floor(Index / 360), idxInCycle = ((Index % 360) + 360) % 360, yInCycle = Math.floor(idxInCycle / 12), mInYear = idxInCycle % 12,
+						leaps = [1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27], isLeap = yInCycle => leaps.includes(yInCycle + 1);
+					let days = cycle * 10631;
+					for (let i = 0; i < yInCycle; i++) days += isLeap(i) ? 355 : 354;
+					for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;
+					return 1948440 + days;
+				}
+				return (1948440 + Math.floor(29.5305732952 * Index + 0.1848335488));
 			}
 
 			getLinearIndexFromJD(JD) {
-				// Derived from 1-10000 AH analysis.
-				// Inverse offset = -0.3151664512 (matches forward phase).
-				return Math.round((JD - 1948440 + 0.3151664512) / 29.5305732952);
+				if (state.calcMode === 'tabular') {
+					let approxIdx = Math.round((JD - 1948440) / 29.530555);
+					while (this.getLinearMonthStartJD(approxIdx + 1) <= JD) approxIdx++;
+					while (this.getLinearMonthStartJD(approxIdx) > JD) approxIdx--;
+					return approxIdx;
+				}
+				return Math.floor((JD - 1948440 + 0.8151664512) / 29.5305732952);
 			}
 
 			jdToGregorianDate(jd) {
@@ -1029,7 +1051,7 @@
 			}
 
 			hijriToGregorian(hYear, hMonth, hDay) {
-				if (this.isOffline || state.calcMode === 'heuristic') return this.hijriToGregorianLinear(hYear, hMonth, hDay);
+				if (this.isOffline || state.calcMode !== 'astronomic') return this.hijriToGregorianLinear(hYear, hMonth, hDay);
 				const start = this.getAccurateHijriMonthStart(hYear, hMonth);
 				const gregorian = new Date(start.gDate);
 				gregorian.setDate(gregorian.getDate() + (hDay - 1));
@@ -1049,7 +1071,7 @@
 			}
 
 			gregorianToHijri(date) {
-				if (this.isOffline || state.calcMode === 'heuristic') return this.gregorianToHijriLinear(date);
+				if (this.isOffline || state.calcMode !== 'astronomic') return this.gregorianToHijriLinear(date);
 				const approx = this.gregorianToHijriLinear(date);
 				const startCurrent = this.getAccurateHijriMonthStart(approx.year, approx.month);
 				const dateTime = date.getTime();
@@ -1105,7 +1127,7 @@
 			}
 
 			getAccurateHijriMonthStart(hYear, hMonth) {
-				return (this.isOffline || state.calcMode === 'heuristic' || (hYear < 1300)) ? { gDate: this.hijriToGregorianLinear(hYear, hMonth, 1) } :
+				return (this.isOffline || state.calcMode !== 'astronomic' || (hYear < 1300)) ? { gDate: this.hijriToGregorianLinear(hYear, hMonth, 1) } :
 				((!this.cache && this.loadCache()), (()=>{
 					const cacheKey = `${hYear}-${hMonth}-${state.lat}-${state.lon}-${state.gMode}`;
 					if (this.cache[cacheKey]) {

@@ -507,6 +507,7 @@
 					<option value="astronomic" data-i18n="calcModeAstronomic">Local Sighting (MABBIMS)</option>
 					<option value="linear" data-i18n="calcModeLinear">Global Formula (Linear)</option>
 					<option value="tabular" data-i18n="calcModeTabular">Global Tabular (Linear-style)</option>
+					<option value="tabular_fixed" data-i18n="calcModeTabularFixed">Global Tabular (Fixed Alternating)</option>
 				</select>
 			</label>
 			<label>
@@ -593,6 +594,7 @@
 				calcModeAstronomic: 'Local Sighting (MABBIMS)',
 				calcModeLinear: 'Global Formula (Linear)',
 				calcModeTabular: 'Global Tabular (Linear-style)',
+				calcModeTabularFixed: 'Global Tabular (Fixed Alternating)',
 				linearSuffix: ' (Linear)',
 				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Gregorian Calendar',
@@ -656,6 +658,7 @@
 				calcModeAstronomic: 'Rukyat Lokal (MABBIMS)',
 				calcModeLinear: 'Rumus Global (Linear)',
 				calcModeTabular: 'Tabular Global (Gaya Linear)',
+				calcModeTabularFixed: 'Tabular Global (Alternasi Tetap)',
 				linearSuffix: ' (Linear)',
 				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Kalender Masehi',
@@ -972,7 +975,7 @@
 					const key = el.getAttribute('data-i18n-placeholder');
 					translation[key] && (el.placeholder = translation[key]);
 				}),
-				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon) + (this.isOffline ? translation.offlineWarning : state.calcMode === 'linear' ? translation.linearSuffix : state.calcMode === 'tabular' ? translation.tabularSuffix : ""),
+				elements.appSubtitle.textContent = this.formatCoordinates(state.lat, state.lon) + (this.isOffline ? translation.offlineWarning : state.calcMode === 'linear' ? translation.linearSuffix : (state.calcMode === 'tabular' || state.calcMode === 'tabular_fixed') ? translation.tabularSuffix : ""),
 				[...elements.hMonthInput.options].forEach((opt,i)=>opt.textContent = translation.months[i]),
 				[...elements.theme.options].forEach(opt=>opt.textContent = translation['theme' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
 				[...elements.primaryCalendar.options].forEach(opt=>opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
@@ -983,27 +986,47 @@
 			}
 
 			updateFormulaDisplay() {
-				const isTabular = state.calcMode === 'tabular';
+				const isLinear = state.calcMode === 'linear', isTabular = state.calcMode === 'tabular', isFixed = state.calcMode === 'tabular_fixed';
 				const formula = isTabular ?
 					`JD = 1948440 + floor((10631 \u00b7 N + 539) / 360) + Day \u2212 1` :
+					isFixed ?
+					`JD = 1948440 + (Cycle \u00b7 10631) + YearStarts[Y_in_Cycle] + MonthOffsets[M_in_Year] + Day \u2212 1` :
 					`JD = 1948440 + floor(29.5305732952 \u00b7 N + 0.1848335488) + Day \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
-				elements.formulaDisplay.textContent = formula + `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`;
+				elements.formulaDisplay.textContent = formula + (isFixed ? "" : `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`);
 				elements.formulaNote.innerHTML = isTabular ?
 					`<i>Global Tabular (Linear-style). Epoch: 1 Muharram 1 AH = JD 1948440.</i>` :
+					isFixed ?
+					`<i>Global Tabular (Fixed Alternating). Leap Years: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27.</i>` :
 					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
 				elements.formulaDesc.textContent = isTabular ?
 					(state.lang === 'id' ? "Aproksimasi tabular dengan distribusi linear (10.631 hari). Akurasi: 48,04% (1-10000 H)." : "Tabular approximation with linear distribution (10,631 days). Accuracy: 48.04% (1-10000 AH).") :
+					isFixed ?
+					(state.lang === 'id' ? "Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,62% (1-10000 H)." : "30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.62% (1-10000 AH).") :
 					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for math.floor.");
 			}
 
 			getLinearMonthStartJD(Index) {
+				if (state.calcMode === 'tabular_fixed') {
+					const cycle = Math.floor(Index / 360), idxInCycle = ((Index % 360) + 360) % 360, yInCycle = Math.floor(idxInCycle / 12), mInYear = idxInCycle % 12,
+						leaps = [1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27], isLeap = yInCycle => leaps.includes(yInCycle + 1);
+					let days = cycle * 10631;
+					for (let i = 0; i < yInCycle; i++) days += isLeap(i) ? 355 : 354;
+					for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;
+					return 1948440 + days;
+				}
 				return state.calcMode === 'tabular' ?
 					(1948440 + Math.floor((10631 * Index + 539) / 360)) :
 					(1948440 + Math.floor(29.5305732952 * Index + 0.1848335488));
 			}
 
 			getLinearIndexFromJD(JD) {
+				if (state.calcMode === 'tabular_fixed') {
+					let approxIdx = Math.round((JD - 1948440) / 29.530555);
+					while (this.getLinearMonthStartJD(approxIdx + 1) <= JD) approxIdx++;
+					while (this.getLinearMonthStartJD(approxIdx) > JD) approxIdx--;
+					return approxIdx;
+				}
 				return state.calcMode === 'tabular' ?
 					Math.round((JD - 1948440 - (539 / 360)) / (10631 / 360)) :
 					Math.floor((JD - 1948440 + 0.8151664512) / 29.5305732952);

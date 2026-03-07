@@ -521,9 +521,10 @@ self.onmessage = e=>{
 				const visible = sunset && (!isGIC || sunset.ut < date.ut + 0.5) && (()=>{
 					const obs = new Astronomy.Observer(lat,lon,0),
 						mEq = Astronomy.Equator(Astronomy.Body.Moon,sunset.ut,obs,true,true),
-						mHor = Astronomy.Horizon(sunset.ut,obs,mEq.ra,mEq.dec,"normal"),
-						sEq = Astronomy.Equator(Astronomy.Body.Sun,sunset.ut,obs,true,true);
-					return mHor.altitude >= criteriaMinAlt && Astronomy.AngleBetween(sEq.vec,mEq.vec) >= criteriaMinElong;
+						mHor = Astronomy.Horizon(sunset.ut,obs,mEq.ra,mEq.dec,"normal");
+					if (mHor.altitude < criteriaMinAlt) return false;
+					const sEq = Astronomy.Equator(Astronomy.Body.Sun,sunset.ut,obs,true,true);
+					return Astronomy.AngleBetween(sEq.vec,mEq.vec) >= criteriaMinElong;
 				})(),
 				idx = (row * width + col) * 4;
 				visible ? (buffer[idx]=0,buffer[idx+1]=200,buffer[idx+2]=0,buffer[idx+3]=180) : (buffer[idx]=255,buffer[idx+1]=0,buffer[idx+2]=0,buffer[idx+3]=180);

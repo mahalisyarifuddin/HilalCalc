@@ -75,17 +75,12 @@ We compared the accuracy of the Global Linear Formula against traditional and op
 
 ### Traditional and Optimized Tabular Methods
 
-#### 1. Global Tabular (Linear-style)
-This is our primary tabular approximation. Unlike traditional methods that force a rigid alternating 30/29 month pattern, this formula distributes the 10,631 days throughout the 360-month cycle using a linear distribution:
-**JD = 1948440 + floor((10631 * Index + 539) / 360) + Day - 1**
-By allowing month lengths to vary more naturally (not strictly alternating), it achieves the highest possible accuracy (**48.04%**) for any method constrained to a 30-year (10,631 day) cycle.
-
-#### 2. Global Tabular (Fixed Alternating)
+#### 1. Global Tabular (Fixed Cycle)
 Using dynamic programming, we identified the absolute best 30-year leap year distribution for a standard calendar (one that uses strictly alternating 30/29 month lengths with a leap day only at the end of leap years):
 - **Leap Years**: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27
 - **Accuracy**: **44.62%**. This is the peak performance for the "Classic Tabular" architecture.
 
-#### 3. Tabular (Formula k=29)
+#### 2. Tabular (Formula k=29)
 Traditional tabular schemes are often defined by the formula `(11y + k) % 30 < 11`. We tested all 30 possible values for `k` and found that **k=29** provides the best fit for our criteria. This scheme can be defined by either of the following equivalent formulas:
 - **Rule**: `(11y + 29) % 30 < 11` or `(19y) % 30 > 18`
 - **Leap Years**: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28
@@ -99,8 +94,7 @@ Among traditional variants, **Scheme I (Al-Khwarizmi)** is the most accurate (29
 | Method | Total Matches | Obligatory Matches |
 | :--- | :--- | :--- |
 | **Global Linear Formula** | **82820 (69.02%)** | **20709 (69.03%)** |
-| Global Tabular (Linear-style) | 57647 (48.04%) | 14441 (48.14%) |
-| Global Tabular (Fixed Alternating) | 53550 (44.62%) | 13609 (45.36%) |
+| Global Tabular (Fixed Cycle) | 53550 (44.62%) | 13609 (45.36%) |
 | Tabular (Formula k=29) | 48630 (40.52%) | 12031 (40.10%) |
 | Traditional (Scheme I) | 35935 (29.95%) | 8704 (29.01%) |
 

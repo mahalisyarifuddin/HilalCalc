@@ -10,7 +10,7 @@ The Ground Truth (GT) data for Hijri months was generated using the following co
 ## Global Formula Approximation (1-10000 AH)
 A global formula was derived based on the **1-10000 AH** range (120000 months) to optimize accuracy for this extended period, using a fixed integer epoch for 1 Muharram 1 AH.
 
-A "Knee Point Analysis" was performed to find the optimal FP (float precision) for the constants targeting the **math.floor** method. We searched for the best Slope and Phase Shift having equal FP to maximize obligatory month accuracy and minimize computational cost.
+A "Knee Point Analysis" was performed using `scripts/find_best_fit.py` to find the optimal FP (float precision) for the constants targeting the **math.floor** method. We searched for the best Slope and Phase Shift having equal FP to maximize obligatory month accuracy and minimize computational cost.
 
 | FP     | Slope              | Phase (floor)      | Oblig Matches  | Total Matches  |
 | :----- | :----------------- | :----------------- | :------------- | :------------- |
@@ -71,7 +71,7 @@ Where:
 - **Comparison**: The formula constants (Slope and Phase) were balanced at up to 15-digit precision to ensure an optimal fit, but 10-digit precision was chosen for implementation as the 'knee point' where total accuracy plateaus.
 
 ## Tabular vs. Linear Comparison (1-10000 AH)
-We compared the accuracy of the Global Linear Formula against traditional and optimized 30-year tabular schemes. Tabular calendars use a fixed 30-year cycle of 10,631 days (averaging 29.53055... days per month) with a predefined distribution of 11 leap years.
+Using `scripts/find_best_tabular.py`, we compared the accuracy of the Global Linear Formula against traditional and optimized 30-year tabular schemes. Tabular calendars use a fixed 30-year cycle of 10,631 days (averaging 29.53055... days per month) with a predefined distribution of 11 leap years.
 
 ### Traditional and Optimized Tabular Methods
 

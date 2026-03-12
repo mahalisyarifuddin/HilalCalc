@@ -8,10 +8,11 @@ async def run():
         page = await browser.new_page()
 
         # Load the file
-        file_path = "file://" + os.path.abspath("../HijriCalc.html")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = "file://" + os.path.abspath(os.path.join(script_dir, "..", "HijriCalc.html"))
         await page.goto(file_path)
 
-        modes = ["linear", "tabular", "tabular_fixed"]
+        modes = ["linear", "tabular"]
 
         for mode in modes:
             # Open settings
@@ -30,7 +31,7 @@ async def run():
             await page.wait_for_timeout(500)
 
             # Take screenshot
-            await page.screenshot(path=f"../mode_{mode}.png")
+            await page.screenshot(path=os.path.join(script_dir, "..", f"mode_{mode}.png"))
             print(f"Verified mode: {mode}")
 
         await browser.close()

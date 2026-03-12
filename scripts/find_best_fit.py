@@ -2,6 +2,7 @@ import csv
 import math
 import numpy as np
 import time
+import os
 
 def get_score_numpy(slope, phase, idxs, tgts, obligs, func_type):
 	vals = slope * idxs + phase
@@ -137,7 +138,8 @@ def optimize_for_func(func_type, indices, targets, is_oblig, slope_lr, phase_lr,
 
 def optimize():
 	data = []
-	csv_file = 'gt_1_10000.csv'
+	script_dir = os.path.dirname(os.path.abspath(__file__))
+	csv_file = os.path.join(script_dir, '..', 'gt_1_10000.csv')
 	try:
 		with open(csv_file, 'r') as f:
 			reader = csv.reader(f)

@@ -2,6 +2,7 @@ import astronomy
 import math
 import time
 import csv
+import os
 
 def generate():
 	start_time = time.time()
@@ -22,7 +23,9 @@ def generate():
 	# Total months: 10000 years * 12 = 120000
 	total_months = 120000
 
-	output_file = 'gt_1_10000.csv'
+	# Save to the root of the repo
+	script_dir = os.path.dirname(os.path.abspath(__file__))
+	output_file = os.path.join(script_dir, '..', 'gt_1_10000.csv')
 
 	print(f"Generating {total_months} months starting from JD {current_jd}...")
 

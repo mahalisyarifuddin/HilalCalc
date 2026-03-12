@@ -78,6 +78,16 @@ A comparative study against traditional **30-year tabular schemes** (such as Sch
 
 The constants were derived using a Knee Point Analysis to ensure optimal floating-point precision. For detailed documentation on the methodology and data, including the tabular comparison, see [ANALYSIS.md](ANALYSIS.md).
 
+## Technical Scripts
+The `scripts/` directory contains Python tools used to generate data and derive the optimized calendar constants:
+
+-   `generate_gt.py`: Generates the **Ground Truth** (GT) data for years 1-10000 AH using `astronomy-engine` based on the composite Mecca/Viwa criteria. Outputs `gt_1_10000.csv`.
+-   `find_best_fit.py`: Performs a grid search and Knee Point Analysis on the GT data to find the optimal **Linear Formula** constants for `floor`, `ceil`, and `round` functions.
+-   `find_best_tabular.py`: Analyzes the GT data to identify the most accurate **Tabular** (30-year cycle) leap year patterns and `k` constants.
+-   `verify_all_modes.py`: A Playwright-based script to visually verify all calculation modes in `HijriCalc.html`.
+
+To run these scripts, ensure you have the necessary dependencies: `pip install astronomy-engine numpy playwright`.
+
 ## Historical Context
 `HijriCalc` is designed to handle deep historical dates with care:
 -   **Gregorian Reform**: In "Historical" mode, the calendar correctly handles the jump from October 4, 1582 (Julian) to October 15, 1582 (Gregorian). Prior dates are labeled as Julian.

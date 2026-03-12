@@ -78,6 +78,16 @@ Studi komparatif terhadap **skema tabular 30 tahun** tradisional (seperti Scheme
 
 Konstanta diturunkan menggunakan "Knee Point Analysis" untuk memastikan presisi floating-point yang optimal. Untuk dokumentasi lengkap mengenai metodologi dan data, termasuk perbandingan tabular, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
 
+## Skrip Teknis
+Direktori `scripts/` berisi alat Python yang digunakan untuk menghasilkan data dan menurunkan konstanta kalender yang dioptimalkan:
+
+-   `generate_gt.py`: Menghasilkan data **Ground Truth** (GT) untuk tahun 1-10000 H menggunakan `astronomy-engine` berdasarkan kriteria komposit Makkah/Viwa. Menghasilkan `gt_1_10000.csv`.
+-   `find_best_fit.py`: Melakukan pencarian grid dan Knee Point Analysis pada data GT untuk menemukan konstanta **Rumus Linear** yang optimal untuk fungsi `floor`, `ceil`, dan `round`.
+-   `find_best_tabular.py`: Menganalisis data GT untuk mengidentifikasi pola tahun kabisat **Tabular** (siklus 30 tahun) dan konstanta `k` yang paling akurat.
+-   `verify_all_modes.py`: Skrip berbasis Playwright untuk memverifikasi secara visual semua mode perhitungan di `HijriCalc.html`.
+
+Untuk menjalankan skrip ini, pastikan Anda memiliki dependensi yang diperlukan: `pip install astronomy-engine numpy playwright`.
+
 ## Konteks Sejarah
 `HijriCalc` dirancang untuk menangani tanggal sejarah yang dalam dengan hati-hati:
 -   **Reformasi Masehi**: Dalam mode "Sejarah", kalender menangani lompatan dari 4 Oktober 1582 (Julian) ke 15 Oktober 1582 (Masehi) dengan benar. Tanggal sebelumnya diberi label Julian.

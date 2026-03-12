@@ -10,7 +10,7 @@ Data Ground Truth (GT) untuk bulan-bulan Hijriyah dibuat menggunakan kriteria ko
 ## Aproksimasi Rumus Global (1-10000 H)
 Rumus global diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk mengoptimalkan akurasi pada periode ini, menggunakan epoch integer tetap untuk 1 Muharram 1 H.
 
-"Knee Point Analysis" dilakukan untuk menemukan FP (presisi floating-point) optimal konstanta dengan menargetkan metode **math.floor**. Kami mencari Slope dan Phase Shift terbaik dengan FP setara untuk memaksimalkan akurasi bulan wajib dan meminimalkan biaya komputasi.
+"Knee Point Analysis" dilakukan menggunakan `scripts/find_best_fit.py` untuk menemukan FP (presisi floating-point) optimal konstanta dengan menargetkan metode **math.floor**. Kami mencari Slope dan Phase Shift terbaik dengan FP setara untuk memaksimalkan akurasi bulan wajib dan meminimalkan biaya komputasi.
 
 | FP     | Slope              | Phase (floor)      | Cocok Wajib    | Cocok Total    |
 | :----- | :----------------- | :----------------- | :------------- | :------------- |
@@ -71,7 +71,7 @@ Di mana:
 - **Perbandingan**: Konstanta rumus (Slope dan Phase) diseimbangkan hingga presisi 15 digit untuk memastikan kecocokan optimal, tetapi presisi 10 digit dipilih untuk implementasi akhir sebagai 'knee point' di mana akurasi total mendatar.
 
 ## Perbandingan Tabular vs. Linear (1-10000 H)
-Kami membandingkan akurasi Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi. Kalender tabular menggunakan siklus tetap 30 tahun sebanyak 10.631 hari (rata-rata 29,53055... hari per bulan) dengan distribusi 11 tahun kabisat yang telah ditentukan sebelumnya.
+Menggunakan `scripts/find_best_tabular.py`, kami membandingkan akurasi Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi. Kalender tabular menggunakan siklus tetap 30 tahun sebanyak 10.631 hari (rata-rata 29,53055... hari per bulan) dengan distribusi 11 tahun kabisat yang telah ditentukan sebelumnya.
 
 ### Metode Tabular Tradisional dan Teroptimasi
 

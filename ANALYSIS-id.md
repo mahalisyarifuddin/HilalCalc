@@ -97,6 +97,7 @@ Di antara varian tradisional, **Scheme I (Al-Khwarizmi)** adalah yang paling aku
 | Global Tabular (Siklus Tetap) | 53550 (44.62%)     | 13609 (45.36%)     |
 | Tabular (Rumus k=29)         | 48630 (40.52%)     | 12031 (40.10%)     |
 | Tradisional (Scheme I)       | 35935 (29.95%)     | 8704 (29.01%)      |
+| Tradisional (Kuwaiti / II)   | 35036 (29.20%)     | 8478 (28.26%)      |
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~21%** dibandingkan rumus tabular terbaik yang disusun dan **keuntungan ~40%** dibandingkan skema sejarah standar.
 

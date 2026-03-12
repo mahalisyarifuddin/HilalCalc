@@ -97,6 +97,7 @@ Among traditional variants, **Scheme I (Al-Khwarizmi)** is the most accurate (29
 | Global Tabular (Fixed Cycle) | 53550 (44.62%)     | 13609 (45.36%)     |
 | Tabular (Formula k=29)       | 48630 (40.52%)     | 12031 (40.10%)     |
 | Traditional (Scheme I)       | 35935 (29.95%)     | 8704 (29.01%)      |
+| Traditional (Kuwaiti / II)   | 35036 (29.20%)     | 8478 (28.26%)      |
 
 The linear approach provides a **~21% absolute accuracy gain** over the best-devised tabular formula and a **~40% gain** over standard historical schemes.
 

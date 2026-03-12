@@ -136,52 +136,115 @@
 			display: flex;
 			gap: 8px;
 		}
+		.toggle-pill {
+			display: flex;
+			background: var(--muted);
+			border-radius: 50px;
+			padding: 4px;
+			width: fit-content;
+			margin: 0 auto 1.5rem auto;
+		}
+		.toggle-btn {
+			border: none;
+			border-radius: 50px;
+			padding: 8px 24px;
+			font-weight: 600;
+			font-size: 0.9rem;
+			color: var(--text);
+			background: transparent;
+			transition: all 0.2s;
+			width: auto;
+		}
+		.toggle-btn.active {
+			background: var(--primary);
+			color: var(--on-primary);
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
 		.calendar-header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 			margin-bottom: 1.5rem;
-			flex-wrap: wrap;
-			gap: 10px;
+		}
+		.header-title {
+			text-align: center;
+		}
+		#secondaryRange {
+			font-size: 0.9rem;
+			font-weight: 600;
+			color: var(--primary);
+			margin-top: 4px;
+		}
+		.calendar-card {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 24px;
+			padding: 1.5rem;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+			margin-bottom: 1.5rem;
 		}
 		.calendar-grid {
 			display: grid;
-			grid-template-columns: repeat(7, minmax(50px, 1fr));
-			gap: 1px;
-			background: var(--border);
-			border: 1px solid var(--border);
-			border-radius: 4px;
+			grid-template-columns: repeat(7, minmax(40px, 1fr));
+			gap: 0;
+			background: transparent;
+			border: none;
 			overflow-x: auto;
 			min-width: 100%;
 		}
 		.day-header {
-			background: var(--muted);
-			padding: 10px;
+			background: transparent;
+			padding: 12px 0;
 			text-align: center;
-			font-weight: bold;
-			font-size: 0.9rem;
+			font-weight: 700;
+			font-size: 0.75rem;
+			color: var(--border);
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+		.day-header:nth-child(6), .day-header:nth-child(7) {
+			color: var(--success);
 		}
 		.day-cell {
-			background: var(--surface);
-			min-height: 100px;
-			padding: 8px;
+			background: transparent;
+			aspect-ratio: 1;
 			display: flex;
 			flex-direction: column;
-			justify-content: space-between;
+			align-items: center;
+			justify-content: center;
 			position: relative;
-			overflow: hidden;
+			border-radius: 12px;
+			margin: 1px;
+			transition: all 0.2s;
+			user-select: none;
 		}
 		.day-cell.other-month { 
-			opacity: 0.5; 
-			background: var(--formula-bg); 
+			opacity: 0.15;
 		}
-		.day-cell.today { 
-			background: var(--highlight-bg); 
+		.day-cell.weekend {
+			color: var(--success);
+		}
+		.day-cell.today::after {
+			content: "";
+			position: absolute;
+			bottom: 6px;
+			width: 4px;
+			height: 4px;
+			border-radius: 50%;
+			background: var(--primary);
+		}
+		.day-cell.today.selected::after {
+			background: var(--on-primary);
 		}
 		.day-cell.selected { 
-			border: 2px solid var(--primary); 
+			background: var(--primary) !important;
+			color: var(--on-primary) !important;
 		}
-		.day-cell:hover { 
+		.day-cell.selected .secondary-date {
+			color: inherit;
+			opacity: 0.8;
+		}
+		.day-cell:hover:not(.selected) {
 			background: var(--muted); 
 			cursor: pointer; 
 		}
@@ -189,51 +252,21 @@
 			outline: 2px solid var(--primary); 
 			z-index: 10; 
 		}
-		.gregorian-date { 
-			font-size: 1.2rem; 
+		.primary-date {
+			font-size: 1.15rem;
 			font-weight: 700; 
-			order: 1; 
+			line-height: 1;
 		}
-		.hijri-wrapper { 
-			order: 2; 
-			text-align: right; 
-		}
-		.hijri-date { 
-			font-size: 0.9rem; 
-			color: var(--primary); 
-			font-weight: 600; 
-		}
-		.hijri-month-name { 
-			font-size: 0.75rem; 
-			opacity: 0.8; 
+		.secondary-date {
+			font-size: 0.65rem;
+			opacity: 0.6;
+			margin-bottom: 4px;
+			line-height: 1;
+			font-weight: 600;
 		}
 		.julian-label {
-			display: block;
-			font-size: 0.65rem;
+			font-size: 0.6rem;
 			font-weight: 400;
-			opacity: 0.7;
-		}
-		.calendar-grid.hijri-primary .gregorian-date {
-			order: 2;
-			font-size: 0.9rem;
-			font-weight: 600;
-			text-align: right;
-			color: var(--primary);
-			align-self: flex-end;
-			width: 100%;
-		}
-		.calendar-grid.hijri-primary .hijri-wrapper { 
-			order: 1; 
-			text-align: left; 
-		}
-		.calendar-grid.hijri-primary .hijri-date { 
-			font-size: 1.2rem; 
-			font-weight: 700; 
-			color: var(--text); 
-			text-align: left; 
-		}
-		.calendar-grid.hijri-primary .hijri-month-name { 
-			text-align: left; 
 		}
 		.controls { 
 			display: flex; 
@@ -448,14 +481,25 @@
 		<div class="selectors">
 			<button id="prefBtn" class="secondary" style="width:auto; padding: 6px 12px;" data-i18n="prefTitle"></button>
 		</div>
-		<h1 id="appTitle" data-i18n="appTitle"></h1>
-		<p id="appSubtitle" style="opacity: 0.7; margin-bottom: 2rem;"></p>
-		<div class="controls">
+		<div class="toggle-pill" id="calToggle">
+			<button id="gregorianTab" class="toggle-btn active" data-i18n="calGregorian">Gregorian</button>
+			<button id="hijriTab" class="toggle-btn" data-i18n="calHijri">Hijri</button>
+		</div>
+		<h1 id="appTitle" data-i18n="appTitle" style="text-align: center;"></h1>
+		<p id="appSubtitle" style="opacity: 0.7; margin-bottom: 0.5rem; text-align: center;"></p>
+		<div style="display: flex; justify-content: center; margin-bottom: 2rem;">
+			<button id="todayBtn" class="secondary small-pill" style="width: auto; padding: 4px 16px; border-radius: 20px; font-size: 0.85rem; background: var(--muted); border: none; display: flex; align-items: center; gap: 4px;">
+				<span style="font-size: 1.1rem; line-height: 1;">&#x21bb;</span>
+				<span data-i18n="today">Today</span>
+			</button>
+		</div>
+		<details style="margin-top: 0; margin-bottom: 2rem; border-top: none; padding-top: 0;">
+			<summary style="text-align: center; font-weight: 600; font-size: 0.9rem;" data-i18n="gotoTitle">Go to Date</summary>
+		<div class="controls" style="margin-top: 1rem;">
 			<div class="control-group">
 				<label class="sr-only" data-i18n="gDateLabel"></label>
 				<div class="input-group">
 					<input type="date" id="gDateInput" data-i18n-aria="gDateLabel">
-					<button id="todayBtn" class="secondary" data-i18n="today" style="flex:0.3"></button>
 				</div>
 				<div class="input-group" style="margin-bottom:0">
 					<input type="number" id="hDayInput" placeholder="D" min="1" max="30" data-i18n-aria="hDayLabel">
@@ -465,12 +509,18 @@
 				</div>
 			</div>
 		</div>
-		<div class="calendar-header">
-			<button id="prevMonthBtn" class="secondary" style="width: auto;" data-i18n="prevBtn" data-i18n-aria="prevMonthLabel"></button>
-			<h2 id="monthDisplay"></h2>
-			<button id="nextMonthBtn" class="secondary" style="width: auto;" data-i18n="nextBtn" data-i18n-aria="nextMonthLabel"></button>
+		</details>
+		<div class="calendar-card">
+			<div class="calendar-header">
+				<button id="prevMonthBtn" class="secondary" style="width: auto; border: none; font-size: 1.5rem;" data-i18n-aria="prevMonthLabel">&lsaquo;</button>
+				<div class="header-title">
+					<h2 id="monthDisplay" style="margin: 0; font-size: 1.25rem;"></h2>
+					<div id="secondaryRange"></div>
+				</div>
+				<button id="nextMonthBtn" class="secondary" style="width: auto; border: none; font-size: 1.5rem;" data-i18n-aria="nextMonthLabel">&rsaquo;</button>
+			</div>
+			<div class="calendar-grid" id="calendar"></div>
 		</div>
-		<div class="calendar-grid" id="calendar"></div>
 		<details>
 			<summary><span data-i18n="formulaTitle"></span></summary>
 			<p id="formulaDisplay" style="font-family: monospace; font-size: 0.9rem; background: var(--surface); padding: 5px; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 5px;"></p>
@@ -802,6 +852,14 @@
 				elements.hMonthInput.addEventListener('change',()=>this.updateHijriDayLimit()),
 				elements.hYearInput.addEventListener('change',()=>this.updateHijriDayLimit()),
 				elements.hYearInput.addEventListener('input',()=>this.updateHijriDayLimit()),
+				elements.gregorianTab.onclick = () => {
+					state.primaryCalendar = 'gregorian';
+					this.render();
+				},
+				elements.hijriTab.onclick = () => {
+					state.primaryCalendar = 'hijri';
+					this.render();
+				},
 				elements.prefBtn.onclick = ()=>elements.prefDialog.showModal(),
 				elements.closePref.onclick = ()=>elements.prefDialog.close(),
 				elements.savePrefBtn.onclick = ()=>(this.savePreferences(), elements.prefDialog.close()),
@@ -1197,21 +1255,26 @@
 				return { day: hijriDateDisplay, monthName: hijriMonthNameDisplay };
 			}
 
-			createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth) {
+			createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth, showMonth) {
 				const element = document.createElement('div'),
 					translation = text[state.lang],
 					isGregorianMode = state.primaryCalendar !== 'hijri',
 					jd = this.gregorianDateToJD(date),
+					dow = this.getDOW(jd),
 					isJulian = (state.gMode === 'transition' && jd < 2299161),
 					monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' }),
-					gregorianValue = isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`,
-					gregorianText = gregorianValue + (isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
-					fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + (isJulian ? ` (${translation.julian})` : "");
+					fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + (isJulian ? ` (${translation.julian})` : ""),
+					primary = isGregorianMode ? date.getDate() : hijriInfo.day,
+					secondary = isGregorianMode ?
+						`${hijriInfo.day}${showMonth ? ' ' + hijriInfo.monthName.slice(0,3) : ''}` :
+						`${date.getDate()}${showMonth ? ' ' + monthNameShort : ''}`;
+
 				return (element.className = 'day-cell',
 				element.setAttribute('role', 'gridcell'),
 				element.tabIndex = -1,
 				isOtherMonth && element.classList.add('other-month'),
 				isToday && element.classList.add('today'),
+				(dow === 5 || dow === 6) && element.classList.add('weekend'),
 				isSelected && (element.classList.add('selected'), element.setAttribute('aria-selected', 'true')),
 				element.onclick = ()=>(
 					this.setDateToInput(elements.gDateInput, date),
@@ -1225,11 +1288,8 @@
 				element.setAttribute('aria-label', `${fullDate}, ${hijriInfo.day} ${hijriInfo.monthName}`),
 				element.dataset.date = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
 				element.innerHTML = `
-					<div class="gregorian-date">${gregorianText}</div>
-					<div class="hijri-wrapper">
-						<div class="hijri-date">${hijriInfo.day}</div>
-						<div class="hijri-month-name">${hijriInfo.monthName}</div>
-					</div>
+					<div class="secondary-date">${secondary}${isJulian ? ` <span class="julian-label">(${translation.julian})</span>` : ""}</div>
+					<div class="primary-date">${primary}</div>
 				`,
 				element);
 			}
@@ -1238,11 +1298,17 @@
 
 			render() {
 				const grid = elements.calendar, translation = text[state.lang];
+				elements.gregorianTab.classList.toggle('active', state.primaryCalendar === 'gregorian');
+				elements.hijriTab.classList.toggle('active', state.primaryCalendar === 'hijri');
 				(state.primaryCalendar === 'hijri' ? grid.classList.add('hijri-primary') : grid.classList.remove('hijri-primary'),
 				state.primaryCalendar !== 'hijri' ? (()=>{
 					const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
 					elements.monthDisplay.textContent = state.viewDate.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' });
-					const firstJD = this.gregorianDateToJD(new Date(year, month, 1));
+					const firstDate = new Date(year, month, 1), lastDate = new Date(year, month + 1, 0);
+					const h1 = this.gregorianToHijri(firstDate), h2 = this.gregorianToHijri(lastDate);
+					const m1 = translation.months[h1.month-1].substring(0,3), m2 = translation.months[h2.month-1].substring(0,3);
+					elements.secondaryRange.textContent = `${m1} ${h1.year} \u2013 ${m2} ${h2.year} AH`;
+					const firstJD = this.gregorianDateToJD(firstDate);
 					let offset = this.getDOW(firstJD) - state.weekStart;
 					(offset < 0 && (offset += 7));
 					this.renderGrid(firstJD - offset, true, { month, year });
@@ -1252,6 +1318,10 @@
 					(nextMonth > 12 && (nextMonth = 1, nextYear++));
 					const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
 					elements.monthDisplay.textContent = `${translation.months[hijri.month - 1]} ${hijri.year}`;
+					const d1 = currentStart.gDate, d2 = new Date(nextStart.gDate.getTime() - 86400000);
+					const m1 = d1.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' });
+					const m2 = d2.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' });
+					elements.secondaryRange.textContent = `${m1} ${d1.getFullYear()} \u2013 ${m2} ${d2.getFullYear()}`;
 					const startJD = this.gregorianDateToJD(currentStart.gDate);
 					let offset = this.getDOW(startJD) - state.weekStart;
 					(offset < 0 && (offset += 7));
@@ -1284,13 +1354,20 @@
 
 				const todayJD = this.gregorianDateToJD(new Date()), selectedDate = this.getDateFromInput(elements.gDateInput), selectedJD = selectedDate ? this.gregorianDateToJD(selectedDate) : -1;
 
+				let lastMonthName = "";
 				for (let index = 0; index < 42; index++) {
 					const currentJD = startJD + index, date = this.jdToGregorianDate(currentJD);
-					const hijriInfo = this.getHijriInfoForCellJD(currentJD, isGregorianMode, context, hijriStarts),
-						isOtherMonth = isGregorianMode ? (date.getMonth() !== context.month) : (currentJD < context.startJD || currentJD >= context.endJD),
+					const hijriInfo = this.getHijriInfoForCellJD(currentJD, isGregorianMode, context, hijriStarts);
+
+					const monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' });
+					const currentMonthName = isGregorianMode ? hijriInfo.monthName.slice(0,3) : monthNameShort;
+					const showMonth = index === 0 || currentMonthName !== lastMonthName;
+					lastMonthName = currentMonthName;
+
+					const isOtherMonth = isGregorianMode ? (date.getMonth() !== context.month) : (currentJD < context.startJD || currentJD >= context.endJD),
 						isToday = (currentJD === todayJD),
 						isSelected = (currentJD === selectedJD),
-						element = this.createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth);
+						element = this.createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth, showMonth);
 					fragment.appendChild(element);
 				}
 				(grid.appendChild(fragment), (()=>{

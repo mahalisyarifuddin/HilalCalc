@@ -33,13 +33,13 @@ def find_best_k(data, is_oblig):
     best_k = -1
     best_score = -1
 
-    for k in range(30):
+    for k in range(51):
         leap_years = [y for y in range(1, 31) if (11 * y + k) % 30 < 11]
         matches, pct, o_matches, o_pct = evaluate(leap_years, data, is_oblig)
         if matches > best_score:
             best_score = matches
             best_k = k
-        # print(f"k={k:2d}: {matches:5d} ({pct:5.2f}%)")
+        print(f"k={k:2d}: {matches:5d} ({pct:5.2f}%)")
 
     leap_years = [y for y in range(1, 31) if (11 * y + best_k) % 30 < 11]
     print(f"Best k: {best_k} (Leap Years: {leap_years})")

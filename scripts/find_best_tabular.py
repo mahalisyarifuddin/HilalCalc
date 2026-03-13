@@ -34,6 +34,8 @@ def find_best_k(data, is_oblig):
     best_score = -1
 
     for k in range(51):
+        # The formula (11*y + k) % 30 < 11 always selects exactly 11 leap years
+        # in every 30-year cycle because 11 and 30 are coprime.
         leap_years = [y for y in range(1, 31) if (11 * y + k) % 30 < 11]
         matches, pct, o_matches, o_pct = evaluate(leap_years, data, is_oblig)
         if matches > best_score:

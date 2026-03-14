@@ -1156,47 +1156,6 @@
 				})());
 			}
 
-			getHijriInfoForCell(date, isGregorianMode, context, hijriStarts) {
-				const translation = text[state.lang], dateNoTime = new Date(date).setHours(0, 0, 0, 0);
-				let hijriDateDisplay = "", hijriMonthNameDisplay = "";
-
-				isGregorianMode ? (()=>{
-					for (let k = 0; k < hijriStarts.length - 1; k++) {
-						const s1 = hijriStarts[k], s2 = hijriStarts[k + 1];
-						(date >= s1.gDate && date < s2.gDate) && (
-							hijriDateDisplay = Math.round((dateNoTime - new Date(s1.gDate).setHours(0, 0, 0, 0)) / 86400000) + 1,
-							hijriMonthNameDisplay = translation.months[s1.month - 1],
-							k = hijriStarts.length
-						);
-					}
-				})() : (
-					(date >= context.startGDate && date < context.endGDate) ? (
-						hijriDateDisplay = Math.round((dateNoTime - new Date(context.startGDate).setHours(0, 0, 0, 0)) / 86400000) + 1,
-						hijriMonthNameDisplay = translation.months[context.hMonth - 1]
-					) : (()=>{
-						const start = new Date(context.startGDate).setHours(0, 0, 0, 0),
-							diff = Math.round((dateNoTime - start) / 86400000) + 1;
-						date < context.startGDate ? (()=>{
-							let prevMonth = context.hMonth - 1, prevYear = context.hYear;
-							(prevMonth < 1 && (prevMonth += 12, prevYear--));
-							const prevStart = this.getAccurateHijriMonthStart(prevYear, prevMonth);
-							let prevLength = Math.round((context.startGDate - prevStart.gDate) / 86400000);
-							(prevLength < 29 || prevLength > 30) && (prevLength = 30),
-							hijriDateDisplay = prevLength + diff,
-							hijriMonthNameDisplay = translation.months[prevMonth - 1];
-						})() : (()=>{
-							let length = Math.round((context.endGDate - context.startGDate) / 86400000);
-							(length < 29 || length > 30) && (length = 30);
-							let nm = context.hMonth + 1;
-							(nm > 12 && (nm = 1)),
-							hijriDateDisplay = diff - length,
-							hijriMonthNameDisplay = translation.months[nm - 1];
-						})();
-					})()
-				);
-				return { day: hijriDateDisplay, monthName: hijriMonthNameDisplay };
-			}
-
 			createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth) {
 				const element = document.createElement('div'),
 					translation = text[state.lang],

@@ -20,6 +20,9 @@
 			--on-danger: #ffffff;
 			--highlight-bg: #d4e3ff;
 			--formula-bg: #f8f9fa;
+			--accent: #f57c00;
+			--accent-bg: #fffdf0;
+			--card-gradient: linear-gradient(135deg, #4b39ef, #6a53ff);
 		}
 		@media (prefers-color-scheme: dark) {
 			:root:not(.light) {
@@ -37,6 +40,9 @@
 				--on-danger: #93000a;
 				--highlight-bg: #001c3a;
 				--formula-bg: #1e222b;
+				--accent: #ffb74d;
+				--accent-bg: #2a2200;
+				--card-gradient: linear-gradient(135deg, #3f32b6, #5c47ff);
 			}
 		}
 		:root.dark {
@@ -54,6 +60,9 @@
 			--on-danger: #93000a;
 			--highlight-bg: #001c3a;
 			--formula-bg: #1e222b;
+			--accent: #ffb74d;
+			--accent-bg: #2a2200;
+			--card-gradient: linear-gradient(135deg, #3f32b6, #5c47ff);
 		}
 		* { 
 			box-sizing: border-box; 
@@ -147,39 +156,41 @@
 		.calendar-grid {
 			display: grid;
 			grid-template-columns: repeat(7, minmax(50px, 1fr));
-			gap: 1px;
-			background: var(--border);
-			border: 1px solid var(--border);
-			border-radius: 4px;
+			gap: 0;
 			overflow-x: auto;
 			min-width: 100%;
 		}
 		.day-header {
-			background: var(--muted);
-			padding: 10px;
+			padding: 12px;
 			text-align: center;
-			font-weight: bold;
+			font-weight: 700;
 			font-size: 0.9rem;
+			color: var(--text);
+			opacity: 0.6;
+		}
+		.day-header.friday-header {
+			color: var(--accent);
+			opacity: 1;
 		}
 		.day-cell {
-			background: var(--surface);
 			min-height: 100px;
 			padding: 8px;
 			display: flex;
 			flex-direction: column;
-			justify-content: space-between;
+			align-items: center;
+			justify-content: center;
 			position: relative;
-			overflow: hidden;
+			border-radius: 12px;
+			transition: background 0.2s;
 		}
-		.day-cell.other-month { 
-			opacity: 0.5; 
-			background: var(--formula-bg); 
+		.day-cell.friday-cell {
+			background: var(--accent-bg);
 		}
-		.day-cell.today { 
-			background: var(--highlight-bg); 
+		.day-cell.other-month {
+			opacity: 0.25;
 		}
 		.day-cell.selected { 
-			border: 2px solid var(--primary); 
+			background: var(--highlight-bg);
 		}
 		.day-cell:hover { 
 			background: var(--muted); 
@@ -189,51 +200,88 @@
 			outline: 2px solid var(--primary); 
 			z-index: 10; 
 		}
-		.gregorian-date { 
-			font-size: 1.2rem; 
+		.primary-date {
+			font-size: 1.4rem;
 			font-weight: 700; 
-			order: 1; 
+			margin-bottom: 2px;
 		}
-		.hijri-wrapper { 
-			order: 2; 
-			text-align: right; 
-		}
-		.hijri-date { 
+		.secondary-date {
 			font-size: 0.9rem; 
-			color: var(--primary); 
-			font-weight: 600; 
+			opacity: 0.6;
 		}
-		.hijri-month-name { 
+		.hijri-month-label {
 			font-size: 0.75rem; 
-			opacity: 0.8; 
+			color: var(--success);
+			font-weight: 600;
+			margin-top: 4px;
+		}
+		.today-dot {
+			width: 4px;
+			height: 4px;
+			background: var(--primary);
+			border-radius: 50%;
+			position: absolute;
+			bottom: 12px;
 		}
 		.julian-label {
-			display: block;
-			font-size: 0.65rem;
-			font-weight: 400;
-			opacity: 0.7;
+			display: inline-block;
+			font-size: 0.6rem;
+			margin-left: 4px;
+			vertical-align: middle;
 		}
-		.calendar-grid.hijri-primary .gregorian-date {
-			order: 2;
+		.calendar-card {
+			background: var(--card-gradient);
+			color: #ffffff;
+			border-radius: 16px;
+			padding: 1.5rem;
+			margin-bottom: 1.5rem;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+		}
+		.calendar-card-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 1rem;
+		}
+		.calendar-card h2 {
+			font-size: 1.5rem;
+			margin: 0;
+			font-weight: 700;
+		}
+		.calendar-card-subtitle {
+			font-size: 0.9rem;
+			opacity: 0.8;
+			text-align: center;
+		}
+		.nav-btn {
+			background: rgba(255, 255, 255, 0.1);
+			border: none;
+			color: white;
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.2rem;
+		}
+		.nav-btn:hover {
+			background: rgba(255, 255, 255, 0.2);
+		}
+		.pill-btn {
+			background: rgba(255, 255, 255, 0.15);
+			border: none;
+			color: white;
+			padding: 8px 24px;
+			border-radius: 20px;
 			font-size: 0.9rem;
 			font-weight: 600;
-			text-align: right;
-			color: var(--primary);
-			align-self: flex-end;
-			width: 100%;
+			width: auto;
+			margin: 0 auto;
+			display: block;
 		}
-		.calendar-grid.hijri-primary .hijri-wrapper { 
-			order: 1; 
-			text-align: left; 
-		}
-		.calendar-grid.hijri-primary .hijri-date { 
-			font-size: 1.2rem; 
-			font-weight: 700; 
-			color: var(--text); 
-			text-align: left; 
-		}
-		.calendar-grid.hijri-primary .hijri-month-name { 
-			text-align: left; 
+		.pill-btn:hover {
+			background: rgba(255, 255, 255, 0.25);
 		}
 		.controls { 
 			display: flex; 
@@ -331,38 +379,24 @@
 		@media(max-width: 600px) {
 			.selectors { 
 				position: static; 
-				justify-content: 
-				flex-end; 
+				justify-content: flex-end;
 				margin-bottom: 1rem; 
 			}
-			.calendar-header { 
-				flex-direction: row;
-				align-items: center;
-				flex-wrap: nowrap;
-				gap: 5px;
-			}
-			.calendar-header h2 {
-				font-size: 1.1rem;
-				flex: 1;
-				text-align: center;
-				margin: 0;
-				white-space: nowrap;
+			.calendar-card h2 {
+				font-size: 1.2rem;
 			}
 			.day-cell { 
-				min-height: 60px; 
+				min-height: 70px;
 				padding: 4px; 
 			}
-			.gregorian-date { 
-				font-size: 1rem; 
+			.primary-date {
+				font-size: 1.1rem;
 			}
-			.hijri-date { 
-				font-size: 0.8rem; 
+			.secondary-date {
+				font-size: 0.75rem;
 			}
-			.calendar-grid.hijri-primary .hijri-date { 
-				font-size: 1rem; 
-			}
-			.calendar-grid.hijri-primary .gregorian-date { 
-				font-size: 0.8rem; 
+			.hijri-month-label {
+				font-size: 0.65rem;
 			}
 		}
 		.spinner {
@@ -455,7 +489,6 @@
 				<label class="sr-only" data-i18n="gDateLabel"></label>
 				<div class="input-group">
 					<input type="date" id="gDateInput" data-i18n-aria="gDateLabel">
-					<button id="todayBtn" class="secondary" data-i18n="today" style="flex:0.3"></button>
 				</div>
 				<div class="input-group" style="margin-bottom:0">
 					<input type="number" id="hDayInput" placeholder="D" min="1" max="30" data-i18n-aria="hDayLabel">
@@ -465,10 +498,14 @@
 				</div>
 			</div>
 		</div>
-		<div class="calendar-header">
-			<button id="prevMonthBtn" class="secondary" style="width: auto;" data-i18n="prevBtn" data-i18n-aria="prevMonthLabel"></button>
-			<h2 id="monthDisplay"></h2>
-			<button id="nextMonthBtn" class="secondary" style="width: auto;" data-i18n="nextBtn" data-i18n-aria="nextMonthLabel"></button>
+		<div class="calendar-card">
+			<div class="calendar-card-header">
+				<button id="prevMonthBtn" class="nav-btn" data-i18n-aria="prevMonthLabel">&lt;</button>
+				<h2 id="monthDisplay"></h2>
+				<button id="nextMonthBtn" class="nav-btn" data-i18n-aria="nextMonthLabel">&gt;</button>
+			</div>
+			<div id="hijriRangeDisplay" class="calendar-card-subtitle"></div>
+			<button id="todayBtn" class="pill-btn" data-i18n="today" style="margin-top: 1.5rem;"></button>
 		</div>
 		<div class="calendar-grid" id="calendar"></div>
 		<details>
@@ -1156,21 +1193,23 @@
 				})());
 			}
 
-			createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth) {
+			createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth, isFriday) {
 				const element = document.createElement('div'),
 					translation = text[state.lang],
 					isGregorianMode = state.primaryCalendar !== 'hijri',
 					jd = this.gregorianDateToJD(date),
 					isJulian = (state.gMode === 'transition' && jd < 2299161),
 					monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' }),
-					gregorianValue = isGregorianMode ? date.getDate() : `${date.getDate()} ${monthNameShort}`,
-					gregorianText = gregorianValue + (isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
+					primaryValue = isGregorianMode ? date.getDate() : hijriInfo.day,
+					secondaryValue = isGregorianMode ? hijriInfo.day : date.getDate(),
+					secondarySuffix = isGregorianMode ? "" : ` ${monthNameShort}`,
+					primaryText = primaryValue + (isGregorianMode && isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
 					fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + (isJulian ? ` (${translation.julian})` : "");
 				return (element.className = 'day-cell',
 				element.setAttribute('role', 'gridcell'),
 				element.tabIndex = -1,
+				isFriday && element.classList.add('friday-cell'),
 				isOtherMonth && element.classList.add('other-month'),
-				isToday && element.classList.add('today'),
 				isSelected && (element.classList.add('selected'), element.setAttribute('aria-selected', 'true')),
 				element.onclick = ()=>(
 					this.setDateToInput(elements.gDateInput, date),
@@ -1184,11 +1223,10 @@
 				element.setAttribute('aria-label', `${fullDate}, ${hijriInfo.day} ${hijriInfo.monthName}`),
 				element.dataset.date = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
 				element.innerHTML = `
-					<div class="gregorian-date">${gregorianText}</div>
-					<div class="hijri-wrapper">
-						<div class="hijri-date">${hijriInfo.day}</div>
-						<div class="hijri-month-name">${hijriInfo.monthName}</div>
-					</div>
+					<div class="secondary-date">${secondaryValue}${secondarySuffix}</div>
+					<div class="primary-date">${primaryText}</div>
+					${hijriInfo.showMonth ? `<div class="hijri-month-label">${hijriInfo.monthName}</div>` : ''}
+					${isToday ? '<div class="today-dot"></div>' : ''}
 				`,
 				element);
 			}
@@ -1197,11 +1235,14 @@
 
 			render() {
 				const grid = elements.calendar, translation = text[state.lang];
-				(state.primaryCalendar === 'hijri' ? grid.classList.add('hijri-primary') : grid.classList.remove('hijri-primary'),
-				state.primaryCalendar !== 'hijri' ? (()=>{
+				(state.primaryCalendar !== 'hijri' ? (()=>{
 					const year = state.viewDate.getFullYear(), month = state.viewDate.getMonth();
 					elements.monthDisplay.textContent = state.viewDate.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' });
 					const firstJD = this.gregorianDateToJD(new Date(year, month, 1));
+					const lastJD = this.gregorianDateToJD(new Date(year, month + 1, 0));
+					const hStart = this.gregorianToHijri(new Date(year, month, 1));
+					const hEnd = this.gregorianToHijri(new Date(year, month + 1, 0));
+					elements.hijriRangeDisplay.textContent = `${translation.months[hStart.month - 1]} ${hStart.year} - ${translation.months[hEnd.month - 1]} ${hEnd.year}`;
 					let offset = this.getDOW(firstJD) - state.weekStart;
 					(offset < 0 && (offset += 7));
 					this.renderGrid(firstJD - offset, true, { month, year });
@@ -1211,6 +1252,8 @@
 					(nextMonth > 12 && (nextMonth = 1, nextYear++));
 					const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
 					elements.monthDisplay.textContent = `${translation.months[hijri.month - 1]} ${hijri.year}`;
+					const gStart = currentStart.gDate, gEnd = new Date(nextStart.gDate.getTime() - 86400000);
+					elements.hijriRangeDisplay.textContent = `${gStart.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })} - ${gEnd.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' })}`;
 					const startJD = this.gregorianDateToJD(currentStart.gDate);
 					let offset = this.getDOW(startJD) - state.weekStart;
 					(offset < 0 && (offset += 7));
@@ -1224,7 +1267,7 @@
 
 				for (let index = 0; index < 7; index++) {
 					const dayIndex = (state.weekStart + index) % 7, element = document.createElement('div');
-					(element.className = 'day-header', element.textContent = translation.days[dayIndex], element.setAttribute('role', 'columnheader'), fragment.appendChild(element));
+					(element.className = 'day-header', (dayIndex === 5) && element.classList.add('friday-header'), element.textContent = translation.days[dayIndex], element.setAttribute('role', 'columnheader'), fragment.appendChild(element));
 				}
 
 				let hijriStarts = [];
@@ -1245,11 +1288,13 @@
 
 				for (let index = 0; index < 42; index++) {
 					const currentJD = startJD + index, date = this.jdToGregorianDate(currentJD);
-					const hijriInfo = this.getHijriInfoForCellJD(currentJD, isGregorianMode, context, hijriStarts),
-						isOtherMonth = isGregorianMode ? (date.getMonth() !== context.month) : (currentJD < context.startJD || currentJD >= context.endJD),
+					const hijriInfo = this.getHijriInfoForCellJD(currentJD, isGregorianMode, context, hijriStarts);
+					hijriInfo.showMonth = (hijriInfo.day === 1 || index === 0);
+					const isOtherMonth = isGregorianMode ? (date.getMonth() !== context.month) : (currentJD < context.startJD || currentJD >= context.endJD),
 						isToday = (currentJD === todayJD),
 						isSelected = (currentJD === selectedJD),
-						element = this.createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth);
+						isFriday = (this.getDOW(currentJD) === 5),
+						element = this.createDayCell(date, hijriInfo, isSelected, isToday, isOtherMonth, isFriday);
 					fragment.appendChild(element);
 				}
 				(grid.appendChild(fragment), (()=>{

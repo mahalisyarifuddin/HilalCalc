@@ -284,11 +284,12 @@
 		}
 		.control-group {
 			width: 100%;
-			max-width: 700px;
+			max-width: 600px;
 			background: var(--formula-bg);
 			padding: 0.5rem 0.75rem;
 			border-radius: 8px;
 			border: 1px solid var(--border);
+			font-size: 0.9rem;
 		}
 		.row { 
 			display: flex; 
@@ -433,12 +434,6 @@
 		#hYearInput {
 			flex: 1;
 		}
-		#goHBtn {
-			flex: 0.4;
-			min-width: 36px;
-			padding: 0.4rem;
-			font-weight: bold;
-		}
 		details {
 			margin-top: 8px;
 			border-top: 1px solid var(--border);
@@ -473,7 +468,6 @@
 					<input type="number" id="hDayInput" placeholder="D" min="1" max="30" data-i18n-aria="hDayLabel">
 					<select id="hMonthInput" data-i18n-aria="hMonthLabel"></select>
 					<input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500" data-i18n-aria="hYearLabel" data-i18n-placeholder="yearPlaceholder">
-					<button id="goHBtn" class="primary" aria-label="Go to Hijri Date" data-i18n-aria="goHBtnLabel">&rarr;</button>
 				</div>
 			</div>
 		</div>
@@ -581,7 +575,6 @@
 				hMonthLabel: 'Hijri Month',
 				hYearLabel: 'Hijri Year',
 				goBtnLabel: 'Go to Gregorian Date',
-				goHBtnLabel: 'Go to Hijri Date',
 				prevMonthLabel: 'Previous Month',
 				nextMonthLabel: 'Next Month',
 				prevBtn: '← Prev',
@@ -645,7 +638,6 @@
 				hMonthLabel: 'Bulan Hijriyah',
 				hYearLabel: 'Tahun Hijriyah',
 				goBtnLabel: 'Buka Tanggal Masehi',
-				goHBtnLabel: 'Buka Tanggal Hijriyah',
 				prevMonthLabel: 'Bulan Sebelumnya',
 				nextMonthLabel: 'Bulan Berikutnya',
 				prevBtn: '← Sblm',
@@ -849,8 +841,11 @@
 							(state.viewDate = gregorian, this.render(), this.setDateToInput(elements.gDateInput, gregorian));
 						})();
 					};
-					(elements.goHBtn.onclick = handleGoH,
-					[elements.hDayInput, elements.hMonthInput, elements.hYearInput].forEach(el=>el.addEventListener('keydown',e=>e.key === 'Enter' && handleGoH())));
+					(
+					[elements.hDayInput, elements.hMonthInput, elements.hYearInput].forEach(el=>{
+						el.addEventListener('change', handleGoH);
+						el.addEventListener('keydown',e=>e.key === 'Enter' && handleGoH());
+					}));
 				})(),
 				elements.calendar.addEventListener('keydown',e=>{
 					const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown', 'Enter', ' '];

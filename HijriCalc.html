@@ -185,6 +185,13 @@
 		.day-cell.selected { 
 			background: var(--highlight-bg);
 		}
+		.day-cell.today {
+			box-shadow: inset 0 0 0 2px var(--primary);
+		}
+		.day-cell.today .primary-date {
+			color: var(--primary);
+			font-weight: 700;
+		}
 		.day-cell:hover { 
 			background: var(--muted); 
 			cursor: pointer; 
@@ -492,7 +499,7 @@
 	<dialog id="prefDialog">
 		<div class="dialog-header">
 			<h3 id="prefTitle" data-i18n="prefTitle"></h3>
-			<button id="closePref" class="close-button" aria-label="Close Settings">&times;</button>
+			<button id="closePref" class="close-button" aria-label="Close Settings" data-i18n-aria="closeLabel">&times;</button>
 		</div>
 		<div class="group">
 			<label>
@@ -562,6 +569,7 @@
 				adjLabel: 'Hijri Adjustment (Days)',
 				save: 'Save & Close',
 				reset: 'Reset Defaults',
+				closeLabel: 'Close Settings',
 				myLoc: 'Use My Location',
 				locating: 'Locating...',
 				go: 'Go',
@@ -625,6 +633,7 @@
 				adjLabel: 'Penyesuaian Hijriyah (Hari)',
 				save: 'Simpan & Tutup',
 				reset: 'Atur Ulang',
+				closeLabel: 'Tutup Pengaturan',
 				myLoc: 'Gunakan Lokasi Saya',
 				locating: 'Mencari lokasi...',
 				go: 'Buka',
@@ -821,7 +830,11 @@
 					state.viewDate = new Date(),
 					this.setDateToInput(elements.gDateInput, state.viewDate),
 					this.updateHijriInputs(state.viewDate),
-					this.render()
+					this.render(),
+					(()=>{
+						const today = elements.calendar.querySelector('.day-cell.selected') || elements.calendar.querySelector('.day-cell.today');
+						today && today.focus();
+					})()
 				),
 				elements.prevMonthBtn.onclick = ()=>this.navigateMonth(-1),
 				elements.nextMonthBtn.onclick = ()=>this.navigateMonth(1),
@@ -1193,6 +1206,7 @@
 				element.tabIndex = -1,
 				isFriday && element.classList.add('friday-cell'),
 				isOtherMonth && element.classList.add('other-month'),
+				isToday && (element.classList.add('today'), element.setAttribute('aria-current', 'date')),
 				isSelected && (element.classList.add('selected'), element.setAttribute('aria-selected', 'true')),
 				element.onclick = ()=>(
 					this.setDateToInput(elements.gDateInput, date),

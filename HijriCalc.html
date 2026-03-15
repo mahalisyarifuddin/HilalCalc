@@ -76,7 +76,6 @@
 			color: var(--text);
 			display: flex;
 			justify-content: center;
-			min-height: 100vh;
 			padding: 0.25rem;
 		}
 		.container {
@@ -259,19 +258,19 @@
 		.nav-btn:hover {
 			background: var(--muted);
 		}
-		.pill-btn {
+		.today-btn {
 			background: var(--surface);
 			border: 1px solid var(--border);
 			color: var(--text);
 			padding: 4px 12px;
-			border-radius: 16px;
+			border-radius: 4px;
 			font-size: 0.8rem;
 			font-weight: 600;
 			width: auto;
 			margin: 0.25rem auto 0;
 			display: block;
 		}
-		.pill-btn:hover {
+		.today-btn:hover {
 			background: var(--muted);
 		}
 		.controls { 
@@ -482,7 +481,7 @@
 				<button id="nextMonthBtn" class="nav-btn" data-i18n="nextBtn"></button>
 			</div>
 			<div id="hijriRangeDisplay" class="calendar-card-subtitle"></div>
-			<button id="todayBtn" class="pill-btn" data-i18n="today"></button>
+			<button id="todayBtn" class="today-btn" data-i18n="today"></button>
 		</div>
 		<div class="calendar-grid" id="calendar"></div>
 		<details>

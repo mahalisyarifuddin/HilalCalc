@@ -202,19 +202,10 @@
 			font-size: 0.7rem;
 			opacity: 0.6;
 		}
-		.hijri-month-label {
-			font-size: 0.7rem;
+		.secondary-month-start {
 			color: var(--success);
-			font-weight: 600;
-			margin-top: 1px;
-		}
-		.today-dot {
-			width: 3px;
-			height: 3px;
-			background: var(--primary);
-			border-radius: 50%;
-			position: absolute;
-			bottom: 4px;
+			font-weight: 700;
+			opacity: 1;
 		}
 		.julian-label {
 			display: inline-block;
@@ -392,9 +383,6 @@
 			}
 			.secondary-date {
 				font-size: 0.7rem;
-			}
-			.hijri-month-label {
-				font-size: 0.6rem;
 			}
 		}
 		.spinner {
@@ -1192,8 +1180,9 @@
 					isFirstInGrid = (hijriInfo.index === 0),
 					isNewGregorianMonth = (date.getDate() === 1),
 					isNewHijriMonth = (hijriInfo.day === 1),
-					showSecondaryMonth = isGregorianMode ? (isFirstInGrid || isNewHijriMonth) : (isFirstInGrid || isNewGregorianMonth),
-					secondarySuffix = showSecondaryMonth ? ` ${isGregorianMode ? hijriInfo.monthName : monthNameShort}` : "",
+					isMonthStart = isGregorianMode ? isNewHijriMonth : isNewGregorianMonth,
+					showSecondaryMonth = isFirstInGrid || isMonthStart,
+					secondaryMonthLabel = showSecondaryMonth ? ` ${isGregorianMode ? hijriInfo.monthName : monthNameShort}` : "",
 					primaryText = primaryValue + (isGregorianMode && isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
 					secondaryText = secondaryValue + (!isGregorianMode && isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
 					fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + (isJulian ? ` (${translation.julian})` : "");
@@ -1216,8 +1205,7 @@
 				element.dataset.date = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
 				element.innerHTML = `
 					<div class="primary-date">${primaryText}</div>
-					<div class="secondary-date">${secondaryText}${secondarySuffix}</div>
-					${isToday ? '<div class="today-dot"></div>' : ''}
+					<div class="secondary-date ${isMonthStart ? 'secondary-month-start' : ''}">${secondaryText}${secondaryMonthLabel}</div>
 				`,
 				element);
 			}

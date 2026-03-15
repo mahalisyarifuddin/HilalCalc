@@ -85,16 +85,16 @@
 			border-radius: 8px;
 			max-width: 960px;
 			width: 100%;
-			padding: 0.5rem 1rem;
+			padding: 0.75rem 1rem;
 			position: relative;
 			margin: 0;
 		}
 		h1 {
-			font-size: 1.15rem;
-			margin: 0;
+			font-size: 1.25rem;
+			margin: 0.25rem 0;
 		}
 		h2, h3, label {
-			margin: 0;
+			margin: 0.25rem 0;
 		}
 		label { 
 			display: block; 
@@ -166,7 +166,7 @@
 			opacity: 1;
 		}
 		.day-cell {
-			min-height: 48px;
+			min-height: 38px;
 			padding: 1px;
 			display: flex;
 			flex-direction: column;
@@ -194,12 +194,12 @@
 			z-index: 10; 
 		}
 		.primary-date {
-			font-size: 1.1rem;
+			font-size: 1rem;
 			font-weight: 700; 
 			margin-bottom: 0;
 		}
 		.secondary-date {
-			font-size: 0.75rem;
+			font-size: 0.7rem;
 			opacity: 0.6;
 		}
 		.hijri-month-label {
@@ -278,13 +278,13 @@
 		.controls { 
 			display: flex; 
 			justify-content: center;
-			margin-bottom: 0.25rem;
+			margin-bottom: 0.5rem;
 		}
 		.control-group {
 			width: 100%;
 			max-width: 700px;
 			background: var(--formula-bg);
-			padding: 0.5rem;
+			padding: 0.75rem;
 			border-radius: 8px;
 			border: 1px solid var(--border);
 		}
@@ -407,7 +407,7 @@
 		.input-group {
 			display: flex;
 			gap: 0.4rem;
-			margin-bottom: 0.4rem;
+			margin-bottom: 0.75rem;
 			align-items: center;
 		}
 		.input-group > * {
@@ -439,9 +439,9 @@
 			font-weight: bold;
 		}
 		details {
-			margin-top: 0.25rem;
+			margin-top: 1rem;
 			border-top: 1px solid var(--border);
-			padding-top: 0.25rem;
+			padding-top: 0.5rem;
 		}
 		summary {
 			cursor: pointer;
@@ -461,13 +461,12 @@
 			<button id="prefBtn" class="secondary" style="width:auto; padding: 4px 8px; font-size: 0.85rem;" data-i18n="prefTitle"></button>
 		</div>
 		<h1 id="appTitle" data-i18n="appTitle"></h1>
-		<p id="appSubtitle" style="opacity: 0.7; margin-bottom: 0.25rem; font-size: 0.8rem;"></p>
+		<p id="appSubtitle" style="opacity: 0.7; margin-bottom: 0.5rem; font-size: 0.85rem;"></p>
 		<div class="controls">
 			<div class="control-group">
 				<label class="sr-only" data-i18n="gDateLabel"></label>
 				<div class="input-group">
-					<input type="date" id="gDateInput" data-i18n-aria="gDateLabel" style="flex: 1;">
-					<button id="todayBtn" class="secondary" style="flex: 0.3; padding: 0.4rem;" data-i18n="today"></button>
+					<input type="date" id="gDateInput" data-i18n-aria="gDateLabel">
 				</div>
 				<div class="input-group" style="margin-bottom:0">
 					<input type="number" id="hDayInput" placeholder="D" min="1" max="30" data-i18n-aria="hDayLabel">
@@ -480,12 +479,11 @@
 		<div class="calendar-card">
 			<div class="calendar-card-header">
 				<button id="prevMonthBtn" class="nav-btn" data-i18n-aria="prevMonthLabel">&lt;</button>
-				<div style="text-align: center;">
-					<h2 id="monthDisplay"></h2>
-					<div id="hijriRangeDisplay" class="calendar-card-subtitle"></div>
-				</div>
+				<h2 id="monthDisplay"></h2>
 				<button id="nextMonthBtn" class="nav-btn" data-i18n-aria="nextMonthLabel">&gt;</button>
 			</div>
+			<div id="hijriRangeDisplay" class="calendar-card-subtitle"></div>
+			<button id="todayBtn" class="pill-btn" data-i18n="today"></button>
 		</div>
 		<div class="calendar-grid" id="calendar"></div>
 		<details>
@@ -1203,8 +1201,8 @@
 				element.setAttribute('aria-label', `${fullDate}, ${hijriInfo.day} ${hijriInfo.monthName}`),
 				element.dataset.date = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
 				element.innerHTML = `
-					<div class="secondary-date">${secondaryValue}${secondarySuffix}</div>
 					<div class="primary-date">${primaryText}</div>
+					<div class="secondary-date">${secondaryValue}${secondarySuffix}</div>
 					${hijriInfo.showMonth ? `<div class="hijri-month-label">${hijriInfo.monthName}</div>` : ''}
 					${isToday ? '<div class="today-dot"></div>' : ''}
 				`,

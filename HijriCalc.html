@@ -208,6 +208,7 @@
 			font-weight: 700;
 			opacity: 1;
 		}
+		.month-short { display: none; }
 		.julian-label {
 			display: inline-block;
 			font-size: 0.55rem;
@@ -385,6 +386,8 @@
 			.secondary-date {
 				font-size: 0.7rem;
 			}
+			.month-full { display: none; }
+			.month-short { display: inline; }
 		}
 		.spinner {
 			display: inline-block;
@@ -570,6 +573,7 @@
 				go: 'Go',
 				goH: 'Go to Hijri',
 				months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
+				monthsShort: ["Muh", "Saf", "Rab I", "Rab II", "Jum I", "Jum II", "Raj", "Sha", "Ram", "Shaw", "DhuQ", "DhuH"],
 				days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 				footer: '* Dates start at sunset. MABBIMS Criteria: Alt ≥ 3°, Elong ≥ 6.4°.',
 				gDateLabel: 'Gregorian Date',
@@ -633,6 +637,7 @@
 				go: 'Buka',
 				goH: 'Buka Hijriyah',
 				months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
+				monthsShort: ["Muh", "Saf", "Raw", "Rak", "Jaw", "Jak", "Raj", "Sya", "Ram", "Syaw", "Dzk", "Dzh"],
 				days: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
 				footer: '* Tanggal dimulai saat maghrib. Kriteria MABBIMS: Alt ≥ 3°, Elong ≥ 6.4°.',
 				gDateLabel: 'Tanggal Masehi',
@@ -1175,7 +1180,8 @@
 					isGregorianMode = state.primaryCalendar !== 'hijri',
 					jd = this.gregorianDateToJD(date),
 					isJulian = (state.gMode === 'transition' && jd < 2299161),
-					monthNameShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' }),
+					gMonthFull = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'long' }),
+					gMonthShort = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { month: 'short' }),
 					primaryValue = isGregorianMode ? date.getDate() : hijriInfo.day,
 					secondaryValue = isGregorianMode ? hijriInfo.day : date.getDate(),
 					isFirstInGrid = (hijriInfo.index === 0),
@@ -1183,7 +1189,7 @@
 					isNewHijriMonth = (hijriInfo.day === 1),
 					isMonthStart = isGregorianMode ? isNewHijriMonth : isNewGregorianMonth,
 					showSecondaryMonth = isFirstInGrid || isMonthStart,
-					secondaryMonthLabel = showSecondaryMonth ? ` ${isGregorianMode ? hijriInfo.monthName : monthNameShort}` : "",
+					secondaryMonthLabel = showSecondaryMonth ? ` <span class="month-full">${isGregorianMode ? hijriInfo.monthName : gMonthFull}</span><span class="month-short">${isGregorianMode ? hijriInfo.monthNameShort : gMonthShort}</span>` : "",
 					primaryText = primaryValue + (isGregorianMode && isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
 					secondaryText = secondaryValue + (!isGregorianMode && isJulian ? `<span class="julian-label">(${translation.julian})</span>` : ""),
 					fullDate = date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + (isJulian ? ` (${translation.julian})` : "");
@@ -1286,7 +1292,7 @@
 
 			getHijriInfoForCellJD(jd, isGregorianMode, context, hijriStarts) {
 				const translation = text[state.lang];
-				let hijriDay = "", hijriMonthName = "";
+				let hijriDay = "", hijriMonthName = "", hijriMonthNameShort = "";
 
 				if (isGregorianMode) {
 					for (let k = 0; k < hijriStarts.length - 1; k++) {
@@ -1294,6 +1300,7 @@
 						if (jd >= s1.jd && jd < s2.jd) {
 							hijriDay = Math.round(jd - s1.jd) + 1;
 							hijriMonthName = translation.months[s1.month - 1];
+							hijriMonthNameShort = translation.monthsShort[s1.month - 1];
 							break;
 						}
 					}
@@ -1301,6 +1308,7 @@
 					if (jd >= context.startJD && jd < context.endJD) {
 						hijriDay = Math.round(jd - context.startJD) + 1;
 						hijriMonthName = translation.months[context.hMonth - 1];
+						hijriMonthNameShort = translation.monthsShort[context.hMonth - 1];
 					} else if (jd < context.startJD) {
 						let prevMonth = context.hMonth - 1, prevYear = context.hYear;
 						(prevMonth < 1 && (prevMonth += 12, prevYear--));
@@ -1308,6 +1316,7 @@
 						const prevJD = this.gregorianDateToJD(prevStart.gDate);
 						hijriDay = Math.round(jd - prevJD) + 1;
 						hijriMonthName = translation.months[prevMonth - 1];
+						hijriMonthNameShort = translation.monthsShort[prevMonth - 1];
 					} else {
 						let nextMonth = context.hMonth + 1, nextYear = context.hYear;
 						(nextMonth > 12 && (nextMonth = 1, nextYear++));
@@ -1315,9 +1324,10 @@
 						const nextJD = this.gregorianDateToJD(nextStart.gDate);
 						hijriDay = Math.round(jd - nextJD) + 1;
 						hijriMonthName = translation.months[nextMonth - 1];
+						hijriMonthNameShort = translation.monthsShort[nextMonth - 1];
 					}
 				}
-				return { day: hijriDay, monthName: hijriMonthName };
+				return { day: hijriDay, monthName: hijriMonthName, monthNameShort: hijriMonthNameShort };
 			}
 		}
 		new HijriCalc();

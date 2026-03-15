@@ -240,11 +240,21 @@
 			font-size: 1.15rem;
 			margin: 0;
 			font-weight: 700;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 		.calendar-card-subtitle {
-			font-size: 0.8rem;
+			font-size: 0.75rem;
 			opacity: 0.7;
 			text-align: center;
+			height: 1.2rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 		.nav-btn {
 			background: var(--surface);
@@ -1207,7 +1217,6 @@
 				element.innerHTML = `
 					<div class="primary-date">${primaryText}</div>
 					<div class="secondary-date">${secondaryText}${secondarySuffix}</div>
-					${hijriInfo.showMonth ? `<div class="hijri-month-label">${hijriInfo.monthName}</div>` : ''}
 					${isToday ? '<div class="today-dot"></div>' : ''}
 				`,
 				element);

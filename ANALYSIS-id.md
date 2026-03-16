@@ -95,21 +95,8 @@ Di antara varian tradisional, **Scheme I (Al-Khwarizmi)** adalah yang paling aku
 | Tradisional (Scheme I)       | 34339 (28.62%)     |  8290 (27.63%)     |
 | Tradisional (Kuwaiti / II)   | 33426 (27.86%)     |  8066 (26.89%)     |
 
-#### Pencarian Lengkap: Tabular Modular k (Setiap Angka)
-Kami menguji setiap nilai yang mungkin untuk `k` dalam rumus `(11y + k) % 30 < 11` terhadap Ground Truth toposentrik (1-10000 H).
-
-| k | Cocok | % | k | Cocok | % | k | Cocok | % |
-|:--|:------|:--|:--|:------|:--|:--|:------|:--|
-| 0 | 21333 | 17.78% | 10 | 29828 | 24.86% | 20 | 38969 | 32.47% |
-| 1 | 22172 | 18.48% | 11 | 30727 | 25.61% | 21 | 39894 | 33.25% |
-| 2 | 22991 | 19.16% | 12 | 31609 | 26.34% | 22 | 40842 | 34.03% |
-| 3 | 23825 | 19.85% | 13 | 32505 | 27.09% | 23 | 41758 | 34.80% |
-| 4 | 24658 | 20.55% | 14 | 33426 | 27.86% | 24 | 42704 | 35.59% |
-| 5 | 25491 | 21.24% | 15 | 34339 | 28.62% | 25 | 43643 | 36.37% |
-| 6 | 26378 | 21.98% | 16 | 35227 | 29.36% | 26 | 44561 | 37.13% |
-| 7 | 27229 | 22.69% | 17 | 36156 | 30.13% | 27 | 45484 | 37.90% |
-| 8 | 28083 | 23.40% | 18 | 37088 | 30.91% | 28 | 46370 | 38.64% |
-| 9 | 28958 | 24.13% | 19 | 38027 | 31.69% | **29** | **47247** | **39.37%** |
+#### Pencarian Lengkap: Tabular Modular k
+Kami menguji setiap nilai bilangan bulat yang mungkin untuk `k` (0–29) dalam rumus modular `(11y + k) % 30 < 11` terhadap Ground Truth toposentrik (1–10000 H). Pencarian komprehensif ini mengonfirmasi bahwa **k=29** memberikan kecocokan absolut terbaik untuk skema tabular 30 tahun tradisional di bawah kriteria visibilitas modern, menghasilkan akurasi pencocokan tepat sebesar **39,37%**.
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~21%** dibandingkan rumus tabular terbaik yang disusun dan **keuntungan ~40%** dibandingkan skema sejarah standar.
 

@@ -95,21 +95,8 @@ Among traditional variants, **Scheme I (Al-Khwarizmi)** is the most accurate (29
 | Traditional (Scheme I)       | 34339 (28.62%)     | 8290 (27.63%)      |
 | Traditional (Kuwaiti / II)   | 33426 (27.86%)     | 8066 (26.89%)      |
 
-#### Exhaustive Search: Tabular Modular k (Every Number)
-We exhaustively tested every possible value for `k` in the formula `(11y + k) % 30 < 11` against the topocentric Ground Truth (1-10000 AH).
-
-| k | Matches | % | k | Matches | % | k | Matches | % |
-|:--|:--------|:--|:--|:--------|:--|:--|:--------|:--|
-| 0 | 21333 | 17.78% | 10 | 29828 | 24.86% | 20 | 38969 | 32.47% |
-| 1 | 22172 | 18.48% | 11 | 30727 | 25.61% | 21 | 39894 | 33.25% |
-| 2 | 22991 | 19.16% | 12 | 31609 | 26.34% | 22 | 40842 | 34.03% |
-| 3 | 23825 | 19.85% | 13 | 32505 | 27.09% | 23 | 41758 | 34.80% |
-| 4 | 24658 | 20.55% | 14 | 33426 | 27.86% | 24 | 42704 | 35.59% |
-| 5 | 25491 | 21.24% | 15 | 34339 | 28.62% | 25 | 43643 | 36.37% |
-| 6 | 26378 | 21.98% | 16 | 35227 | 29.36% | 26 | 44561 | 37.13% |
-| 7 | 27229 | 22.69% | 17 | 36156 | 30.13% | 27 | 45484 | 37.90% |
-| 8 | 28083 | 23.40% | 18 | 37088 | 30.91% | 28 | 46370 | 38.64% |
-| 9 | 28958 | 24.13% | 19 | 38027 | 31.69% | **29** | **47247** | **39.37%** |
+#### Exhaustive Search: Tabular Modular k
+We exhaustively tested every possible integer value for `k` (0–29) in the modular formula `(11y + k) % 30 < 11` against the topocentric Ground Truth (1–10000 AH). This comprehensive search confirmed that **k=29** provides the absolute best fit for traditional 30-year tabular schemes under modern visibility criteria, yielding **39.37%** exact match accuracy.
 
 The linear approach provides a **~21% absolute accuracy gain** over the best-devised tabular formula and a **~40% gain** over standard historical schemes.
 

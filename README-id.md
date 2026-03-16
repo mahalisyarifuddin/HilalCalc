@@ -64,7 +64,7 @@ Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Me
 **Rumus:**
 Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah secara matematis setara dengan:
 
-`JD = 1948440 + floor(29.530573559 * Index + 0.205444) + Hari - 1`
+`JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Hari - 1`
 
 Di mana:
 -   `Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1)`
@@ -72,7 +72,7 @@ Di mana:
 -   `Hari` adalah tanggal dalam bulan Hijriyah tersebut.
 
 **Akurasi:**
-Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69.50%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1-10000 H, dengan akurasi yang dioptimalkan sekitar **~69.59%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah).
+Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69.55%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1-10000 H, dengan akurasi yang dioptimalkan sekitar **~69.65%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah).
 
 Studi komparatif terhadap **skema tabular 30 tahun** tradisional (seperti Scheme I) dan **Tabular Global (Siklus Tetap)** kami sendiri yang dioptimalkan menunjukkan bahwa Rumus Global Linear memberikan peningkatan akurasi ~24% dibandingkan pengaturan tabular siklus tetap terbaik yang mungkin dilakukan.
 

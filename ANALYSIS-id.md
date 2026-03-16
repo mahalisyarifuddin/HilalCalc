@@ -19,51 +19,51 @@ Rumus global diturunkan berdasarkan rentang **1-10000 H** (120000 bulan) untuk m
 | 6     | 29.530574       | 0.205444      | 20847 (69.49%) | 83370 (69.47%) |
 | 7     | 29.5305734      | 0.205444      | 20865 (69.55%) | 83357 (69.46%) |
 | 8     | 29.53057356     | 0.205444      | 20877 (69.59%) | 83399 (69.50%) |
-| **9** | **29.530573559**| **0.205444**  | **20877 (69.59%)** | **83401 (69.50%)** |
-| 10    | 29.530573559    | 0.205444      | 20877 (69.59%) | 83401 (69.50%) |
+| **9** | **29.530573265**| **0.236624**  | **20894 (69.65%)** | **83464 (69.55%)** |
+| 10    | 29.530573265    | 0.236624      | 20894 (69.65%) | 83464 (69.55%) |
 
-FP 9 adalah Knee Point di mana akurasi mendatar untuk kecocokan total. Ini dipilih untuk implementasi akhir guna memaksimalkan akurasi sambil meminimalkan FP.
+FP 9 adalah Knee Point di mana akurasi mendatar untuk kecocokan total. Ini dipilih untuk implementasi akhir berdasarkan pencarian lengkap guna memaksimalkan akurasi sambil meminimalkan FP.
 
 ### Perbandingan Metode Pembulatan
 Analisis komparatif menunjukkan bahwa `math.floor`, `math.ceil`, dan `math.round` semuanya dapat mencapai akurasi puncak yang sama jika konstanta masing-masing disesuaikan dengan benar. Pilihan metode hanya menggeser konstanta phase yang diperlukan.
 
 | Metode         | Slope Optimal     | Phase Optimal      | Akurasi Wajib Terbaik | Akurasi Total Terbaik |
 | :------------- | :---------------- | :----------------- | :-------------------- | :-------------------- |
-| **math.floor** | **29.530573559**  | **0.205444**       | **20877 (69.59%)**    | **83401 (69.50%)**    |
-| **math.ceil**  | **29.530573559**  | **-0.794556**      | **20877 (69.59%)**    | **83401 (69.50%)**    |
-| **math.round** | **29.530573559**  | **-0.294556**      | **20877 (69.59%)**    | **83401 (69.50%)**    |
+| **math.floor** | **29.530573265**  | **0.236624**       | **20894 (69.65%)**    | **83464 (69.55%)**    |
+| **math.ceil**  | **29.530573265**  | **-0.763376**      | **20894 (69.65%)**    | **83464 (69.55%)**    |
+| **math.round** | **29.530573265**  | **-0.263376**      | **20894 (69.65%)**    | **83464 (69.55%)**    |
 
 Semua metode selaras dengan siklus lunar asalkan Phase Shift disesuaikan sebesar 1,0 (untuk floor vs ceil) atau 0,5 (untuk floor vs round).
 
 #### Rumus Global (Menggunakan floor):
 ```
-JD = 1948440 + floor(29.530573559 * Index + 0.205444) + Day - 1
-Index = floor((JD - 1948440 + 0.794556) / 29.530573559)
+JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Day - 1
+Index = floor((JD - 1948440 + 0.763376) / 29.530573265)
 ```
 
 #### Alternatif (Menggunakan round):
 ```
-JD = 1948440 + round(29.530573559 * Index - 0.294556) + Day - 1
-Index = round((JD - 1948440 + 0.294556) / 29.530573559)
+JD = 1948440 + round(29.530573265 * Index - 0.263376) + Day - 1
+Index = round((JD - 1948440 + 0.263376) / 29.530573265)
 ```
 
 #### Alternatif (Menggunakan ceil):
 ```
-JD = 1948440 + ceil(29.530573559 * Index - 0.794556) + Day - 1
-Index = ceil((JD - 1948440 - 0.205444) / 29.530573559)
+JD = 1948440 + ceil(29.530573265 * Index - 0.763376) + Day - 1
+Index = ceil((JD - 1948440 - 0.236624) / 29.530573265)
 ```
 
 Di mana:
 - `Index = (Year - 1) * 12 + (Month - 1)`
 - `Month` adalah berbasis 1 (1=Muharram, ..., 12=Dzulhijjah).
 - `Day` adalah hari dalam bulan Hijriyah.
-- `Slope` = 29.530573559 (9 digit desimal)
+- `Slope` = 29.530573265 (9 digit desimal)
 - `Epoch (Integer)` = 1948440 (1 Muharram 1 H)
 
 ## Akurasi
 - **Rentang**: 1 H hingga 10000 H (120000 bulan).
-- **Kecocokan Tepat (Awal Bulan)**: 83401 (69.50%).
-- **Akurasi Bulan Wajib**: 20877 (69.59%) (Ramadhan, Syawal, Dzulhijjah).
+- **Kecocokan Tepat (Awal Bulan)**: 83464 (69.55%).
+- **Akurasi Bulan Wajib**: 20894 (69.65%) (Ramadhan, Syawal, Dzulhijjah).
 - **Perbandingan**: Konstanta rumus (Slope dan Phase) diseimbangkan untuk memaksimalkan akurasi pada rentang 1-10000 H, menggunakan kriteria elongasi toposentrik. FP 9 dipilih sebagai 'knee point' akhir di mana akurasi total mendatar.
 
 ## Perbandingan Tabular vs. Linear (1-10000 H)
@@ -89,11 +89,27 @@ Di antara varian tradisional, **Scheme I (Al-Khwarizmi)** adalah yang paling aku
 
 | Metode                       | Kecocokan Total    | Kecocokan Wajib    |
 | :--------------------------- | :----------------- | :----------------- |
-| **Rumus Global Linear**      | **83401 (69.50%)** | **20877 (69.59%)** |
-| Global Tabular (Siklus Tetap) | 53384 (44.49%)     | 13504 (45.01%)     |
+| **Rumus Global Linear**      | **83464 (69.55%)** | **20894 (69.65%)** |
+| Global Tabular (Siklus Tetap) | 53491 (44.58%)     | 13524 (45.08%)     |
 | Tabular (Rumus k=29)         | 47247 (39.37%)     | 11603 (38.68%)     |
 | Tradisional (Scheme I)       | 34339 (28.62%)     |  8290 (27.63%)     |
 | Tradisional (Kuwaiti / II)   | 33426 (27.86%)     |  8066 (26.89%)     |
+
+#### Pencarian Lengkap: Tabular Modular k (Setiap Angka)
+Kami menguji setiap nilai yang mungkin untuk `k` dalam rumus `(11y + k) % 30 < 11` terhadap Ground Truth toposentrik (1-10000 H).
+
+| k | Cocok | % | k | Cocok | % | k | Cocok | % |
+|:--|:------|:--|:--|:------|:--|:--|:------|:--|
+| 0 | 21333 | 17.78% | 10 | 29828 | 24.86% | 20 | 38969 | 32.47% |
+| 1 | 22172 | 18.48% | 11 | 30727 | 25.61% | 21 | 39894 | 33.25% |
+| 2 | 22991 | 19.16% | 12 | 31609 | 26.34% | 22 | 40842 | 34.03% |
+| 3 | 23825 | 19.85% | 13 | 32505 | 27.09% | 23 | 41758 | 34.80% |
+| 4 | 24658 | 20.55% | 14 | 33426 | 27.86% | 24 | 42704 | 35.59% |
+| 5 | 25491 | 21.24% | 15 | 34339 | 28.62% | 25 | 43643 | 36.37% |
+| 6 | 26378 | 21.98% | 16 | 35227 | 29.36% | 26 | 44561 | 37.13% |
+| 7 | 27229 | 22.69% | 17 | 36156 | 30.13% | 27 | 45484 | 37.90% |
+| 8 | 28083 | 23.40% | 18 | 37088 | 30.91% | 28 | 46370 | 38.64% |
+| 9 | 28958 | 24.13% | 19 | 38027 | 31.69% | **29** | **47247** | **39.37%** |
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~21%** dibandingkan rumus tabular terbaik yang disusun dan **keuntungan ~40%** dibandingkan skema sejarah standar.
 

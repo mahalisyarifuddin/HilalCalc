@@ -64,7 +64,7 @@ This ensures that the predicted month start satisfies the visibility criteria in
 **The Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is mathematically equivalent to:
 
-`JD = 1948440 + floor(29.530573559 * Index + 0.205444) + Day - 1`
+`JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Day - 1`
 
 Where:
 -   `Index = (HijriYear - 1) * 12 + (HijriMonth - 1)`
@@ -72,7 +72,7 @@ Where:
 -   `Day` is the day of the Hijri month.
 
 **Accuracy:**
-This simple linear formula achieves **~69.50%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1-10000 AH period, with an optimized accuracy of **~69.59%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah).
+This simple linear formula achieves **~69.55%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1-10000 AH period, with an optimized accuracy of **~69.65%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah).
 
 A comparative study against traditional **30-year tabular schemes** (such as Scheme I) and our own optimized **Global Tabular (Fixed Cycle)** shows that the Global Linear Formula provides a ~24% improvement in accuracy over the best possible fixed-cycle tabular arrangement.
 

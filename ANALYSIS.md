@@ -19,51 +19,51 @@ A "Knee Point Analysis" was performed using `scripts/find_best_fit.py` to find t
 | 6     | 29.530574       | 0.205444      | 20847 (69.49%) | 83370 (69.47%) |
 | 7     | 29.5305734      | 0.205444      | 20865 (69.55%) | 83357 (69.46%) |
 | 8     | 29.53057356     | 0.205444      | 20877 (69.59%) | 83399 (69.50%) |
-| **9** | **29.530573559**| **0.205444**  | **20877 (69.59%)** | **83401 (69.50%)** |
-| 10    | 29.530573559    | 0.205444      | 20877 (69.59%) | 83401 (69.50%) |
+| **9** | **29.530573265**| **0.236624**  | **20894 (69.65%)** | **83464 (69.55%)** |
+| 10    | 29.530573265    | 0.236624      | 20894 (69.65%) | 83464 (69.55%) |
 
-FP 9 is the Knee Point where accuracy plateaus for total matches. It was selected for the final implementation to maximize accuracy while minimizing FP.
+FP 9 is the Knee Point where accuracy plateaus for total matches. It was selected for the final implementation based on exhaustive search to maximize accuracy while minimizing FP.
 
 ### Comparison of Rounding Methods
 A comparative analysis shows that `math.floor`, `math.ceil`, and `math.round` can all achieve the same peak accuracy when their respective constants are properly fitted. The choice of method simply shifts the required phase constant.
 
 | Method         | Optimal Slope     | Optimal Phase      | Best Obligatory Acc | Best Total Acc  |
 | :------------- | :---------------- | :----------------- | :------------------ | :-------------- |
-| **math.floor** | **29.530573559**  | **0.205444**       | **20877 (69.59%)**  | **83401 (69.50%)** |
-| **math.ceil**  | **29.530573559**  | **-0.794556**      | **20877 (69.59%)**  | **83401 (69.50%)** |
-| **math.round** | **29.530573559**  | **-0.294556**      | **20877 (69.59%)**  | **83401 (69.50%)** |
+| **math.floor** | **29.530573265**  | **0.236624**       | **20894 (69.65%)**  | **83464 (69.55%)** |
+| **math.ceil**  | **29.530573265**  | **-0.763376**      | **20894 (69.65%)**  | **83464 (69.55%)** |
+| **math.round** | **29.530573265**  | **-0.263376**      | **20894 (69.65%)**  | **83464 (69.55%)** |
 
 All methods align equally well with the lunar cycle provided the Phase Shift is adjusted by 1.0 (for floor vs ceil) or 0.5 (for floor vs round).
 
 #### Global Formula (Using floor):
 ```
-JD = 1948440 + floor(29.530573559 * Index + 0.205444) + Day - 1
-Index = floor((JD - 1948440 + 0.794556) / 29.530573559)
+JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Day - 1
+Index = floor((JD - 1948440 + 0.763376) / 29.530573265)
 ```
 
 #### Alternative (Using round):
 ```
-JD = 1948440 + round(29.530573559 * Index - 0.294556) + Day - 1
-Index = round((JD - 1948440 + 0.294556) / 29.530573559)
+JD = 1948440 + round(29.530573265 * Index - 0.263376) + Day - 1
+Index = round((JD - 1948440 + 0.263376) / 29.530573265)
 ```
 
 #### Alternative (Using ceil):
 ```
-JD = 1948440 + ceil(29.530573559 * Index - 0.794556) + Day - 1
-Index = ceil((JD - 1948440 - 0.205444) / 29.530573559)
+JD = 1948440 + ceil(29.530573265 * Index - 0.763376) + Day - 1
+Index = ceil((JD - 1948440 - 0.236624) / 29.530573265)
 ```
 
 Where:
 - `Index = (Year - 1) * 12 + (Month - 1)`
 - `Month` is 1-based (1=Muharram, ..., 12=Dhu al-Hijjah).
 - `Day` is the day of the Hijri month.
-- `Slope` = 29.530573559 (9 decimal digits)
+- `Slope` = 29.530573265 (9 decimal digits)
 - `Epoch (Integer)` = 1948440 (1 Muharram 1 AH)
 
 ## Accuracy
 - **Range**: 1 AH to 10000 AH (120000 months).
-- **Exact Matches (Month Starts)**: 83401 (69.50%).
-- **Obligatory Months Accuracy**: 20877 (69.59%) (Ramadan, Shawwal, Dhu al-Hijjah).
+- **Exact Matches (Month Starts)**: 83464 (69.55%).
+- **Obligatory Months Accuracy**: 20894 (69.65%) (Ramadan, Shawwal, Dhu al-Hijjah).
 - **Comparison**: The formula constants (Slope and Phase) were balanced to maximize accuracy over the 1-10000 AH range, using topocentric elongation criteria. FP 9 was selected as the final 'knee point' where total accuracy plateaus.
 
 ## Tabular vs. Linear Comparison (1-10000 AH)
@@ -89,11 +89,27 @@ Among traditional variants, **Scheme I (Al-Khwarizmi)** is the most accurate (29
 
 | Method                       | Total Matches      | Obligatory Matches |
 | :--------------------------- | :----------------- | :----------------- |
-| **Global Linear Formula**    | **83401 (69.50%)** | **20877 (69.59%)** |
-| Global Tabular (Fixed Cycle) | 53384 (44.49%)     | 13504 (45.01%)     |
+| **Global Linear Formula**    | **83464 (69.55%)** | **20894 (69.65%)** |
+| Global Tabular (Fixed Cycle) | 53491 (44.58%)     | 13524 (45.08%)     |
 | Tabular (Formula k=29)       | 47247 (39.37%)     | 11603 (38.68%)     |
 | Traditional (Scheme I)       | 34339 (28.62%)     | 8290 (27.63%)      |
 | Traditional (Kuwaiti / II)   | 33426 (27.86%)     | 8066 (26.89%)      |
+
+#### Exhaustive Search: Tabular Modular k (Every Number)
+We exhaustively tested every possible value for `k` in the formula `(11y + k) % 30 < 11` against the topocentric Ground Truth (1-10000 AH).
+
+| k | Matches | % | k | Matches | % | k | Matches | % |
+|:--|:--------|:--|:--|:--------|:--|:--|:--------|:--|
+| 0 | 21333 | 17.78% | 10 | 29828 | 24.86% | 20 | 38969 | 32.47% |
+| 1 | 22172 | 18.48% | 11 | 30727 | 25.61% | 21 | 39894 | 33.25% |
+| 2 | 22991 | 19.16% | 12 | 31609 | 26.34% | 22 | 40842 | 34.03% |
+| 3 | 23825 | 19.85% | 13 | 32505 | 27.09% | 23 | 41758 | 34.80% |
+| 4 | 24658 | 20.55% | 14 | 33426 | 27.86% | 24 | 42704 | 35.59% |
+| 5 | 25491 | 21.24% | 15 | 34339 | 28.62% | 25 | 43643 | 36.37% |
+| 6 | 26378 | 21.98% | 16 | 35227 | 29.36% | 26 | 44561 | 37.13% |
+| 7 | 27229 | 22.69% | 17 | 36156 | 30.13% | 27 | 45484 | 37.90% |
+| 8 | 28083 | 23.40% | 18 | 37088 | 30.91% | 28 | 46370 | 38.64% |
+| 9 | 28958 | 24.13% | 19 | 38027 | 31.69% | **29** | **47247** | **39.37%** |
 
 The linear approach provides a **~21% absolute accuracy gain** over the best-devised tabular formula and a **~40% gain** over standard historical schemes.
 

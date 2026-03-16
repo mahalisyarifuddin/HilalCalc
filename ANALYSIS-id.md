@@ -73,8 +73,8 @@ Menggunakan `scripts/find_best_tabular.py`, kami membandingkan akurasi Rumus Glo
 
 #### 1. Global Tabular (Siklus Tetap)
 Menggunakan pemrograman dinamis, kami mengidentifikasi distribusi tahun kabisat 30 tahun terbaik mutlak untuk kalender standar (yang menggunakan panjang bulan 30/29 bergantian secara kaku dengan hari kabisat hanya di akhir tahun kabisat):
-- **Tahun Kabisat**: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27
-- **Akurasi**: **44,62%**. Ini adalah performa puncak untuk arsitektur "Classic Tabular".
+- **Tahun Kabisat**: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26
+- **Akurasi**: **44,58%**. Ini adalah performa puncak untuk arsitektur "Classic Tabular" di bawah kriteria toposentrik.
 
 #### 2. Tabular (Rumus k=29)
 Skema tabular tradisional sering didefinisikan dengan rumus `(11y + k) % 30 < 11`. Kami menguji ke-30 nilai `k` yang mungkin dan menemukan bahwa **k=29** memberikan kecocokan terbaik untuk kriteria kami. Skema ini dapat didefinisikan oleh salah satu dari rumus setara berikut:
@@ -122,4 +122,4 @@ Dalam kalender Hijriyah, bulan-bulan biasanya bergantian antara 30 dan 29 hari:
 Bulan ke-12, **Dzulhijjah**, biasanya memiliki **29 hari**. Pada **Tahun Kabisat**, satu hari ditambahkan ke bulan Dzulhijjah, sehingga panjangnya menjadi **30 hari**. Ini adalah satu-satunya bulan yang berubah panjangnya berdasarkan status kabisat tahun tersebut.
 
 ### Memilih Tahun Kabisat
-Tidak ada satu cara "resmi" untuk memilih 11 tahun mana dalam siklus 30 tahun yang menjadi tahun kabisat. Skema yang berbeda (seperti Skema I atau II) memilih tahun yang berbeda pula. **Tabular Global (Siklus Tetap)** kami yang teroptimasi menggunakan urutan (1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27) yang paling sesuai dengan kriteria astronomis modern selama periode 10.000 tahun.
+Tidak ada satu cara "resmi" untuk memilih 11 tahun mana dalam siklus 30 tahun yang menjadi tahun kabisat. Skema yang berbeda (seperti Skema I atau II) memilih tahun yang berbeda pula. **Tabular Global (Siklus Tetap)** kami yang teroptimasi menggunakan urutan (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26) yang paling sesuai dengan kriteria astronomis modern selama periode 10.000 tahun.

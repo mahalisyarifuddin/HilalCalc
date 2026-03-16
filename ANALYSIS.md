@@ -73,8 +73,8 @@ Using `scripts/find_best_tabular.py`, we compared the accuracy of the Global Lin
 
 #### 1. Global Tabular (Fixed Cycle)
 Using dynamic programming, we identified the absolute best 30-year leap year distribution for a standard calendar (one that uses strictly alternating 30/29 month lengths with a leap day only at the end of leap years):
-- **Leap Years**: 1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27
-- **Accuracy**: **44.62%**. This is the peak performance for the "Classic Tabular" architecture.
+- **Leap Years**: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26
+- **Accuracy**: **44.58%**. This is the peak performance for the "Classic Tabular" architecture under topocentric criteria.
 
 #### 2. Tabular (Formula k=29)
 Traditional tabular schemes are often defined by the formula `(11y + k) % 30 < 11`. We tested all 30 possible values for `k` and found that **k=29** provides the best fit for our criteria. This scheme can be defined by either of the following equivalent formulas:
@@ -122,4 +122,4 @@ In the Hijri calendar, the months normally alternate between 30 and 29 days:
 The 12th month, **Dhu al-Hijjah**, normally has **29 days**. In a **Leap Year**, a single day is added to Dhu al-Hijjah, making it **30 days** long. This is the only month that changes length based on the leap status of the year.
 
 ### Choosing Leap Years
-There is no single "official" way to choose which 11 years in the 30-year cycle are leap years. Different schemes (like Scheme I or II) select different years. Our optimized **Global Tabular (Fixed Cycle)** uses a sequence (1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27) that best matches modern astronomical criteria over a 10,000-year period.
+There is no single "official" way to choose which 11 years in the 30-year cycle are leap years. Different schemes (like Scheme I or II) select different years. Our optimized **Global Tabular (Fixed Cycle)** uses a sequence (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26) that best matches modern astronomical criteria over a 10,000-year period.

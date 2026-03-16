@@ -558,8 +558,9 @@
 				appTitle: 'MABBIMS Hijri Calendar',
 				gotoTitle: 'Go to Date',
 				today: 'Today',
-				formulaTitle: 'Global Approximation',
-				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.55% (1-10000 AH). Optimized for Obligatory Months (FP 9).',
+				formulaTitle: 'Methodology',
+				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.55% (1-10000 AH). Optimized for math.floor.',
+				formulaDescTabular: '30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.58% (1-10000 AH). Leap years add a 30th day to Dhu al-Hijjah.',
 				prefTitle: 'Settings',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -622,8 +623,9 @@
 				appTitle: 'Kalender Hijriyah MABBIMS',
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
-				formulaTitle: 'Aproksimasi Global',
-				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.55% (1-10000 H). Dioptimalkan untuk Bulan Wajib (FP 9).',
+				formulaTitle: 'Metodologi',
+				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.55% (1-10000 H). Dioptimalkan untuk math.floor.',
+				formulaDescTabular: 'Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,58% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah.',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -1009,18 +1011,11 @@
 			}
 
 			updateFormulaDisplay() {
-				const isLinear = state.calcMode === 'linear', isTabular = state.calcMode === 'tabular';
-				const formula = isTabular ?
-					`JD = 1948440 + (Cycle \u00b7 10631) + YearStarts[Y_in_Cycle] + MonthOffsets[M_in_Year] + Day \u2212 1` :
-					`JD = 1948440 + floor(29.530573265 \u00b7 N + 0.236624) + Day \u2212 1`;
-				elements.formulaDisplay.style.whiteSpace = "pre-line";
-				elements.formulaDisplay.textContent = formula + (isTabular ? "" : `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`);
-				elements.formulaNote.innerHTML = isTabular ?
-					`<i>Global Tabular (Fixed Cycle). Leap Years: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26.</i>` :
-					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
-				elements.formulaDesc.textContent = isTabular ?
-					(state.lang === 'id' ? "Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,58% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah." : "30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.58% (1-10000 AH). Leap years add a 30th day to Dhu al-Hijjah.") :
-					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,55% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.55% (1-10000 AH). Optimized for math.floor.");
+				const translation = text[state.lang], isLinear = state.calcMode === 'linear', isTabular = state.calcMode === 'tabular';
+				elements.formulaDisplay.style.whiteSpace = "pre-line",
+				elements.formulaDisplay.textContent = (isTabular ? `JD = 1948440 + (Cycle \u00b7 10631) + YearStarts[Y_in_Cycle] + MonthOffsets[M_in_Year] + Day \u2212 1` : `JD = 1948440 + floor(29.530573265 \u00b7 N + 0.236624) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`),
+				elements.formulaNote.innerHTML = isTabular ? `<i>Global Tabular (Fixed Cycle). Leap Years: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26.</i>` : `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`,
+				elements.formulaDesc.textContent = isTabular ? translation.formulaDescTabular : translation.formulaDesc;
 			}
 
 			getLinearMonthStartJD(Index) {

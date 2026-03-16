@@ -4,7 +4,7 @@
 Moon visibility, simplified.
 
 ## Introduction
-HilalCalc is a collection of single-file, browser-based tools for calculating and visualizing the Islamic Hijri calendar and the visibility of the crescent moon (Hilal). Designed for researchers, students, and observers, these tools implement the **MABBIMS** criteria (Min Altitude 3°, Min Elongation 6.4°) and other standards to help predict the start of Islamic months.
+HilalCalc is a collection of single-file, browser-based tools for calculating and visualizing the Islamic Hijri calendar and the visibility of the crescent moon (Hilal). Designed for researchers, students, and observers, these tools implement topocentric criteria to predict the start of Islamic months based on actual surface-based sightings.
 
 The repository includes two standalone tools:
 1.  **HilalMap.html**: A map-based visualization of global moon visibility.
@@ -19,89 +19,72 @@ Visualize where the new crescent moon is visible on the globe for any given date
 
 **Key Features:**
 -   **Interactive Map**: Heatmap visualization of visibility zones (Visible vs. Not Visible).
--   **Detailed Calculations**: Calculate exact moon position (Altitude, Elongation, Azimuth, Age) for any specific coordinate.
--   **Multiple Criteria**: Support for MABBIMS, Global Islamic Calendar (GIC), and custom user-defined criteria.
+-   **Detailed Calculations**: Calculate exact moon position (Altitude, Elongation, Azimuth, Age) for any specific coordinate using topocentric vectors.
+-   **Multiple Criteria**: Support for MABBIMS (Min Alt 3°, Min Elong 6.4°), Global Islamic Calendar (GIC), and custom criteria.
 -   **Web Worker Rendering**: Offloads complex calculations to a background thread to keep the UI responsive.
--   **Zoom & Pan**: Navigate the map with zoom controls and dragging.
--   **Region Selection**: Focus on specific regions (e.g., World, Indonesia).
--   **Offline Capable**: Works locally (requires internet only for the map image/CDN).
+-   **Offline Capable**: Works locally (requires internet only for the map tiles).
 
 ### 2. HijriCalc (Calendar & Converter)
 A robust calendar tool that adapts its calculations to your specific location and historical context.
 
 **Key Features:**
--   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical moon sighting simulation ("Local Sighting").
+-   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical topocentric moon sighting simulation ("Local Sighting").
 -   **Global Formula**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates over 10,000 years, optimized for the Composite Criteria (Mecca + Viwa Island).
 -   **Historical Transition**: Fully supports the 1582 Gregorian reform. Dates prior to the reform are correctly labeled as Julian.
--   **Navigation**: Jump to any Gregorian or Hijri date to see the corresponding calendar arrangement.
--   **Settings**: Customize Language, Theme, Week Start Day, Location, Main Calendar, and Gregorian Mode (Historical vs. Continuous).
-
-## Quick Start
-1.  Download `HilalMap.html` or `HijriCalc.html`.
-2.  Open the file in any modern browser (Chrome, Edge, Firefox, Safari).
-3.  **For HilalMap**: Select a date and click "Render Map" to see global visibility, or switch to the "Detailed Calculations" tab to check specific coordinates.
-4.  **For HijriCalc**: Use the "Go to Date" box to navigate, or browse the calendar grid to see the calculated Hijri dates for the MABBIMS standard.
+-   **Settings**: Customize Language, Theme, Week Start Day, Location, Main Calendar, and Gregorian Mode.
 
 ## Technical Details
 
-### MABBIMS Criteria
-The tools primarily implement the MABBIMS (Menteri Agama Brunei Darussalam, Indonesia, Malaysia, dan Singapura) criteria adopted in 2021:
--   **Altitude**: ≥ 3°
--   **Elongation**: ≥ 6.4°
--   Calculation Point: Sunset.
+### Topocentric Criteria
+The tools implement topocentric moon visibility criteria, which account for the observer's specific position on Earth's surface. This is more accurate than geocentric models for predicting actual sightings.
+-   **MABBIMS (2021)**: Altitude ≥ 3°, Elongation ≥ 6.4° at sunset.
 
-### Global Approximation (HijriCalc)
-For quick navigation and broad historical coverage, `HijriCalc` uses a **Global Formula** derived from a rigorous composite analysis for years **1-10000 AH**.
+### Global Approximation (1-10000 AH)
+For quick navigation and broad historical coverage, `HijriCalc` uses an optimized **Global Formula** derived from a rigorous composite analysis.
 
-**Composite Criteria:**
-The ground truth data was generated using a strict composite rule:
--   **Mecca**: Altitude ≥ 3° AND Elongation ≥ 6.4°
--   **AND**
--   **Viwa Island (Fiji)**: Altitude ≥ 0°
-
-This ensures that the predicted month start satisfies the visibility criteria in Mecca while ensuring the moon is physically above the horizon in the easternmost Pacific (Viwa).
+**Composite Rule:**
+Ground Truth was generated by ensuring the moon satisfies MABBIMS visibility in Mecca while being physically above the horizon (Altitude ≥ 0°) at Viwa Island (Fiji), the easternmost point of the Islamic day cycle.
 
 **The Formula:**
-The derived linear formula for the Julian Date (JD) of a Hijri date is mathematically equivalent to:
-
+The derived linear formula for the Julian Date (JD) of a Hijri date is:
 `JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Day - 1`
 
-Where:
--   `Index = (HijriYear - 1) * 12 + (HijriMonth - 1)`
--   `HijriMonth` is 1-based (1=Muharram, ..., 12=Dhu al-Hijjah).
--   `Day` is the day of the Hijri month.
+Where `Index = (HijriYear - 1) * 12 + (HijriMonth - 1)`.
 
 **Accuracy:**
-This simple linear formula achieves **~69.55%** overall exact match accuracy for month starts against the astronomical Ground Truth over the 1-10000 AH period, with an optimized accuracy of **~69.65%** for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah).
+This formula achieves **~69.55%** overall exact match accuracy against topocentric astronomical Ground Truth over 10,000 years, with **~69.65%** accuracy for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah).
 
-A comparative study against traditional **30-year tabular schemes** (such as Scheme I) and our own optimized **Global Tabular (Fixed Cycle)** shows that the Global Linear Formula provides a ~24% improvement in accuracy over the best possible fixed-cycle tabular arrangement.
+### Tabular Comparison
+We compared the Global Linear Formula against traditional and optimized 30-year tabular schemes (10,631 days per cycle).
 
-The constants were derived using a Knee Point Analysis to ensure optimal floating-point precision. For detailed documentation on the methodology and data, including the tabular comparison, see [ANALYSIS.md](ANALYSIS.md).
+| Method                       | Total Matches      | Obligatory Matches |
+| :--------------------------- | :----------------- | :----------------- |
+| **Global Linear Formula**    | **83464 (69.55%)** | **20894 (69.65%)** |
+| Global Tabular (Fixed Cycle) | 53491 (44.58%)     | 13524 (45.08%)     |
+| Tabular (Formula k=29)       | 47247 (39.37%)     | 11603 (38.68%)     |
+| Traditional (Scheme I)       | 34339 (28.62%)     | 8290 (27.63%)      |
+| Traditional (Kuwaiti / II)   | 33426 (27.86%)     | 8066 (26.89%)      |
+
+-   **Global Tabular**: Uses DP-optimized leap years (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **k=29**: Identified through exhaustive search of all possible constants (0-29) in the modular formula `(11y + k) % 30 < 11`.
+
+The linear approach provides a **~25% absolute accuracy gain** over fixed-cycle tabular schemes by modeling the true long-term "drift" of the lunar cycle.
+
+## How Hijri Leap Years Work
+The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). In leap years, a single day is added to the 12th month, **Dhu al-Hijjah**.
 
 ## Technical Scripts
-The `scripts/` directory contains Python tools used to generate data and derive the optimized calendar constants:
+The `scripts/` directory contains the Python tools used for data generation and optimization:
+-   `generate_gt.py`: Generates the topocentric Ground Truth.
+-   `find_best_fit.py`: Derives the optimal Linear Formula constants.
+-   `find_best_tabular.py`: Analyzes tabular schemes and modular constants.
+-   `verify_all_modes.py`: playwrigth-based UI verification.
 
--   `generate_gt.py`: Generates the **Ground Truth** (GT) data for years 1-10000 AH using `astronomy-engine` based on the composite Mecca/Viwa criteria. Outputs `gt_1_10000.csv`.
--   `find_best_fit.py`: Performs a grid search and Knee Point Analysis on the GT data to find the optimal **Linear Formula** constants for `floor`, `ceil`, and `round` functions.
--   `find_best_tabular.py`: Analyzes the GT data to identify the most accurate **Tabular** (30-year cycle) leap year patterns and `k` constants.
--   `verify_all_modes.py`: A Playwright-based script to visually verify all calculation modes in `HijriCalc.html`.
-
-To run these scripts, ensure you have the necessary dependencies: `pip install astronomy-engine numpy playwright`.
+Dependencies: `pip install astronomy-engine numpy playwright`.
 
 ## Historical Context
-`HijriCalc` is designed to handle deep historical dates with care:
--   **Gregorian Reform**: In "Historical" mode, the calendar correctly handles the jump from October 4, 1582 (Julian) to October 15, 1582 (Gregorian). Prior dates are labeled as Julian.
--   **Proleptic Mode**: For modern compatibility, users can toggle to "Continuous (Modern)" mode to use proleptic Gregorian rules globally.
--   **Medieval Hijri Dates**: For years prior to 1300 AH, the tool automatically switches to the Global Formula method, as modern sighting criteria (like MABBIMS) are not historically applicable to those periods.
+-   **Gregorian Reform**: "Historical" mode handles the October 1582 jump and Julian labeling.
+-   **Medieval Dates**: For years prior to 1300 AH, the tool automatically uses the Global Formula as modern sighting criteria are not applicable.
 
-## Privacy & Data
-All astronomical calculations happen locally in your browser using **astronomy-engine**. No location data or usage metrics are sent to any server.
-
-## License
-MIT License. See LICENSE for details.
-
-## Acknowledgments
--   **Astronomy Engine** (Don Cross) for the core celestial mechanics.
-
-## Contributions
-Contributions, issues, and suggestions are welcome. Please open an issue to discuss ideas or submit a PR.
+## Privacy & License
+All calculations happen locally in your browser. MIT License.

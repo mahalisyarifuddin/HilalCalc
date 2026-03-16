@@ -4,7 +4,7 @@
 Visibilitas bulan, disederhanakan.
 
 ## Pengantar
-HilalCalc adalah kumpulan alat berbasis peramban (browser) file tunggal untuk menghitung dan memvisualisasikan kalender Hijriyah serta visibilitas hilal (bulan sabit muda). Dirancang untuk peneliti, pelajar, dan pengamat, alat ini mengimplementasikan kriteria **MABBIMS** (Tinggi Min 3°, Elongasi Min 6,4°) dan standar lainnya untuk membantu memprediksi awal bulan Islam.
+HilalCalc adalah kumpulan alat berbasis peramban (browser) file tunggal untuk menghitung dan memvisualisasikan kalender Hijriyah serta visibilitas hilal (bulan sabit muda). Dirancang untuk peneliti, pelajar, dan pengamat, alat ini mengimplementasikan kriteria toposentrik untuk memprediksi awal bulan Islam berdasarkan penampakan aktual dari permukaan bumi.
 
 Repositori ini mencakup dua alat mandiri:
 1.  **HilalMap.html**: Visualisasi peta global visibilitas hilal.
@@ -19,89 +19,72 @@ Visualisasikan di mana hilal terlihat di bola dunia untuk tanggal tertentu.
 
 **Fitur Utama:**
 -   **Peta Interaktif**: Visualisasi *heatmap* zona visibilitas (Terlihat vs Tidak Terlihat).
--   **Perhitungan Detail**: Hitung posisi bulan yang tepat (Tinggi, Elongasi, Azimuth, Umur) untuk koordinat tertentu.
--   **Kriteria Beragam**: Mendukung MABBIMS, Kalender Islam Global (GIC), dan kriteria kustom pengguna.
+-   **Perhitungan Detail**: Hitung posisi bulan yang tepat (Tinggi, Elongasi, Azimuth, Umur) untuk koordinat tertentu menggunakan vektor toposentrik.
+-   **Kriteria Beragam**: Mendukung MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°), Kalender Islam Global (GIC), dan kriteria kustom.
 -   **Render Web Worker**: Memindahkan perhitungan kompleks ke *background thread* agar UI tetap responsif.
--   **Zoom & Pan**: Navigasi peta dengan kontrol zoom dan geser.
--   **Pilihan Wilayah**: Fokus pada wilayah tertentu (misal: Dunia, Indonesia).
--   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk gambar peta/CDN).
+-   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk *tile* peta).
 
 ### 2. HijriCalc (Kalender & Konverter)
 Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik dan konteks sejarah Anda.
 
 **Fitur Utama:**
--   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal astronomis ("Rukyat Lokal").
+-   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal toposentrik ("Rukyat Lokal").
 -   **Rumus Global**: Menggunakan rumus linear yang sangat akurat untuk konversi antara tanggal Hijriyah dan Masehi selama 10.000 tahun, dioptimalkan untuk Kriteria Komposit (Mekkah + Pulau Viwa).
 -   **Transisi Sejarah**: Mendukung penuh reformasi kalender Masehi tahun 1582. Tanggal sebelum reformasi diberi label sebagai Julian.
--   **Navigasi**: Lompat ke tanggal Masehi atau Hijriyah mana pun untuk melihat susunan kalender yang sesuai.
--   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, Kalender Utama, dan Mode Masehi (Sejarah vs. Berkelanjutan).
-
-## Cara Menggunakan
-1.  Unduh `HilalMap.html` atau `HijriCalc.html`.
-2.  Buka file di peramban modern apa pun (Chrome, Edge, Firefox, Safari).
-3.  **Untuk HilalMap**: Pilih tanggal dan klik "Render Peta" untuk melihat visibilitas global, atau beralih ke tab "Hitung Detail" untuk memeriksa koordinat tertentu.
-4.  **Untuk HijriCalc**: Gunakan kotak "Ke Tanggal" untuk menavigasi, atau jelajahi grid kalender untuk melihat tanggal Hijriyah yang dihitung standar MABBIMS.
+-   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, Kalender Utama, dan Mode Masehi.
 
 ## Detail Teknis
 
-### Kriteria MABBIMS
-Alat ini terutama mengimplementasikan kriteria MABBIMS (Menteri Agama Brunei Darussalam, Indonesia, Malaysia, dan Singapura) yang diadopsi pada tahun 2021:
--   **Tinggi (Altitude)**: ≥ 3°
--   **Elongasi**: ≥ 6,4°
--   Titik Perhitungan: Matahari Terbenam (Sunset).
+### Kriteria Toposentrik
+Alat ini mengimplementasikan kriteria visibilitas hilal toposentrik, yang memperhitungkan posisi spesifik pengamat di permukaan bumi. Ini lebih akurat daripada model geosentrik untuk memprediksi penampakan aktual.
+-   **MABBIMS (2021)**: Tinggi ≥ 3°, Elongasi ≥ 6,4° saat matahari terbenam.
 
-### Aproksimasi Global (HijriCalc)
-Untuk navigasi cepat dan cakupan sejarah yang luas, `HijriCalc` menggunakan **Rumus Global** yang berasal dari analisis komposit yang ketat untuk tahun **1-10000 H**.
+### Aproksimasi Global (1-10000 H)
+Untuk navigasi cepat dan cakupan sejarah yang luas, `HijriCalc` menggunakan **Rumus Global** teroptimasi yang berasal dari analisis komposit yang ketat.
 
-**Kriteria Komposit:**
-Data *ground truth* dihasilkan menggunakan aturan komposit yang ketat:
--   **Mekkah**: Tinggi ≥ 3° DAN Elongasi ≥ 6,4°
--   **DAN**
--   **Pulau Viwa (Fiji)**: Tinggi ≥ 0°
-
-Hal ini memastikan bahwa prediksi awal bulan memenuhi kriteria visibilitas di Mekkah sambil memastikan bulan secara fisik berada di atas ufuk di Pasifik paling timur (Viwa).
+**Aturan Komposit:**
+Ground Truth dihasilkan dengan memastikan bulan memenuhi visibilitas MABBIMS di Mekkah sekaligus berada secara fisik di atas ufuk (Tinggi ≥ 0°) di Pulau Viwa (Fiji), titik paling timur dalam siklus hari Islam.
 
 **Rumus:**
-Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah secara matematis setara dengan:
-
+Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah adalah:
 `JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Hari - 1`
 
-Di mana:
--   `Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1)`
--   `BulanHijriyah` adalah 1-based (1=Muharram, ..., 12=Dzulhijjah).
--   `Hari` adalah tanggal dalam bulan Hijriyah tersebut.
+Di mana `Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1)`.
 
 **Akurasi:**
-Rumus linear sederhana ini mencapai akurasi pencocokan tepat sekitar **~69.55%** secara keseluruhan untuk awal bulan terhadap *Ground Truth* astronomis selama periode 1-10000 H, dengan akurasi yang dioptimalkan sekitar **~69.65%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah).
+Rumus ini mencapai akurasi pencocokan tepat **~69,55%** terhadap Ground Truth astronomis toposentrik selama 10.000 tahun, dengan akurasi **~69,65%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah).
 
-Studi komparatif terhadap **skema tabular 30 tahun** tradisional (seperti Scheme I) dan **Tabular Global (Siklus Tetap)** kami sendiri yang dioptimalkan menunjukkan bahwa Rumus Global Linear memberikan peningkatan akurasi ~24% dibandingkan pengaturan tabular siklus tetap terbaik yang mungkin dilakukan.
+### Perbandingan Tabular
+Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi (10.631 hari per siklus).
 
-Konstanta diturunkan menggunakan "Knee Point Analysis" untuk memastikan presisi floating-point yang optimal. Untuk dokumentasi lengkap mengenai metodologi dan data, termasuk perbandingan tabular, lihat [ANALYSIS-id.md](ANALYSIS-id.md).
+| Metode                       | Kecocokan Total    | Kecocokan Wajib    |
+| :--------------------------- | :----------------- | :----------------- |
+| **Rumus Global Linear**      | **83464 (69,55%)** | **20894 (69,65%)** |
+| Global Tabular (Siklus Tetap) | 53491 (44,58%)     | 13524 (45,08%)     |
+| Tabular (Rumus k=29)         | 47247 (39,37%)     | 11603 (38,68%)     |
+| Tradisional (Scheme I)       | 34339 (28,62%)     | 8290 (27,63%)      |
+| Tradisional (Kuwaiti / II)   | 33426 (27,86%)     | 8066 (26,89%)      |
+
+-   **Global Tabular**: Menggunakan tahun kabisat teroptimasi DP (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **k=29**: Diidentifikasi melalui pencarian lengkap semua konstanta yang mungkin (0-29) dalam rumus modular `(11y + k) % 30 < 11`.
+
+Pendekatan linear memberikan **keuntungan akurasi absolut ~25%** dibandingkan skema tabular siklus tetap dengan memodelkan "pergeseran" jangka panjang siklus lunar yang sebenarnya.
+
+## Cara Kerja Tahun Kabisat Hijriyah
+Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
 
 ## Skrip Teknis
-Direktori `scripts/` berisi alat Python yang digunakan untuk menghasilkan data dan menurunkan konstanta kalender yang dioptimalkan:
+Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:
+-   `generate_gt.py`: Menghasilkan Ground Truth toposentrik.
+-   `find_best_fit.py`: Menurunkan konstanta Rumus Linear yang optimal.
+-   `find_best_tabular.py`: Menganalisis skema tabular dan konstanta modular.
+-   `verify_all_modes.py`: Verifikasi UI berbasis Playwright.
 
--   `generate_gt.py`: Menghasilkan data **Ground Truth** (GT) untuk tahun 1-10000 H menggunakan `astronomy-engine` berdasarkan kriteria komposit Makkah/Viwa. Menghasilkan `gt_1_10000.csv`.
--   `find_best_fit.py`: Melakukan pencarian grid dan Knee Point Analysis pada data GT untuk menemukan konstanta **Rumus Linear** yang optimal untuk fungsi `floor`, `ceil`, dan `round`.
--   `find_best_tabular.py`: Menganalisis data GT untuk mengidentifikasi pola tahun kabisat **Tabular** (siklus 30 tahun) dan konstanta `k` yang paling akurat.
--   `verify_all_modes.py`: Skrip berbasis Playwright untuk memverifikasi secara visual semua mode perhitungan di `HijriCalc.html`.
-
-Untuk menjalankan skrip ini, pastikan Anda memiliki dependensi yang diperlukan: `pip install astronomy-engine numpy playwright`.
+Dependensi: `pip install astronomy-engine numpy playwright`.
 
 ## Konteks Sejarah
-`HijriCalc` dirancang untuk menangani tanggal sejarah yang dalam dengan hati-hati:
--   **Reformasi Masehi**: Dalam mode "Sejarah", kalender menangani lompatan dari 4 Oktober 1582 (Julian) ke 15 Oktober 1582 (Masehi) dengan benar. Tanggal sebelumnya diberi label Julian.
--   **Mode Berkelanjutan**: Untuk kompatibilitas modern, pengguna dapat beralih ke mode "Berkelanjutan (Modern)" untuk menggunakan aturan Gregorian proleptik secara global.
--   **Tanggal Hijriyah Abad Pertengahan**: Untuk tahun sebelum 1300 H, alat ini secara otomatis beralih ke metode Rumus Global, karena kriteria penglihatan modern (seperti MABBIMS) tidak dapat diterapkan secara historis pada periode tersebut.
+-   **Reformasi Masehi**: Mode "Sejarah" menangani lompatan Oktober 1582 dan pelabelan Julian.
+-   **Tanggal Abad Pertengahan**: Untuk tahun sebelum 1300 H, alat secara otomatis menggunakan Rumus Global karena kriteria penglihatan modern tidak dapat diterapkan.
 
-## Privasi & Data
-Semua perhitungan astronomis terjadi secara lokal di peramban Anda menggunakan **astronomy-engine**. Tidak ada data lokasi atau metrik penggunaan yang dikirim ke server mana pun.
-
-## Lisensi
-Lisensi MIT. Lihat LICENSE untuk detailnya.
-
-## Ucapan Terima Kasih
--   **Astronomy Engine** (Don Cross) untuk mekanika benda langit inti.
-
-## Kontribusi
-Kontribusi, masalah, dan saran dipersilakan. Silakan buka *issue* untuk mendiskusikan ide atau kirimkan PR.
+## Privasi & Lisensi
+Semua perhitungan terjadi secara lokal di peramban Anda. Lisensi MIT.

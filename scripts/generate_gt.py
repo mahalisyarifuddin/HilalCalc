@@ -62,7 +62,9 @@ def generate():
 			if sunset_m:
 				eq_m = astronomy.Equator(astronomy.Body.Moon, sunset_m, mecca_obs, True, True)
 				hor_m = astronomy.Horizon(sunset_m, mecca_obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal)
-				mecca_ok = hor_m.altitude >= 3.0 and astronomy.Elongation(astronomy.Body.Moon, sunset_m).elongation >= 6.4
+				eq_s = astronomy.Equator(astronomy.Body.Sun, sunset_m, mecca_obs, True, True)
+				mecca_elong = astronomy.AngleBetween(eq_m.vec, eq_s.vec)
+				mecca_ok = hor_m.altitude >= 3.0 and mecca_elong >= 6.4
 
 			sunset_v = astronomy.SearchRiseSet(astronomy.Body.Sun, viwa_obs, astronomy.Direction.Set, search_time, 1.0)
 			viwa_ok = False
@@ -99,7 +101,9 @@ def generate():
 			if sunset_m:
 				eq_m = astronomy.Equator(astronomy.Body.Moon, sunset_m, mecca_obs, True, True)
 				hor_m = astronomy.Horizon(sunset_m, mecca_obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal)
-				mecca_ok = hor_m.altitude >= 3.0 and astronomy.Elongation(astronomy.Body.Moon, sunset_m).elongation >= 6.4
+				eq_s = astronomy.Equator(astronomy.Body.Sun, sunset_m, mecca_obs, True, True)
+				mecca_elong = astronomy.AngleBetween(eq_m.vec, eq_s.vec)
+				mecca_ok = hor_m.altitude >= 3.0 and mecca_elong >= 6.4
 			else:
 				mecca_ok = False
 

@@ -304,7 +304,7 @@
 					<div class="group">
 						<label id="criteriaLabel" for="mapCriteria">Criteria</label>
 						<select id="mapCriteria">
-							<option value="mabbims">MABIMS (Alt ≥3°, Elong ≥6.4°)</option>
+							<option value="mabbims">MABBIMS (Alt ≥3°, Elong ≥6.4°)</option>
 							<option value="gic">GIC (Alt ≥5°, Elong ≥8°)</option>
 							<option value="alt0">Altitude ≥0°</option>
 							<option value="custom">Custom</option>
@@ -524,6 +524,7 @@ self.onmessage = e=>{
 						mHor = Astronomy.Horizon(sunset.ut,obs,mEq.ra,mEq.dec,"normal");
 					if (mHor.altitude < criteriaMinAlt) return false;
 					const sEq = Astronomy.Equator(Astronomy.Body.Sun,sunset.ut,obs,true,true);
+					// Topocentric Elongation
 					return Astronomy.AngleBetween(sEq.vec,mEq.vec) >= criteriaMinElong;
 				})(),
 				idx = (row * width + col) * 4;
@@ -752,6 +753,7 @@ self.onmessage = e=>{
 					moonEq = Astronomy.Equator(Astronomy.Body.Moon,sunsetUT,observer,true,true),
 					moonHor = Astronomy.Horizon(sunsetUT,observer,moonEq.ra,moonEq.dec,"normal"),
 					sunEq = Astronomy.Equator(Astronomy.Body.Sun,sunsetUT,observer,true,true),
+					// Topocentric Elongation
 					elongation = Astronomy.AngleBetween(sunEq.vec,moonEq.vec),
 					prevNewMoon = Astronomy.SearchMoonPhase(0,date.ut,-1),
 					ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0,

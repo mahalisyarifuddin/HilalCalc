@@ -559,7 +559,7 @@
 				gotoTitle: 'Go to Date',
 				today: 'Today',
 				formulaTitle: 'Global Approximation',
-				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for Obligatory Months (FP 10).',
+				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.50% (1-10000 AH). Optimized for Obligatory Months (FP 9).',
 				prefTitle: 'Settings',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -623,7 +623,7 @@
 				gotoTitle: 'Ke Tanggal',
 				today: 'Hari Ini',
 				formulaTitle: 'Aproksimasi Global',
-				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.03% (1-1000 H). Dioptimalkan untuk Bulan Wajib (FP 10).',
+				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.50% (1-10000 H). Dioptimalkan untuk Bulan Wajib (FP 9).',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -701,7 +701,7 @@
 		class HijriCalc {
 			constructor() {
 				(this.isOffline = (typeof Astronomy === 'undefined'),
-				this.cacheVersion = 4,
+				this.cacheVersion = 5,
 				this.loadState(),
 				state.viewDate = new Date(),
 				this.setup(),
@@ -1012,7 +1012,7 @@
 				const isLinear = state.calcMode === 'linear', isTabular = state.calcMode === 'tabular';
 				const formula = isTabular ?
 					`JD = 1948440 + (Cycle \u00b7 10631) + YearStarts[Y_in_Cycle] + MonthOffsets[M_in_Year] + Day \u2212 1` :
-					`JD = 1948440 + floor(29.5305732952 \u00b7 N + 0.1848335488) + Day \u2212 1`;
+					`JD = 1948440 + floor(29.530573559 \u00b7 N + 0.205444) + Day \u2212 1`;
 				elements.formulaDisplay.style.whiteSpace = "pre-line";
 				elements.formulaDisplay.textContent = formula + (isTabular ? "" : `\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`);
 				elements.formulaNote.innerHTML = isTabular ?
@@ -1020,7 +1020,7 @@
 					`<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
 				elements.formulaDesc.textContent = isTabular ?
 					(state.lang === 'id' ? "Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,62% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah." : "30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.62% (1-10000 AH). Leap years add a 30th day to Dhu al-Hijjah.") :
-					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,03% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.03% (1-10000 AH). Optimized for math.floor.");
+					(state.lang === 'id' ? "Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6,4; Viwa Alt≥0). Akurasi: 69,50% (1-10000 H). Dioptimalkan untuk math.floor." : "Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.50% (1-10000 AH). Optimized for math.floor.");
 			}
 
 			getLinearMonthStartJD(Index) {
@@ -1032,7 +1032,7 @@
 					for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;
 					return 1948440 + days;
 				}
-				return (1948440 + Math.floor(29.5305732952 * Index + 0.1848335488));
+				return (1948440 + Math.floor(29.530573559 * Index + 0.205444));
 			}
 
 			getLinearIndexFromJD(JD) {
@@ -1042,7 +1042,7 @@
 					while (this.getLinearMonthStartJD(approxIdx) > JD) approxIdx--;
 					return approxIdx;
 				}
-				return Math.floor((JD - 1948440 + 0.8151664512) / 29.5305732952);
+				return Math.floor((JD - 1948440 + 0.794556) / 29.530573559);
 			}
 
 			jdToGregorianDate(jd) {
@@ -1148,7 +1148,7 @@
 				const sunEq = Astronomy.Equator(Astronomy.Body.Sun, sunsetUT, observer, true, true);
 				const elongation = Astronomy.AngleBetween(sunEq.vec, moonEq.vec);
 
-				// MABBIMS Criteria: Altitude >= 3 deg, Elongation >= 6.4 deg, Age > 0 (implied)
+				// MABBIMS Criteria (Topocentric): Altitude >= 3 deg, Elongation >= 6.4 deg, Age > 0 (implied)
 				return (moonHor.altitude >= 3.0 && elongation >= 6.4);
 			}
 

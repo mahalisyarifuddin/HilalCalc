@@ -1,7 +1,7 @@
 [English](README.md) | **Bahasa Indonesia**
 
 # HilalCalc
-Visibilitas bulan, disederhanakan.
+*Moon visibility, simplified.*
 
 ## Pengantar
 HilalCalc adalah kumpulan alat berbasis peramban (browser) file tunggal untuk menghitung dan memvisualisasikan kalender Hijriyah serta visibilitas hilal (bulan sabit muda). Dirancang untuk peneliti, pelajar, dan pengamat, alat ini mengimplementasikan kriteria toposentrik untuk memprediksi awal bulan Islam berdasarkan penampakan aktual dari permukaan bumi.

@@ -64,11 +64,11 @@ We compared the Global Linear Formula against traditional and optimized 30-year 
 | 3.   | Global Tabular (30Y k=29) | 47,247             | 39.37%       | 38.68%         |
 | 4.   | Traditional (Scheme I)    | 34,339             | 28.62%       | 27.63%         |
 | 5.   | Traditional (Kuwaiti)     | 33,426             | 27.86%       | 26.89%         |
-| 6.   | Fixed Cycle (50Y)         | 1,664              | 1.39%        | 1.43%          |
-| 7.   | Fixed Cycle (10Y)         | 175                | 0.15%        | 0.15%          |
-| 8.   | Fixed Cycle (5Y)          | 104                | 0.09%        | 0.09%          |
+| 6.   | Global Tabular (50Y DP)   | 1,770              | 1.47%        | 1.51%          |
+| 7.   | Global Tabular (10Y DP)   | 252                | 0.21%        | 0.21%          |
+| 8.   | Global Tabular (5Y DP)    | 159                | 0.13%        | 0.13%          |
 
--   **30Y DP**: Dynamic Programming optimized leap years (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **DP**: Dynamic Programming optimized leap years.
 -   **30Y k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
 -   **k=29**: Identified through exhaustive search of all possible constants (0-29) in the modular formula `(11y + k) % 30 < 11`.
 

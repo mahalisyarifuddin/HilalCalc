@@ -70,7 +70,7 @@ Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional
 -   **k=29**: Diidentifikasi melalui pencarian lengkap semua konstanta yang mungkin (0-29) dalam rumus modular `(11y + k) % 30 < 11`.
 
 **Analisis Knee Point:**
-Analisis menyeluruh terhadap panjang siklus ($L \in \{10, 20, \dots, 1000\}$) menggunakan Dynamic Programming mengidentifikasi **$L=30$** sebagai *knee point* utama. Meskipun siklus yang lebih panjang (misalnya, $L=790$) dapat mencapai hingga $46,34\%$, siklus 30 tahun tetap menjadi pilihan yang paling efisien, memvalidasi standar historis.
+Analisis menyeluruh terhadap panjang siklus ($L \in \{10, 20, \dots, 1000\}$) menggunakan Dynamic Programming mengidentifikasi **$L=30$** sebagai *knee point* utama. Ini adalah penyebut signifikan pertama di mana rasio tahun kabisat ($11/30 \approx 0,3667$) sangat mendekati **bagian pecahan dari rata-rata tahun lunar astronomis** ($\approx 0,36707$). Meskipun siklus yang lebih panjang (misalnya, $L=790$) dapat mencapai hingga $46,34\%$, siklus 30 tahun tetap menjadi pilihan yang paling efisien, memvalidasi standar historis.
 
 **Catatan tentang Akurasi Siklus:**
 Akurasi sangat bergantung pada seberapa baik rasio tahun kabisat ($N/L$) mendekati bagian pecahan dari rata-rata tahun lunar ($\approx 0,36707$ hari). Siklus 30 tahun ($11/30 \approx 0,36667$) sangat akurat karena total pergeserannya selama 10.000 tahun hanya ~4 hari. Siklus yang lebih pendek atau berbeda seperti 50 tahun ($18/50 = 0,36$) bergeser jauh lebih cepat (~70 hari), yang mengakibatkan akurasi lebih rendah dalam jangka panjang.

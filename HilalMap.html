@@ -476,64 +476,93 @@
 
 		const WORKER_CODE = `importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
 
-const calculateSunset = (lat,lon,baseDateUT)=>{
-	const observer = new Astronomy.Observer(lat,lon,0);
-	return Astronomy.SearchRiseSet(Astronomy.Body.Sun,observer,-1,baseDateUT - (lon / 15 / 24),1);
+const calculateSunset = (lat, lon, baseDateUT) => {
+	const observer = new Astronomy.Observer(lat, lon, 0);
+	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, baseDateUT - (lon / 15 / 24), 1);
 };
 
-self.onmessage = e=>{
+self.onmessage = e => {
 	try {
-		const {bounds,widthDeg,heightDeg,criteria,dateTimestamp,minAlt,minElong} = e.data,
-			maxGridSize = 245,
-			cellSizeDeg = Math.max(widthDeg / maxGridSize,heightDeg / maxGridSize,0.1),
-			width = Math.min(Math.ceil(widthDeg / cellSizeDeg),maxGridSize),
-			height = Math.min(Math.ceil(heightDeg / cellSizeDeg),maxGridSize),
-			buffer = new Uint8ClampedArray(width * height * 4),
-			date = Astronomy.MakeTime(new Date(dateTimestamp)),
-			{criteriaMinAlt,criteriaMinElong,isGIC} = (criteria === "mabbims" ? {criteriaMinAlt:3,criteriaMinElong:6.4,isGIC:false} :
-				criteria === "gic" ? {criteriaMinAlt:5,criteriaMinElong:8,isGIC:true} :
-				criteria === "alt0" ? {criteriaMinAlt:0,criteriaMinElong:-100,isGIC:false} :
-				{criteriaMinAlt:minAlt,criteriaMinElong:minElong,isGIC:false}),
-			DEG_TO_RAD = Math.PI / 180,
-			RAD_TO_DEG = 180 / Math.PI,
-			latToMercatorY = lat=>Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2)),
-			mercatorYToLat = y=>(2 * Math.atan(Math.exp(y)) - Math.PI / 2) * RAD_TO_DEG,
-			minY = latToMercatorY(bounds.minLat),
-			maxY = latToMercatorY(bounds.maxLat),
-			yRange = maxY - minY,
-			STEP = 10;
+		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong } = e.data;
+		const maxGridSize = 245;
+		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
+		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
+		const height = Math.min(Math.ceil(heightDeg / cellSizeDeg), maxGridSize);
+		const buffer = new Uint8ClampedArray(width * height * 4);
+		const date = Astronomy.MakeTime(new Date(dateTimestamp));
+
+		let criteriaMinAlt, criteriaMinElong, isGIC;
+		if (criteria === "mabbims") {
+			criteriaMinAlt = 3; criteriaMinElong = 6.4; isGIC = false;
+		} else if (criteria === "gic") {
+			criteriaMinAlt = 5; criteriaMinElong = 8; isGIC = true;
+		} else if (criteria === "alt0") {
+			criteriaMinAlt = 0; criteriaMinElong = -100; isGIC = false;
+		} else {
+			criteriaMinAlt = minAlt; criteriaMinElong = minElong; isGIC = false;
+		}
+
+		const DEG_TO_RAD = Math.PI / 180;
+		const RAD_TO_DEG = 180 / Math.PI;
+		const latToMercatorY = lat => Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2));
+		const mercatorYToLat = y => (2 * Math.atan(Math.exp(y)) - Math.PI / 2) * RAD_TO_DEG;
+
+		const minY = latToMercatorY(bounds.minLat);
+		const maxY = latToMercatorY(bounds.maxLat);
+		const yRange = maxY - minY;
+		const STEP = 10;
 
 		for (let row = 0; row < height; row++) {
 			const lat = mercatorYToLat(maxY - (row / (height - 1 || 1)) * yRange);
-			let prevCol = -1, nextCol = -1, prevSunset = null, nextSunset = null;
+			let prevCol = -1;
+			let nextCol = -1;
+			let prevSunset = null;
+			let nextSunset = null;
 
 			for (let col = 0; col < width; col++) {
 				const lon = bounds.minLon + (col * cellSizeDeg);
 				let sunset = null;
-				col >= nextCol && (
-					prevCol = col,
-					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunset(lat,lon,date.ut),
-					nextCol = Math.min(col + STEP,width - 1),
-					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunset(lat,bounds.minLon + (nextCol * cellSizeDeg),date.ut)
-				),
-				sunset = (prevSunset && nextSunset) ? {ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((col - prevCol) / (nextCol - prevCol || 1))} : calculateSunset(lat,lon,date.ut);
 
-				const visible = sunset && (!isGIC || sunset.ut < date.ut + 0.5) && (()=>{
-					const obs = new Astronomy.Observer(lat,lon,0),
-						mEq = Astronomy.Equator(Astronomy.Body.Moon,sunset.ut,obs,true,true),
-						mHor = Astronomy.Horizon(sunset.ut,obs,mEq.ra,mEq.dec,"normal");
-					if (mHor.altitude < criteriaMinAlt) return false;
-					const sEq = Astronomy.Equator(Astronomy.Body.Sun,sunset.ut,obs,true,true);
-					// Topocentric Elongation
-					return Astronomy.AngleBetween(sEq.vec,mEq.vec) >= criteriaMinElong;
-				})(),
-				idx = (row * width + col) * 4;
-				visible ? (buffer[idx]=0,buffer[idx+1]=200,buffer[idx+2]=0,buffer[idx+3]=180) : (buffer[idx]=255,buffer[idx+1]=0,buffer[idx+2]=0,buffer[idx+3]=180);
+				if (col >= nextCol) {
+					prevCol = col;
+					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunset(lat, lon, date.ut);
+					nextCol = Math.min(col + STEP, width - 1);
+					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunset(lat, bounds.minLon + (nextCol * cellSizeDeg), date.ut);
+				}
+
+				if (prevSunset && nextSunset) {
+					sunset = { ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((col - prevCol) / (nextCol - prevCol || 1)) };
+				} else {
+					sunset = calculateSunset(lat, lon, date.ut);
+				}
+
+				let visible = false;
+				if (sunset && (!isGIC || sunset.ut < date.ut + 0.5)) {
+					const obs = new Astronomy.Observer(lat, lon, 0);
+					const mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
+					const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
+
+					if (mHor.altitude >= criteriaMinAlt) {
+						const sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
+						visible = Astronomy.AngleBetween(sEq.vec, mEq.vec) >= criteriaMinElong;
+					}
+				}
+
+				const idx = (row * width + col) * 4;
+				if (visible) {
+					buffer[idx] = 0; buffer[idx+1] = 200; buffer[idx+2] = 0; buffer[idx+3] = 180;
+				} else {
+					buffer[idx] = 255; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 180;
+				}
 			}
-			row % 10 === 0 && self.postMessage({progress: (row / height * 100).toFixed(0)});
+			if (row % 10 === 0) {
+				self.postMessage({progress: (row / height * 100).toFixed(0)});
+			}
 		}
-		self.postMessage({width,height,buffer:buffer.buffer},[buffer.buffer]);
-	} catch(err) { self.postMessage({error: err.message}); }
+		self.postMessage({width, height, buffer: buffer.buffer}, [buffer.buffer]);
+	} catch(err) {
+		self.postMessage({error: err.message});
+	}
 };`;
 
 		const elements = new Proxy({},{get:(_,id)=>document.getElementById(id) });
@@ -694,36 +723,50 @@ self.onmessage = e=>{
 			}
 
 			switchTab(tab) {
-				tab === "map" ? (
-					elements.tabMap.classList.add("active"),
-					elements.tabMap.setAttribute("aria-selected", "true"),
-					elements.tabCalc.classList.remove("active"),
-					elements.tabCalc.setAttribute("aria-selected", "false"),
-					elements.mapView.classList.remove("hidden"),
-					elements.calcView.classList.add("hidden")
-				) : (
-					elements.tabMap.classList.remove("active"),
-					elements.tabMap.setAttribute("aria-selected", "false"),
-					elements.tabCalc.classList.add("active"),
-					elements.tabCalc.setAttribute("aria-selected", "true"),
-					elements.mapView.classList.add("hidden"),
-					elements.calcView.classList.remove("hidden")
-				);
+				if (tab === "map") {
+					elements.tabMap.classList.add("active");
+					elements.tabMap.setAttribute("aria-selected", "true");
+					elements.tabCalc.classList.remove("active");
+					elements.tabCalc.setAttribute("aria-selected", "false");
+					elements.mapView.classList.remove("hidden");
+					elements.calcView.classList.add("hidden");
+				} else {
+					elements.tabMap.classList.remove("active");
+					elements.tabMap.setAttribute("aria-selected", "false");
+					elements.tabCalc.classList.add("active");
+					elements.tabCalc.setAttribute("aria-selected", "true");
+					elements.mapView.classList.add("hidden");
+					elements.calcView.classList.remove("hidden");
+				}
 			}
 
 			getCurrentLocation() {
-				const button = elements.getLocation, originalText = button.innerHTML;
-				(button.disabled = true, button.innerHTML = `<span class="spinner"></span> ${this.string("locating")}`),
-				navigator.geolocation ? navigator.geolocation.getCurrentPosition(
-					p=>(
-						elements.calcLat.value = p.coords.latitude.toFixed(4),
-						elements.calcLon.value = p.coords.longitude.toFixed(4),
-						elements.calcUtcOffset.value = Math.round(p.coords.longitude / 15),
-						button.disabled = false,
-						button.innerHTML = originalText
-					),
-					e=>(alert("Error getting location: " + e.message), button.disabled = false, button.innerHTML = originalText)
-				) : (alert("Geolocation is not supported by this browser."), button.disabled = false, button.innerHTML = originalText);
+				const button = elements.getLocation;
+				const originalText = button.innerHTML;
+
+				button.disabled = true;
+				button.innerHTML = `<span class="spinner"></span> ${this.string("locating")}`;
+
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(
+						p => {
+							elements.calcLat.value = p.coords.latitude.toFixed(4);
+							elements.calcLon.value = p.coords.longitude.toFixed(4);
+							elements.calcUtcOffset.value = Math.round(p.coords.longitude / 15);
+							button.disabled = false;
+							button.innerHTML = originalText;
+						},
+						e => {
+							alert("Error getting location: " + e.message);
+							button.disabled = false;
+							button.innerHTML = originalText;
+						}
+					);
+				} else {
+					alert("Geolocation is not supported by this browser.");
+					button.disabled = false;
+					button.innerHTML = originalText;
+				}
 			}
 
 			calculateDetails() {
@@ -750,42 +793,56 @@ self.onmessage = e=>{
 			}
 
 			calculateDetailsWithSunset(sunset,observer,date,criteria) {
-				const sunsetUT = sunset.ut,
-					moonEq = Astronomy.Equator(Astronomy.Body.Moon,sunsetUT,observer,true,true),
-					moonHor = Astronomy.Horizon(sunsetUT,observer,moonEq.ra,moonEq.dec,"normal"),
-					sunEq = Astronomy.Equator(Astronomy.Body.Sun,sunsetUT,observer,true,true),
-					// Topocentric Elongation
-					elongation = Astronomy.AngleBetween(sunEq.vec,moonEq.vec),
-					prevNewMoon = Astronomy.SearchMoonPhase(0,date.ut,-1),
-					ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0,
-					moonPhase = Astronomy.Illumination(Astronomy.Body.Moon,sunsetUT),
-					moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon,observer,-1,sunsetUT,1),
-					offset = parseFloat(elements.calcUtcOffset.value) || 0,
-					formatTime = ut=>(!ut ? "N/A" : (()=>{
-						const d = ut.date;
-						d.setMinutes(d.getMinutes() + offset * 60);
-						const timeString = d.toISOString().substring(11,19), sign = offset >= 0 ? "+" : "";
-						return `${timeString} (UTC${sign}${offset})`;
-					})()),
-					customMinAlt = parseFloat(elements.calcMinAlt.value) || 0,
-					customMinElong = parseFloat(elements.calcMinElong.value) || 0,
-					{minAlt,minElong,isGIC} = (criteria === "mabbims" ? {minAlt:3,minElong:6.4,isGIC:false} :
-						criteria === "gic" ? {minAlt:5,minElong:8,isGIC:true} :
-						criteria === "alt0" ? {minAlt:0,minElong:-100,isGIC:false} :
-						{minAlt:customMinAlt,minElong:customMinElong,isGIC:false}),
-					visible = ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong),
-					displayData = [
-						{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
-						{label:"sunsetTime",value:formatTime(sunset)},
-						{label:"moonsetTime",value:formatTime(moonset)},
-						{label:"moonAlt",value:moonHor.altitude.toFixed(2) + "°"},
-						{label:"moonElong",value:elongation.toFixed(2) + "°"},
-						{label:"moonAzimuth",value:moonHor.azimuth.toFixed(2) + "°"},
-						{label:"moonAge",value:ageInDays.toFixed(2) + " days"},
-						{label:"illuminatedFraction",value:(moonPhase.phase_fraction * 100).toFixed(2) + "%"}
-					];
+				const sunsetUT = sunset.ut;
+				const moonEq = Astronomy.Equator(Astronomy.Body.Moon,sunsetUT,observer,true,true);
+				const moonHor = Astronomy.Horizon(sunsetUT,observer,moonEq.ra,moonEq.dec,"normal");
+				const sunEq = Astronomy.Equator(Astronomy.Body.Sun,sunsetUT,observer,true,true);
+				const elongation = Astronomy.AngleBetween(sunEq.vec,moonEq.vec);
+
+				const prevNewMoon = Astronomy.SearchMoonPhase(0,date.ut,-1);
+				const ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0;
+				const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon,sunsetUT);
+				const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon,observer,-1,sunsetUT,1);
+
+				const offset = parseFloat(elements.calcUtcOffset.value) || 0;
+
+				const formatTime = ut => {
+					if (!ut) return "N/A";
+					const d = ut.date;
+					d.setMinutes(d.getMinutes() + offset * 60);
+					const timeString = d.toISOString().substring(11,19);
+					const sign = offset >= 0 ? "+" : "";
+					return `${timeString} (UTC${sign}${offset})`;
+				};
+
+				let minAlt, minElong, isGIC;
+				if (criteria === "mabbims") {
+					minAlt = 3; minElong = 6.4; isGIC = false;
+				} else if (criteria === "gic") {
+					minAlt = 5; minElong = 8; isGIC = true;
+				} else if (criteria === "alt0") {
+					minAlt = 0; minElong = -100; isGIC = false;
+				} else {
+					minAlt = parseFloat(elements.calcMinAlt.value) || 0;
+					minElong = parseFloat(elements.calcMinElong.value) || 0;
+					isGIC = false;
+				}
+
+				const visible = ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong);
+
+				const displayData = [
+					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
+					{label:"sunsetTime",value:formatTime(sunset)},
+					{label:"moonsetTime",value:formatTime(moonset)},
+					{label:"moonAlt",value:moonHor.altitude.toFixed(2) + "°"},
+					{label:"moonElong",value:elongation.toFixed(2) + "°"},
+					{label:"moonAzimuth",value:moonHor.azimuth.toFixed(2) + "°"},
+					{label:"moonAge",value:ageInDays.toFixed(2) + " days"},
+					{label:"illuminatedFraction",value:(moonPhase.phase_fraction * 100).toFixed(2) + "%"}
+				];
+
 				elements.results.innerHTML = displayData
-					.map(item=>`<div class="result-card"><div class="result-label">${this.string(item.label) || item.label}</div><div class="result-value" style="${item.color ? `color:${item.color}` : ""}">${item.value}</div></div>`)
+					.map(item => `<div class="result-card"><div class="result-label">${this.string(item.label) || item.label}</div><div class="result-value" style="${item.color ? `color:${item.color}` : ""}">${item.value}</div></div>`)
 					.join("");
 			}
 

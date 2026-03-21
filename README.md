@@ -57,17 +57,19 @@ This formula achieves **~69.55%** overall exact match accuracy against topocentr
 ### Tabular Comparison
 We compared the Global Linear Formula against traditional and optimized 30-year tabular schemes (10,631 days per cycle).
 
-| Method                       | Total Matches      | Obligatory Matches |
-| :--------------------------- | :----------------- | :----------------- |
-| **Global Linear Formula**    | **83464 (69.55%)** | **20894 (69.65%)** |
-| Global Tabular (30Y Fixed)   | 47247 (39.37%)     | 11603 (38.68%)     |
-| Traditional (Scheme I)       | 34339 (28.62%)     | 8290 (27.63%)      |
-| Traditional (Kuwaiti / II)   | 33426 (27.86%)     | 8066 (26.89%)      |
-| Fixed Cycle (10Y)            | 175 (0.15%)        | 46 (0.15%)         |
-| Fixed Cycle (5Y)             | 104 (0.09%)        | 27 (0.09%)         |
+| Rank | Method                    | Accuracy (Matches) | Accuracy (%) | Obligatory (%) |
+| :--- | :------------------------ | :----------------- | :----------- | :------------- |
+| 1.   | **Global Linear Formula** | **83,464**         | **69.55%**   | **69.65%**     |
+| 2.   | Global Tabular (30Y DP)   | 53,491             | 44.58%       | 45.08%         |
+| 3.   | Global Tabular (30Y k=29) | 47,247             | 39.37%       | 38.68%         |
+| 4.   | Traditional (Scheme I)    | 34,339             | 28.62%       | 27.63%         |
+| 5.   | Traditional (Kuwaiti)     | 33,426             | 27.86%       | 26.89%         |
+| 6.   | Fixed Cycle (50Y)         | 1,664              | 1.39%        | 1.43%          |
+| 7.   | Fixed Cycle (10Y)         | 175                | 0.15%        | 0.15%          |
+| 8.   | Fixed Cycle (5Y)          | 104                | 0.09%        | 0.09%          |
 
--   **30Y Fixed**: Uses optimized modular constant k=29.
--   **Global Tabular**: Uses DP-optimized leap years (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **30Y DP**: Dynamic Programming optimized leap years (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **30Y k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
 -   **k=29**: Identified through exhaustive search of all possible constants (0-29) in the modular formula `(11y + k) % 30 < 11`.
 
 The linear approach provides a **~25% absolute accuracy gain** over fixed-cycle tabular schemes by modeling the true long-term "drift" of the lunar cycle.

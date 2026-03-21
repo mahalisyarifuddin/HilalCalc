@@ -57,17 +57,19 @@ Rumus ini mencapai akurasi pencocokan tepat **~69,55%** terhadap Ground Truth as
 ### Perbandingan Tabular
 Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi (10.631 hari per siklus).
 
-| Metode                       | Kecocokan Total    | Kecocokan Wajib    |
-| :--------------------------- | :----------------- | :----------------- |
-| **Rumus Global Linear**      | **83464 (69,55%)** | **20894 (69,65%)** |
-| Tabular Tetap (30 thn)       | 47247 (39,37%)     | 11603 (38,68%)     |
-| Tradisional (Scheme I)       | 34339 (28,62%)     | 8290 (27,63%)      |
-| Tradisional (Kuwaiti / II)   | 33426 (27,86%)     | 8066 (26,89%)      |
-| Siklus Tetap (10 thn)        | 175 (0,15%)        | 46 (0,15%)         |
-| Siklus Tetap (5 thn)         | 104 (0,09%)        | 27 (0,09%)         |
+| Peringkat | Metode                     | Akurasi (Cocok) | Akurasi (%) | Wajib (%)  |
+| :-------- | :------------------------- | :-------------- | :---------- | :--------- |
+| 1.        | **Rumus Global Linear**    | **83.464**      | **69,55%**  | **69,65%** |
+| 2.        | Tabular Global (30 thn DP) | 53.491          | 44,58%      | 45,08%     |
+| 3.        | Tabular Global (30 thn k)  | 47.247          | 39,37%      | 38,68%     |
+| 4.        | Tradisional (Scheme I)     | 34.339          | 28,62%      | 27,63%     |
+| 5.        | Tradisional (Kuwaiti)      | 33.426          | 27,86%      | 26,89%     |
+| 6.        | Siklus Tetap (50 thn)      | 1.664           | 1,39%       | 1,43%      |
+| 7.        | Siklus Tetap (10 thn)      | 175             | 0,15%       | 0,15%      |
+| 8.        | Siklus Tetap (5 thn)       | 104             | 0,09%       | 0,09%      |
 
--   **Tabular Tetap (30 thn)**: Menggunakan konstanta modular k=29 yang dioptimalkan.
--   **Global Tabular**: Menggunakan tahun kabisat teroptimasi DP (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **30 thn DP**: Tahun kabisat dioptimalkan dengan Dynamic Programming (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **30 thn k**: Konstanta modular k=29 yang dioptimalkan untuk `(11y + k) % 30 < 11`.
 -   **k=29**: Diidentifikasi melalui pencarian lengkap semua konstanta yang mungkin (0-29) dalam rumus modular `(11y + k) % 30 < 11`.
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~25%** dibandingkan skema tabular siklus tetap dengan memodelkan "pergeseran" jangka panjang siklus lunar yang sebenarnya.

@@ -72,6 +72,9 @@ Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional
 -   **30 thn k**: Konstanta modular k=29 yang dioptimalkan untuk `(11y + k) % 30 < 11`.
 -   **k=29**: Diidentifikasi melalui pencarian lengkap semua konstanta yang mungkin (0-29) dalam rumus modular `(11y + k) % 30 < 11`.
 
+**Catatan tentang Akurasi Siklus:**
+Akurasi sangat bergantung pada seberapa baik rasio tahun kabisat ($N/L$) mendekati bagian pecahan dari rata-rata tahun lunar ($\approx 0,36707$ hari). Siklus 30 tahun ($11/30 \approx 0,36667$) sangat akurat karena total pergeserannya selama 10.000 tahun hanya ~4 hari. Siklus yang lebih pendek atau berbeda seperti 50 tahun ($18/50 = 0,36$) bergeser jauh lebih cepat (~70 hari), yang mengakibatkan akurasi lebih rendah dalam jangka panjang.
+
 Pendekatan linear memberikan **keuntungan akurasi absolut ~25%** dibandingkan skema tabular siklus tetap dengan memodelkan "pergeseran" jangka panjang siklus lunar yang sebenarnya.
 
 ## Cara Kerja Tahun Kabisat Hijriyah

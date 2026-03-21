@@ -72,6 +72,9 @@ We compared the Global Linear Formula against traditional and optimized 30-year 
 -   **30Y k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
 -   **k=29**: Identified through exhaustive search of all possible constants (0-29) in the modular formula `(11y + k) % 30 < 11`.
 
+**Note on Cycle Accuracy:**
+Accuracy depends on how well the leap year ratio ($N/L$) approximates the mean lunar year fractional part ($\approx 0.36707$ days). The 30-year cycle ($11/30 \approx 0.36667$) is highly accurate because its total drift over 10,000 years is only ~4 days. Shorter or different cycles like 50 years ($18/50 = 0.36$) drift much faster (~70 days), resulting in lower accuracy over long periods.
+
 The linear approach provides a **~25% absolute accuracy gain** over fixed-cycle tabular schemes by modeling the true long-term "drift" of the lunar cycle.
 
 ## How Hijri Leap Years Work

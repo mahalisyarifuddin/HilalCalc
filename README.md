@@ -64,13 +64,13 @@ We compared the Global Linear Formula against traditional and optimized 30-year 
 | 3.   | Global Tabular (30Y k=29) | 47,247             | 39.37%       | 38.68%         |
 | 4.   | Traditional (Scheme I)    | 34,339             | 28.62%       | 27.63%         |
 | 5.   | Traditional (Kuwaiti)     | 33,426             | 27.86%       | 26.89%         |
-| 6.   | Global Tabular (50Y DP)   | 1,770              | 1.47%        | 1.51%          |
-| 7.   | Global Tabular (10Y DP)   | 252                | 0.21%        | 0.21%          |
-| 8.   | Global Tabular (5Y DP)    | 159                | 0.13%        | 0.13%          |
 
 -   **DP**: Dynamic Programming optimized leap years.
 -   **30Y k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
 -   **k=29**: Identified through exhaustive search of all possible constants (0-29) in the modular formula `(11y + k) % 30 < 11`.
+
+**Knee Point Analysis:**
+Exhaustive analysis of cycle lengths ($L \in \{10, 20, \dots, 1000\}$) using Dynamic Programming identifies **$L=30$** as the primary knee point. This is the first significant denominator where the leap year ratio ($11/30 \approx 0.3667$) closely matches the **astronomical mean lunar year fractional part** ($\approx 0.36707$). While longer cycles (e.g., $L=790$) can marginally reach up to $46.34\%$, the 30-year cycle remains the most efficient choice, validating the historical standard.
 
 **Note on Cycle Accuracy:**
 Accuracy depends on how well the leap year ratio ($N/L$) approximates the mean lunar year fractional part ($\approx 0.36707$ days). The 30-year cycle ($11/30 \approx 0.36667$) is highly accurate because its total drift over 10,000 years is only ~4 days. Shorter or different cycles like 50 years ($18/50 = 0.36$) drift much faster (~70 days), resulting in lower accuracy over long periods.

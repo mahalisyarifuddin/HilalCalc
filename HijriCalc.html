@@ -625,7 +625,7 @@
 				today: 'Hari Ini',
 				formulaTitle: 'Metodologi',
 				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.55% (1-10000 H). Dioptimalkan untuk math.floor.',
-				formulaDescTabular: 'Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,58% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah.',
+				formulaDescTabular: 'Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44.58% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah.',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -1021,7 +1021,7 @@
 			getLinearMonthStartJD(Index) {
 				if (state.calcMode === 'tabular') {
 					const cycle = Math.floor(Index / 360), idxInCycle = ((Index % 360) + 360) % 360, yInCycle = Math.floor(idxInCycle / 12), mInYear = idxInCycle % 12,
-						leaps = [1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26], isLeap = yInCycle => leaps.includes(yInCycle + 1);
+						leaps = [1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26], isLeap = y => leaps.includes(y + 1);
 					let days = cycle * 10631;
 					for (let i = 0; i < yInCycle; i++) days += isLeap(i) ? 355 : 354;
 					for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;

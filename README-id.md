@@ -57,16 +57,23 @@ Rumus ini mencapai akurasi pencocokan tepat **~69,55%** terhadap Ground Truth as
 ### Perbandingan Tabular
 Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi (10.631 hari per siklus).
 
-| Metode                       | Kecocokan Total    | Kecocokan Wajib    |
-| :--------------------------- | :----------------- | :----------------- |
-| **Rumus Global Linear**      | **83464 (69,55%)** | **20894 (69,65%)** |
-| Global Tabular (Siklus Tetap) | 53491 (44,58%)     | 13524 (45,08%)     |
-| Tabular (Rumus k=29)         | 47247 (39,37%)     | 11603 (38,68%)     |
-| Tradisional (Scheme I)       | 34339 (28,62%)     | 8290 (27,63%)      |
-| Tradisional (Kuwaiti / II)   | 33426 (27,86%)     | 8066 (26,89%)      |
+| Peringkat | Metode                     | Akurasi (Cocok) | Akurasi (%) | Wajib (%)  |
+| :-------- | :------------------------- | :-------------- | :---------- | :--------- |
+| 1.        | **Rumus Global Linear**    | **83.464**      | **69,55%**  | **69,65%** |
+| 2.        | Tabular Global (30 thn DP) | 53.491          | 44,58%      | 45,08%     |
+| 3.        | Tabular Global (30 thn k)  | 47.247          | 39,37%      | 38,68%     |
+| 4.        | Tradisional (Scheme I)     | 34.339          | 28,62%      | 27,63%     |
+| 5.        | Tradisional (Kuwaiti)      | 33.426          | 27,86%      | 26,89%     |
+| 6.        | Tabular Global (50 thn DP) | 1.770           | 1,47%       | 1,51%      |
+| 7.        | Tabular Global (10 thn DP) | 252             | 0,21%       | 0,21%      |
+| 8.        | Tabular Global (5 thn DP)  | 159             | 0,13%       | 0,13%      |
 
--   **Global Tabular**: Menggunakan tahun kabisat teroptimasi DP (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
+-   **DP**: Tahun kabisat dioptimalkan dengan Dynamic Programming.
+-   **30 thn k**: Konstanta modular k=29 yang dioptimalkan untuk `(11y + k) % 30 < 11`.
 -   **k=29**: Diidentifikasi melalui pencarian lengkap semua konstanta yang mungkin (0-29) dalam rumus modular `(11y + k) % 30 < 11`.
+
+**Catatan tentang Akurasi Siklus:**
+Akurasi sangat bergantung pada seberapa baik rasio tahun kabisat ($N/L$) mendekati bagian pecahan dari rata-rata tahun lunar ($\approx 0,36707$ hari). Siklus 30 tahun ($11/30 \approx 0,36667$) sangat akurat karena total pergeserannya selama 10.000 tahun hanya ~4 hari. Siklus yang lebih pendek atau berbeda seperti 50 tahun ($18/50 = 0,36$) bergeser jauh lebih cepat (~70 hari), yang mengakibatkan akurasi lebih rendah dalam jangka panjang.
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~25%** dibandingkan skema tabular siklus tetap dengan memodelkan "pergeseran" jangka panjang siklus lunar yang sebenarnya.
 

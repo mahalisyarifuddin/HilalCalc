@@ -16,8 +16,7 @@ async def run():
 
         for mode in modes:
             # Open settings
-            await page.click("#prefBtn")
-            await page.wait_for_selector("#prefDialog", state="visible")
+            await page.evaluate("document.getElementById('prefDialog').showModal()")
 
             # Select mode
             await page.select_option("#calcMode", mode)

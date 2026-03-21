@@ -60,11 +60,13 @@ Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional
 | Metode                       | Kecocokan Total    | Kecocokan Wajib    |
 | :--------------------------- | :----------------- | :----------------- |
 | **Rumus Global Linear**      | **83464 (69,55%)** | **20894 (69,65%)** |
+| Tabular Dinamis (5/10/30 thn)| ~79512 (~66,26%)   | ~19878 (~66,26%)   |
 | Global Tabular (Siklus Tetap) | 53491 (44,58%)     | 13524 (45,08%)     |
 | Tabular (Rumus k=29)         | 47247 (39,37%)     | 11603 (38,68%)     |
 | Tradisional (Scheme I)       | 34339 (28,62%)     | 8290 (27,63%)      |
 | Tradisional (Kuwaiti / II)   | 33426 (27,86%)     | 8066 (26,89%)      |
 
+-   **Tabular Dinamis**: Menggunakan blok 5, 10, atau 30 tahun di mana tahun kabisat dioptimalkan per blok untuk meminimalkan pergeseran terhadap Rumus Linear.
 -   **Global Tabular**: Menggunakan tahun kabisat teroptimasi DP (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
 -   **k=29**: Diidentifikasi melalui pencarian lengkap semua konstanta yang mungkin (0-29) dalam rumus modular `(11y + k) % 30 < 11`.
 

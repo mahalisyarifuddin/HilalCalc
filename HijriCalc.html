@@ -527,6 +527,10 @@
 				</select>
 			</label>
 			<label>
+				<span id="tabularCycleLabel" data-i18n="tabularCycleLabel">Tabular Cycle (Years)</span>
+				<select id="tabularCycle"><option value="5">5</option><option value="10">10</option><option value="30">30</option></select>
+			</label>
+			<label>
 				<span id="weekStartLabel" data-i18n="weekStartLabel"></span>
 				<select id="weekStart"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select>
 			</label>
@@ -560,7 +564,7 @@
 				today: 'Today',
 				formulaTitle: 'Methodology',
 				formulaDesc: 'Based on Composite Criteria (Mecca Alt≥3, Elong≥6.4; Viwa Alt≥0). Accuracy: 69.55% (1-10000 AH). Optimized for math.floor.',
-				formulaDescTabular: '30-year tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.58% (1-10000 AH). Leap years add a 30th day to Dhu al-Hijjah.',
+				formulaDescTabular: 'Tabular approximation with fixed alternating 30/29 month pattern. Accuracy: 44.58% (30Y) or ~66% (Dynamic 5/10Y). Leap years add a 30th day to Dhu al-Hijjah.',
 				prefTitle: 'Settings',
 				langLabel: 'Language',
 				themeLabel: 'Theme',
@@ -612,6 +616,7 @@
 				calcModeAstronomic: 'Local Sighting (MABBIMS)',
 				calcModeLinear: 'Global Formula (Linear)',
 				calcModeTabular: 'Global Tabular (Fixed Cycle)',
+				tabularCycleLabel: 'Tabular Cycle (Years)',
 				linearSuffix: ' (Linear)',
 				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Gregorian Calendar',
@@ -625,7 +630,7 @@
 				today: 'Hari Ini',
 				formulaTitle: 'Metodologi',
 				formulaDesc: 'Berdasarkan Kriteria Komposit (Makkah Alt≥3, Elong≥6.4; Viwa Alt≥0). Akurasi: 69.55% (1-10000 H). Dioptimalkan untuk math.floor.',
-				formulaDescTabular: 'Aproksimasi tabular 30 tahun dengan pola bulan 30/29 bergantian. Akurasi: 44,58% (1-10000 H). Tahun kabisat menambah hari ke-30 pada Dzulhijjah.',
+				formulaDescTabular: 'Aproksimasi tabular dengan pola bulan 30/29 bergantian. Akurasi: 44,58% (30 thn) atau ~66% (Dinamis 5/10 thn). Tahun kabisat menambah hari ke-30 pada Dzulhijjah.',
 				prefTitle: 'Pengaturan',
 				langLabel: 'Bahasa',
 				themeLabel: 'Tema',
@@ -677,6 +682,7 @@
 				calcModeAstronomic: 'Rukyat Lokal (MABBIMS)',
 				calcModeLinear: 'Rumus Global (Linear)',
 				calcModeTabular: 'Tabular Global (Siklus Tetap)',
+				tabularCycleLabel: 'Siklus Tabular (Tahun)',
 				linearSuffix: ' (Linear)',
 				tabularSuffix: ' (Tabular)',
 				gModeLabel: 'Kalender Masehi',
@@ -697,13 +703,15 @@
 			hijriAdj: 0,
 			primaryCalendar: 'gregorian',
 			calcMode: 'astronomic',
-			gMode: 'transition'
+			gMode: 'transition',
+			tabularCycle: 30
 		};
 
 		class HijriCalc {
 			constructor() {
 				(this.isOffline = (typeof Astronomy === 'undefined'),
 				this.cacheVersion = 6,
+				this.tabularBlockCache = {},
 				this.loadState(),
 				state.viewDate = new Date(),
 				this.setup(),
@@ -733,7 +741,8 @@
 						parsed.hijriAdj !== undefined && (state.hijriAdj = parsed.hijriAdj),
 						parsed.primaryCalendar && (state.primaryCalendar = parsed.primaryCalendar),
 						parsed.calcMode && (state.calcMode = parsed.calcMode),
-						parsed.gMode && (state.gMode = parsed.gMode);
+						parsed.gMode && (state.gMode = parsed.gMode),
+						parsed.tabularCycle !== undefined && (state.tabularCycle = parsed.tabularCycle);
 					})();
 				} catch (e) { console.error("Failed to load state", e); }
 			}
@@ -769,10 +778,11 @@
 				state.theme = elements.theme.value,
 				state.calcMode = elements.calcMode.value,
 				state.gMode = elements.gModeSelect.value,
+				state.tabularCycle = parseInt(elements.tabularCycle.value),
 				localStorage.setItem('hijriCalcState', JSON.stringify({
 					lat: state.lat, lon: state.lon, lang: state.lang, weekStart: state.weekStart,
 					hijriAdj: state.hijriAdj, primaryCalendar: state.primaryCalendar, theme: state.theme,
-					calcMode: state.calcMode, gMode: state.gMode
+					calcMode: state.calcMode, gMode: state.gMode, tabularCycle: state.tabularCycle
 				})),
 				this.applyTheme(state.theme),
 				this.updateLanguage(state.lang),
@@ -780,8 +790,8 @@
 			}
 
 			resetPreferences() {
-				[state.lat, state.lon, state.lang, state.theme, state.weekStart, state.hijriAdj, state.primaryCalendar, state.calcMode, state.gMode] =
-					[6.075, 95.1125, navigator.language?.startsWith('id') ? 'id' : 'en', 'auto', 0, 0, 'gregorian', this.isOffline ? 'linear' : 'astronomic', 'transition'],
+				[state.lat, state.lon, state.lang, state.theme, state.weekStart, state.hijriAdj, state.primaryCalendar, state.calcMode, state.gMode, state.tabularCycle] =
+					[6.075, 95.1125, navigator.language?.startsWith('id') ? 'id' : 'en', 'auto', 0, 0, 'gregorian', this.isOffline ? 'linear' : 'astronomic', 'transition', 30],
 				(elements.latInput.value = state.lat,
 				elements.lonInput.value = state.lon,
 				elements.language.value = state.lang,
@@ -791,6 +801,7 @@
 				elements.theme.value = state.theme,
 				elements.calcMode.value = state.calcMode,
 				elements.gModeSelect.value = state.gMode,
+				elements.tabularCycle.value = state.tabularCycle,
 				this.savePreferences());
 			}
 
@@ -807,6 +818,7 @@
 				elements.theme.value = state.theme,
 				elements.calcMode.value = state.calcMode,
 				elements.gModeSelect.value = state.gMode,
+				elements.tabularCycle.value = state.tabularCycle,
 				this.isOffline && (elements.calcMode.value = 'linear', elements.calcMode.disabled = true),
 				this.setDateToInput(elements.gDateInput, new Date()),
 				text.en.months.forEach((month,index)=>{
@@ -1006,6 +1018,7 @@
 				[...elements.primaryCalendar.options].forEach(opt=>opt.textContent = translation['cal' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
 				[...elements.calcMode.options].forEach(opt=>opt.textContent = translation['calcMode' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
 				[...elements.gModeSelect.options].forEach(opt=>opt.textContent = translation['gMode' + opt.value.charAt(0).toUpperCase() + opt.value.slice(1)]),
+				[...elements.tabularCycle.options].forEach(opt=>opt.textContent = opt.value + ' Years'),
 				[...elements.weekStart.options].forEach(opt=>(weekDays[parseInt(opt.value)] && (opt.textContent = weekDays[parseInt(opt.value)]))),
 				this.updateFormulaDisplay());
 			}
@@ -1013,19 +1026,49 @@
 			updateFormulaDisplay() {
 				const translation = text[state.lang], isLinear = state.calcMode === 'linear', isTabular = state.calcMode === 'tabular';
 				elements.formulaDisplay.style.whiteSpace = "pre-line",
-				elements.formulaDisplay.textContent = (isTabular ? `JD = 1948440 + (Cycle \u00b7 10631) + YearStarts[Y_in_Cycle] + MonthOffsets[M_in_Year] + Day \u2212 1` : `JD = 1948440 + floor(29.530573265 \u00b7 N + 0.236624) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`),
-				elements.formulaNote.innerHTML = isTabular ? `<i>Global Tabular (Fixed Cycle). Leap Years: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26.</i>` : `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`,
+				elements.formulaDisplay.textContent = (isTabular ? (state.tabularCycle === 30 ? `JD = 1948440 + (Cycle \u00b7 10631) + YearStarts[Y_in_Cycle] + MonthOffsets[M_in_Year] + Day \u2212 1` : `JD = BlockStart + YearStarts[Y_in_Block] + MonthOffsets[M_in_Year] + Day \u2212 1`) : `JD = 1948440 + floor(29.530573265 \u00b7 N + 0.236624) + Day \u2212 1\nN = (Year \u2212 1) \u00b7 12 + Month \u2212 1`),
+				elements.formulaNote.innerHTML = isTabular ? (state.tabularCycle === 30 ? `<i>Global Tabular (Fixed Cycle). Leap Years: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26.</i>` : `<i>Dynamic Tabular (${state.tabularCycle}Y Blocks). Leap years optimized per block.</i>`) : `<i>Global Formula (1\u201310000 AH). Epoch: 1 Muharram 1 AH = JD 1948440.</i>`,
 				elements.formulaDesc.textContent = isTabular ? translation.formulaDescTabular : translation.formulaDesc;
 			}
 
 			getLinearMonthStartJD(Index) {
 				if (state.calcMode === 'tabular') {
-					const cycle = Math.floor(Index / 360), idxInCycle = ((Index % 360) + 360) % 360, yInCycle = Math.floor(idxInCycle / 12), mInYear = idxInCycle % 12,
-						leaps = [1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26], isLeap = yInCycle => leaps.includes(yInCycle + 1);
-					let days = cycle * 10631;
-					for (let i = 0; i < yInCycle; i++) days += isLeap(i) ? 355 : 354;
-					for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;
-					return 1948440 + days;
+					const L = state.tabularCycle;
+					if (L === 30) {
+						const cycle = Math.floor(Index / 360), idxInCycle = ((Index % 360) + 360) % 360, yInCycle = Math.floor(idxInCycle / 12), mInYear = idxInCycle % 12,
+							leaps = [1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26], isLeap = y => leaps.includes(y + 1);
+						let days = cycle * 10631;
+						for (let i = 0; i < yInCycle; i++) days += isLeap(i) ? 355 : 354;
+						for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;
+						return 1948440 + days;
+					} else {
+						const block = Math.floor(Index / (L * 12)), idxInBlock = ((Index % (L * 12)) + (L * 12)) % (L * 12), yInBlock = Math.floor(idxInBlock / 12), mInYear = idxInBlock % 12;
+						const bStartIdx = block * L * 12, bNextIdx = (block + 1) * L * 12;
+						const bStartJD = 1948440 + Math.floor(29.530573265 * bStartIdx + 0.236624);
+						const bNextJD = 1948440 + Math.floor(29.530573265 * bNextIdx + 0.236624);
+						const N = (bNextJD - bStartJD) - (L * 354);
+						const cacheKey = `${L}-${block}-${N}`;
+						if (this.tabularBlockCache[cacheKey] === undefined) {
+							let bestK = 0, maxM = -1;
+							const mOffs = [0, 30, 59, 89, 118, 148, 177, 207, 236, 266, 295, 325];
+							for (let k = 0; k < L; k++) {
+								let m = 0, d = bStartJD;
+								for (let y = 1; y <= L; y++) {
+									for (let mo = 0; mo < 12; mo++) {
+										if (d + mOffs[mo] === (1948440 + Math.floor(29.530573265 * (bStartIdx + (y - 1) * 12 + mo) + 0.236624))) m++;
+									}
+									d += ((N * y + k) % L < N) ? 355 : 354;
+								}
+								if (m > maxM) { maxM = m; bestK = k; }
+							}
+							this.tabularBlockCache[cacheKey] = bestK;
+						}
+						const isLeap = y => (N * (y + 1) + this.tabularBlockCache[cacheKey]) % L < N;
+						let days = bStartJD;
+						for (let i = 0; i < yInBlock; i++) days += isLeap(i) ? 355 : 354;
+						for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;
+						return days;
+					}
 				}
 				return (1948440 + Math.floor(29.530573265 * Index + 0.236624));
 			}

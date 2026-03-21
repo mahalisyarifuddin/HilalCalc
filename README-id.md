@@ -64,9 +64,6 @@ Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional
 | 3.        | Tabular Global (30 thn k)  | 47.247          | 39,37%      | 38,68%     |
 | 4.        | Tradisional (Scheme I)     | 34.339          | 28,62%      | 27,63%     |
 | 5.        | Tradisional (Kuwaiti)      | 33.426          | 27,86%      | 26,89%     |
-| 6.        | Tabular Global (50 thn DP) | 1.770           | 1,47%       | 1,51%      |
-| 7.        | Tabular Global (10 thn DP) | 252             | 0,21%       | 0,21%      |
-| 8.        | Tabular Global (5 thn DP)  | 159             | 0,13%       | 0,13%      |
 
 -   **DP**: Tahun kabisat dioptimalkan dengan Dynamic Programming.
 -   **30 thn k**: Konstanta modular k=29 yang dioptimalkan untuk `(11y + k) % 30 < 11`.

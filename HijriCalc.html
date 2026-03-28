@@ -992,7 +992,13 @@
 					const start = this.getAccurateHijriMonthStart(newYear, newMonth);
 					state.viewDate = new Date(start.gDate.getTime() + 15 * 86400000);
 				} else {
+					// Prevent JS Date rollover (e.g. March 31 -> April 31 -> May 1)
+					// by temporarily setting to the 1st, then clamping to target month's max days
+					const currentDay = state.viewDate.getDate();
+					state.viewDate.setDate(1);
 					state.viewDate.setMonth(state.viewDate.getMonth() + delta);
+					const maxDay = new Date(state.viewDate.getFullYear(), state.viewDate.getMonth() + 1, 0).getDate();
+					state.viewDate.setDate(Math.min(currentDay, maxDay));
 				}
 				this.render();
 			}

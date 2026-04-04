@@ -929,10 +929,7 @@
 						if (state.primaryCalendar === 'hijri') {
 							const [year, month, day] = currentDateStr.split('-').map(Number);
 							const hijri = this.gregorianToHijri(new Date(year, month - 1, day));
-							let newMonth = hijri.month + delta;
-							let newYear = hijri.year;
-							while (newMonth > 12) { newMonth -= 12; newYear++; }
-							while (newMonth < 1) { newMonth += 12; newYear--; }
+							const { year: newYear, month: newMonth } = this.addHijriMonths(hijri.year, hijri.month, delta);
 							targetDate = this.hijriToGregorian(newYear, newMonth, hijri.day);
 						} else {
 							const [year, month, day] = currentDateStr.split('-').map(Number);
@@ -982,13 +979,18 @@
 				});
 			}
 
+			addHijriMonths(year, month, delta) {
+				const m = month - 1 + delta;
+				return {
+					year: year + Math.floor(m / 12),
+					month: ((m % 12) + 12) % 12 + 1
+				};
+			}
+
 			navigateMonth(delta) {
 				if (state.primaryCalendar === 'hijri') {
 					const hijri = this.gregorianToHijri(state.viewDate);
-					let newMonth = hijri.month + delta;
-					let newYear = hijri.year;
-					while (newMonth > 12) { newMonth -= 12; newYear++; }
-					while (newMonth < 1) { newMonth += 12; newYear--; }
+					const { year: newYear, month: newMonth } = this.addHijriMonths(hijri.year, hijri.month, delta);
 					const start = this.getAccurateHijriMonthStart(newYear, newMonth);
 					state.viewDate = new Date(start.gDate.getTime() + 15 * 86400000);
 				} else {
@@ -1016,12 +1018,7 @@
 				const year = parseInt(elements.hYearInput.value);
 				if (!isNaN(month) && !isNaN(year)) {
 					const currentStart = this.getAccurateHijriMonthStart(year, month);
-					let nextMonth = month + 1;
-					let nextYear = year;
-					if (nextMonth > 12) {
-						nextMonth = 1;
-						nextYear++;
-					}
+					const { year: nextYear, month: nextMonth } = this.addHijriMonths(year, month, 1);
 					const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
 					const daysInMonth = Math.round((nextStart.gDate - currentStart.gDate) / 86400000);
 
@@ -1140,11 +1137,8 @@
 			getLinearMonthStartJD(Index) {
 				if (state.calcMode === 'tabular') {
 					const cycle = Math.floor(Index / 360), idxInCycle = ((Index % 360) + 360) % 360, yInCycle = Math.floor(idxInCycle / 12), mInYear = idxInCycle % 12,
-						leaps = [1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26], isLeap = y => leaps.includes(y + 1);
-					let days = cycle * 10631;
-					for (let i = 0; i < yInCycle; i++) days += isLeap(i) ? 355 : 354;
-					for (let i = 0; i < mInYear; i++) days += (i % 2 === 0) ? 30 : 29;
-					return 1948440 + days;
+						leaps = [1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26];
+					return 1948440 + cycle * 10631 + yInCycle * 354 + leaps.filter(l => l <= yInCycle).length + Math.ceil(mInYear * 29.5);
 				}
 				return (1948440 + Math.floor(29.530573265 * Index + 0.236624));
 			}
@@ -1231,16 +1225,12 @@
 				const dateTime = date.getTime();
 				const startTime = startCurrent.gDate.getTime();
 				if (dateTime < startTime) {
-					let prevMonth = approx.month - 1;
-					let prevYear = approx.year;
-					if (prevMonth < 1) { prevMonth = 12; prevYear--; }
+					const { year: prevYear, month: prevMonth } = this.addHijriMonths(approx.year, approx.month, -1);
 					const startPrev = this.getAccurateHijriMonthStart(prevYear, prevMonth);
 					const day = Math.round((dateTime - startPrev.gDate.getTime()) / 86400000) + 1;
 					return { day: day, month: prevMonth, year: prevYear };
 				}
-				let nextMonth = approx.month + 1;
-				let nextYear = approx.year;
-				if (nextMonth > 12) { nextMonth = 1; nextYear++; }
+				const { year: nextYear, month: nextMonth } = this.addHijriMonths(approx.year, approx.month, 1);
 				const startNext = this.getAccurateHijriMonthStart(nextYear, nextMonth);
 				const nextTime = startNext.gDate.getTime();
 				if (dateTime >= nextTime) {
@@ -1404,12 +1394,7 @@
 				} else {
 					const hijri = this.gregorianToHijri(state.viewDate);
 					const currentStart = this.getAccurateHijriMonthStart(hijri.year, hijri.month);
-					let nextMonth = hijri.month + 1;
-					let nextYear = hijri.year;
-					if (nextMonth > 12) {
-						nextMonth = 1;
-						nextYear++;
-					}
+					const { year: nextYear, month: nextMonth } = this.addHijriMonths(hijri.year, hijri.month, 1);
 					const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
 
 					elements.monthDisplay.textContent = `${translation.months[hijri.month - 1]} ${hijri.year}`;
@@ -1445,13 +1430,8 @@
 				let hijriStarts = [];
 				if (isGregorianMode) {
 					const startHijri = this.gregorianToHijri(this.jdToGregorianDate(startJD));
-					let hMonthIndex = startHijri.month;
-					let hYear = startHijri.year;
 					for (let index = -1; index <= 3; index++) {
-						let month = hMonthIndex + index;
-						let year = hYear;
-						while (month > 12) { month -= 12; year++; }
-						while (month < 1) { month += 12; year--; }
+						const { year, month } = this.addHijriMonths(startHijri.year, startHijri.month, index);
 						const start = this.getAccurateHijriMonthStart(year, month);
 						hijriStarts.push({ year, month, jd: this.gregorianDateToJD(start.gDate) });
 					}
@@ -1507,24 +1487,14 @@
 						hijriMonthName = translation.months[context.hMonth - 1];
 						hijriMonthNameShort = translation.monthsShort[context.hMonth - 1];
 					} else if (jd < context.startJD) {
-						let prevMonth = context.hMonth - 1;
-						let prevYear = context.hYear;
-						if (prevMonth < 1) {
-							prevMonth += 12;
-							prevYear--;
-						}
+						const { year: prevYear, month: prevMonth } = this.addHijriMonths(context.hYear, context.hMonth, -1);
 						const prevStart = this.getAccurateHijriMonthStart(prevYear, prevMonth);
 						const prevJD = this.gregorianDateToJD(prevStart.gDate);
 						hijriDay = Math.round(jd - prevJD) + 1;
 						hijriMonthName = translation.months[prevMonth - 1];
 						hijriMonthNameShort = translation.monthsShort[prevMonth - 1];
 					} else {
-						let nextMonth = context.hMonth + 1;
-						let nextYear = context.hYear;
-						if (nextMonth > 12) {
-							nextMonth = 1;
-							nextYear++;
-						}
+						const { year: nextYear, month: nextMonth } = this.addHijriMonths(context.hYear, context.hMonth, 1);
 						const nextStart = this.getAccurateHijriMonthStart(nextYear, nextMonth);
 						const nextJD = this.gregorianDateToJD(nextStart.gDate);
 						hijriDay = Math.round(jd - nextJD) + 1;

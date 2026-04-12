@@ -894,6 +894,7 @@
 					if (day && !isNaN(month) && year) {
 						const gregorian = this.hijriToGregorian(year, month, day);
 						state.viewDate = gregorian;
+						this.updateHijriInputs(gregorian);
 						this.render();
 						this.setDateToInput(elements.gDateInput, gregorian);
 					}

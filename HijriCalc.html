@@ -6,116 +6,136 @@
 		<title>MABBIMS Hijri Calendar</title>
 		<style>
 			:root {
-				--pri: #005dac;
-				--on-pri: #fff;
-				--pri-h: #00539a;
-				--bg: #f0f4f8;
-				--sur: #fff;
-				--txt: #1a1e24;
-				--bdr: #d0d5e0;
-				--muted: #eef1f7;
-				--ok: #0b6b1d;
+				--primary: #005dac;
+				--on-primary: #ffffff;
+				--hover: #00539a;
+				--background: #f9f9ff;
+				--surface: #ffffff;
+				--text: #181c21;
+				--border: #c1c6d4;
+				--muted: #f2f3fc;
+				--success: #0b6b1d;
+				--on-success: #ffffff;
 				--danger: #ba1a1a;
-				--hi: #d4e3ff;
+				--on-danger: #ffffff;
+				--highlight-bg: #d4e3ff;
 				--accent: #f57c00;
 				--accent-bg: #fff8f0;
-				--radius: 10px;
+				--radius: 8px;
 			}
-
 			@media (prefers-color-scheme: dark) {
 				:root:not(.light) {
-					--bg:#0f1318;
-					--sur: #171c24;
-					--txt: #dde1ea;
-					--bdr: #333a47;
-					--muted: #1d2330;
-					--hi: #0a1e3a;
+					--primary: #a5c8ff;
+					--on-primary: #00315f;
+					--hover: #72adff;
+					--background: #101319;
+					--surface: #0b0e14;
+					--text: #e0e2ea;
+					--border: #414752;
+					--muted: #181c21;
+					--success: #82db7e;
+					--on-success: #00390a;
+					--danger: #ffb4ab;
+					--on-danger: #93000a;
+					--highlight-bg: #001c3a;
 					--accent-bg: #1f1600;
 				}
 			}
-
-			.dark {
-				--bg: #0f1318;
-				--sur: #171c24;
-				--txt: #dde1ea;
-				--bdr: #333a47;
-				--muted: #1d2330;
-				--hi: #0a1e3a;
+			:root.dark {
+				--primary: #a5c8ff;
+				--on-primary: #00315f;
+				--hover: #72adff;
+				--background: #101319;
+				--surface: #0b0e14;
+				--text: #e0e2ea;
+				--border: #414752;
+				--muted: #181c21;
+				--success: #82db7e;
+				--on-success: #00390a;
+				--danger: #ffb4ab;
+				--on-danger: #93000a;
+				--highlight-bg: #001c3a;
 				--accent-bg: #1f1600;
 			}
-
-			*,*::before,*::after {
+			* {
 				box-sizing: border-box;
 				margin: 0;
 				padding: 0;
 			}
-
 			*:focus-visible {
-				outline: 2px solid var(--pri);
+				outline: 2px solid var(--primary);
 				outline-offset: 2px;
 			}
-
 			body {
+				background: var(--background);
+				color: var(--text);
 				font-family: sans-serif;
-				background: var(--bg);
-				color: var(--txt);
-				min-height: 100dvh;
+				line-height: 1.25;
+				padding: 1.5rem;
+				min-height: 100vh;
+			}
+			header {
 				display: flex;
-				flex-direction: column;
+				justify-content: space-between;
 				align-items: center;
-				padding: 12px;
+				margin-bottom: 2rem;
+				max-width: 1600px;
+				margin-left: auto;
+				margin-right: auto;
 			}
-
-			.app {
-				width: 100%;
-				max-width: 520px;
-				display: flex;
-				flex-direction: column;
-				gap: 8px;
+			h1 {
+				margin: .5rem 0;
+				font-size: 2rem;
+				font-weight: 600;
 			}
-
-			.topbar {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				padding: 10px 14px;
-				background: var(--sur);
-				border: 1px solid var(--bdr);
-				border-radius: var(--radius);
-				box-shadow: var(--shadow);
+			main {
+				display: grid;
+				grid-template-columns: 330px 1fr;
+				gap: 1.5rem;
+				max-width: 1600px;
+				margin: 0 auto;
 			}
-
+			section {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 1.5rem;
+				min-width: 0;
+			}
+			.section-title {
+				margin: .5rem 0 1rem;
+				border-bottom: 1px solid var(--border);
+				padding-bottom: .75rem;
+				font-size: 1.2rem;
+				font-weight: 600;
+			}
+			#prefBtn, .nav-btn, .dlg-foot button, #myLocBtn, .close-button {
+				width: auto;
+				margin-top: 0;
+			}
+			.group {
+				background: var(--background);
+				border: 1px solid var(--border);
+				padding: 1rem;
+				border-radius: 6px;
+				margin-bottom: 1rem;
+				position: relative;
+			}
 			.topbar-info {
 				flex: 1;
 				min-width: 0;
 			}
 
-			.topbar h1 {
-				font-size: .95rem;
-				font-weight: 700;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-
 			#appSubtitle {
-				font-size: .7rem;
+				font-size: .8rem;
 				opacity: .6;
-				margin-top: 1px;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
+				margin-top: 4px;
 			}
 
 			.inputs {
 				display: flex;
 				flex-direction: column;
 				gap: 6px;
-				background: var(--sur);
-				border: 1px solid var(--bdr);
-				border-radius: var(--radius);
-				padding: 10px 12px;
-				box-shadow: var(--shadow);
 			}
 
 			.input-row {
@@ -136,40 +156,40 @@
 				display: block;
 			}
 
-			input, select {
-				background: var(--muted);
-				border: 1px solid var(--bdr);
-				border-radius: 6px;
-				color: var(--txt);
-				font-size: .875rem;
-				padding: 6px 8px;
+			input:not([type=color]):not([type=range]), textarea, select, button {
 				width: 100%;
-				transition: border-color .15s, box-shadow .15s;
+				padding: .5rem .75rem;
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				background: var(--surface);
+				color: var(--text);
+				margin-top: 4px;
+				font-family: inherit;
+				font-size: .95rem;
 			}
-
-			input:focus, select:focus {
-				border-color: var(--pri);
-				box-shadow: 0 0 0 3px color-mix(in srgb, var(--pri) 15%, transparent);
-				outline: none;
+			label {
+				display: block;
+				margin-bottom: .5rem;
+				font-weight: 500;
+				font-size: .9rem;
 			}
 
 			#hDayInput {
-				flex: .55;
+				flex: 1;
 			}
 
 			#hMonthInput {
-				flex: 1.9;
+				flex: 2;
 			}
 
 			#hYearInput {
-				flex: .85;
+				flex: 1.5;
 			}
 
 			.cal-card {
-				background: var(--sur);
-				border: 1px solid var(--bdr);
+				background: var(--surface);
+				border: 1px solid var(--border);
 				border-radius: var(--radius);
-				box-shadow: var(--shadow);
 				overflow: hidden;
 			}
 
@@ -185,7 +205,7 @@
 				text-align: center;
 			}
 
-			.cal-title h2 {
+			.cal-title-text {
 				font-size: 1rem;
 				font-weight: 700;
 			}
@@ -198,18 +218,20 @@
 
 			.nav-btn {
 				background: var(--muted);
-				border: 1px solid var(--bdr);
+				border: 1px solid var(--border);
 				border-radius: 6px;
-				color: var(--txt);
+				color: var(--text);
 				cursor: pointer;
 				font-size: .8rem;
-				padding: 5px 10px;
+				padding: 5px 8px;
 				white-space: nowrap;
 				transition: background .15s;
+				width: auto;
+				flex: none;
 			}
 
 			.nav-btn:hover {
-				background: var(--bdr);
+				background: var(--border);
 			}
 
 			.today-btn {
@@ -217,9 +239,9 @@
 				margin: 0 12px 8px;
 				width: calc(100% - 24px);
 				background: transparent;
-				border: 1px dashed var(--bdr);
+				border: 1px dashed var(--border);
 				border-radius: 6px;
-				color: var(--txt);
+				color: var(--text);
 				cursor: pointer;
 				font-size: .75rem;
 				font-weight: 600;
@@ -229,13 +251,13 @@
 
 			.today-btn:hover {
 				background: var(--muted);
-				border-color: var(--pri);
+				border-color: var(--primary);
 			}
 
 			.cal-grid {
 				display: grid;
 				grid-template-columns: repeat(7, 1fr);
-				border-top: 1px solid var(--bdr);
+				border-top: 1px solid var(--border);
 			}
 
 			.day-hdr {
@@ -244,7 +266,7 @@
 				font-size: .7rem;
 				font-weight: 700;
 				opacity: .5;
-				border-bottom: 1px solid var(--bdr);
+				border-bottom: 1px solid var(--border);
 			}
 
 			.day-hdr.fri {
@@ -274,7 +296,7 @@
 			}
 
 			.cell.fri-cell:hover {
-				background: color-mix(in srgb, var(--accent) 12%, var(--accent-bg));
+				background: var(--muted);
 			}
 
 			.cell.other {
@@ -282,24 +304,24 @@
 			}
 
 			.cell.sel {
-				background: var(--hi);
+				background: var(--highlight-bg);
 			}
 
 			.cell.sel.fri-cell {
-				background: color-mix(in srgb, var(--hi) 60%, var(--accent-bg));
+				background: var(--highlight-bg);
 			}
 
 			.cell.today::after {
 				content: '';
 				position: absolute;
 				inset: 2px;
-				border: 2px solid var(--pri);
+				border: 2px solid var(--primary);
 				border-radius: 6px;
 				pointer-events: none;
 			}
 
 			.cell.today .pdate {
-				color: var(--pri);
+				color: var(--primary);
 				font-weight: 800;
 			}
 
@@ -318,7 +340,7 @@
 			}
 
 			.sdate.new-m {
-				color: var(--ok);
+				color: var(--success);
 				opacity: 1;
 				font-weight: 700;
 			}
@@ -330,11 +352,10 @@
 			}
 
 			.detail-section {
-				background: var(--sur);
-				border: 1px solid var(--bdr);
+				background: var(--surface);
+				border: 1px solid var(--border);
 				border-radius: var(--radius);
 				padding: 8px 12px;
-				box-shadow: var(--shadow);
 			}
 
 			details summary {
@@ -360,14 +381,14 @@
 
 			details summary:hover {
 				opacity: 1;
-				color: var(--pri);
+				color: var(--primary);
 			}
 
 			.formula-box {
 				font-family: 'Courier New', monospace;
 				font-size: .78rem;
 				background: var(--muted);
-				border: 1px solid var(--bdr);
+				border: 1px solid var(--border);
 				border-radius: 6px;
 				padding: 8px;
 				margin-top: 6px;
@@ -395,8 +416,8 @@
 			}
 
 			.btn-pri {
-				background: var(--pri);
-				color: var(--on-pri);
+				background: var(--primary);
+				color: var(--on-primary);
 				border: 0;
 				padding: 7px 14px;
 				font-size: .875rem;
@@ -404,13 +425,13 @@
 			}
 
 			.btn-pri:hover {
-				background: var(--pri-h);
+				background: var(--hover);
 			}
 
 			.btn-sec {
 				background: transparent;
-				border: 1px solid var(--bdr);
-				color: var(--txt);
+				border: 1px solid var(--border);
+				color: var(--text);
 				padding: 7px 14px;
 				font-size: .875rem;
 			}
@@ -421,8 +442,8 @@
 
 			.btn-icon {
 				background: transparent;
-				border: 1px solid var(--bdr);
-				color: var(--txt);
+				border: 1px solid var(--border);
+				color: var(--text);
 				padding: 6px 10px;
 				font-size: .85rem;
 				flex-shrink: 0;
@@ -433,67 +454,43 @@
 			}
 
 			dialog {
-				background: var(--sur);
-				color: var(--txt);
-				border: 1px solid var(--bdr);
-				border-radius: var(--radius);
-				padding: 0;
+				background: var(--surface);
+				color: var(--text);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 1.5rem;
 				max-width: 400px;
-				width: calc(100% - 24px);
+				width: 100%;
+				margin: auto;
+				position: fixed;
 				box-shadow: 0 8px 40px rgba(0,0,0,.2);
 			}
-
 			dialog::backdrop {
-				background: rgba(0,0,0,.45);
+				background: rgba(0, 0, 0, 0.5);
 			}
-
-			.dlg-head {
+			.dialog-header {
 				display: flex;
-				align-items: center;
 				justify-content: space-between;
-				padding: 14px 16px 10px;
-				border-bottom: 1px solid var(--bdr);
+				align-items: center;
+				margin-bottom: 1.5rem;
 			}
-
-			.dlg-head h3 {
-				font-size: 1rem;
-				font-weight: 700;
+			.dialog-header h3 {
+				font-size: 1.25rem;
+				font-weight: 600;
 			}
-
 			.dlg-body {
-				padding: 12px 16px;
 				display: flex;
 				flex-direction: column;
 				gap: 12px;
-				max-height: 75dvh;
+				max-height: 70vh;
 				overflow-y: auto;
 			}
 
 			.dlg-foot {
-				padding: 10px 16px;
-				border-top: 1px solid var(--bdr);
 				display: flex;
 				gap: 8px;
-			}
-
-			.dlg-foot > * {
-				flex: 1;
-			}
-
-			.field {
-				display: flex;
-				flex-direction: column;
-				gap: 2px;
-			}
-
-			.field label {
-				font-size: .75rem;
-				font-weight: 600;
-				opacity: .7;
-			}
-
-			.field input, .field select {
-				background: var(--muted);
+				margin-top: 1rem;
+				justify-content: flex-end;
 			}
 
 			.field-row {
@@ -501,18 +498,8 @@
 				gap: 8px;
 			}
 
-			.field-row .field {
+			.field-row > * {
 				flex: 1;
-			}
-
-			.dlg-section {
-				background: var(--bg);
-				border: 1px solid var(--bdr);
-				border-radius: 8px;
-				padding: 10px 12px;
-				display: flex;
-				flex-direction: column;
-				gap: 8px;
 			}
 
 			.dlg-section-head {
@@ -522,18 +509,10 @@
 				margin-bottom: 4px;
 			}
 
-			.dlg-section-head span {
-				font-size: .78rem;
-				font-weight: 700;
-				opacity: .5;
-				text-transform: uppercase;
-				letter-spacing: .04em;
-			}
-
 			.btn-link {
 				background: none;
 				border: none;
-				color: var(--pri);
+				color: var(--primary);
 				font-size: .8rem;
 				padding: 0;
 				cursor: pointer;
@@ -543,23 +522,22 @@
 				text-decoration: underline;
 			}
 
-			.close-btn {
-				background: none;
-				border: none;
-				color: var(--txt);
-				font-size: 1.3rem;
+			.close-button {
+				background: transparent;
+				color: var(--text);
+				padding: .25rem;
+				font-size: 1.5rem;
 				line-height: 1;
-				padding: 2px 6px;
-				border-radius: 4px;
+				border: none;
 			}
-
-			.close-btn:hover {
-				background: var(--muted);
+			.close-button:hover {
+				background: var(--background);
+				color: var(--text);
 			}
 
 			.offline-warn {
-				background: color-mix(in srgb, var(--danger) 12%, var(--sur));
-				border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--bdr));
+				background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+				border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
 				border-radius: 8px;
 				padding: 8px 12px;
 				font-size: .8rem;
@@ -595,6 +573,12 @@
 				}
 			}
 
+			@media (max-width: 900px) {
+				main {
+					grid-template-columns: 1fr;
+				}
+			}
+
 			@media (max-width: 380px) {
 				.pdate {
 					font-size: .85rem;
@@ -611,142 +595,88 @@
 				.nav-btn {
 					padding: 5px 7px;
 					font-size: .75rem;
+					width: auto;
 				}
 			}
 		</style>
 	</head>
 	<body>
-		<div class="app">
-			<header class="topbar">
-				<div class="topbar-info">
-					<h1 id="appTitle"></h1>
-					<div id="appSubtitle"></div>
-				</div>
-				<button id="prefBtn" class="btn-icon" aria-label="Settings">⚙</button>
-			</header>
-			<section class="inputs" aria-label="Date navigation">
-				<div>
-					<span class="lbl" id="gLbl"></span>
-					<input type="date" id="gDateInput">
-				</div>
-				<div>
-					<span class="lbl" id="hLbl"></span>
-					<div class="input-row">
-						<input type="number" id="hDayInput" placeholder="D" min="1" max="30">
-						<select id="hMonthInput"></select>
-						<input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500">
+		<header>
+			<div class="topbar-info">
+				<h1 id="appTitle"></h1>
+				<div id="appSubtitle"></div>
+			</div>
+			<button id="prefBtn" class="btn-icon" aria-label="Settings">⚙ Settings</button>
+		</header>
+		<main>
+			<section>
+				<div class="section-title">Date Navigation</div>
+				<div class="inputs" aria-label="Date navigation">
+					<div class="group">
+						<label for="gDateInput" id="gLbl"></label>
+						<input type="date" id="gDateInput">
+					</div>
+					<div class="group">
+						<label id="hLbl"></label>
+						<div class="input-row">
+							<input type="number" id="hDayInput" placeholder="D" min="1" max="30" aria-label="Day">
+							<select id="hMonthInput" aria-label="Month"></select>
+							<input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500" aria-label="Year">
+						</div>
 					</div>
 				</div>
 			</section>
-			<main class="cal-card">
-				<div class="cal-head">
-					<button id="prevMonthBtn" class="nav-btn"></button>
-					<div class="cal-title">
-						<h2 id="monthDisplay"></h2>
-						<div id="hijriRangeDisplay" class="cal-subtitle"></div>
+			<section>
+				<div class="section-title">Calendar View</div>
+				<div class="cal-card">
+					<div class="cal-head">
+						<button id="prevMonthBtn" class="nav-btn"></button>
+						<div class="cal-title">
+							<div id="monthDisplay" class="cal-title-text"></div>
+							<div id="hijriRangeDisplay" class="cal-subtitle"></div>
+						</div>
+						<button id="nextMonthBtn" class="nav-btn"></button>
 					</div>
-					<button id="nextMonthBtn" class="nav-btn"></button>
+					<button id="todayBtn" class="today-btn"></button>
+					<div class="cal-grid" id="calendar" role="grid"></div>
 				</div>
-				<button id="todayBtn" class="today-btn"></button>
-				<div class="cal-grid" id="calendar" role="grid"></div>
-			</main>
-			<div class="detail-section">
-				<details>
-					<summary>
-						<span id="formulaTitle"></span>
-					</summary>
-					<pre id="formulaDisplay" class="formula-box"></pre>
-					<p id="formulaDesc" class="formula-note"></p>
-					<p id="formulaNote" class="formula-note"></p>
-					<p id="footerNote" class="footer-note"></p>
-				</details>
-			</div>
-		</div>
+				<div class="detail-section" style="margin-top: 1.5rem;">
+					<details>
+						<summary>
+							<span id="formulaTitle"></span>
+						</summary>
+						<pre id="formulaDisplay" class="formula-box"></pre>
+						<p id="formulaDesc" class="formula-note"></p>
+						<p id="formulaNote" class="formula-note"></p>
+						<p id="footerNote" class="footer-note"></p>
+					</details>
+				</div>
+			</section>
+		</main>
 		<dialog id="prefDialog">
-			<div class="dlg-head">
+			<div class="dialog-header">
 				<h3 id="prefTitle"></h3>
-				<button id="closePref" class="close-btn" aria-label="Close">&times;</button>
+				<button id="closePref" class="close-button" aria-label="Close">&times;</button>
 			</div>
-			<div class="dlg-body">
-				<div class="dlg-section">
-					<div class="dlg-section-head">
-						<span>Display</span>
-					</div>
-					<div class="field-row">
-						<div class="field">
-							<label id="langLabel"></label>
-							<select id="language">
-								<option value="en">English</option>
-								<option value="id">Bahasa Indonesia</option>
-							</select>
-						</div>
-						<div class="field">
-							<label id="themeLabel"></label>
-							<select id="theme">
-								<option value="auto">Auto</option>
-								<option value="light">Light</option>
-								<option value="dark">Dark</option>
-							</select>
-						</div>
-					</div>
-					<div class="field-row">
-						<div class="field">
-							<label id="primaryCalLabel"></label>
-							<select id="primaryCalendar">
-								<option value="gregorian">Gregorian</option>
-								<option value="hijri">Hijri</option>
-							</select>
-						</div>
-						<div class="field">
-							<label id="weekStartLabel"></label>
-							<select id="weekStart">
-								<option value="0">Sunday</option>
-								<option value="1">Monday</option>
-								<option value="6">Saturday</option>
-							</select>
-						</div>
-					</div>
-					<div class="field-row">
-						<div class="field">
-							<label id="gModeLabel"></label>
-							<select id="gModeSelect">
-								<option value="transition">Historical (1582)</option>
-								<option value="proleptic">Continuous</option>
-							</select>
-						</div>
-						<div class="field">
-							<label id="calcModeLabel"></label>
-							<select id="calcMode">
-								<option value="astronomic">MABBIMS</option>
-								<option value="linear">Linear</option>
-								<option value="tabular">Tabular</option>
-							</select>
-						</div>
-					</div>
+			<div class="group">
+				<label><span id="langLabel"></span><select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select></label>
+				<label><span id="themeLabel"></span><select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+				<label><span id="primaryCalLabel"></span><select id="primaryCalendar"><option value="gregorian">Gregorian</option><option value="hijri">Hijri</option></select></label>
+				<label><span id="weekStartLabel"></span><select id="weekStart"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select></label>
+			</div>
+			<div class="group">
+				<label><span id="gModeLabel"></span><select id="gModeSelect"><option value="transition">Historical (1582)</option><option value="proleptic">Continuous</option></select></label>
+				<label><span id="calcModeLabel"></span><select id="calcMode"><option value="astronomic">MABBIMS</option><option value="linear">Linear</option><option value="tabular">Tabular</option></select></label>
+				<div style="display: flex; justify-content: space-between; align-items: flex-end; margin: 0.5rem 0 0.25rem;">
+					<span id="locLabel" style="font-weight: 500; font-size: 0.9rem;"></span>
+					<button id="myLocBtn" class="btn-link"></button>
 				</div>
-				<div class="dlg-section">
-					<div class="dlg-section-head">
-						<span id="locLabel"></span>
-						<button id="myLocBtn" class="btn-link"></button>
-					</div>
-					<div class="field-row">
-						<div class="field">
-							<label id="latLabel"></label>
-							<input type="number" id="latInput" step="0.0001">
-						</div>
-						<div class="field">
-							<label id="lonLabel"></label>
-							<input type="number" id="lonInput" step="0.0001">
-						</div>
-					</div>
+				<div class="field-row">
+					<label><span id="latLabel"></span><input type="number" id="latInput" step="0.0001"></label>
+					<label><span id="lonLabel"></span><input type="number" id="lonInput" step="0.0001"></label>
 				</div>
-				<div class="dlg-section">
-					<div class="field">
-						<label id="adjLabel"></label>
-						<input type="number" id="hijriAdj" value="0" min="-2" max="2">
-						<small style="opacity:.6;font-size:.72rem;margin-top:3px" id="adjNote"></small>
-					</div>
-				</div>
+				<label><span id="adjLabel"></span><input type="number" id="hijriAdj" value="0" min="-2" max="2"></label>
+				<div id="adjNote" style="opacity:.6;font-size:.72rem;margin-top:-0.25rem;"></div>
 			</div>
 			<div class="dlg-foot">
 				<button id="resetPrefBtn" class="btn-sec"></button>
@@ -885,7 +815,6 @@
 			class HijriCalc {
 				constructor() {
 					this.offline = (typeof Astronomy === 'undefined');
-					this.cacheVer = 6;
 					this.cache = null;
 					this.loadState();
 					state.viewDate = new Date();
@@ -924,8 +853,7 @@
 				}
 				loadCache() {
 					try {
-						const c = JSON.parse(localStorage.getItem('hcCache') || '{}');
-						this.cache = (c.v === this.cacheVer) ? c.d : {};
+						this.cache = JSON.parse(localStorage.getItem('hcCache') || '{}');
 					} catch (e) {
 						this.cache = {};
 					}
@@ -934,10 +862,7 @@
 					clearTimeout(this._cst);
 					this._cst = setTimeout(()=>{
 						try {
-							localStorage.setItem('hcCache', JSON.stringify({
-								v: this.cacheVer,
-								d: this.cache
-							}));
+							localStorage.setItem('hcCache', JSON.stringify(this.cache));
 						} catch (e) {}
 					}
 					, 1000);
@@ -948,7 +873,7 @@
 					w.className = 'offline-warn';
 					w.setAttribute('data-i18n', 'offlineWarning');
 					w.textContent = T[state.lang].offlineWarning;
-					document.querySelector('.app').insertBefore(w, document.querySelector('.app').firstChild);
+					document.body.prepend(w);
 				}
 				applyTheme(t) {
 					document.documentElement.className = t === 'auto' ? '' : t;
@@ -1158,6 +1083,7 @@
 					$('myLocBtn').textContent = tr.myLoc;
 					$('savePrefBtn').textContent = tr.save;
 					$('resetPrefBtn').textContent = tr.reset;
+					this.updateHMonthTooltip();
 					$('todayBtn').textContent = tr.today;
 					$('prevMonthBtn').textContent = tr.prevBtn;
 					$('nextMonthBtn').textContent = tr.nextBtn;
@@ -1182,11 +1108,18 @@
 					$('hMonthInput').value = String(h.month);
 					$('hYearInput').value = h.year;
 					this.updateHDayLimit();
+					this.updateHMonthTooltip();
+				}
+				updateHMonthTooltip() {
+					const m = parseInt($('hMonthInput').value);
+					if (!isNaN(m))
+						$('hMonthInput').title = T[state.lang].months[m - 1];
 				}
 				updateHDayLimit() {
 					const m = parseInt($('hMonthInput').value)
 					  , y = parseInt($('hYearInput').value);
 					if (!isNaN(m) && !isNaN(y)) {
+						this.updateHMonthTooltip();
 						const s1 = this.getMonthStart(y, m);
 						const {year: ny, month: nm} = this.addMonths(y, m, 1);
 						const s2 = this.getMonthStart(ny, nm);

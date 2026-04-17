@@ -88,11 +88,6 @@
 				font-size: 2rem;
 				font-weight: 600;
 			}
-			#prefBtn {
-				width: auto;
-				margin-top: 0;
-			}
-
 			main {
 				display: grid;
 				grid-template-columns: 330px 1fr;
@@ -107,12 +102,16 @@
 				padding: 1.5rem;
 				min-width: 0;
 			}
-			h2 {
+			.section-title {
 				margin: .5rem 0 1rem;
 				border-bottom: 1px solid var(--border);
 				padding-bottom: .75rem;
 				font-size: 1.2rem;
 				font-weight: 600;
+			}
+			#prefBtn, .nav-btn, .dlg-foot button, #myLocBtn, .close-button {
+				width: auto;
+				margin-top: 0;
 			}
 			.group {
 				background: var(--background);
@@ -137,10 +136,6 @@
 				display: flex;
 				flex-direction: column;
 				gap: 6px;
-				background: var(--surface);
-				border: 1px solid var(--border);
-				border-radius: var(--radius);
-				padding: 10px 12px;
 			}
 
 			.input-row {
@@ -172,17 +167,23 @@
 				font-family: inherit;
 				font-size: .95rem;
 			}
+			label {
+				display: block;
+				margin-bottom: .5rem;
+				font-weight: 500;
+				font-size: .9rem;
+			}
 
 			#hDayInput {
-				flex: .55;
+				flex: 1;
 			}
 
 			#hMonthInput {
-				flex: 1.9;
+				flex: 2;
 			}
 
 			#hYearInput {
-				flex: .85;
+				flex: 1.5;
 			}
 
 			.cal-card {
@@ -204,7 +205,7 @@
 				text-align: center;
 			}
 
-			.cal-title h2 {
+			.cal-title-text {
 				font-size: 1rem;
 				font-weight: 700;
 			}
@@ -222,9 +223,11 @@
 				color: var(--text);
 				cursor: pointer;
 				font-size: .8rem;
-				padding: 5px 10px;
+				padding: 5px 8px;
 				white-space: nowrap;
 				transition: background .15s;
+				width: auto;
+				flex: none;
 			}
 
 			.nav-btn:hover {
@@ -460,6 +463,7 @@
 				width: 100%;
 				margin: auto;
 				position: fixed;
+				box-shadow: 0 8px 40px rgba(0,0,0,.2);
 			}
 			dialog::backdrop {
 				background: rgba(0, 0, 0, 0.5);
@@ -483,30 +487,10 @@
 			}
 
 			.dlg-foot {
-				padding: 10px 16px;
-				border-top: 1px solid var(--border);
 				display: flex;
 				gap: 8px;
-			}
-
-			.dlg-foot > * {
-				flex: 1;
-			}
-
-			.field {
-				display: flex;
-				flex-direction: column;
-				gap: 2px;
-			}
-
-			.field label {
-				font-size: .75rem;
-				font-weight: 600;
-				opacity: .7;
-			}
-
-			.field input, .field select {
-				background: var(--muted);
+				margin-top: 1rem;
+				justify-content: flex-end;
 			}
 
 			.field-row {
@@ -514,18 +498,8 @@
 				gap: 8px;
 			}
 
-			.field-row .field {
+			.field-row > * {
 				flex: 1;
-			}
-
-			.dlg-section {
-				background: var(--background);
-				border: 1px solid var(--border);
-				border-radius: 8px;
-				padding: 10px 12px;
-				display: flex;
-				flex-direction: column;
-				gap: 8px;
 			}
 
 			.dlg-section-head {
@@ -533,14 +507,6 @@
 				align-items: center;
 				justify-content: space-between;
 				margin-bottom: 4px;
-			}
-
-			.dlg-section-head span {
-				font-size: .78rem;
-				font-weight: 700;
-				opacity: .5;
-				text-transform: uppercase;
-				letter-spacing: .04em;
 			}
 
 			.btn-link {
@@ -629,6 +595,7 @@
 				.nav-btn {
 					padding: 5px 7px;
 					font-size: .75rem;
+					width: auto;
 				}
 			}
 		</style>
@@ -643,29 +610,29 @@
 		</header>
 		<main>
 			<section>
-				<h2 id="gDateNavLabel">Date navigation</h2>
+				<div class="section-title">Date Navigation</div>
 				<div class="inputs" aria-label="Date navigation">
 					<div class="group">
-						<span class="lbl" id="gLbl"></span>
+						<label for="gDateInput" id="gLbl"></label>
 						<input type="date" id="gDateInput">
 					</div>
 					<div class="group">
-						<span class="lbl" id="hLbl"></span>
+						<label id="hLbl"></label>
 						<div class="input-row">
-							<input type="number" id="hDayInput" placeholder="D" min="1" max="30">
-							<select id="hMonthInput"></select>
-							<input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500">
+							<input type="number" id="hDayInput" placeholder="D" min="1" max="30" aria-label="Day">
+							<select id="hMonthInput" aria-label="Month"></select>
+							<input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500" aria-label="Year">
 						</div>
 					</div>
 				</div>
 			</section>
 			<section>
-				<h2 id="calViewLabel">Calendar View</h2>
+				<div class="section-title">Calendar View</div>
 				<div class="cal-card">
 					<div class="cal-head">
 						<button id="prevMonthBtn" class="nav-btn"></button>
 						<div class="cal-title">
-							<h2 id="monthDisplay"></h2>
+							<div id="monthDisplay" class="cal-title-text"></div>
 							<div id="hijriRangeDisplay" class="cal-subtitle"></div>
 						</div>
 						<button id="nextMonthBtn" class="nav-btn"></button>
@@ -691,87 +658,25 @@
 				<h3 id="prefTitle"></h3>
 				<button id="closePref" class="close-button" aria-label="Close">&times;</button>
 			</div>
-			<div class="dlg-body">
-				<div class="group">
-					<div class="field-row">
-						<div class="field">
-							<label id="langLabel"></label>
-							<select id="language">
-								<option value="en">English</option>
-								<option value="id">Bahasa Indonesia</option>
-							</select>
-						</div>
-						<div class="field">
-							<label id="themeLabel"></label>
-							<select id="theme">
-								<option value="auto">Auto</option>
-								<option value="light">Light</option>
-								<option value="dark">Dark</option>
-							</select>
-						</div>
-					</div>
+			<div class="group">
+				<label><span id="langLabel"></span><select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select></label>
+				<label><span id="themeLabel"></span><select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+				<label><span id="primaryCalLabel"></span><select id="primaryCalendar"><option value="gregorian">Gregorian</option><option value="hijri">Hijri</option></select></label>
+				<label><span id="weekStartLabel"></span><select id="weekStart"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select></label>
+			</div>
+			<div class="group">
+				<label><span id="gModeLabel"></span><select id="gModeSelect"><option value="transition">Historical (1582)</option><option value="proleptic">Continuous</option></select></label>
+				<label><span id="calcModeLabel"></span><select id="calcMode"><option value="astronomic">MABBIMS</option><option value="linear">Linear</option><option value="tabular">Tabular</option></select></label>
+				<div style="display: flex; justify-content: space-between; align-items: flex-end; margin: 0.5rem 0 0.25rem;">
+					<span id="locLabel" style="font-weight: 500; font-size: 0.9rem;"></span>
+					<button id="myLocBtn" class="btn-link"></button>
 				</div>
-				<div class="group">
-					<div class="field-row">
-						<div class="field">
-							<label id="primaryCalLabel"></label>
-							<select id="primaryCalendar">
-								<option value="gregorian">Gregorian</option>
-								<option value="hijri">Hijri</option>
-							</select>
-						</div>
-						<div class="field">
-							<label id="weekStartLabel"></label>
-							<select id="weekStart">
-								<option value="0">Sunday</option>
-								<option value="1">Monday</option>
-								<option value="6">Saturday</option>
-							</select>
-						</div>
-					</div>
+				<div class="field-row">
+					<label><span id="latLabel"></span><input type="number" id="latInput" step="0.0001"></label>
+					<label><span id="lonLabel"></span><input type="number" id="lonInput" step="0.0001"></label>
 				</div>
-				<div class="group">
-					<div class="field-row">
-						<div class="field">
-							<label id="gModeLabel"></label>
-							<select id="gModeSelect">
-								<option value="transition">Historical (1582)</option>
-								<option value="proleptic">Continuous</option>
-							</select>
-						</div>
-						<div class="field">
-							<label id="calcModeLabel"></label>
-							<select id="calcMode">
-								<option value="astronomic">MABBIMS</option>
-								<option value="linear">Linear</option>
-								<option value="tabular">Tabular</option>
-							</select>
-						</div>
-					</div>
-				</div>
-				<div class="group">
-					<div class="dlg-section-head">
-						<span id="locLabel"></span>
-						<button id="myLocBtn" class="btn-link"></button>
-					</div>
-					<div class="field-row">
-						<div class="field">
-							<label id="latLabel"></label>
-							<input type="number" id="latInput" step="0.0001">
-						</div>
-						<div class="field">
-							<label id="lonLabel"></label>
-							<input type="number" id="lonInput" step="0.0001">
-						</div>
-					</div>
-				</div>
-				<div class="group">
-					<div class="field">
-						<label id="adjLabel"></label>
-						<input type="number" id="hijriAdj" value="0" min="-2" max="2">
-						<small style="opacity:.6;font-size:.72rem;margin-top:3px" id="adjNote"></small>
-					</div>
-				</div>
+				<label><span id="adjLabel"></span><input type="number" id="hijriAdj" value="0" min="-2" max="2"></label>
+				<div id="adjNote" style="opacity:.6;font-size:.72rem;margin-top:-0.25rem;"></div>
 			</div>
 			<div class="dlg-foot">
 				<button id="resetPrefBtn" class="btn-sec"></button>
@@ -780,6 +685,7 @@
 		</dialog>
 		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 		<script>
+			const CACHE_VERSION = 6;
 			const T = {
 				en: {
 					appTitle: 'MABBIMS Hijri Calendar',
@@ -797,8 +703,6 @@
 					save: 'Save & Close',
 					reset: 'Reset',
 					closeLabel: 'Close',
-					gDateNavLabel: 'Date Navigation',
-					calViewLabel: 'Calendar View',
 					myLoc: 'Use my location',
 					locating: 'Locating…',
 					months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
@@ -854,8 +758,6 @@
 					save: 'Simpan & Tutup',
 					reset: 'Atur Ulang',
 					closeLabel: 'Tutup',
-					gDateNavLabel: 'Navigasi Tanggal',
-					calViewLabel: 'Tampilan Kalender',
 					myLoc: 'Gunakan lokasi saya',
 					locating: 'Mencari…',
 					months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
@@ -914,7 +816,6 @@
 			class HijriCalc {
 				constructor() {
 					this.offline = (typeof Astronomy === 'undefined');
-					this.cacheVer = 6;
 					this.cache = null;
 					this.loadState();
 					state.viewDate = new Date();
@@ -954,7 +855,7 @@
 				loadCache() {
 					try {
 						const c = JSON.parse(localStorage.getItem('hcCache') || '{}');
-						this.cache = (c.v === this.cacheVer) ? c.d : {};
+						this.cache = (c.v === CACHE_VERSION) ? c.d : {};
 					} catch (e) {
 						this.cache = {};
 					}
@@ -964,7 +865,7 @@
 					this._cst = setTimeout(()=>{
 						try {
 							localStorage.setItem('hcCache', JSON.stringify({
-								v: this.cacheVer,
+								v: CACHE_VERSION,
 								d: this.cache
 							}));
 						} catch (e) {}
@@ -977,7 +878,7 @@
 					w.className = 'offline-warn';
 					w.setAttribute('data-i18n', 'offlineWarning');
 					w.textContent = T[state.lang].offlineWarning;
-					document.body.insertBefore(w, document.body.firstChild);
+					document.body.prepend(w);
 				}
 				applyTheme(t) {
 					document.documentElement.className = t === 'auto' ? '' : t;
@@ -1187,8 +1088,6 @@
 					$('myLocBtn').textContent = tr.myLoc;
 					$('savePrefBtn').textContent = tr.save;
 					$('resetPrefBtn').textContent = tr.reset;
-					$('gDateNavLabel').textContent = tr.gDateNavLabel;
-					$('calViewLabel').textContent = tr.calViewLabel;
 					$('todayBtn').textContent = tr.today;
 					$('prevMonthBtn').textContent = tr.prevBtn;
 					$('nextMonthBtn').textContent = tr.nextBtn;

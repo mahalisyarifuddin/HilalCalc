@@ -685,7 +685,6 @@
 		</dialog>
 		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 		<script>
-			const CACHE_VERSION = 6;
 			const T = {
 				en: {
 					appTitle: 'MABBIMS Hijri Calendar',
@@ -702,6 +701,7 @@
 					adjLabel: 'Hijri Adjustment (days)',
 					save: 'Save & Close',
 					reset: 'Reset',
+					hMonthLabel: 'Hijri month',
 					closeLabel: 'Close',
 					myLoc: 'Use my location',
 					locating: 'Locating…',
@@ -757,6 +757,7 @@
 					adjLabel: 'Penyesuaian Hijriyah (hari)',
 					save: 'Simpan & Tutup',
 					reset: 'Atur Ulang',
+					hMonthLabel: 'Bulan Hijriyah',
 					closeLabel: 'Tutup',
 					myLoc: 'Gunakan lokasi saya',
 					locating: 'Mencari…',
@@ -854,8 +855,7 @@
 				}
 				loadCache() {
 					try {
-						const c = JSON.parse(localStorage.getItem('hcCache') || '{}');
-						this.cache = (c.v === CACHE_VERSION) ? c.d : {};
+						this.cache = JSON.parse(localStorage.getItem('hcCache') || '{}');
 					} catch (e) {
 						this.cache = {};
 					}
@@ -864,10 +864,7 @@
 					clearTimeout(this._cst);
 					this._cst = setTimeout(()=>{
 						try {
-							localStorage.setItem('hcCache', JSON.stringify({
-								v: CACHE_VERSION,
-								d: this.cache
-							}));
+							localStorage.setItem('hcCache', JSON.stringify(this.cache));
 						} catch (e) {}
 					}
 					, 1000);
@@ -1088,6 +1085,7 @@
 					$('myLocBtn').textContent = tr.myLoc;
 					$('savePrefBtn').textContent = tr.save;
 					$('resetPrefBtn').textContent = tr.reset;
+					$('hMonthInput').title = tr.hMonthLabel;
 					$('todayBtn').textContent = tr.today;
 					$('prevMonthBtn').textContent = tr.prevBtn;
 					$('nextMonthBtn').textContent = tr.nextBtn;

@@ -296,7 +296,7 @@
 			}
 
 			.cell.fri-cell:hover {
-				background: color-mix(in srgb, var(--accent) 12%, var(--accent-bg));
+				background: var(--muted);
 			}
 
 			.cell.other {
@@ -308,7 +308,7 @@
 			}
 
 			.cell.sel.fri-cell {
-				background: color-mix(in srgb, var(--highlight-bg) 60%, var(--accent-bg));
+				background: var(--highlight-bg);
 			}
 
 			.cell.today::after {
@@ -701,7 +701,6 @@
 					adjLabel: 'Hijri Adjustment (days)',
 					save: 'Save & Close',
 					reset: 'Reset',
-					hMonthLabel: 'Hijri month',
 					closeLabel: 'Close',
 					myLoc: 'Use my location',
 					locating: 'Locating…',
@@ -757,7 +756,6 @@
 					adjLabel: 'Penyesuaian Hijriyah (hari)',
 					save: 'Simpan & Tutup',
 					reset: 'Atur Ulang',
-					hMonthLabel: 'Bulan Hijriyah',
 					closeLabel: 'Tutup',
 					myLoc: 'Gunakan lokasi saya',
 					locating: 'Mencari…',
@@ -1085,7 +1083,7 @@
 					$('myLocBtn').textContent = tr.myLoc;
 					$('savePrefBtn').textContent = tr.save;
 					$('resetPrefBtn').textContent = tr.reset;
-					$('hMonthInput').title = tr.hMonthLabel;
+					this.updateHMonthTooltip();
 					$('todayBtn').textContent = tr.today;
 					$('prevMonthBtn').textContent = tr.prevBtn;
 					$('nextMonthBtn').textContent = tr.nextBtn;
@@ -1110,11 +1108,18 @@
 					$('hMonthInput').value = String(h.month);
 					$('hYearInput').value = h.year;
 					this.updateHDayLimit();
+					this.updateHMonthTooltip();
+				}
+				updateHMonthTooltip() {
+					const m = parseInt($('hMonthInput').value);
+					if (!isNaN(m))
+						$('hMonthInput').title = T[state.lang].months[m - 1];
 				}
 				updateHDayLimit() {
 					const m = parseInt($('hMonthInput').value)
 					  , y = parseInt($('hYearInput').value);
 					if (!isNaN(m) && !isNaN(y)) {
+						this.updateHMonthTooltip();
 						const s1 = this.getMonthStart(y, m);
 						const {year: ny, month: nm} = this.addMonths(y, m, 1);
 						const s2 = this.getMonthStart(ny, nm);

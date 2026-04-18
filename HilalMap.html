@@ -284,8 +284,8 @@
 		</div>
 		<h1 id="mapTitle">Hilal Visibility Map</h1>
 		<div class="tabs" role="tablist">
-			<button id="tabMap" class="tab active" role="tab" aria-selected="true" aria-controls="mapView">Map</button>
-			<button id="tabCalc" class="tab" role="tab" aria-selected="false" aria-controls="calcView">Detailed Calculations</button>
+			<button id="tabMap" class="tab active" role="tab" aria-selected="true" aria-controls="mapView"></button>
+			<button id="tabCalc" class="tab" role="tab" aria-selected="false" aria-controls="calcView"></button>
 		</div>
 		<div id="mapView" role="tabpanel" aria-labelledby="tabMap">
 			<div id="controls">
@@ -326,9 +326,9 @@
 			</div>
 			<div id="map-container">
 				<div class="map-controls">
-					<button id="zoom-in" title="Zoom In" aria-label="Zoom In">+</button>
-					<button id="zoom-out" title="Zoom Out" aria-label="Zoom Out">−</button>
-					<button id="zoom-reset" title="Reset" aria-label="Reset Zoom">⟲</button>
+						<button id="zoom-in" title="Zoom In">+</button>
+						<button id="zoom-out" title="Zoom Out">−</button>
+						<button id="zoom-reset" title="Reset">⟲</button>
 				</div>
 				<div id="map-wrapper">
 					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Mercator_projection_SW.jpg" alt="World Map" draggable="false">
@@ -410,10 +410,16 @@
 				moonAzimuth: "Moon Azimuth",
 				moonAge: "Moon Age",
 				illuminatedFraction: "Illuminated Fraction",
+				unitDays: "days",
 				locating: "Locating...",
 				autoTheme: "Auto",
 				lightTheme: "Light",
 				darkTheme: "Dark",
+				tabMap: "Map",
+				tabCalc: "Detailed Calculations",
+				zoomIn: "Zoom In",
+				zoomOut: "Zoom Out",
+				zoomReset: "Reset Zoom",
 				regionIndonesia: 'Indonesia',
 				regionWorld: 'World',
 				criteriaMabbims: 'MABBIMS (Alt≥3°, Elong≥6.4°)',
@@ -427,7 +433,15 @@
 				minAltLabel: "Min Altitude (degrees)",
 				minElongLabel: "Min Elongation (degrees)",
 				calcMinAltLabel: "Min Altitude (degrees)",
-				calcMinElongLabel: "Min Elongation (degrees)"
+				calcMinElongLabel: "Min Elongation (degrees)",
+				errorLocation: "Error getting location: ",
+				errorGeo: "Geolocation is not supported by this browser.",
+				errorSun: "Error: Sun does not set on this date/location.",
+				errorFill: "Please fill in all fields correctly.",
+				placeholderLat: "e.g., -6.2088",
+				placeholderLon: "e.g., 106.8456",
+				langLabel: "Language",
+				themeLabel: "Theme"
 			},
 			id: {
 				mapTitle: "Peta Visibilitas Hilal",
@@ -453,14 +467,20 @@
 				moonAzimuth: "Azimuth Bulan",
 				moonAge: "Umur Bulan",
 				illuminatedFraction: "Fraksi Teriluminasi",
+				unitDays: "hari",
 				locating: "Mencari lokasi...",
 				autoTheme: "Otomatis",
 				lightTheme: "Terang",
 				darkTheme: "Gelap",
+				tabMap: "Peta",
+				tabCalc: "Kalkulasi Detail",
+				zoomIn: "Perbesar",
+				zoomOut: "Perkecil",
+				zoomReset: "Atur Ulang Zoom",
 				regionIndonesia: 'Indonesia',
 				regionWorld: 'Dunia',
-				criteriaMabbims: 'MABBIMS (Alt≥3°, Elong≥6.4°)',
-				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°)',
+				criteriaMabbims: 'MABBIMS (Tinggi≥3°, Elongasi≥6.4°)',
+				criteriaGic: 'Global Islamic (Tinggi≥5°, Elongasi≥8°)',
 				criteriaAlt0: 'Tinggi Bulan > 0°',
 				criteriaCustom: 'Kriteria Kustom',
 				utcPlaceholder: 'contoh: 7',
@@ -470,7 +490,15 @@
 				minAltLabel: "Min Ketinggian (derajat)",
 				minElongLabel: "Min Elongasi (derajat)",
 				calcMinAltLabel: "Min Ketinggian (derajat)",
-				calcMinElongLabel: "Min Elongasi (derajat)"
+				calcMinElongLabel: "Min Elongasi (derajat)",
+				errorLocation: "Gagal mendapatkan lokasi: ",
+				errorGeo: "Geolokasi tidak didukung oleh peramban ini.",
+				errorSun: "Kesalahan: Matahari tidak terbenam pada tanggal/lokasi ini.",
+				errorFill: "Harap isi semua bidang dengan benar.",
+				placeholderLat: "contoh: -6.2088",
+				placeholderLon: "contoh: 106.8456",
+				langLabel: "Bahasa",
+				themeLabel: "Tema"
 			}
 		};
 
@@ -696,8 +724,16 @@ self.onmessage = e => {
 			lang(language) {
 				this.language = elements.language.value = document.documentElement.lang = language;
 				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.string(key); });
+				elements['zoom-in'].title = this.string("zoomIn");
+				elements['zoom-in'].setAttribute('aria-label', this.string("zoomIn"));
+				elements['zoom-out'].title = this.string("zoomOut");
+				elements['zoom-out'].setAttribute('aria-label', this.string("zoomOut"));
+				elements['zoom-reset'].title = this.string("zoomReset");
+				elements['zoom-reset'].setAttribute('aria-label', this.string("zoomReset"));
 				[...elements.theme.options].forEach(option=>option.textContent = this.string(option.value + "Theme"));
 				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.string("utcPlaceholder");
+				if (elements.calcLat) elements.calcLat.placeholder = this.string("placeholderLat");
+				if (elements.calcLon) elements.calcLon.placeholder = this.string("placeholderLon");
 
 				const translateOptions = (selectId,prefix)=>{
 					[...elements[selectId].options].forEach(option=>{
@@ -757,13 +793,13 @@ self.onmessage = e => {
 							button.innerHTML = originalText;
 						},
 						e => {
-							alert("Error getting location: " + e.message);
+							alert(this.string("errorLocation") + e.message);
 							button.disabled = false;
 							button.innerHTML = originalText;
 						}
 					);
 				} else {
-					alert("Geolocation is not supported by this browser.");
+					alert(this.string("errorGeo"));
 					button.disabled = false;
 					button.innerHTML = originalText;
 				}
@@ -774,7 +810,7 @@ self.onmessage = e => {
 				const longitude = parseFloat(elements.calcLon.value);
 				const dateString = elements.calcDate.value;
 				const criteria = elements.calcCriteria.value;
-				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert("Please fill in all fields correctly.");
+				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert(this.string("errorFill"));
 				else this.calculateDetailsInner(latitude, longitude, dateString, criteria);
 			}
 
@@ -786,7 +822,7 @@ self.onmessage = e => {
 				const startUT = date.ut - (longitude / 15 / 24);
 				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
 				if (!sunset) {
-					elements.results.innerHTML = "<div class=\"result-card\">Error: Sun does not set on this date/location.</div>";
+					elements.results.innerHTML = `<div class="result-card">${this.string("errorSun")}</div>`;
 					return;
 				}
 				this.calculateDetailsWithSunset(sunset, observer, date, criteria);
@@ -837,7 +873,7 @@ self.onmessage = e => {
 					{label:"moonAlt",value:moonHor.altitude.toFixed(2) + "°"},
 					{label:"moonElong",value:elongation.toFixed(2) + "°"},
 					{label:"moonAzimuth",value:moonHor.azimuth.toFixed(2) + "°"},
-					{label:"moonAge",value:ageInDays.toFixed(2) + " days"},
+					{label:"moonAge",value:ageInDays.toFixed(2) + " " + this.string("unitDays")},
 					{label:"illuminatedFraction",value:(moonPhase.phase_fraction * 100).toFixed(2) + "%"}
 				];
 

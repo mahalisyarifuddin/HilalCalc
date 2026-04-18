@@ -605,11 +605,11 @@
 				<h1 id="appTitle"></h1>
 				<div id="appSubtitle"></div>
 			</div>
-			<button id="prefBtn" class="btn-icon" aria-label="Settings">⚙ Settings</button>
+			<button id="prefBtn" class="btn-icon" data-i18n-aria="prefTitle"></button>
 		</header>
 		<main>
 			<section>
-				<div class="section-title">Date Navigation</div>
+				<div class="section-title" id="navTitle"></div>
 				<div class="inputs" aria-label="Date navigation">
 					<div class="group">
 						<label for="gDateInput" id="gLbl"></label>
@@ -626,7 +626,7 @@
 				</div>
 			</section>
 			<section>
-				<div class="section-title">Calendar View</div>
+				<div class="section-title" id="calTitle"></div>
 				<div class="cal-card">
 					<div class="cal-head">
 						<button id="prevMonthBtn" class="nav-btn"></button>
@@ -687,11 +687,18 @@
 			const T = {
 				en: {
 					appTitle: 'MABBIMS Hijri Calendar',
+					navTitle: 'Date Navigation',
+					calTitle: 'Calendar View',
 					today: 'Today',
 					formulaTitle: 'Methodology',
-					formulaDesc: 'Composite Criteria (Mecca Alt≥3°, Elong≥6.4°; Viwa Alt≥0°). Accuracy: 69.55% (1–10000 AH).',
-					formulaDescTabular: '30-year tabular cycle, fixed 30/29 month pattern. Accuracy: 44.58% (1–10000 AH).',
+					formulaDescMabbims: 'Local sighting simulation. MABBIMS: Altitude ≥ 3°, Elongation ≥ 6.4°.',
+					formulaDescLinear: 'Global approximation (Composite: Mecca + Viwa). Accuracy: 69.55% (1–10000 AH).',
+					formulaDescTabular: 'Fixed 30-year cycle. Accuracy: 44.58% (1–10000 AH).',
+					epoch: 'Epoch',
+					leapYears: 'Leap years',
+					ofCycle: 'of 30-yr cycle',
 					prefTitle: 'Settings',
+					prefBtn: '⚙ Settings',
 					langLabel: 'Language',
 					themeLabel: 'Theme',
 					primaryCalLabel: 'Main View',
@@ -709,6 +716,8 @@
 					footer: '* Dates start at sunset. MABBIMS: Alt ≥ 3°, Elong ≥ 6.4°.',
 					gDateLabel: 'Gregorian date',
 					hDateLabel: 'Hijri date',
+					hDay: 'D',
+					hYear: 'Year',
 					prevBtn: '← Prev',
 					nextBtn: 'Next →',
 					offlineWarning: 'Offline: Linear approximation active',
@@ -723,6 +732,9 @@
 					calcModeTabular: 'Tabular',
 					linearSuffix: ' (Linear)',
 					tabularSuffix: ' (Tabular)',
+					criteria: 'Criteria',
+					altitude: 'Altitude',
+					elongation: 'Elongation',
 					gModeLabel: 'Gregorian mode',
 					gModeTransition: 'Historical (1582)',
 					gModeProleptic: 'Continuous',
@@ -742,11 +754,18 @@
 				},
 				id: {
 					appTitle: 'Kalender Hijriyah MABBIMS',
+					navTitle: 'Navigasi Tanggal',
+					calTitle: 'Tampilan Kalender',
 					today: 'Hari Ini',
 					formulaTitle: 'Metodologi',
-					formulaDesc: 'Kriteria Komposit (Makkah Alt≥3°, Elong≥6.4°; Viwa Alt≥0°). Akurasi: 69.55% (1–10000 H).',
-					formulaDescTabular: 'Tabular 30 tahun, pola 30/29 bergantian. Akurasi: 44.58% (1–10000 H).',
+					formulaDescMabbims: 'Simulasi rukyat lokal. MABBIMS: Tinggi ≥ 3°, Elongasi ≥ 6.4°.',
+					formulaDescLinear: 'Aproksimasi global (Komposit: Mekkah + Pulau Viwa). Akurasi: 69.55% (1–10000 H).',
+					formulaDescTabular: 'Siklus tetap 30 tahun. Akurasi: 44.58% (1–10000 H).',
+					epoch: 'Epoh',
+					leapYears: 'Tahun kabisat',
+					ofCycle: 'dalam siklus 30 tahun',
 					prefTitle: 'Pengaturan',
+					prefBtn: '⚙ Pengaturan',
 					langLabel: 'Bahasa',
 					themeLabel: 'Tema',
 					primaryCalLabel: 'Tampilan Utama',
@@ -764,6 +783,8 @@
 					footer: '* Tanggal dimulai saat maghrib. MABBIMS: Alt ≥ 3°, Elong ≥ 6.4°.',
 					gDateLabel: 'Tanggal Masehi',
 					hDateLabel: 'Tanggal Hijriyah',
+					hDay: 'Tgl',
+					hYear: 'Tahun',
 					prevBtn: '← Sblm',
 					nextBtn: 'Lanjut →',
 					offlineWarning: 'Offline: Menggunakan aproksimasi linear',
@@ -778,6 +799,9 @@
 					calcModeTabular: 'Tabular',
 					linearSuffix: ' (Linear)',
 					tabularSuffix: ' (Tabular)',
+					criteria: 'Kriteria',
+					altitude: 'Tinggi',
+					elongation: 'Elongasi',
 					gModeLabel: 'Mode Masehi',
 					gModeTransition: 'Sejarah (1582)',
 					gModeProleptic: 'Berkelanjutan',
@@ -1057,6 +1081,12 @@
 
 				updateLang(lang) {
 					const tr = T[lang];
+					document.querySelectorAll('[data-i18n-aria]').forEach(el=>{
+						const key = el.getAttribute('data-i18n-aria');
+						if (tr[key])
+							el.setAttribute('aria-label', tr[key]);
+					}
+					);
 					document.title = tr.appTitle;
 					$('appTitle').textContent = tr.appTitle;
 					let sfx = '';
@@ -1067,6 +1097,8 @@
 					else if (state.calcMode === 'tabular')
 						sfx = tr.tabularSuffix;
 					$('appSubtitle').textContent = this.fmtCoords(state.lat, state.lon) + sfx;
+					$('navTitle').textContent = tr.navTitle;
+					$('calTitle').textContent = tr.calTitle;
 					$('gLbl').textContent = tr.gDateLabel;
 					$('hLbl').textContent = tr.hDateLabel;
 					$('prefTitle').textContent = tr.prefTitle;
@@ -1079,9 +1111,12 @@
 					$('lonLabel').textContent = tr.lonLabel;
 					$('adjLabel').textContent = tr.adjLabel;
 					$('adjNote').textContent = tr.adjNote;
+					$('hDayInput').placeholder = tr.hDay;
+					$('hYearInput').placeholder = tr.hYear;
 					$('myLocBtn').textContent = tr.myLoc;
 					$('savePrefBtn').textContent = tr.save;
 					$('resetPrefBtn').textContent = tr.reset;
+					$('prefBtn').textContent = tr.prefBtn;
 					this.updateHMonthTooltip();
 					$('todayBtn').textContent = tr.today;
 					$('prevMonthBtn').textContent = tr.prevBtn;
@@ -1095,10 +1130,20 @@
 					this.render();
 				}
 				updateFormula(tr) {
-					const tab = state.calcMode === 'tabular';
-					$('formulaDisplay').textContent = tab ? `JD = 1948440 + (Cycle·10631) + YearStarts[Y] + MonthOffsets[M] + Day − 1` : `JD = 1948440 + floor(29.530573265·N + 0.236624) + Day − 1\nN = (Year−1)·12 + Month−1`;
-					$('formulaNote').innerHTML = tab ? `<i>Fixed cycle. Leap years: 2,5,7,10,13,16,18,21,24,26,29 of 30-yr cycle.</i>` : `<i>Epoch: 1 Muharram 1 AH = JD 1948440.</i>`;
-					$('formulaDesc').textContent = tab ? tr.formulaDescTabular : tr.formulaDesc;
+					const mode = state.calcMode;
+					if (mode === 'astronomic') {
+						$('formulaDisplay').textContent = `${tr.criteria}:\n${tr.altitude} ≥ 3°\n${tr.elongation} ≥ 6.4°`;
+						$('formulaNote').innerHTML = `<i>${tr.footer}</i>`;
+						$('formulaDesc').textContent = tr.formulaDescMabbims;
+					} else if (mode === 'linear') {
+						$('formulaDisplay').textContent = `JD = 1948440 + floor(29.530573265·N + 0.236624) + Day − 1\nN = (Year−1)·12 + Month−1`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 1 AH = JD 1948440.</i>`;
+						$('formulaDesc').textContent = tr.formulaDescLinear;
+					} else {
+						$('formulaDisplay').textContent = `JD = 1948440 + (Cycle·10631) + YearStarts[Y] + MonthOffsets[M] + Day − 1`;
+						$('formulaNote').innerHTML = `<i>Fixed cycle. ${tr.leapYears}: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26 ${tr.ofCycle}.</i>`;
+						$('formulaDesc').textContent = tr.formulaDescTabular;
+					}
 				}
 
 				syncHijriInputs(date) {

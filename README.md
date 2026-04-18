@@ -59,13 +59,13 @@ We compared the Global Linear Formula against traditional and optimized 30-year 
 
 | Rank | Method                    | Accuracy (Matches) | Accuracy (%) | Obligatory (%) |
 | :--- | :------------------------ | :----------------- | :----------- | :------------- |
-| 1.   | **Global Linear Formula** | **83,464**         | **69.55%**   | **69.65%**     |
+| 1.   | **Global Linear Formula** | **83,463**         | **69.55%**   | **69.65%**     |
 | 2.   | Global Tabular (30Y DP)   | 53,491             | 44.58%       | 45.08%         |
 | 3.   | Global Tabular (30Y k=29) | 47,247             | 39.37%       | 38.68%         |
 | 4.   | Traditional (Scheme I)    | 34,339             | 28.62%       | 27.63%         |
 | 5.   | Traditional (Kuwaiti)     | 33,426             | 27.86%       | 26.89%         |
 
--   **DP**: Dynamic Programming optimized leap years.
+-   **DP**: Dynamic Programming optimized leap years (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
 -   **30Y k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
 -   **k=29**: Identified through exhaustive search of all possible constants (0-29) in the modular formula `(11y + k) % 30 < 11`.
 

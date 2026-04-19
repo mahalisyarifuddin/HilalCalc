@@ -1126,6 +1126,21 @@
 					$('calcModeLabel').textContent = tr.calcModeLabel;
 					$('gModeLabel').textContent = tr.gModeLabel;
 					[...$('hMonthInput').options].forEach((o,i)=>o.textContent = tr.months[i]);
+
+					const tOpt = (sel, pfx) => [...$(sel).options].forEach(o => {
+						const k = pfx + o.value.charAt(0).toUpperCase() + o.value.slice(1);
+						if (tr[k]) o.textContent = tr[k];
+					});
+					tOpt('theme', 'theme');
+					tOpt('primaryCalendar', 'cal');
+					tOpt('gModeSelect', 'gMode');
+					tOpt('calcMode', 'calcMode');
+
+					[...$('weekStart').options].forEach(o => {
+						const map = { '0': 'weekSun', '1': 'weekMon', '6': 'weekSat' };
+						if (tr[map[o.value]]) o.textContent = tr[map[o.value]];
+					});
+
 					this.updateFormula(tr);
 					this.render();
 				}

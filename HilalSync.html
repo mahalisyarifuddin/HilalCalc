@@ -19,10 +19,9 @@
 			--danger: #ba1a1a;
 			--on-danger: #ffffff;
 			--highlight-bg: #d4e3ff;
-			--radius: 8px;
 		}
 		@media (prefers-color-scheme: dark) {
-			:root {
+			:root:not(.light) {
 				--primary: #a5c8ff;
 				--on-primary: #00315f;
 				--hover: #72adff;
@@ -38,55 +37,59 @@
 				--highlight-bg: #001c3a;
 			}
 		}
+		:root.dark {
+			--primary: #a5c8ff;
+			--on-primary: #00315f;
+			--hover: #72adff;
+			--background: #101319;
+			--surface: #0b0e14;
+			--text: #e0e2ea;
+			--border: #414752;
+			--muted: #181c21;
+			--success: #82db7e;
+			--on-success: #00390a;
+			--danger: #ffb4ab;
+			--on-danger: #93000a;
+			--highlight-bg: #001c3a;
+		}
 		* { box-sizing: border-box; margin: 0; padding: 0; }
 		*:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 		body {
 			background: var(--background);
 			color: var(--text);
 			font-family: sans-serif;
-			line-height: 1.25;
-			padding: 1.5rem;
-			min-height: 100vh;
-		}
-		header {
 			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 2rem;
-			max-width: 1200px;
-			margin-left: auto;
-			margin-right: auto;
+			justify-content: center;
+			min-height: 100vh;
+			padding: 1rem;
 		}
-		h1 { margin: .5rem 0; font-size: 2rem; font-weight: 600; }
-		main {
-			display: grid;
-			grid-template-columns: 330px 1fr;
-			gap: 1.5rem;
-			max-width: 1200px;
-			margin: 0 auto;
-		}
-		section {
+		.container {
 			background: var(--surface);
 			border: 1px solid var(--border);
 			border-radius: 8px;
-			padding: 1.5rem;
-			min-width: 0;
-		}
-		.section-title {
-			margin: .5rem 0 1rem;
-			border-bottom: 1px solid var(--border);
-			padding-bottom: .75rem;
-			font-size: 1.2rem;
-			font-weight: 600;
-		}
-		.group {
-			background: var(--background);
-			border: 1px solid var(--border);
-			padding: 1rem;
-			border-radius: 6px;
-			margin-bottom: 1rem;
+			max-width: 900px;
+			padding: 2rem;
+			width: 100%;
 			position: relative;
+			margin: 2rem 0;
+			display: flex;
+			flex-direction: column;
 		}
+		.selectors {
+			position: absolute;
+			right: 2rem;
+			top: 1rem;
+			display: flex;
+			gap: 8px;
+			z-index: 1000;
+		}
+		.selectors select { width: auto; }
+		h1 { margin: .5rem 0; font-size: 2rem; font-weight: 600; }
+		.subtitle { font-size: 0.9rem; opacity: 0.7; margin-bottom: 1.5rem; }
+
+		.row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+		.group { flex: 1; }
+
 		input, select, button {
 			width: 100%;
 			padding: .5rem .75rem;
@@ -99,108 +102,140 @@
 			font-size: .95rem;
 		}
 		button { cursor: pointer; transition: background .15s; }
-		.btn-pri { background: var(--primary); color: var(--on-primary); border: 0; font-weight: 600; }
-		.btn-pri:hover { background: var(--hover); }
-		.btn-sec { background: transparent; border: 1px solid var(--border); color: var(--text); }
 		.btn-sec:hover { background: var(--muted); }
 
 		.status-box {
 			padding: 1.5rem;
-			border-radius: var(--radius);
+			border-radius: 8px;
 			text-align: center;
 			font-size: 1.75rem;
 			font-weight: 800;
-			margin-bottom: 1.5rem;
+			margin: 1.5rem 0;
 		}
 		.status-success { background: var(--success); color: var(--on-success); }
 		.status-error { background: var(--danger); color: var(--on-danger); }
 
-		.nav-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+		.nav-row { display: flex; gap: 8px; margin-top: 4px; }
 		.nav-btn { flex: 1; }
 
+		.verdict-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 1rem;
+			margin-bottom: 2rem;
+		}
 		.verdict-card {
 			border: 1px solid var(--border);
 			border-radius: 6px;
 			padding: 1rem;
-			margin-bottom: 1rem;
 		}
 		.verdict-header { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 0.5rem; }
 		.verdict-label { font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; }
 		.verdict-val { font-size: 1.1rem; }
 
-		.stats-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.5rem; }
-		.stats-table td { padding: 8px 0; border-bottom: 1px solid var(--border); }
-		.stats-table b { float: right; font-variant-numeric: tabular-nums; }
+		.stats-section {
+			margin-top: 1rem;
+			border-top: 1px solid var(--border);
+			padding-top: 1.5rem;
+		}
+		.stats-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 1rem;
+		}
+		.stat-item {
+			background: var(--background);
+			border: 1px solid var(--border);
+			padding: 1rem;
+			border-radius: 6px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.stat-label { font-size: 0.9rem; }
+		.stat-val { font-weight: 800; font-variant-numeric: tabular-nums; }
 
-		@media (max-width: 900px) {
-			main { grid-template-columns: 1fr; }
+		.footer { margin-top: 2rem; font-size: 0.8rem; opacity: 0.7; }
+
+		@media (max-width: 600px) {
+			.row { flex-direction: column; gap: 0.5rem; }
+			.selectors { position: static; justify-content: flex-end; margin-bottom: 1rem; }
+			.container { padding: 1.5rem; margin: 1rem 0; }
 		}
 	</style>
 </head>
 <body>
-	<header>
-		<div>
-			<h1 id="appTitle">HilalSync</h1>
-			<div id="appSubtitle" style="font-size:0.8rem; opacity:0.6;"></div>
+	<div class="container">
+		<div class="selectors">
+			<select id="language" aria-label="Language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
+			<select id="theme" aria-label="Theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
 		</div>
-		<div class="lang-toggle">
-			<button id="langBtn" class="btn-sec" style="width:auto; padding: 4px 8px;"></button>
-		</div>
-	</header>
-	<main>
-		<section>
-			<div class="section-title" id="navTitle"></div>
+
+		<h1 id="appTitle">HilalSync</h1>
+		<div id="appSubtitle" class="subtitle"></div>
+
+		<div class="row">
 			<div class="group">
-				<label id="lblYear" style="font-size:0.8rem; font-weight:600;"></label>
+				<label id="lblYear" style="font-size:0.8rem; font-weight:700;"></label>
 				<input type="number" id="hYear" min="1" max="10000">
 			</div>
 			<div class="group">
-				<label id="lblMonth" style="font-size:0.8rem; font-weight:600;"></label>
+				<label id="lblMonth" style="font-size:0.8rem; font-weight:700;"></label>
 				<select id="hMonth"></select>
-			</div>
-			<div class="nav-row">
-				<button id="prevBtn" class="btn-sec nav-btn"></button>
-				<button id="nextBtn" class="btn-sec nav-btn"></button>
-			</div>
-
-			<div class="section-title" style="margin-top:2rem;" id="statsTitle"></div>
-			<table class="stats-table">
-				<tr><td id="statAll"></td><td><b id="valStatAll">87.60%</b></td></tr>
-				<tr><td id="statOblig"></td><td><b id="valStatOblig">87.67%</b></td></tr>
-				<tr><td id="statMecca"></td><td><b id="valStatMecca">86.14%</b></td></tr>
-			</table>
-		</section>
-
-		<section>
-			<div id="statusBox" class="status-box"></div>
-
-			<div id="verdicts">
-				<div class="verdict-card">
-					<div class="verdict-header">
-						<span id="nameAceh">Indonesia (Banda Aceh)</span>
-						<span id="resAceh" class="verdict-val">--</span>
-					</div>
-					<div class="verdict-label" id="critAceh"></div>
-				</div>
-				<div class="verdict-card">
-					<div class="verdict-header">
-						<span id="nameGlobal">Global (Turkish / GIC)</span>
-						<span id="resGlobal" class="verdict-val">--</span>
-					</div>
-					<div class="verdict-label" id="critGlobal"></div>
-				</div>
-				<div class="verdict-card" style="opacity:0.6; border-style:dashed;">
-					<div class="verdict-header">
-						<span id="nameMecca">Mecca (Reference)</span>
-						<span id="resMecca" class="verdict-val">--</span>
-					</div>
-					<div class="verdict-label" id="critMecca"></div>
+				<div class="nav-row">
+					<button id="prevBtn" class="btn-sec nav-btn"></button>
+					<button id="nextBtn" class="btn-sec nav-btn"></button>
 				</div>
 			</div>
+		</div>
 
-			<div style="margin-top:2rem; font-size:0.8rem; opacity:0.7;" id="footerNote"></div>
-		</section>
-	</main>
+		<div id="statusBox" class="status-box"></div>
+
+		<div class="verdict-grid">
+			<div class="verdict-card">
+				<div class="verdict-header">
+					<span id="nameAceh">Indonesia (Banda Aceh)</span>
+					<span id="resAceh" class="verdict-val">--</span>
+				</div>
+				<div class="verdict-label" id="critAceh"></div>
+			</div>
+			<div class="verdict-card">
+				<div class="verdict-header">
+					<span id="nameGlobal">Global (Turkish / GIC)</span>
+					<span id="resGlobal" class="verdict-val">--</span>
+				</div>
+				<div class="verdict-label" id="critGlobal"></div>
+			</div>
+			<div class="verdict-card" style="opacity:0.6; border-style:dashed;">
+				<div class="verdict-header">
+					<span id="nameMecca">Mecca (Reference)</span>
+					<span id="resMecca" class="verdict-val">--</span>
+				</div>
+				<div class="verdict-label" id="critMecca"></div>
+			</div>
+		</div>
+
+		<div class="stats-section">
+			<div class="stats-title" id="statsTitle"></div>
+			<div class="stats-grid">
+				<div class="stat-item">
+					<span class="stat-label" id="statAll"></span>
+					<span class="stat-val" id="valStatAll">87.60%</span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-label" id="statOblig"></span>
+					<span class="stat-val" id="valStatOblig">87.67%</span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-label" id="statMecca"></span>
+					<span class="stat-val" id="valStatMecca">86.14%</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="footer" id="footerNote"></div>
+	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 	<script>
@@ -208,7 +243,6 @@
 			en: {
 				appTitle: 'HilalSync',
 				appSubtitle: 'Hijri Month Start Simultaneity Tracker',
-				navTitle: 'Date Selection',
 				lblYear: 'Hijri Year',
 				lblMonth: 'Month',
 				statsTitle: '10,000 Year Statistics',
@@ -222,17 +256,18 @@
 				calculating: 'Calculating...',
 				prev: '← Prev',
 				next: 'Next →',
-				langBtn: 'Bahasa Indonesia',
 				critAceh: 'Criteria: MABBIMS [3°, 6.4°]',
 				critGlobal: 'Criteria: [5°, 8°, Everywhere < 00:00 UTC]',
 				critMecca: 'Criteria: [3°, 6.4°]',
 				footer: '* Verdicts match on 29th Hijri day = simultaneous month start.',
-				months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"]
+				months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
+				autoTheme: 'Auto',
+				lightTheme: 'Light',
+				darkTheme: 'Dark'
 			},
 			id: {
 				appTitle: 'HilalSync',
 				appSubtitle: 'Pelacak Keserempakan Awal Bulan Hijriyah',
-				navTitle: 'Pilihan Tanggal',
 				lblYear: 'Tahun Hijriyah',
 				lblMonth: 'Bulan',
 				statsTitle: 'Statistik 10.000 Tahun',
@@ -246,12 +281,14 @@
 				calculating: 'Menghitung...',
 				prev: '← Sblm',
 				next: 'Lanjut →',
-				langBtn: 'English',
 				critAceh: 'Kriteria: MABBIMS [3°, 6,4°]',
 				critGlobal: 'Kriteria: [5°, 8°, Di mana saja < 00:00 UTC]',
 				critMecca: 'Kriteria: [3°, 6,4°]',
 				footer: '* Hasil rukyat sama pada hari ke-29 Hijriyah = awal bulan serempak.',
-				months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"]
+				months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
+				autoTheme: 'Otomatis',
+				lightTheme: 'Terang',
+				darkTheme: 'Gelap'
 			}
 		};
 
@@ -266,7 +303,6 @@
 			document.title = tr.appTitle;
 			$('appTitle').textContent = tr.appTitle;
 			$('appSubtitle').textContent = tr.appSubtitle;
-			$('navTitle').textContent = tr.navTitle;
 			$('lblYear').textContent = tr.lblYear;
 			$('lblMonth').textContent = tr.lblMonth;
 			$('statsTitle').textContent = tr.statsTitle;
@@ -274,12 +310,13 @@
 			$('statOblig').textContent = tr.statOblig;
 			$('statMecca').textContent = tr.statMecca;
 			$('footerNote').textContent = tr.footer;
-			$('langBtn').textContent = tr.langBtn;
 			$('prevBtn').textContent = tr.prev;
 			$('nextBtn').textContent = tr.next;
 			$('critAceh').textContent = tr.critAceh;
 			$('critGlobal').textContent = tr.critGlobal;
 			$('critMecca').textContent = tr.critMecca;
+
+			[...$('theme').options].forEach(o => o.textContent = tr[o.value + 'Theme']);
 
 			const monthSelect = $('hMonth');
 			const cur = monthSelect.value;
@@ -294,7 +331,13 @@
 			calculate();
 		}
 
-		$('langBtn').onclick = () => { lang = lang === 'en' ? 'id' : 'en'; updateLang(); };
+		$('language').onchange = e => { lang = e.target.value; updateLang(); };
+		$('language').value = lang;
+
+		$('theme').onchange = e => {
+			const val = e.target.value;
+			document.documentElement.className = val === 'auto' ? '' : val;
+		};
 
 		function checkVisibility(obs, timeUT, minAlt, minElong) {
 			const mEq = Astronomy.Equator(Astronomy.Body.Moon, timeUT, obs, true, true);
@@ -332,10 +375,6 @@
 			setTimeout(() => {
 				try {
 					const index = (hy - 1) * 12 + (hm - 1);
-					const checkJD = EPOCH_JD + Math.floor(29.530573265 * index + 0.236624) - 1 + 0.5;
-					// The 29th day of the current month is approximately 28.5 days after the month start.
-					// Let's be more precise: start of month (hy, hm) is JD_start. We want sunset of the 29th day.
-					// JD_start = EPOCH_JD + floor(29.530573265 * index + 0.236624)
 					const jdStart = EPOCH_JD + Math.floor(29.530573265 * index + 0.236624);
 					const checkJD29 = jdStart + 28.5;
 					const tCheck = Astronomy.MakeTime(checkJD29);

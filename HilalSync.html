@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HilalSync - Hijri Simultaneity Tracker</title>
+	<style>
+		:root {
+			--primary: #005dac;
+			--on-primary: #ffffff;
+			--hover: #00539a;
+			--background: #f9f9ff;
+			--surface: #ffffff;
+			--text: #181c21;
+			--border: #c1c6d4;
+			--muted: #f2f3fc;
+			--success: #0b6b1d;
+			--on-success: #ffffff;
+			--danger: #ba1a1a;
+			--on-danger: #ffffff;
+			--highlight-bg: #d4e3ff;
+			--radius: 8px;
+		}
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--primary: #a5c8ff;
+				--on-primary: #00315f;
+				--hover: #72adff;
+				--background: #101319;
+				--surface: #0b0e14;
+				--text: #e0e2ea;
+				--border: #414752;
+				--muted: #181c21;
+				--success: #82db7e;
+				--on-success: #00390a;
+				--danger: #ffb4ab;
+				--on-danger: #93000a;
+				--highlight-bg: #001c3a;
+			}
+		}
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		*:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+		body {
+			background: var(--background);
+			color: var(--text);
+			font-family: sans-serif;
+			line-height: 1.25;
+			padding: 1.5rem;
+			min-height: 100vh;
+		}
+		header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 2rem;
+			max-width: 1200px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		h1 { margin: .5rem 0; font-size: 2rem; font-weight: 600; }
+		main {
+			display: grid;
+			grid-template-columns: 330px 1fr;
+			gap: 1.5rem;
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+		section {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: 8px;
+			padding: 1.5rem;
+			min-width: 0;
+		}
+		.section-title {
+			margin: .5rem 0 1rem;
+			border-bottom: 1px solid var(--border);
+			padding-bottom: .75rem;
+			font-size: 1.2rem;
+			font-weight: 600;
+		}
+		.group {
+			background: var(--background);
+			border: 1px solid var(--border);
+			padding: 1rem;
+			border-radius: 6px;
+			margin-bottom: 1rem;
+			position: relative;
+		}
+		input, select, button {
+			width: 100%;
+			padding: .5rem .75rem;
+			border: 1px solid var(--border);
+			border-radius: 4px;
+			background: var(--surface);
+			color: var(--text);
+			margin-top: 4px;
+			font-family: inherit;
+			font-size: .95rem;
+		}
+		button { cursor: pointer; transition: background .15s; }
+		.btn-pri { background: var(--primary); color: var(--on-primary); border: 0; font-weight: 600; }
+		.btn-pri:hover { background: var(--hover); }
+		.btn-sec { background: transparent; border: 1px solid var(--border); color: var(--text); }
+		.btn-sec:hover { background: var(--muted); }
+
+		.status-box {
+			padding: 1.5rem;
+			border-radius: var(--radius);
+			text-align: center;
+			font-size: 1.75rem;
+			font-weight: 800;
+			margin-bottom: 1.5rem;
+		}
+		.status-success { background: var(--success); color: var(--on-success); }
+		.status-error { background: var(--danger); color: var(--on-danger); }
+
+		.nav-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+		.nav-btn { flex: 1; }
+
+		.verdict-card {
+			border: 1px solid var(--border);
+			border-radius: 6px;
+			padding: 1rem;
+			margin-bottom: 1rem;
+		}
+		.verdict-header { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 0.5rem; }
+		.verdict-label { font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; }
+		.verdict-val { font-size: 1.1rem; }
+
+		.stats-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.5rem; }
+		.stats-table td { padding: 8px 0; border-bottom: 1px solid var(--border); }
+		.stats-table b { float: right; font-variant-numeric: tabular-nums; }
+
+		@media (max-width: 900px) {
+			main { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<div>
+			<h1 id="appTitle">HilalSync</h1>
+			<div id="appSubtitle" style="font-size:0.8rem; opacity:0.6;"></div>
+		</div>
+		<div class="lang-toggle">
+			<button id="langBtn" class="btn-sec" style="width:auto; padding: 4px 8px;"></button>
+		</div>
+	</header>
+	<main>
+		<section>
+			<div class="section-title" id="navTitle"></div>
+			<div class="group">
+				<label id="lblYear" style="font-size:0.8rem; font-weight:600;"></label>
+				<input type="number" id="hYear" min="1" max="10000">
+			</div>
+			<div class="group">
+				<label id="lblMonth" style="font-size:0.8rem; font-weight:600;"></label>
+				<select id="hMonth"></select>
+			</div>
+			<div class="nav-row">
+				<button id="prevBtn" class="btn-sec nav-btn"></button>
+				<button id="nextBtn" class="btn-sec nav-btn"></button>
+			</div>
+
+			<div class="section-title" style="margin-top:2rem;" id="statsTitle"></div>
+			<table class="stats-table">
+				<tr><td id="statAll"></td><td><b id="valStatAll">87.60%</b></td></tr>
+				<tr><td id="statOblig"></td><td><b id="valStatOblig">87.67%</b></td></tr>
+				<tr><td id="statMecca"></td><td><b id="valStatMecca">86.14%</b></td></tr>
+			</table>
+		</section>
+
+		<section>
+			<div id="statusBox" class="status-box"></div>
+
+			<div id="verdicts">
+				<div class="verdict-card">
+					<div class="verdict-header">
+						<span id="nameAceh">Indonesia (Banda Aceh)</span>
+						<span id="resAceh" class="verdict-val">--</span>
+					</div>
+					<div class="verdict-label" id="critAceh"></div>
+				</div>
+				<div class="verdict-card">
+					<div class="verdict-header">
+						<span id="nameGlobal">Global (Turkish / GIC)</span>
+						<span id="resGlobal" class="verdict-val">--</span>
+					</div>
+					<div class="verdict-label" id="critGlobal"></div>
+				</div>
+				<div class="verdict-card" style="opacity:0.6; border-style:dashed;">
+					<div class="verdict-header">
+						<span id="nameMecca">Mecca (Reference)</span>
+						<span id="resMecca" class="verdict-val">--</span>
+					</div>
+					<div class="verdict-label" id="critMecca"></div>
+				</div>
+			</div>
+
+			<div style="margin-top:2rem; font-size:0.8rem; opacity:0.7;" id="footerNote"></div>
+		</section>
+	</main>
+
+	<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+	<script>
+		const T = {
+			en: {
+				appTitle: 'HilalSync',
+				appSubtitle: 'Hijri Month Start Simultaneity Tracker',
+				navTitle: 'Date Selection',
+				lblYear: 'Hijri Year',
+				lblMonth: 'Month',
+				statsTitle: '10,000 Year Statistics',
+				statAll: 'All Months',
+				statOblig: 'Obligatory Months',
+				statMecca: 'vs Mecca Reference',
+				serempak: 'SEREMPAK (SIMULTANEOUS)',
+				berbeda: 'BERBEDA (DIVERGENT)',
+				visible: 'VISIBLE',
+				notVisible: 'NOT VISIBLE',
+				calculating: 'Calculating...',
+				prev: '← Prev',
+				next: 'Next →',
+				langBtn: 'Bahasa Indonesia',
+				critAceh: 'Criteria: MABBIMS [3°, 6.4°]',
+				critGlobal: 'Criteria: [5°, 8°, Everywhere < 00:00 UTC]',
+				critMecca: 'Criteria: [3°, 6.4°]',
+				footer: '* Verdicts match on 29th Hijri day = simultaneous month start.',
+				months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"]
+			},
+			id: {
+				appTitle: 'HilalSync',
+				appSubtitle: 'Pelacak Keserempakan Awal Bulan Hijriyah',
+				navTitle: 'Pilihan Tanggal',
+				lblYear: 'Tahun Hijriyah',
+				lblMonth: 'Bulan',
+				statsTitle: 'Statistik 10.000 Tahun',
+				statAll: 'Semua Bulan',
+				statOblig: 'Bulan Wajib',
+				statMecca: 'vs Referensi Mekkah',
+				serempak: 'SEREMPAK',
+				berbeda: 'BERBEDA',
+				visible: 'TERLIHAT',
+				notVisible: 'TIDAK TERLIHAT',
+				calculating: 'Menghitung...',
+				prev: '← Sblm',
+				next: 'Lanjut →',
+				langBtn: 'English',
+				critAceh: 'Kriteria: MABBIMS [3°, 6,4°]',
+				critGlobal: 'Kriteria: [5°, 8°, Di mana saja < 00:00 UTC]',
+				critMecca: 'Kriteria: [3°, 6,4°]',
+				footer: '* Hasil rukyat sama pada hari ke-29 Hijriyah = awal bulan serempak.',
+				months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"]
+			}
+		};
+
+		let lang = navigator.language?.startsWith('id') ? 'id' : 'en';
+		const ACEH = { lat: 5.5483, lon: 95.3238 };
+		const MECCA = { lat: 21.354813, lon: 39.984063 };
+		const EPOCH_JD = 1948440;
+		const $ = id => document.getElementById(id);
+
+		function updateLang() {
+			const tr = T[lang];
+			document.title = tr.appTitle;
+			$('appTitle').textContent = tr.appTitle;
+			$('appSubtitle').textContent = tr.appSubtitle;
+			$('navTitle').textContent = tr.navTitle;
+			$('lblYear').textContent = tr.lblYear;
+			$('lblMonth').textContent = tr.lblMonth;
+			$('statsTitle').textContent = tr.statsTitle;
+			$('statAll').textContent = tr.statAll;
+			$('statOblig').textContent = tr.statOblig;
+			$('statMecca').textContent = tr.statMecca;
+			$('footerNote').textContent = tr.footer;
+			$('langBtn').textContent = tr.langBtn;
+			$('prevBtn').textContent = tr.prev;
+			$('nextBtn').textContent = tr.next;
+			$('critAceh').textContent = tr.critAceh;
+			$('critGlobal').textContent = tr.critGlobal;
+			$('critMecca').textContent = tr.critMecca;
+
+			const monthSelect = $('hMonth');
+			const cur = monthSelect.value;
+			monthSelect.innerHTML = '';
+			tr.months.forEach((m, i) => {
+				const o = document.createElement('option');
+				o.value = i + 1;
+				o.textContent = m;
+				if (i + 1 == cur) o.selected = true;
+				monthSelect.appendChild(o);
+			});
+			calculate();
+		}
+
+		$('langBtn').onclick = () => { lang = lang === 'en' ? 'id' : 'en'; updateLang(); };
+
+		function checkVisibility(obs, timeUT, minAlt, minElong) {
+			const mEq = Astronomy.Equator(Astronomy.Body.Moon, timeUT, obs, true, true);
+			const sEq = Astronomy.Equator(Astronomy.Body.Sun, timeUT, obs, true, true);
+			const mHor = Astronomy.Horizon(timeUT, obs, mEq.ra, mEq.dec, 'normal');
+			return mHor.altitude >= minAlt && Astronomy.AngleBetween(sEq.vec, mEq.vec) >= minElong;
+		}
+
+		function checkGlobal(jdNoon) {
+			const deadline = Math.floor(jdNoon) + 1.0;
+			const tDeadline = Astronomy.MakeTime(deadline);
+			const gst = Astronomy.SiderealTime(tDeadline);
+			const obs0 = new Astronomy.Observer(0, 0, 0);
+			const sunEqu = Astronomy.Equator(Astronomy.Body.Sun, tDeadline, obs0, true, true);
+			for (let lat = -40; lat <= 40; lat += 10) {
+				const phi = lat * Math.PI / 180, dec = sunEqu.dec * Math.PI / 180;
+				const cosLat = Math.cos(phi), cosDec = Math.cos(dec), sinH0 = Math.sin(-0.833 * Math.PI / 180);
+				const term = (sinH0 - Math.sin(phi) * Math.sin(dec)) / (cosLat * cosDec);
+				if (Math.abs(term) > 1) continue;
+				const H = Math.acos(term) * 180 / Math.PI;
+				let lon = ((sunEqu.ra - gst + (H / 15.0)) * 15.0 + 180) % 360 - 180;
+				const obs = new Astronomy.Observer(lat, lon, 0);
+				const s = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tDeadline, -1);
+				if (s && s.ut <= deadline + 0.0001 && checkVisibility(obs, s.ut, 5.0, 8.0)) return true;
+			}
+			return false;
+		}
+
+		function calculate() {
+			const hy = parseInt($('hYear').value), hm = parseInt($('hMonth').value);
+			if (isNaN(hy) || hy < 1 || hy > 10000) return;
+			const tr = T[lang];
+			$('statusBox').textContent = tr.calculating;
+
+			setTimeout(() => {
+				try {
+					const index = (hy - 1) * 12 + (hm - 1);
+					const checkJD = EPOCH_JD + Math.floor(29.530573265 * index + 0.236624) - 1 + 0.5;
+					// The 29th day of the current month is approximately 28.5 days after the month start.
+					// Let's be more precise: start of month (hy, hm) is JD_start. We want sunset of the 29th day.
+					// JD_start = EPOCH_JD + floor(29.530573265 * index + 0.236624)
+					const jdStart = EPOCH_JD + Math.floor(29.530573265 * index + 0.236624);
+					const checkJD29 = jdStart + 28.5;
+					const tCheck = Astronomy.MakeTime(checkJD29);
+
+					const obsA = new Astronomy.Observer(ACEH.lat, ACEH.lon, 0);
+					const obsM = new Astronomy.Observer(MECCA.lat, MECCA.lon, 0);
+					const sA = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsA, -1, tCheck, 1);
+					const sM = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsM, -1, tCheck, 1);
+
+					const vA = sA ? checkVisibility(obsA, sA.ut, 3.0, 6.4) : false;
+					const vG = checkGlobal(checkJD29);
+					const vM = sM ? checkVisibility(obsM, sM.ut, 3.0, 6.4) : false;
+
+					const statusBox = $('statusBox');
+					if (vA === vG) {
+						statusBox.textContent = tr.serempak;
+						statusBox.className = 'status-box status-success';
+					} else {
+						statusBox.textContent = tr.berbeda;
+						statusBox.className = 'status-box status-error';
+					}
+
+					const fmtV = v => v ? tr.visible : tr.notVisible;
+					const clrV = v => v ? 'var(--success)' : 'var(--danger)';
+					$('resAceh').textContent = fmtV(vA); $('resAceh').style.color = clrV(vA);
+					$('resGlobal').textContent = fmtV(vG); $('resGlobal').style.color = clrV(vG);
+					$('resMecca').textContent = fmtV(vM); $('resMecca').style.color = clrV(vM);
+				} catch (e) {
+					console.error(e);
+					$('statusBox').textContent = 'Error: ' + e.message;
+				}
+			}, 10);
+		}
+
+		const nowJD = Math.floor(new Date().getTime() / 86400000 + 2440587.5);
+		const currentIdx = Math.floor((nowJD - 1948440 + 0.763376) / 29.530573265);
+		$('hYear').value = Math.floor(currentIdx / 12) + 1;
+		$('hMonth').value = (currentIdx % 12) + 1;
+
+		$('hYear').onchange = calculate; $('hMonth').onchange = calculate;
+		$('prevBtn').onclick = () => { let m = parseInt($('hMonth').value) - 1, y = parseInt($('hYear').value); if (m < 1) { m = 12; y--; } if (y < 1) return; $('hYear').value = y; $('hMonth').value = m; calculate(); };
+		$('nextBtn').onclick = () => { let m = parseInt($('hMonth').value) + 1, y = parseInt($('hYear').value); if (m > 12) { m = 1; y++; } if (y > 10000) return; $('hYear').value = y; $('hMonth').value = m; calculate(); };
+
+		updateLang();
+	</script>
+</body>
+</html>

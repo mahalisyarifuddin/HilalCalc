@@ -6,9 +6,10 @@
 ## Pengantar
 HilalCalc adalah kumpulan alat berbasis peramban (browser) file tunggal untuk menghitung dan memvisualisasikan kalender Hijriyah serta visibilitas hilal (bulan sabit muda). Dirancang untuk peneliti, pelajar, dan pengamat, alat ini mengimplementasikan kriteria toposentrik untuk memprediksi awal bulan Islam berdasarkan penampakan aktual dari permukaan bumi.
 
-Repositori ini mencakup dua alat mandiri:
+Repositori ini mencakup tiga alat mandiri:
 1.  **HilalMap.html**: Visualisasi peta global visibilitas hilal.
 2.  **HijriCalc.html**: Kalkulator kalender dengan konverter linear dua arah.
+3.  **HilalSync.html**: Pelacak khusus keserempakan awal bulan (Indonesia vs Global).
 
 Antarmuka mendukung **Bahasa Inggris** dan **Bahasa Indonesia**.
 
@@ -33,6 +34,14 @@ Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik 
 -   **Transisi Sejarah**: Mendukung penuh reformasi kalender Masehi tahun 1582. Tanggal sebelum reformasi diberi label sebagai Julian.
 -   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, Kalender Utama, dan Mode Masehi.
 
+### 3. HilalSync (Pelacak Keserempakan)
+Alat yang dirancang khusus untuk konteks Indonesia untuk melacak apakah awal bulan Hijriyah dimulai secara serempak di berbagai kriteria.
+
+**Fitur Utama:**
+-   **Indonesia vs Global**: Membandingkan hasil MABBIMS [3°, 6,4°] di Banda Aceh dengan kriteria Turki/Global [5°, 8°, Di mana saja < 00:00 UTC].
+-   **Statistik Keserempakan**: Menampilkan probabilitas awal bulan serempak selama 10.000 tahun berdasarkan simulasi toposentrik.
+-   **Logika Real-time**: Menghitung status visibilitas secara otomatis untuk hari ke-29 dari setiap bulan Hijriyah (1-10.000 H).
+
 ## Detail Teknis
 
 ### Kriteria Toposentrik
@@ -51,11 +60,10 @@ Rumus linear yang diturunkan untuk Julian Date (JD) tanggal Hijriyah adalah:
 
 Di mana `Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1)`.
 
-**Akurasi:**
-Rumus ini mencapai akurasi pencocokan tepat **~69,55%** terhadap Ground Truth astronomis toposentrik selama 10.000 tahun, dengan akurasi **~69,65%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah).
+### Akurasi & Statistik
+Perbandingan metode konversi dan tingkat keserempakan selama 10.000 tahun (1-10.000 H).
 
-### Perbandingan Tabular
-Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi (10.631 hari per siklus).
+**Akurasi Hijriyah Linear vs Tabular:**
 
 | Peringkat | Metode                     | Akurasi (Cocok) | Akurasi (%) | Wajib (%)  |
 | :-------- | :------------------------- | :-------------- | :---------- | :--------- |
@@ -65,26 +73,26 @@ Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional
 | 4.        | Tradisional (Scheme I)     | 34.339          | 28,62%      | 27,63%     |
 | 5.        | Tradisional (Kuwaiti)      | 33.426          | 27,86%      | 26,89%     |
 
+**Tingkat Keserempakan (Aceh vs Global):**
+
+| Kategori                  | Tingkat (%) |
+| :------------------------ | :---------- |
+| **Semua Bulan**           | **87,60%**  |
+| Bulan-bulan Wajib         | 87,67%      |
+| vs Titik Referensi Mekkah | 86,14%      |
+
 -   **DP**: Tahun kabisat dioptimalkan dengan Dynamic Programming (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
--   **30 thn k**: Konstanta modular k=29 yang dioptimalkan untuk `(11y + k) % 30 < 11`.
--   **k=29**: Diidentifikasi melalui pencarian lengkap semua konstanta yang mungkin (0-29) dalam rumus modular `(11y + k) % 30 < 11`.
-
-**Analisis Knee Point:**
-Analisis menyeluruh terhadap panjang siklus (L in {10, 20, ..., 1000}) menggunakan Dynamic Programming mengidentifikasi **L=30** sebagai *knee point* utama. Ini adalah penyebut signifikan pertama di mana rasio tahun kabisat (11/30 ≈ 0,3667) sangat mendekati **bagian pecahan dari rata-rata tahun lunar astronomis** (≈ 0,36707). Meskipun siklus yang lebih panjang (misalnya, L=790) dapat mencapai hingga 46,34%, siklus 30 tahun tetap menjadi pilihan yang paling efisien, memvalidasi standar historis.
-
-**Catatan tentang Akurasi Siklus:**
-Akurasi sangat bergantung pada seberapa baik rasio tahun kabisat (N/L) mendekati bagian pecahan dari rata-rata tahun lunar (≈ 0,36707 hari). Siklus 30 tahun (11/30 ≈ 0,36667) sangat akurat karena total pergeserannya selama 10.000 tahun hanya ~4 hari. Siklus yang lebih pendek atau berbeda seperti 50 tahun (18/50 = 0,36) bergeser jauh lebih cepat (~70 hari), yang mengakibatkan akurasi lebih rendah dalam jangka panjang.
-
-Pendekatan linear memberikan **keuntungan akurasi absolut ~25%** dibandingkan skema tabular siklus tetap dengan memodelkan "pergeseran" jangka panjang siklus lunar yang sebenarnya.
+-   **Wajib**: Ramadhan, Syawal, Dzulhijjah.
 
 ## Cara Kerja Tahun Kabisat Hijriyah
-Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
+Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) and 19 tahun basitah (354 hari). Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
 
 ## Skrip Teknis
 Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:
 -   `generate_gt.py`: Menghasilkan Ground Truth toposentrik.
 -   `find_best_fit.py`: Menurunkan konstanta Rumus Linear yang optimal.
 -   `find_best_tabular.py`: Menganalisis skema tabular dan konstanta modular.
+-   `analyze_serempak.py`: Menghitung tingkat keserempakan untuk Aceh vs. Global.
 -   `verify_all_modes.py`: Verifikasi UI berbasis Playwright.
 
 Dependensi: `pip install astronomy-engine numpy playwright`.

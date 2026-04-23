@@ -6,9 +6,10 @@ Moon visibility, simplified.
 ## Introduction
 HilalCalc is a collection of single-file, browser-based tools for calculating and visualizing the Islamic Hijri calendar and the visibility of the crescent moon (Hilal). Designed for researchers, students, and observers, these tools implement topocentric criteria to predict the start of Islamic months based on actual surface-based sightings.
 
-The repository includes two standalone tools:
+The repository includes three standalone tools:
 1.  **HilalMap.html**: A map-based visualization of global moon visibility.
 2.  **HijriCalc.html**: A calendar calculator with a round-trip linear converter.
+3.  **HilalSync.html**: A specialized tracker for month-start simultaneity (Indonesia vs. Global).
 
 The interface supports both **English** and **Bahasa Indonesia**.
 
@@ -33,6 +34,14 @@ A robust calendar tool that adapts its calculations to your specific location an
 -   **Historical Transition**: Fully supports the 1582 Gregorian reform. Dates prior to the reform are correctly labeled as Julian.
 -   **Settings**: Customize Language, Theme, Week Start Day, Location, Main Calendar, and Gregorian Mode.
 
+### 3. HilalSync (Simultaneity Tracker)
+A tool specifically designed for the Indonesian context to track whether the Hijri month starts simultaneously ("Serempak") across different criteria.
+
+**Key Features:**
+-   **Indonesia vs. Global**: Compares the MABBIMS [3°, 6.4°] verdict in Banda Aceh with the Turkish/Global [5°, 8°, Everywhere < 00:00 UTC] criteria.
+-   **Simultaneity Stats**: Displays 10,000-year probability of simultaneous starts based on topocentric simulations.
+-   **Real-time Logic**: Automatically calculates the visibility status for the 29th day of any Hijri month (1-10,000 AH).
+
 ## Technical Details
 
 ### Topocentric Criteria
@@ -51,11 +60,10 @@ The derived linear formula for the Julian Date (JD) of a Hijri date is:
 
 Where `Index = (HijriYear - 1) * 12 + (HijriMonth - 1)`.
 
-**Accuracy:**
-This formula achieves **~69.55%** overall exact match accuracy against topocentric astronomical Ground Truth over 10,000 years, with **~69.65%** accuracy for obligatory months (Ramadan, Shawwal, Dhu al-Hijjah).
+### Accuracy & Statistics
+Comparison of conversion methods and simultaneity rates over 10,000 years (1-10,000 AH).
 
-### Tabular Comparison
-We compared the Global Linear Formula against traditional and optimized 30-year tabular schemes (10,631 days per cycle).
+**Linear vs Tabular Hijri Accuracy:**
 
 | Rank | Method                    | Accuracy (Matches) | Accuracy (%) | Obligatory (%) |
 | :--- | :------------------------ | :----------------- | :----------- | :------------- |
@@ -65,17 +73,16 @@ We compared the Global Linear Formula against traditional and optimized 30-year 
 | 4.   | Traditional (Scheme I)    | 34,339             | 28.62%       | 27.63%         |
 | 5.   | Traditional (Kuwaiti)     | 33,426             | 27.86%       | 26.89%         |
 
+**Simultaneity (Serempak) Rates (Aceh vs Global):**
+
+| Category                  | Rate (%)   |
+| :------------------------ | :--------- |
+| **All Months**            | **87.60%** |
+| Obligatory Months         | 87.67%     |
+| vs Mecca Reference Point  | 86.14%     |
+
 -   **DP**: Dynamic Programming optimized leap years (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
--   **30Y k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
--   **k=29**: Identified through exhaustive search of all possible constants (0-29) in the modular formula `(11y + k) % 30 < 11`.
-
-**Knee Point Analysis:**
-Exhaustive analysis of cycle lengths (L in {10, 20, ..., 1000}) using Dynamic Programming identifies **L=30** as the primary knee point. This is the first significant denominator where the leap year ratio (11/30 ≈ 0.3667) closely matches the **astronomical mean lunar year fractional part** (≈ 0.36707). While longer cycles (e.g., L=790) can marginally reach up to 46.34%, the 30-year cycle remains the most efficient choice, validating the historical standard.
-
-**Note on Cycle Accuracy:**
-Accuracy depends on how well the leap year ratio (N/L) approximates the mean lunar year fractional part (≈ 0.36707 days). The 30-year cycle (11/30 ≈ 0.36667) is highly accurate because its total drift over 10,000 years is only ~4 days. Shorter or different cycles like 50 years (18/50 = 0.36) drift much faster (~70 days), resulting in lower accuracy over long periods.
-
-The linear approach provides a **~25% absolute accuracy gain** over fixed-cycle tabular schemes by modeling the true long-term "drift" of the lunar cycle.
+-   **Obligatory**: Ramadan, Shawwal, Dhu al-Hijjah.
 
 ## How Hijri Leap Years Work
 The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). In leap years, a single day is added to the 12th month, **Dhu al-Hijjah**.
@@ -85,13 +92,9 @@ The `scripts/` directory contains the Python tools used for data generation and 
 -   `generate_gt.py`: Generates the topocentric Ground Truth.
 -   `find_best_fit.py`: Derives the optimal Linear Formula constants.
 -   `find_best_tabular.py`: Analyzes tabular schemes and modular constants.
--   `verify_all_modes.py`: playwrigth-based UI verification.
+-   `analyze_serempak.py`: Computes simultaneity rates for Aceh vs. Global.
 
 Dependencies: `pip install astronomy-engine numpy playwright`.
-
-## Historical Context
--   **Gregorian Reform**: "Historical" mode handles the October 1582 jump and Julian labeling.
--   **Medieval Dates**: For years prior to 1300 AH, the tool automatically uses the Global Formula as modern sighting criteria are not applicable.
 
 ## Privacy & License
 All calculations happen locally in your browser. MIT License.

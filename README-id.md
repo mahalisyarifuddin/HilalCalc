@@ -77,9 +77,9 @@ Perbandingan metode konversi dan tingkat keserempakan selama 10.000 tahun (1-10.
 
 | Kategori                  | Tingkat (%) |
 | :------------------------ | :---------- |
-| **Semua Bulan**           | **87,60%**  |
-| Bulan-bulan Wajib         | 87,67%      |
-| vs Titik Referensi Mekkah | 86,14%      |
+| **Semua Bulan**           | **57,44%**  |
+| Bulan-bulan Wajib         | 58,48%      |
+| vs Titik Referensi Mekkah | 85,26%      |
 
 -   **DP**: Tahun kabisat dioptimalkan dengan Dynamic Programming (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
 -   **Wajib**: Ramadhan, Syawal, Dzulhijjah.

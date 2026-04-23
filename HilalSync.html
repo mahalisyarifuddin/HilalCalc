@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>HilalSync - Hijri Simultaneity Tracker</title>
+	<title>HilalSync - Hijri Month Start Tracker</title>
 	<style>
 		:root {
 			--primary: #005dac;
@@ -16,8 +16,8 @@
 			--muted: #f2f3fc;
 			--success: #0b6b1d;
 			--on-success: #ffffff;
-			--danger: #ba1a1a;
-			--on-danger: #ffffff;
+			--error: #ba1a1a;
+			--on-error: #ffffff;
 			--highlight-bg: #d4e3ff;
 		}
 		@media (prefers-color-scheme: dark) {
@@ -32,8 +32,8 @@
 				--muted: #181c21;
 				--success: #82db7e;
 				--on-success: #00390a;
-				--danger: #ffb4ab;
-				--on-danger: #93000a;
+				--error: #ffb4ab;
+				--on-error: #93000a;
 				--highlight-bg: #001c3a;
 			}
 		}
@@ -48,8 +48,8 @@
 			--muted: #181c21;
 			--success: #82db7e;
 			--on-success: #00390a;
-			--danger: #ffb4ab;
-			--on-danger: #93000a;
+			--error: #ffb4ab;
+			--on-error: #93000a;
 			--highlight-bg: #001c3a;
 		}
 		* { box-sizing: border-box; margin: 0; padding: 0; }
@@ -111,9 +111,11 @@
 			font-size: 1.75rem;
 			font-weight: 800;
 			margin: 1.5rem 0;
+			transition: background 0.3s;
 		}
 		.status-success { background: var(--success); color: var(--on-success); }
-		.status-error { background: var(--danger); color: var(--on-danger); }
+		.status-error { background: var(--error); color: var(--on-error); }
+		.status-calc { background: var(--muted); color: var(--text); opacity: 0.5; }
 
 		.nav-row { display: flex; gap: 8px; margin-top: 4px; }
 		.nav-btn { flex: 1; }
@@ -128,10 +130,13 @@
 			border: 1px solid var(--border);
 			border-radius: 6px;
 			padding: 1rem;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
 		}
 		.verdict-header { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 0.5rem; }
 		.verdict-label { font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; }
-		.verdict-val { font-size: 1.1rem; }
+		.verdict-val { font-size: 1.25rem; font-weight: 800; margin-top: 0.5rem; }
 
 		.stats-section {
 			margin-top: 1rem;
@@ -168,7 +173,7 @@
 <body>
 	<div class="container">
 		<div class="selectors">
-			<select id="language" aria-label="Language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
+			<select id="language" aria-label="Language"><option value="en">English</option><option value="id" selected>Bahasa Indonesia</option></select>
 			<select id="theme" aria-label="Theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
 		</div>
 
@@ -193,25 +198,25 @@
 		<div id="statusBox" class="status-box"></div>
 
 		<div class="verdict-grid">
-			<div class="verdict-card">
+			<div class="verdict-card" id="cardAceh">
 				<div class="verdict-header">
 					<span id="nameAceh">Indonesia (Banda Aceh)</span>
-					<span id="resAceh" class="verdict-val">--</span>
 				</div>
+				<div id="resAceh" class="verdict-val">--</div>
 				<div class="verdict-label" id="critAceh"></div>
 			</div>
-			<div class="verdict-card">
+			<div class="verdict-card" id="cardGlobal">
 				<div class="verdict-header">
 					<span id="nameGlobal">Global (Turkish / GIC)</span>
-					<span id="resGlobal" class="verdict-val">--</span>
 				</div>
+				<div id="resGlobal" class="verdict-val">--</div>
 				<div class="verdict-label" id="critGlobal"></div>
 			</div>
-			<div class="verdict-card" style="opacity:0.6; border-style:dashed;">
+			<div class="verdict-card" id="cardMecca" style="opacity:0.6; border-style:dashed;">
 				<div class="verdict-header">
 					<span id="nameMecca">Mecca (Reference)</span>
-					<span id="resMecca" class="verdict-val">--</span>
 				</div>
+				<div id="resMecca" class="verdict-val">--</div>
 				<div class="verdict-label" id="critMecca"></div>
 			</div>
 		</div>
@@ -221,15 +226,15 @@
 			<div class="stats-grid">
 				<div class="stat-item">
 					<span class="stat-label" id="statAll"></span>
-					<span class="stat-val" id="valStatAll">87.60%</span>
+					<span class="stat-val" id="valStatAll">57.44%</span>
 				</div>
 				<div class="stat-item">
 					<span class="stat-label" id="statOblig"></span>
-					<span class="stat-val" id="valStatOblig">87.67%</span>
+					<span class="stat-val" id="valStatOblig">58.48%</span>
 				</div>
 				<div class="stat-item">
 					<span class="stat-label" id="statMecca"></span>
-					<span class="stat-val" id="valStatMecca">86.14%</span>
+					<span class="stat-val" id="valStatMecca">85.26%</span>
 				</div>
 			</div>
 		</div>
@@ -242,24 +247,22 @@
 		const T = {
 			en: {
 				appTitle: 'HilalSync',
-				appSubtitle: 'Hijri Month Start Simultaneity Tracker',
+				appSubtitle: 'Hijri Month Start Tracker',
 				lblYear: 'Hijri Year',
 				lblMonth: 'Month',
 				statsTitle: '10,000 Year Statistics',
 				statAll: 'All Months',
 				statOblig: 'Obligatory Months',
 				statMecca: 'vs Mecca Reference',
-				serempak: 'SEREMPAK (SIMULTANEOUS)',
-				berbeda: 'BERBEDA (DIVERGENT)',
-				visible: 'VISIBLE',
-				notVisible: 'NOT VISIBLE',
+				serempak: 'SIMULTANEOUS',
+				berbeda: 'DIVERGENT',
 				calculating: 'Calculating...',
 				prev: '← Prev',
 				next: 'Next →',
-				critAceh: 'Criteria: MABBIMS [3°, 6.4°]',
-				critGlobal: 'Criteria: [5°, 8°, Everywhere < 00:00 UTC]',
-				critMecca: 'Criteria: [3°, 6.4°]',
-				footer: '* Verdicts match on 29th Hijri day = simultaneous month start.',
+				critAceh: 'Criteria: Topocentric MABBIMS [3°, 6.4°]',
+				critGlobal: 'Criteria: Topocentric [5°, 8°, Everywhere < 00:00 UTC]',
+				critMecca: 'Criteria: Topocentric [3°, 6.4°]',
+				footer: '* Comparison of first visibility dates for each criterion.',
 				months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
 				autoTheme: 'Auto',
 				lightTheme: 'Light',
@@ -276,15 +279,13 @@
 				statMecca: 'vs Referensi Mekkah',
 				serempak: 'SEREMPAK',
 				berbeda: 'BERBEDA',
-				visible: 'TERLIHAT',
-				notVisible: 'TIDAK TERLIHAT',
 				calculating: 'Menghitung...',
 				prev: '← Sblm',
 				next: 'Lanjut →',
-				critAceh: 'Kriteria: MABBIMS [3°, 6,4°]',
-				critGlobal: 'Kriteria: [5°, 8°, Di mana saja < 00:00 UTC]',
-				critMecca: 'Kriteria: [3°, 6,4°]',
-				footer: '* Hasil rukyat sama pada hari ke-29 Hijriyah = awal bulan serempak.',
+				critAceh: 'Kriteria: Toposentrik MABBIMS [3°, 6,4°]',
+				critGlobal: 'Kriteria: Toposentrik [5°, 8°, Di mana saja < 00:00 UTC]',
+				critMecca: 'Kriteria: Toposentrik [3°, 6,4°]',
+				footer: '* Perbandingan tanggal keterlihatan pertama untuk setiap kriteria.',
 				months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
 				autoTheme: 'Otomatis',
 				lightTheme: 'Terang',
@@ -296,6 +297,7 @@
 		const ACEH = { lat: 5.5483, lon: 95.3238 };
 		const MECCA = { lat: 21.354813, lon: 39.984063 };
 		const EPOCH_JD = 1948440;
+		const AE_OFFSET = 2451545.0;
 		const $ = id => document.getElementById(id);
 
 		function updateLang() {
@@ -339,74 +341,104 @@
 			document.documentElement.className = val === 'auto' ? '' : val;
 		};
 
-		function checkVisibility(obs, timeUT, minAlt, minElong) {
-			const mEq = Astronomy.Equator(Astronomy.Body.Moon, timeUT, obs, true, true);
-			const sEq = Astronomy.Equator(Astronomy.Body.Sun, timeUT, obs, true, true);
-			const mHor = Astronomy.Horizon(timeUT, obs, mEq.ra, mEq.dec, 'normal');
-			return mHor.altitude >= minAlt && Astronomy.AngleBetween(sEq.vec, mEq.vec) >= minElong;
+		function checkVisibility(obs, timeAE, minAlt, minElong) {
+			const mEq = Astronomy.Equator(Astronomy.Body.Moon, timeAE, obs, true, true);
+			const sEq = Astronomy.Equator(Astronomy.Body.Sun, timeAE, obs, true, true);
+			const mHor = Astronomy.Horizon(timeAE, obs, mEq.ra, mEq.dec, 'normal');
+			const elong = Astronomy.AngleBetween(sEq.vec, mEq.vec);
+			return mHor.altitude >= minAlt && elong >= minElong;
 		}
 
-		function checkGlobal(jdNoon) {
-			const deadline = Math.floor(jdNoon) + 1.0;
-			const tDeadline = Astronomy.MakeTime(deadline);
+		function checkGlobal(baseJDAE, conjJDAE) {
+			const deadlineAE = baseJDAE + 0.5;
+			const tDeadline = Astronomy.MakeTime(deadlineAE);
+			const sunEqu = Astronomy.Equator(Astronomy.Body.Sun, tDeadline, new Astronomy.Observer(0,0,0), true, true);
 			const gst = Astronomy.SiderealTime(tDeadline);
-			const obs0 = new Astronomy.Observer(0, 0, 0);
-			const sunEqu = Astronomy.Equator(Astronomy.Body.Sun, tDeadline, obs0, true, true);
-			for (let lat = -40; lat <= 40; lat += 10) {
+
+			for (let lat = -60; lat <= 60; lat += 10) {
 				const phi = lat * Math.PI / 180, dec = sunEqu.dec * Math.PI / 180;
 				const cosLat = Math.cos(phi), cosDec = Math.cos(dec), sinH0 = Math.sin(-0.833 * Math.PI / 180);
 				const term = (sinH0 - Math.sin(phi) * Math.sin(dec)) / (cosLat * cosDec);
 				if (Math.abs(term) > 1) continue;
 				const H = Math.acos(term) * 180 / Math.PI;
-				let lon = ((sunEqu.ra - gst + (H / 15.0)) * 15.0 + 180) % 360 - 180;
-				const obs = new Astronomy.Observer(lat, lon, 0);
-				const s = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tDeadline, -1);
-				if (s && s.ut <= deadline + 0.0001 && checkVisibility(obs, s.ut, 5.0, 8.0)) return true;
+				for (let offset = -30; offset <= 0; offset += 15) {
+					let lon = ((sunEqu.ra - gst + ((H + offset) / 15.0)) * 15.0 + 180) % 360 - 180;
+					const obs = new Astronomy.Observer(lat, lon, 0);
+					const s = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tDeadline, -1);
+					if (s && s.ut > conjJDAE && s.ut <= deadlineAE + 0.0001) {
+						if (checkVisibility(obs, s.ut, 5.0, 8.0)) return true;
+					}
+				}
 			}
 			return false;
 		}
 
+		function findStartDate(index, obs, mode) {
+			const approxJD = EPOCH_JD + index * 29.530588;
+			const tSearch = Astronomy.MakeTime(approxJD - 15 - AE_OFFSET);
+			const conj = Astronomy.SearchMoonPhase(0, tSearch, 40);
+			if (!conj) return null;
+			const conjJDAE = conj.ut;
+
+			for (let d = 0; d < 5; d++) {
+				const baseJD = Math.floor(conjJDAE + AE_OFFSET) + d;
+				const baseJDAE = baseJD - AE_OFFSET;
+				if (mode === 'global') {
+					if (checkGlobal(baseJDAE, conjJDAE)) return baseJD + 1;
+				} else {
+					const tStart = Astronomy.MakeTime(baseJDAE - 0.5);
+					const s = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tStart, 1);
+					if (s && s.ut > conjJDAE && s.ut < baseJDAE + 0.5) {
+						if (checkVisibility(obs, s.ut, 3.0, 6.4)) return baseJD + 1;
+					}
+				}
+			}
+			return null;
+		}
+
+		function formatDate(jd) {
+			if (!jd) return '--';
+			const date = Astronomy.MakeTime(jd - AE_OFFSET).date;
+			const d = date.getUTCDate(), m = date.getUTCMonth() + 1, y = date.getUTCFullYear();
+			return `${d < 10 ? '0' : ''}${d}/${m < 10 ? '0' : ''}${m}/${y}`;
+		}
+
+		let calcTimer = null;
 		function calculate() {
+			if (calcTimer) clearTimeout(calcTimer);
 			const hy = parseInt($('hYear').value), hm = parseInt($('hMonth').value);
 			if (isNaN(hy) || hy < 1 || hy > 10000) return;
 			const tr = T[lang];
 			$('statusBox').textContent = tr.calculating;
+			$('statusBox').className = 'status-box status-calc';
 
-			setTimeout(() => {
+			calcTimer = setTimeout(() => {
 				try {
 					const index = (hy - 1) * 12 + (hm - 1);
-					const jdStart = EPOCH_JD + Math.floor(29.530573265 * index + 0.236624);
-					const checkJD29 = jdStart + 28.5;
-					const tCheck = Astronomy.MakeTime(checkJD29);
-
 					const obsA = new Astronomy.Observer(ACEH.lat, ACEH.lon, 0);
 					const obsM = new Astronomy.Observer(MECCA.lat, MECCA.lon, 0);
-					const sA = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsA, -1, tCheck, 1);
-					const sM = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsM, -1, tCheck, 1);
 
-					const vA = sA ? checkVisibility(obsA, sA.ut, 3.0, 6.4) : false;
-					const vG = checkGlobal(checkJD29);
-					const vM = sM ? checkVisibility(obsM, sM.ut, 3.0, 6.4) : false;
+					const startA = findStartDate(index, obsA, 'mabbims');
+					const startG = findStartDate(index, null, 'global');
+					const startM = findStartDate(index, obsM, 'mabbims');
+
+					$('resAceh').textContent = formatDate(startA);
+					$('resGlobal').textContent = formatDate(startG);
+					$('resMecca').textContent = formatDate(startM);
 
 					const statusBox = $('statusBox');
-					if (vA === vG) {
+					if (startA === startG) {
 						statusBox.textContent = tr.serempak;
 						statusBox.className = 'status-box status-success';
 					} else {
 						statusBox.textContent = tr.berbeda;
 						statusBox.className = 'status-box status-error';
 					}
-
-					const fmtV = v => v ? tr.visible : tr.notVisible;
-					const clrV = v => v ? 'var(--success)' : 'var(--danger)';
-					$('resAceh').textContent = fmtV(vA); $('resAceh').style.color = clrV(vA);
-					$('resGlobal').textContent = fmtV(vG); $('resGlobal').style.color = clrV(vG);
-					$('resMecca').textContent = fmtV(vM); $('resMecca').style.color = clrV(vM);
 				} catch (e) {
 					console.error(e);
-					$('statusBox').textContent = 'Error: ' + e.message;
+					$('statusBox').textContent = 'Error';
 				}
-			}, 10);
+			}, 50);
 		}
 
 		const nowJD = Math.floor(new Date().getTime() / 86400000 + 2440587.5);

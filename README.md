@@ -77,9 +77,9 @@ Comparison of conversion methods and simultaneity rates over 10,000 years (1-10,
 
 | Category                  | Rate (%)   |
 | :------------------------ | :--------- |
-| **All Months**            | **87.60%** |
-| Obligatory Months         | 87.67%     |
-| vs Mecca Reference Point  | 86.14%     |
+| **All Months**            | **57.44%** |
+| Obligatory Months         | 58.48%     |
+| vs Mecca Reference Point  | 85.26%     |
 
 -   **DP**: Dynamic Programming optimized leap years (1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26).
 -   **Obligatory**: Ramadan, Shawwal, Dhu al-Hijjah.

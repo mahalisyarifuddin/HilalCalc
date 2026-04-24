@@ -39,6 +39,11 @@ A robust calendar tool that adapts its calculations to your specific location an
 The tools implement topocentric moon visibility criteria, which account for the observer's specific position on Earth's surface. This is more accurate than geocentric models for predicting actual sightings.
 -   **MABBIMS (2021)**: Altitude ≥ 3°, Elongation ≥ 6.4° at sunset.
 
+**Optimal Thresholds (1-10000 AH)**:
+Exhaustive search (1° increments) to maximize match accuracy against the composite Ground Truth identifies the following optimal local thresholds:
+-   **Mecca**: Altitude ≥ 3°, Elongation ≥ 6° (**97.24%** accuracy).
+-   **San Francisco**: Altitude ≥ 3°, Elongation ≥ 12° (**94.13%** accuracy).
+
 ### Global Approximation (1-10000 AH)
 For quick navigation and broad historical coverage, `HijriCalc` uses an optimized **Global Formula** derived from a rigorous composite analysis.
 

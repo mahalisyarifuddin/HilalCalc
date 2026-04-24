@@ -585,11 +585,7 @@ self.onmessage = e => {
 
 				const idx = (row * width + col) * 4;
 				if (visible) {
-					if (isGIC) {
-						buffer[idx] = 255; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 150;
-					} else {
-						buffer[idx] = 0; buffer[idx+1] = 150; buffer[idx+2] = 0; buffer[idx+3] = 150;
-					}
+					buffer[idx] = 0; buffer[idx+1] = 150; buffer[idx+2] = 0; buffer[idx+3] = 100;
 				} else {
 					buffer[idx] = 0; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 0;
 				}
@@ -888,7 +884,7 @@ self.onmessage = e => {
 				const visible = ((!isGICInner || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong);
 
 				const displayData = [
-					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? (isGICInner ? "red" : "var(--success)") : "var(--danger)"},
+					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
 					{label:"sunsetTime",value:formatTime(sunset)},
 					{label:"moonsetTime",value:formatTime(moonset)},
 					{label:"moonAlt",value:moonHor.altitude.toFixed(2) + "°"},

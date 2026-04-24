@@ -331,7 +331,7 @@
 						<button id="zoom-reset" title="Reset">⟲</button>
 				</div>
 				<div id="map-wrapper">
-					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/f/f4/Mercator_projection_SW.jpg" alt="World Map" draggable="false">
+					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg" alt="World Map" draggable="false">
 					<canvas id="map-overlay"></canvas>
 				</div>
 			</div>
@@ -423,7 +423,7 @@
 				regionIndonesia: 'Indonesia',
 				regionWorld: 'World',
 				criteriaMabbims: 'MABBIMS (Alt≥3°, Elong≥6.4°)',
-				criteriaGic: 'Global Islamic (Alt≥5°, Elong≥8°)',
+				criteriaGic: 'GIC (Alt≥5°, Elong≥8°)',
 				criteriaAlt0: 'Altitude > 0°',
 				criteriaCustom: 'Custom Criteria',
 				utcPlaceholder: 'e.g., 7',
@@ -480,7 +480,7 @@
 				regionIndonesia: 'Indonesia',
 				regionWorld: 'Dunia',
 				criteriaMabbims: 'MABBIMS (Tinggi≥3°, Elongasi≥6.4°)',
-				criteriaGic: 'Global Islamic (Tinggi≥5°, Elongasi≥8°)',
+				criteriaGic: 'GIC (Tinggi≥5°, Elongasi≥8°)',
 				criteriaAlt0: 'Tinggi Bulan > 0°',
 				criteriaCustom: 'Kriteria Kustom',
 				utcPlaceholder: 'contoh: 7',
@@ -505,8 +505,8 @@
 		const WORKER_CODE = `importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
 
 const calculateSunset = (lat, lon, baseDateUT) => {
-	const observer = new Astronomy.Observer(lat, lon, 0);
-	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, baseDateUT - (lon / 15 / 24), 1);
+	const obs = new Astronomy.Observer(lat, lon, 0);
+	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, baseDateUT - (lon / 15 / 24), 1);
 };
 
 self.onmessage = e => {
@@ -530,18 +530,16 @@ self.onmessage = e => {
 			criteriaMinAlt = minAlt; criteriaMinElong = minElong; isGIC = false;
 		}
 
-		const DEG_TO_RAD = Math.PI / 180;
-		const RAD_TO_DEG = 180 / Math.PI;
-		const latToMercatorY = lat => Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2));
-		const mercatorYToLat = y => (2 * Math.atan(Math.exp(y)) - Math.PI / 2) * RAD_TO_DEG;
+		const latToPlateCarreeY = lat => lat;
+		const plateCarreeYToLat = y => y;
 
-		const minY = latToMercatorY(bounds.minLat);
-		const maxY = latToMercatorY(bounds.maxLat);
+		const minY = latToPlateCarreeY(bounds.minLat);
+		const maxY = latToPlateCarreeY(bounds.maxLat);
 		const yRange = maxY - minY;
 		const STEP = 10;
 
 		for (let row = 0; row < height; row++) {
-			const lat = mercatorYToLat(maxY - (row / (height - 1 || 1)) * yRange);
+			const lat = plateCarreeYToLat(maxY - (row / (height - 1 || 1)) * yRange);
 			let prevCol = -1;
 			let nextCol = -1;
 			let prevSunset = null;
@@ -567,20 +565,33 @@ self.onmessage = e => {
 				let visible = false;
 				if (sunset && (!isGIC || sunset.ut < date.ut + 0.5)) {
 					const obs = new Astronomy.Observer(lat, lon, 0);
-					const mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
+					let mEq, sEq;
+					if (isGIC) {
+						const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
+						const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
+						const rot = Astronomy.Rotation_EQJ_EQD(sunset.ut);
+						mEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
+						sEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
+					} else {
+						mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
+						sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
+					}
 					const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
 
 					if (mHor.altitude >= criteriaMinAlt) {
-						const sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
 						visible = Astronomy.AngleBetween(sEq.vec, mEq.vec) >= criteriaMinElong;
 					}
 				}
 
 				const idx = (row * width + col) * 4;
 				if (visible) {
-					buffer[idx] = 0; buffer[idx+1] = 200; buffer[idx+2] = 0; buffer[idx+3] = 180;
+					if (isGIC) {
+						buffer[idx] = 255; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 150;
+					} else {
+						buffer[idx] = 0; buffer[idx+1] = 150; buffer[idx+2] = 0; buffer[idx+3] = 150;
+					}
 				} else {
-					buffer[idx] = 255; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 180;
+					buffer[idx] = 0; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 0;
 				}
 			}
 			if (row % 10 === 0) {
@@ -830,9 +841,19 @@ self.onmessage = e => {
 
 			calculateDetailsWithSunset(sunset,observer,date,criteria) {
 				const sunsetUT = sunset.ut;
-				const moonEq = Astronomy.Equator(Astronomy.Body.Moon,sunsetUT,observer,true,true);
+				const isGICDetail = criteria === "gic";
+				let moonEq, sunEq;
+				if (isGICDetail) {
+					const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunsetUT, true);
+					const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunsetUT, true);
+					const rot = Astronomy.Rotation_EQJ_EQD(sunsetUT);
+					moonEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
+					sunEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
+				} else {
+					moonEq = Astronomy.Equator(Astronomy.Body.Moon,sunsetUT,observer,true,true);
+					sunEq = Astronomy.Equator(Astronomy.Body.Sun,sunsetUT,observer,true,true);
+				}
 				const moonHor = Astronomy.Horizon(sunsetUT,observer,moonEq.ra,moonEq.dec,"normal");
-				const sunEq = Astronomy.Equator(Astronomy.Body.Sun,sunsetUT,observer,true,true);
 				const elongation = Astronomy.AngleBetween(sunEq.vec,moonEq.vec);
 
 				const prevNewMoon = Astronomy.SearchMoonPhase(0,date.ut,-1);
@@ -851,23 +872,23 @@ self.onmessage = e => {
 					return `${timeString} (UTC${sign}${offset})`;
 				};
 
-				let minAlt, minElong, isGIC;
+				let minAlt, minElong, isGICInner;
 				if (criteria === "mabbims") {
-					minAlt = 3; minElong = 6.4; isGIC = false;
+					minAlt = 3; minElong = 6.4; isGICInner = false;
 				} else if (criteria === "gic") {
-					minAlt = 5; minElong = 8; isGIC = true;
+					minAlt = 5; minElong = 8; isGICInner = true;
 				} else if (criteria === "alt0") {
-					minAlt = 0; minElong = -100; isGIC = false;
+					minAlt = 0; minElong = -100; isGICInner = false;
 				} else {
 					minAlt = parseFloat(elements.calcMinAlt.value) || 0;
 					minElong = parseFloat(elements.calcMinElong.value) || 0;
-					isGIC = false;
+					isGICInner = false;
 				}
 
-				const visible = ((!isGIC || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong);
+				const visible = ((!isGICInner || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong);
 
 				const displayData = [
-					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
+					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? (isGICInner ? "red" : "var(--success)") : "var(--danger)"},
 					{label:"sunsetTime",value:formatTime(sunset)},
 					{label:"moonsetTime",value:formatTime(moonset)},
 					{label:"moonAlt",value:moonHor.altitude.toFixed(2) + "°"},
@@ -885,8 +906,8 @@ self.onmessage = e => {
 			handleRegionChange() {
 				const region = elements.mapRegion.value;
 
-				// Map bounds are 82°N to 82°S, -180° to 180°
-				const mapBounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
+				// Map bounds are 90°N to 90°S, -180° to 180°
+				const mapBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 
 				if (region === "indonesia") {
 					// Indonesia region: -11° to 6° lat, 95° to 141° lon
@@ -952,13 +973,13 @@ self.onmessage = e => {
 				elements.renderMap.textContent = this.string("cancel");
 				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
 
-				// Define bounds based on region (image is 82°N to 82°S)
+				// Define bounds based on region (image is 90°N to 90°S)
 				const region = elements.mapRegion.value;
 				let bounds;
 				if (region === "indonesia") {
 					bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
 				} else {
-					bounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
+					bounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 				}
 
 				const criteria = elements.mapCriteria.value;
@@ -1008,9 +1029,8 @@ self.onmessage = e => {
 				elements.mapStatus.textContent = this.string("done");
 			}
 
-			latToMercatorY(lat) {
-				const DEG_TO_RAD = Math.PI / 180;
-				return Math.log(Math.tan(Math.PI / 4 + (lat * DEG_TO_RAD) / 2));
+			latToPlateCarreeY(lat) {
+				return lat;
 			}
 
 			redrawOverlay() {
@@ -1033,21 +1053,21 @@ self.onmessage = e => {
 				tempCtx.putImageData(this.currentImageData, 0, 0);
 
 				// Calculate position based on bounds
-				// Image covers 82°N to 82°S, -180° to 180°
-				const imgBounds = { minLat: -82, maxLat: 82, minLon: -180, maxLon: 180 };
+				// Image covers 90°N to 90°S, -180° to 180°
+				const imgBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 				const dataBounds = this.lastBounds;
 
 				// Horizontal (Linear)
 				const x = ((dataBounds.minLon - imgBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
 				const w = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
 
-				// Vertical (Mercator)
-				// Map Y=0 is 82°N, Y=Height is -82°S
-				const mapTopY = this.latToMercatorY(imgBounds.maxLat);
-				const mapBottomY = this.latToMercatorY(imgBounds.minLat);
+				// Vertical (Linear)
+				// Map Y=0 is 90°N, Y=Height is -90°S
+				const mapTopY = this.latToPlateCarreeY(imgBounds.maxLat);
+				const mapBottomY = this.latToPlateCarreeY(imgBounds.minLat);
 
-				const dataTopY = this.latToMercatorY(dataBounds.maxLat);
-				const dataBottomY = this.latToMercatorY(dataBounds.minLat);
+				const dataTopY = this.latToPlateCarreeY(dataBounds.maxLat);
+				const dataBottomY = this.latToPlateCarreeY(dataBounds.minLat);
 
 				// Y pixel is proportional to (mapTopY - val)
 				const y = ((mapTopY - dataTopY) / (mapTopY - mapBottomY)) * canvas.height;

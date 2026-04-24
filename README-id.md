@@ -48,11 +48,6 @@ Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik 
 Alat ini mengimplementasikan kriteria visibilitas hilal toposentrik, yang memperhitungkan posisi spesifik pengamat di permukaan bumi. Ini lebih akurat daripada model geosentrik untuk memprediksi penampakan aktual.
 -   **MABBIMS (2021)**: Tinggi ≥ 3°, Elongasi ≥ 6,4° saat matahari terbenam.
 
-**Ambang Batas Optimal (1-10000 H)**:
-Pencarian lengkap (inkremen 1°) untuk memaksimalkan akurasi pencocokan terhadap Ground Truth komposit mengidentifikasi ambang batas lokal optimal berikut:
--   **Mekkah**: Tinggi ≥ 3°, Elongasi ≥ 6° (akurasi **97,24%**).
--   **San Francisco**: Tinggi ≥ 3°, Elongasi ≥ 12° (akurasi **94,13%**).
-
 ### Aproksimasi Global (1-10000 H)
 Untuk navigasi cepat dan cakupan sejarah yang luas, `HijriCalc` menggunakan **Rumus Global** teroptimasi yang berasal dari analisis komposit yang ketat.
 
@@ -67,6 +62,11 @@ Di mana `Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1)`.
 
 **Akurasi:**
 Rumus ini mencapai akurasi pencocokan tepat **~69,55%** terhadap Ground Truth astronomis toposentrik selama 10.000 tahun, dengan akurasi **~69,65%** untuk bulan-bulan wajib (Ramadhan, Syawal, Dzulhijjah).
+
+**Ambang Batas Optimal (1-10000 H)**:
+Pencarian lengkap (inkremen 1°) untuk memaksimalkan akurasi pencocokan terhadap Ground Truth komposit mengidentifikasi ambang batas lokal optimal berikut:
+-   **Mekkah**: Tinggi ≥ 3°, Elongasi ≥ 6° (akurasi **97,24%**).
+-   **San Francisco**: Tinggi ≥ 3°, Elongasi ≥ 12° (akurasi **94,13%**).
 
 ### Perbandingan Tabular
 Kami membandingkan Rumus Global Linear dengan skema tabular 30 tahun tradisional dan teroptimasi (10.631 hari per siklus).

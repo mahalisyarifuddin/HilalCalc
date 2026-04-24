@@ -6,9 +6,10 @@ Moon visibility, simplified.
 ## Introduction
 HilalCalc is a collection of single-file, browser-based tools for calculating and visualizing the Islamic Hijri calendar and the visibility of the crescent moon (Hilal). Designed for researchers, students, and observers, these tools implement topocentric criteria to predict the start of Islamic months based on actual surface-based sightings.
 
-The repository includes two standalone tools:
+The repository includes three standalone tools:
 1.  **HilalMap.html**: A map-based visualization of global moon visibility.
 2.  **HijriCalc.html**: A calendar calculator with a round-trip linear converter.
+3.  **HilalSync.html**: A tool to track Hijri month-start simultaneity (serempak) for Indonesia.
 
 The interface supports both **English** and **Bahasa Indonesia**.
 
@@ -24,7 +25,15 @@ Visualize where the new crescent moon is visible on the globe for any given date
 -   **Web Worker Rendering**: Offloads complex calculations to a background thread to keep the UI responsive.
 -   **Offline Capable**: Works locally (requires internet only for the map tiles).
 
-### 2. HijriCalc (Calendar & Converter)
+### 2. HilalSync (Simultaneity Tracker)
+A tool tailormade for Indonesians to track whether a Hijri month start date is simultaneous (serempak) between MABBIMS and Global (GIC) criteria.
+
+**Key Features:**
+-   **Per-month Verdict**: Clear indication of whether the month start is simultaneous or divergent.
+-   **Dual Timeline**: Compare Gregorian dates for the new moon according to both criteria.
+-   **Historical Data**: Pre-computed simultaneity rates over 10,000 years.
+
+### 3. HijriCalc (Calendar & Converter)
 A robust calendar tool that adapts its calculations to your specific location and historical context.
 
 **Key Features:**
@@ -82,6 +91,14 @@ Accuracy depends on how well the leap year ratio (N/L) approximates the mean lun
 
 The linear approach provides a **~25% absolute accuracy gain** over fixed-cycle tabular schemes by modeling the true long-term "drift" of the lunar cycle.
 
+### Simultaneity Analysis (Aceh vs. Global)
+We analyzed the simultaneity (serempak) rate between MABBIMS (3°, 6.4°, Banda Aceh) and GIC (5°, 8°, geocentric before 00:00 UTC) over 10,000 years (1-10,000 AH).
+
+-   **Overall Rate**: **55.08%**
+-   **Obligatory Months**: **55.19%** (Ramadan, Shawwal, Dhu al-Hijjah)
+
+These results indicate that while there is significant alignment, the differing geographical and astronomical constraints lead to divergent starts in nearly half of the months.
+
 ## How Hijri Leap Years Work
 The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). In leap years, a single day is added to the 12th month, **Dhu al-Hijjah**.
 
@@ -90,6 +107,7 @@ The `scripts/` directory contains the Python tools used for data generation and 
 -   `generate_gt.py`: Generates the topocentric Ground Truth.
 -   `find_best_fit.py`: Derives the optimal Linear Formula constants.
 -   `find_best_tabular.py`: Analyzes tabular schemes and modular constants.
+-   `analyze_serempak.py`: Computes 10,000-year simultaneity rates.
 -   `verify_all_modes.py`: playwrigth-based UI verification.
 
 Dependencies: `pip install astronomy-engine numpy playwright`.

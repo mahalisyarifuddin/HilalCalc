@@ -6,9 +6,10 @@
 ## Pengantar
 HilalCalc adalah kumpulan alat berbasis peramban (browser) file tunggal untuk menghitung dan memvisualisasikan kalender Hijriyah serta visibilitas hilal (bulan sabit muda). Dirancang untuk peneliti, pelajar, dan pengamat, alat ini mengimplementasikan kriteria toposentrik untuk memprediksi awal bulan Islam berdasarkan penampakan aktual dari permukaan bumi.
 
-Repositori ini mencakup dua alat mandiri:
+Repositori ini mencakup tiga alat mandiri:
 1.  **HilalMap.html**: Visualisasi peta global visibilitas hilal.
 2.  **HijriCalc.html**: Kalkulator kalender dengan konverter linear dua arah.
+3.  **HilalSync.html**: Alat untuk melacak keserempakan awal bulan Hijriyah untuk Indonesia.
 
 Antarmuka mendukung **Bahasa Inggris** dan **Bahasa Indonesia**.
 
@@ -24,7 +25,15 @@ Visualisasikan di mana hilal terlihat di bola dunia untuk tanggal tertentu.
 -   **Render Web Worker**: Memindahkan perhitungan kompleks ke *background thread* agar UI tetap responsif.
 -   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk *tile* peta).
 
-### 2. HijriCalc (Kalender & Konverter)
+### 2. HilalSync (Pelacak Keserempakan)
+Alat yang dibuat khusus untuk masyarakat Indonesia untuk melacak apakah tanggal awal bulan Hijriyah serempak antara kriteria MABBIMS dan Global (GIC).
+
+**Fitur Utama:**
+-   **Verdict Per Bulan**: Indikasi jelas apakah awal bulan serempak atau berbeda.
+-   **Timeline Ganda**: Bandingkan tanggal Masehi untuk hilal baru menurut kedua kriteria.
+-   **Data Historis**: Hasil simulasi keserempakan selama 10.000 tahun.
+
+### 3. HijriCalc (Kalender & Konverter)
 Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik dan konteks sejarah Anda.
 
 **Fitur Utama:**
@@ -82,6 +91,14 @@ Akurasi sangat bergantung pada seberapa baik rasio tahun kabisat (N/L) mendekati
 
 Pendekatan linear memberikan **keuntungan akurasi absolut ~25%** dibandingkan skema tabular siklus tetap dengan memodelkan "pergeseran" jangka panjang siklus lunar yang sebenarnya.
 
+### Analisis Keserempakan (Aceh vs Global)
+Kami menganalisis tingkat keserempakan antara kriteria MABBIMS (3°, 6,4°, Banda Aceh) dan GIC (5°, 8°, geosentrik sebelum pukul 00:00 UTC) selama 10.000 tahun (1-10.000 H).
+
+-   **Tingkat Total**: **55,08%**
+-   **Bulan Wajib**: **55,19%** (Ramadan, Syawal, Dzulhijjah)
+
+Hasil ini menunjukkan bahwa meskipun ada keselarasan yang signifikan, perbedaan batasan geografis dan astronomis menyebabkan perbedaan awal bulan pada hampir separuh dari total bulan yang ada.
+
 ## Cara Kerja Tahun Kabisat Hijriyah
 Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
 
@@ -90,6 +107,7 @@ Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan 
 -   `generate_gt.py`: Menghasilkan Ground Truth toposentrik.
 -   `find_best_fit.py`: Menurunkan konstanta Rumus Linear yang optimal.
 -   `find_best_tabular.py`: Menganalisis skema tabular dan konstanta modular.
+-   `analyze_serempak.py`: Menghitung tingkat keserempakan 10.000 tahun.
 -   `verify_all_modes.py`: Verifikasi UI berbasis Playwright.
 
 Dependensi: `pip install astronomy-engine numpy playwright`.

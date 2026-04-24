@@ -1528,6 +1528,7 @@
 
 						cell.innerHTML = `<div class="pdate">${pv}${isGmode && isJul ? julTag : ''}</div><div class="sdate${isNewSec ? ' new-m' : ''}">${sv}${!isGmode && isJul ? julTag : ''}${secMon}</div>`;
 						cell.onclick = ()=>{
+							state.viewDate = date;
 							this.setInput($('gDateInput'), date);
 							this.syncHijriInputs(date);
 							this.render();

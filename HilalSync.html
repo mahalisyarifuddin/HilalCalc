@@ -1,384 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>HilalSync - Hijri Simultaneity Tracker</title>
-    <style>
-        :root {
-            --primary: #005dac;
-            --on-primary: #ffffff;
-            --hover: #00539a;
-            --background: #f9f9ff;
-            --surface: #ffffff;
-            --text: #181c21;
-            --border: #c1c6d4;
-            --muted: #f2f3fc;
-            --success: #0b6b1d;
-            --on-success: #ffffff;
-            --danger: #ba1a1a;
-            --error: #ba1a1a;
-            --on-danger: #ffffff;
-            --highlight-bg: #d4e3ff;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root:not(.light) {
-                --primary: #a5c8ff;
-                --on-primary: #00315f;
-                --hover: #72adff;
-                --background: #101319;
-                --surface: #0b0e14;
-                --text: #e0e2ea;
-                --border: #414752;
-                --muted: #181c21;
-                --success: #82db7e;
-                --on-success: #00390a;
-                --danger: #ffb4ab;
-                --error: #ffb4ab;
-                --on-danger: #93000a;
-                --highlight-bg: #001c3a;
-            }
-        }
-        :root.dark {
-            --primary: #a5c8ff;
-            --on-primary: #00315f;
-            --hover: #72adff;
-            --background: #101319;
-            --surface: #0b0e14;
-            --text: #e0e2ea;
-            --border: #414752;
-            --muted: #181c21;
-            --success: #82db7e;
-            --on-success: #00390a;
-            --danger: #ffb4ab;
-            --error: #ffb4ab;
-            --on-danger: #93000a;
-            --highlight-bg: #001c3a;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; outline-offset: 2px; }
-        body {
-            background: var(--background);
-            color: var(--text);
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 1rem;
-        }
-        .container {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            max-width: 900px;
-            padding: 2rem;
-            width: 100%;
-            margin: 2rem 0;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .selectors { display: flex; gap: 8px; }
-        select, input, button {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            color: var(--text);
-            font-size: 1rem;
-            padding: .5rem;
-        }
-        button { cursor: pointer; }
-        .primary { background: var(--primary); color: var(--on-primary); border: 0; }
-        .primary:hover { background: var(--hover); }
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<title>HilalSync - Hijri Simultaneity Tracker</title>
+		<style>
+			:root {
+				--primary: #005dac;
+				--on-primary: #ffffff;
+				--hover: #00539a;
+				--background: #f9f9ff;
+				--surface: #ffffff;
+				--text: #181c21;
+				--border: #c1c6d4;
+				--muted: #f2f3fc;
+				--success: #0b6b1d;
+				--on-success: #ffffff;
+				--danger: #ba1a1a;
+				--error: #ba1a1a;
+				--on-danger: #ffffff;
+				--highlight-bg: #d4e3ff;
+			}
 
-        .verdict-box {
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border: 2px solid transparent;
-        }
-        .verdict-simultaneous { background: var(--success); color: var(--on-success); }
-        .verdict-divergent { background: var(--danger); color: var(--on-danger); }
+			@media (prefers-color-scheme: dark) {
+				:root:not(.light) {
+					--primary: #a5c8ff;
+					--on-primary: #00315f;
+					--hover: #72adff;
+					--background: #101319;
+					--surface: #0b0e14;
+					--text: #e0e2ea;
+					--border: #414752;
+					--muted: #181c21;
+					--success: #82db7e;
+					--on-success: #00390a;
+					--danger: #ffb4ab;
+					--error: #ffb4ab;
+					--on-danger: #93000a;
+					--highlight-bg: #001c3a;
+				}
+			}
 
-        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .panel {
-            border: 1px solid var(--border);
-            padding: 1rem;
-            border-radius: 4px;
-        }
-        .panel-title { font-weight: bold; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
-        .panel-date { font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .panel-info { font-size: 0.9rem; opacity: 0.8; line-height: 1.4; }
+			:root.dark {
+				--primary: #a5c8ff;
+				--on-primary: #00315f;
+				--hover: #72adff;
+				--background: #101319;
+				--surface: #0b0e14;
+				--text: #e0e2ea;
+				--border: #414752;
+				--muted: #181c21;
+				--success: #82db7e;
+				--on-success: #00390a;
+				--danger: #ffb4ab;
+				--error: #ffb4ab;
+				--on-danger: #93000a;
+				--highlight-bg: #001c3a;
+			}
 
-        .controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
-        .nav-btn { min-width: 80px; }
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+				outline-offset: 2px;
+			}
 
-        .stats-box {
-            background: var(--muted);
-            padding: 1rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-        .stats-title { font-weight: bold; margin-bottom: 0.5rem; }
+			body {
+				background: var(--background);
+				color: var(--text);
+				font-family: sans-serif;
+				display: flex;
+				justify-content: center;
+				min-height: 100vh;
+				padding: 1rem;
+			}
 
-        @media(max-width: 600px) {
-            .panels { grid-template-columns: 1fr; }
-            .header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1 id="appTitle">HilalSync</h1>
-            <div class="selectors">
-                <select id="language" aria-label="Language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
-                <select id="theme" aria-label="Theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
-            </div>
-        </div>
+			.container {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				max-width: 900px;
+				padding: 2rem;
+				width: 100%;
+				margin: 2rem 0;
+				display: flex;
+				flex-direction: column;
+				gap: 1.5rem;
+				position: relative;
+			}
 
-        <div class="controls">
-            <button id="prevBtn" class="nav-btn">&laquo; Prev</button>
-            <input type="number" id="hYearInput" placeholder="Year" style="width: 80px;">
-            <select id="hMonthInput">
-                <option value="1">Muharram</option>
-                <option value="2">Safar</option>
-                <option value="3">Rabi' al-awwal</option>
-                <option value="4">Rabi' al-thani</option>
-                <option value="5">Jumada al-ula</option>
-                <option value="6">Jumada al-akhira</option>
-                <option value="7">Rajab</option>
-                <option value="8">Sha'ban</option>
-                <option value="9">Ramadan</option>
-                <option value="10">Shawwal</option>
-                <option value="11">Dhu al-Qi'dah</option>
-                <option value="12">Dhu al-Hijjah</option>
-            </select>
-            <button id="goBtn" class="primary">Go</button>
-            <button id="todayBtn">Today</button>
-            <button id="nextBtn" class="nav-btn">Next &raquo;</button>
-        </div>
+			.selectors {
+				position: absolute;
+				right: 2rem;
+				top: 1rem;
+				display: flex;
+				gap: 8px;
+			}
 
-        <div id="verdict" class="verdict-box"></div>
+			.selectors select {
+				width: auto;
+				font-size: .9rem;
+			}
 
-        <div class="panels">
-            <div class="panel">
-                <div class="panel-title">MABBIMS [Aceh]</div>
-                <div id="dateAceh" class="panel-date"></div>
-                <div id="infoAceh" class="panel-info"></div>
-            </div>
-            <div class="panel">
-                <div class="panel-title">GIC [Global]</div>
-                <div id="dateGic" class="panel-date"></div>
-                <div id="infoGic" class="panel-info"></div>
-            </div>
-        </div>
+			select, input, button {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				color: var(--text);
+				font-size: 1rem;
+				padding: .5rem;
+			}
 
-        <div class="stats-box">
-            <div id="statsTitle" class="stats-title"></div>
-            <p id="statsContent"></p>
-        </div>
+			button {
+				cursor: pointer;
+			}
 
-        <div id="methodology" class="panel-info"></div>
-    </div>
+			.primary {
+				background: var(--primary);
+				color: var(--on-primary);
+				border: 0;
+			}
 
-    <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-    <script>
-        const text = {
-            en: {
-                appTitle: "HilalSync",
-                simultaneous: "SIMULTANEOUS",
-                divergent: "DIVERGENT",
-                statsTitle: "Simultaneity rate (1-10,000 AH)",
-                statsContent: "Overall: <b>62.74%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>62.67%</b>. Validated 100% against T. Djamaluddin's 1447-1476 dataset.",
-                methodology: "<b>MABBIMS</b>: Alt ≥ 3°, Elong (Geo) ≥ 6.4° in Banda Aceh. <b>KHGT</b>: Alt (Geo) ≥ 5°, Elong (Geo) ≥ 8° anywhere globally before Fajr in NZ.",
-                acehInfo: "Sunset in Banda Aceh: ",
-                gicInfo: "KHGT Deadline: ",
-                alt: "Alt",
-                elong: "Elong",
-                today: "Today",
-                monthNames: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-ula", "Jumada al-akhira", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"]
-            },
-            id: {
-                appTitle: "HilalSync",
-                simultaneous: "SEREMPAK",
-                divergent: "BERBEDA",
-                statsTitle: "Tingkat Keserempakan (1-10.000 H)",
-                statsContent: "Total: <b>62,74%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>62,67%</b>.",
-                methodology: "<b>MABBIMS</b>: Tinggi ≥ 3°, Elong (Geo) ≥ 6,4° di Banda Aceh. <b>KHGT</b>: Tinggi (Geo) ≥ 5°, Elong (Geo) ≥ 8° di mana pun sebelum Fajar di Selandia Baru.",
-                acehInfo: "Maghrib di Banda Aceh: ",
-                gicInfo: "Tenggat KHGT: ",
-                alt: "Tinggi",
-                elong: "Elongasi",
-                today: "Hari Ini",
-                monthNames: ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Ula", "Jumadil Akhira", "Rajab", "Sya'ban", "Ramadan", "Syawal", "Zulkaidah", "Zulhijah"]
-            }
-        };
+			.primary:hover {
+				background: var(--hover);
+			}
 
-        const state = {
-            lang: "en",
-            year: 1447,
-            month: 9,
-            AE_OFFSET: 2451545.0,
-            BA_LAT: 5.54829,
-            BA_LON: 95.32375
-        };
+			.verdict-box {
+				padding: 1.5rem;
+				border-radius: 8px;
+				text-align: center;
+				font-size: 1.5rem;
+				font-weight: bold;
+				border: 2px solid transparent;
+			}
 
-        const elements = {
-            language: document.getElementById('language'),
-            theme: document.getElementById('theme'),
-            hYearInput: document.getElementById('hYearInput'),
-            hMonthInput: document.getElementById('hMonthInput'),
-            prevBtn: document.getElementById('prevBtn'),
-            nextBtn: document.getElementById('nextBtn'),
-            goBtn: document.getElementById('goBtn'),
-            todayBtn: document.getElementById('todayBtn'),
-            verdict: document.getElementById('verdict'),
-            dateAceh: document.getElementById('dateAceh'),
-            infoAceh: document.getElementById('infoAceh'),
-            dateGic: document.getElementById('dateGic'),
-            infoGic: document.getElementById('infoGic'),
-            statsContent: document.getElementById('statsContent'),
-            statsTitle: document.getElementById('statsTitle'),
-            methodology: document.getElementById('methodology'),
-            appTitle: document.getElementById('appTitle')
-        };
+			.verdict-simultaneous {
+				background: var(--success);
+				color: var(--on-success);
+			}
 
-        function jdToDate(jd) {
-            return new Date((jd - 2440587.5) * 86400000);
-        }
+			.verdict-divergent {
+				background: var(--danger);
+				color: var(--on-danger);
+			}
 
-        function utToDate(ut) {
-            return jdToDate(ut + state.AE_OFFSET);
-        }
+			.panels {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 1rem;
+			}
 
-        function updateLang() {
-            state.lang = elements.language.value;
-            const strings = text[state.lang];
-            elements.statsTitle.textContent = strings.statsTitle;
-            elements.statsContent.innerHTML = strings.statsContent;
-            elements.methodology.innerHTML = strings.methodology;
-            elements.appTitle.textContent = strings.appTitle;
-            elements.todayBtn.textContent = strings.today;
-            for (let i = 0; i < 12; i++) elements.hMonthInput.options[i].textContent = strings.monthNames[i];
-            calculate();
-        }
+			.panel {
+				border: 1px solid var(--border);
+				padding: 1rem;
+				border-radius: 4px;
+			}
 
-        function formatDate(jd) {
-            const date = jdToDate(jd);
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
-            return date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-GB', options);
-        }
+			.panel-title {
+				font-weight: bold;
+				margin-bottom: 0.5rem;
+				border-bottom: 1px solid var(--border);
+				padding-bottom: 0.25rem;
+			}
 
-        function updateTheme() {
-            const val = elements.theme.value;
-            document.documentElement.className = val === 'auto' ? '' : val;
-        }
+			.panel-date {
+				font-size: 1.2rem;
+				margin-bottom: 0.5rem;
+			}
 
-        function getStartJD(year, month) {
-            const totalMonths = (year - 1) * 12 + (month - 1);
-            const approxJD = 1948440 + totalMonths * 29.53059;
-            const startTime = Astronomy.MakeTime(jdToDate(approxJD - 15));
-            const conj = Astronomy.SearchMoonPhase(0, startTime, 40);
+			.panel-info {
+				font-size: 0.9rem;
+				opacity: 0.8;
+				line-height: 1.4;
+			}
 
-            const obsAceh = new Astronomy.Observer(state.BA_LAT, state.BA_LON, 0);
-            const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, conj, 1.5);
-            let jdAceh, detailAceh;
-            if (sunset) {
-                const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset, true);
-                const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset, true);
-                const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
-                const eqMT = Astronomy.Equator(Astronomy.Body.Moon, sunset, obsAceh, true, true);
-                const ht = Astronomy.Horizon(sunset, obsAceh, eqMT.ra, eqMT.dec, "normal").altitude;
-                detailAceh = { ut: sunset.ut, alt: ht, elong: elongGeo };
-                if (ht >= 3.0 && elongGeo >= 6.4) {
-                    jdAceh = Math.floor(sunset.ut + state.AE_OFFSET + 0.5) + 0.5;
-                } else {
-                    const nextSunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, Astronomy.MakeTime(utToDate(sunset.ut + 0.5)), 1.5);
-                    jdAceh = Math.floor(nextSunset.ut + state.AE_OFFSET + 0.5) + 0.5;
-                }
-            }
+			.controls {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+				justify-content: center;
+			}
 
-            const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, new Astronomy.Observer(-41.28, 174.77, 0), 1, conj, 2.0, -18.0);
-            const dNZ = Math.floor(fNZ.ut + state.AE_OFFSET + 0.5);
+			.nav-btn {
+				min-width: 80px;
+			}
 
-            const checkVis = (targetJD, conjUT) => {
-                const longitudes = [180, 150, 120, 90, 60, 30, 0, -30, -60, -90, -120, -150];
-                for (const lon of longitudes) {
-                    const tSearch = Astronomy.MakeTime(jdToDate(targetJD - lon/360.0));
-                    const obs = new Astronomy.Observer(0, lon, 0);
-                    const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tSearch, 1.0);
-                    if (ss && ss.ut > conjUT) {
-                        const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
-                        const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
-                        const e = Astronomy.AngleBetween(mVec, sVec);
-                        const eqMG = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, false, true);
-                        const h = Astronomy.Horizon(ss, obs, eqMG.ra, eqMG.dec, "normal").altitude;
-                        if (h >= 5.0 && e >= 8.0) return { ut: ss.ut, alt: h, elong: e };
-                    }
-                }
-                return null;
-            };
+			.stats-box {
+				background: var(--muted);
+				padding: 1rem;
+				border-radius: 4px;
+				font-size: 0.9rem;
+			}
 
-            const vis = checkVis(dNZ - 1, conj.ut);
-            const jdGic = vis ? dNZ + 0.5 : dNZ + 1.5;
-            return { jdAceh, jdGic, detailAceh, detailGic: vis || { ut: fNZ.ut, alt: -1, elong: -1 } };
-        }
+			.stats-title {
+				font-weight: bold;
+				margin-bottom: 0.5rem;
+			}
 
-        function calculate() {
-            state.year = parseInt(elements.hYearInput.value) || 1;
-            state.month = parseInt(elements.hMonthInput.value);
-            let res = getStartJD(state.year, state.month);
+			@media(max-width: 600px) {
+				.panels {
+					grid-template-columns: 1fr;
+				}
 
-            const strings = text[state.lang];
+				.selectors {
+					position: static;
+					justify-content: flex-end;
+					margin-bottom: .5rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="selectors">
+				<select id="language" aria-label="Language">
+					<option value="en">English</option>
+					<option value="id">Bahasa Indonesia</option>
+				</select>
+				<select id="theme" aria-label="Theme">
+					<option value="auto">Auto</option>
+					<option value="light">Light</option>
+					<option value="dark">Dark</option>
+				</select>
+			</div>
+			<h1 id="appTitle">HilalSync</h1>
+			<div class="controls">
+				<button id="prevBtn" class="nav-btn">&laquo;Prev</button>
+				<input type="number" id="hYearInput" placeholder="Year" style="width: 80px;">
+				<select id="hMonthInput">
+					<option value="1">Muharram</option>
+					<option value="2">Safar</option>
+					<option value="3">Rabi' al-awwal</option>
+					<option value="4">Rabi' al-thani</option>
+					<option value="5">Jumada al-ula</option>
+					<option value="6">Jumada al-akhira</option>
+					<option value="7">Rajab</option>
+					<option value="8">Sha'ban</option>
+					<option value="9">Ramadan</option>
+					<option value="10">Shawwal</option>
+					<option value="11">Dhu al-Qi'dah</option>
+					<option value="12">Dhu al-Hijjah</option>
+				</select>
+				<button id="goBtn" class="primary">Go</button>
+				<button id="todayBtn">Today</button>
+				<button id="nextBtn" class="nav-btn">Next &raquo;</button>
+			</div>
+			<div id="verdict" class="verdict-box"></div>
+			<div class="panels">
+				<div class="panel">
+					<div class="panel-title">MABBIMS [Aceh]</div>
+					<div id="dateAceh" class="panel-date"></div>
+					<div id="infoAceh" class="panel-info"></div>
+				</div>
+				<div class="panel">
+					<div class="panel-title">GIC [Global]</div>
+					<div id="dateGic" class="panel-date"></div>
+					<div id="infoGic" class="panel-info"></div>
+				</div>
+			</div>
+			<div class="stats-box">
+				<div id="statsTitle" class="stats-title"></div>
+				<p id="statsContent"></p>
+			</div>
+			<div id="methodology" class="panel-info"></div>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+		<script>
+			const text = {
+				en: {
+					appTitle: "HilalSync",
+					simultaneous: "SIMULTANEOUS",
+					divergent: "DIVERGENT",
+					statsTitle: "Simultaneity rate (1-10,000 AH)",
+					statsContent: "Overall: <b>62.74%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>62.67%</b>. Validated 100% against T. Djamaluddin's 1447-1476 dataset.",
+					methodology: "<b>MABBIMS</b>: Alt ≥ 3°, Elong (Geo) ≥ 6.4° in Banda Aceh. <b>KHGT</b>: Alt (Geo) ≥ 5°, Elong (Geo) ≥ 8° anywhere globally before Fajr in NZ.",
+					acehInfo: "Sunset in Banda Aceh: ",
+					gicInfo: "KHGT Deadline: ",
+					alt: "Alt",
+					elong: "Elong",
+					today: "Today",
+					monthNames: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-ula", "Jumada al-akhira", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"]
+				},
+				id: {
+					appTitle: "HilalSync",
+					simultaneous: "SEREMPAK",
+					divergent: "BERBEDA",
+					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
+					statsContent: "Total: <b>62,74%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>62,67%</b>.",
+					methodology: "<b>MABBIMS</b>: Tinggi ≥ 3°, Elong (Geo) ≥ 6,4° di Banda Aceh. <b>KHGT</b>: Tinggi (Geo) ≥ 5°, Elong (Geo) ≥ 8° di mana pun sebelum Fajar di Selandia Baru.",
+					acehInfo: "Maghrib di Banda Aceh: ",
+					gicInfo: "Tenggat KHGT: ",
+					alt: "Tinggi",
+					elong: "Elongasi",
+					today: "Hari Ini",
+					monthNames: ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Ula", "Jumadil Akhira", "Rajab", "Sya'ban", "Ramadan", "Syawal", "Zulkaidah", "Zulhijah"]
+				}
+			};
 
-            elements.dateAceh.textContent = formatDate(res.jdAceh);
-            elements.dateGic.textContent = formatDate(res.jdGic);
+			const state = {
+				lang: "en",
+				year: 1447,
+				month: 9,
+				AE_OFFSET: 2451545.0,
+				BA_LAT: 5.54829,
+				BA_LON: 95.32375
+			};
 
-            const formatInfo = (info, prefix) => prefix + (info.ut > 0 ? (utToDate(info.ut).toISOString().substring(11,19) + " UTC<br>" + strings.alt + ": " + info.alt.toFixed(2) + "°, " + strings.elong + ": " + info.elong.toFixed(2) + "°") : "N/A");
+			const elements = {
+				language: document.getElementById('language'),
+				theme: document.getElementById('theme'),
+				hYearInput: document.getElementById('hYearInput'),
+				hMonthInput: document.getElementById('hMonthInput'),
+				prevBtn: document.getElementById('prevBtn'),
+				nextBtn: document.getElementById('nextBtn'),
+				goBtn: document.getElementById('goBtn'),
+				todayBtn: document.getElementById('todayBtn'),
+				verdict: document.getElementById('verdict'),
+				dateAceh: document.getElementById('dateAceh'),
+				infoAceh: document.getElementById('infoAceh'),
+				dateGic: document.getElementById('dateGic'),
+				infoGic: document.getElementById('infoGic'),
+				statsContent: document.getElementById('statsContent'),
+				statsTitle: document.getElementById('statsTitle'),
+				methodology: document.getElementById('methodology'),
+				appTitle: document.getElementById('appTitle')
+			};
 
-            elements.infoAceh.innerHTML = formatInfo(res.detailAceh, strings.acehInfo);
-            elements.infoGic.innerHTML = formatInfo(res.detailGic, strings.gicInfo);
+			function jdToDate(jd) {
+				return new Date((jd - 2440587.5) * 86400000);
+			}
 
-            const sim = Math.abs(res.jdAceh - res.jdGic) < 0.1;
-            elements.verdict.textContent = strings[sim ? 'simultaneous' : 'divergent'];
-            elements.verdict.className = "verdict-box verdict-" + (sim ? "simultaneous" : "divergent");
-        }
+			function utToDate(ut) {
+				return jdToDate(ut + state.AE_OFFSET);
+			}
 
-        elements.language.onchange = updateLang;
-        elements.theme.onchange = updateTheme;
-        elements.prevBtn.onclick = () => {
-            state.month--;
-            if (state.month < 1) { state.month = 12; state.year--; }
-            elements.hYearInput.value = state.year;
-            elements.hMonthInput.value = state.month;
-            calculate();
-        };
-        elements.nextBtn.onclick = () => {
-            state.month++;
-            if (state.month > 12) { state.month = 1; state.year++; }
-            elements.hYearInput.value = state.year;
-            elements.hMonthInput.value = state.month;
-            calculate();
-        };
-        elements.goBtn.onclick = calculate;
-        elements.todayBtn.onclick = () => {
-            const now = new Date();
-            const jd = now.getTime() / 86400000 + 2440587.5;
-            const index = Math.floor((jd - 1948440 - 0.236624) / 29.530573265);
-            state.year = Math.floor(index / 12) + 1;
-            state.month = (index % 12) + 1;
-            elements.hYearInput.value = state.year;
-            elements.hMonthInput.value = state.month;
-            calculate();
-        };
+			function updateLang() {
+				state.lang = elements.language.value;
+				const strings = text[state.lang];
+				elements.statsTitle.textContent = strings.statsTitle;
+				elements.statsContent.innerHTML = strings.statsContent;
+				elements.methodology.innerHTML = strings.methodology;
+				elements.appTitle.textContent = strings.appTitle;
+				elements.todayBtn.textContent = strings.today;
+				for (let i = 0; i < 12; i++)
+					elements.hMonthInput.options[i].textContent = strings.monthNames[i];
+				calculate();
+			}
 
-        elements.hYearInput.value = state.year;
-        elements.hMonthInput.value = state.month;
-        updateLang();
-        updateTheme();
-    </script>
-</body>
+			function formatDate(jd) {
+				const date = jdToDate(jd);
+				const options = {
+					weekday: 'long',
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+					timeZone: 'UTC'
+				};
+				return date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-GB', options);
+			}
+
+			function updateTheme() {
+				const val = elements.theme.value;
+				document.documentElement.className = val === 'auto' ? '' : val;
+			}
+
+			function getStartJD(year, month) {
+				const totalMonths = (year - 1) * 12 + (month - 1);
+				const approxJD = 1948440 + totalMonths * 29.53059;
+				const startTime = Astronomy.MakeTime(jdToDate(approxJD - 15));
+				const conj = Astronomy.SearchMoonPhase(0, startTime, 40);
+
+				const obsAceh = new Astronomy.Observer(state.BA_LAT,state.BA_LON,0);
+				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, conj, 1.5);
+				let jdAceh, detailAceh;
+				if (sunset) {
+					const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset, true);
+					const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset, true);
+					const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
+					const eqMT = Astronomy.Equator(Astronomy.Body.Moon, sunset, obsAceh, true, true);
+					const ht = Astronomy.Horizon(sunset, obsAceh, eqMT.ra, eqMT.dec, "normal").altitude;
+					detailAceh = {
+						ut: sunset.ut,
+						alt: ht,
+						elong: elongGeo
+					};
+					if (ht >= 3.0 && elongGeo >= 6.4) {
+						jdAceh = Math.floor(sunset.ut + state.AE_OFFSET + 0.5) + 0.5;
+					} else {
+						const nextSunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, Astronomy.MakeTime(utToDate(sunset.ut + 0.5)), 1.5);
+						jdAceh = Math.floor(nextSunset.ut + state.AE_OFFSET + 0.5) + 0.5;
+					}
+				}
+
+				const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, new Astronomy.Observer(-41.28,174.77,0), 1, conj, 2.0, -18.0);
+				const dNZ = Math.floor(fNZ.ut + state.AE_OFFSET + 0.5);
+
+				const checkVis = (targetJD,conjUT)=>{
+					const longitudes = [180, 150, 120, 90, 60, 30, 0, -30, -60, -90, -120, -150];
+					for (const lon of longitudes) {
+						const tSearch = Astronomy.MakeTime(jdToDate(targetJD - lon / 360.0));
+						const obs = new Astronomy.Observer(0,lon,0);
+						const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tSearch, 1.0);
+						if (ss && ss.ut > conjUT) {
+							const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
+							const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
+							const e = Astronomy.AngleBetween(mVec, sVec);
+							const eqMG = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, false, true);
+							const h = Astronomy.Horizon(ss, obs, eqMG.ra, eqMG.dec, "normal").altitude;
+							if (h >= 5.0 && e >= 8.0)
+								return {
+									ut: ss.ut,
+									alt: h,
+									elong: e
+								};
+						}
+					}
+					return null;
+				}
+				;
+
+				const vis = checkVis(dNZ - 1, conj.ut);
+				const jdGic = vis ? dNZ + 0.5 : dNZ + 1.5;
+				return {
+					jdAceh,
+					jdGic,
+					detailAceh,
+					detailGic: vis || {
+						ut: fNZ.ut,
+						alt: -1,
+						elong: -1
+					}
+				};
+			}
+
+			function calculate() {
+				state.year = parseInt(elements.hYearInput.value) || 1;
+				state.month = parseInt(elements.hMonthInput.value);
+				let res = getStartJD(state.year, state.month);
+
+				const strings = text[state.lang];
+
+				elements.dateAceh.textContent = formatDate(res.jdAceh);
+				elements.dateGic.textContent = formatDate(res.jdGic);
+
+				const formatInfo = (info,prefix)=>prefix + (info.ut > 0 ? (utToDate(info.ut).toISOString().substring(11, 19) + " UTC<br>" + strings.alt + ": " + info.alt.toFixed(2) + "°, " + strings.elong + ": " + info.elong.toFixed(2) + "°") : "N/A");
+
+				elements.infoAceh.innerHTML = formatInfo(res.detailAceh, strings.acehInfo);
+				elements.infoGic.innerHTML = formatInfo(res.detailGic, strings.gicInfo);
+
+				const sim = Math.abs(res.jdAceh - res.jdGic) < 0.1;
+				elements.verdict.textContent = strings[sim ? 'simultaneous' : 'divergent'];
+				elements.verdict.className = "verdict-box verdict-" + (sim ? "simultaneous" : "divergent");
+			}
+
+			elements.language.onchange = updateLang;
+			elements.theme.onchange = updateTheme;
+			elements.prevBtn.onclick = ()=>{
+				state.month--;
+				if (state.month < 1) {
+					state.month = 12;
+					state.year--;
+				}
+				elements.hYearInput.value = state.year;
+				elements.hMonthInput.value = state.month;
+				calculate();
+			}
+			;
+			elements.nextBtn.onclick = ()=>{
+				state.month++;
+				if (state.month > 12) {
+					state.month = 1;
+					state.year++;
+				}
+				elements.hYearInput.value = state.year;
+				elements.hMonthInput.value = state.month;
+				calculate();
+			}
+			;
+			elements.goBtn.onclick = calculate;
+			elements.todayBtn.onclick = ()=>{
+				const now = new Date();
+				const jd = now.getTime() / 86400000 + 2440587.5;
+				const index = Math.floor((jd - 1948440 - 0.236624) / 29.530573265);
+				state.year = Math.floor(index / 12) + 1;
+				state.month = (index % 12) + 1;
+				elements.hYearInput.value = state.year;
+				elements.hMonthInput.value = state.month;
+				calculate();
+			}
+			;
+
+			elements.hYearInput.value = state.year;
+			elements.hMonthInput.value = state.month;
+			elements.language.value = navigator.language?.startsWith('id') ? 'id' : 'en';
+			updateLang();
+			updateTheme();
+		</script>
+	</body>
 </html>

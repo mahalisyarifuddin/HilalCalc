@@ -530,6 +530,8 @@ self.onmessage = e => {
 			criteriaMinAlt = minAlt; criteriaMinElong = minElong; isGIC = false;
 		}
 
+		const NZ_LAT = -41.28, NZ_LON = 174.77;
+
 		const latToPlateCarreeY = lat => lat;
 		const plateCarreeYToLat = y => y;
 
@@ -563,8 +565,16 @@ self.onmessage = e => {
 				}
 
 				let visible = false;
-				if (sunset && (!isGIC || sunset.ut < date.ut + 0.5)) {
-					const obs = new Astronomy.Observer(lat, lon, 0);
+				if (sunset) {
+					let isBeforeDeadline = true;
+					if (isGIC) {
+						const nzObs = new Astronomy.Observer(NZ_LAT, NZ_LON, 0);
+						const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
+						isBeforeDeadline = sunset.ut < fajrNZ.ut;
+					}
+
+					if (isBeforeDeadline) {
+						const obs = new Astronomy.Observer(lat, lon, 0);
 					let mEq, sEq;
 					if (isGIC) {
 						const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
@@ -576,10 +586,11 @@ self.onmessage = e => {
 						mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
 						sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
 					}
-					const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
+						const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
 
-					if (mHor.altitude >= criteriaMinAlt) {
-						visible = Astronomy.AngleBetween(sEq.vec, mEq.vec) >= criteriaMinElong;
+						if (mHor.altitude >= criteriaMinAlt) {
+							visible = Astronomy.AngleBetween(sEq.vec, mEq.vec) >= criteriaMinElong;
+						}
 					}
 				}
 
@@ -881,7 +892,14 @@ self.onmessage = e => {
 					isGICInner = false;
 				}
 
-				const visible = ((!isGICInner || sunsetUT < date.ut + 0.5) && moonHor.altitude >= minAlt && elongation >= minElong);
+				let isBeforeDeadline = true;
+				if (isGICInner) {
+					const nzObs = new Astronomy.Observer(-41.28, 174.77, 0);
+					const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
+					isBeforeDeadline = sunsetUT < fajrNZ.ut;
+				}
+
+				const visible = (isBeforeDeadline && moonHor.altitude >= minAlt && elongation >= minElong);
 
 				const displayData = [
 					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},

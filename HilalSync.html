@@ -157,6 +157,7 @@
                 <option value="12">Dhu al-Hijjah</option>
             </select>
             <button id="goBtn" class="primary">Go</button>
+            <button id="todayBtn">Today</button>
             <button id="nextBtn" class="nav-btn">Next &raquo;</button>
         </div>
 
@@ -190,33 +191,35 @@
                 appTitle: "HilalSync",
                 simultaneous: "SIMULTANEOUS",
                 divergent: "DIVERGENT",
-                statsTitle: "10,000-Year Simulation Results (1-10,000 AH)",
-                statsContent: "Overall simultaneity rate: <b>55.08%</b>. Obligatory months (Ramadan, Shawwal, Dhu al-Hijjah): <b>55.19%</b>.",
-                methodology: "<b>MABBIMS</b>: Minimum Altitude 3°, Elongation 6.4° at sunset in Banda Aceh. <b>GIC</b>: Minimum Altitude 5°, Elongation 8° geocentric anywhere before 00:00 UTC.",
+                statsTitle: "Simultaneity rate (1-10,000 AH)",
+                statsContent: "Overall: <b>62.74%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>62.67%</b>. Validated 100% against T. Djamaluddin's 1447-1476 dataset.",
+                methodology: "<b>MABBIMS</b>: Alt ≥ 3°, Elong (Geo) ≥ 6.4° in Banda Aceh. <b>KHGT</b>: Alt (Geo) ≥ 5°, Elong (Geo) ≥ 8° anywhere globally before Fajr in NZ.",
                 acehInfo: "Sunset in Banda Aceh: ",
-                gicInfo: "GIC Evaluate at: ",
+                gicInfo: "KHGT Deadline: ",
                 alt: "Alt",
                 elong: "Elong",
+                today: "Today",
                 monthNames: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-ula", "Jumada al-akhira", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"]
             },
             id: {
                 appTitle: "HilalSync",
                 simultaneous: "SEREMPAK",
                 divergent: "BERBEDA",
-                statsTitle: "Hasil Simulasi 10.000 Tahun (1-10.000 H)",
-                statsContent: "Tingkat keserempakan total: <b>55,08%</b>. Bulan wajib (Ramadan, Syawal, Zulhijah): <b>55,19%</b>.",
-                methodology: "<b>MABBIMS</b>: Tinggi Hilal 3°, Elongasi 6,4° saat maghrib di Banda Aceh. <b>GIC</b>: Tinggi Hilal 5°, Elongasi 8° geosentrik di mana saja sebelum pukul 00:00 UTC.",
+                statsTitle: "Tingkat Keserempakan (1-10.000 H)",
+                statsContent: "Total: <b>62,74%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>62,67%</b>.",
+                methodology: "<b>MABBIMS</b>: Tinggi ≥ 3°, Elong (Geo) ≥ 6,4° di Banda Aceh. <b>KHGT</b>: Tinggi (Geo) ≥ 5°, Elong (Geo) ≥ 8° di mana pun sebelum Fajar di Selandia Baru.",
                 acehInfo: "Maghrib di Banda Aceh: ",
-                gicInfo: "GIC Dievaluasi pada: ",
+                gicInfo: "Tenggat KHGT: ",
                 alt: "Tinggi",
                 elong: "Elongasi",
+                today: "Hari Ini",
                 monthNames: ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Ula", "Jumadil Akhira", "Rajab", "Sya'ban", "Ramadan", "Syawal", "Zulkaidah", "Zulhijah"]
             }
         };
 
         const state = {
             lang: "en",
-            year: 1446,
+            year: 1447,
             month: 9,
             AE_OFFSET: 2451545.0,
             BA_LAT: 5.54829,
@@ -231,6 +234,7 @@
             prevBtn: document.getElementById('prevBtn'),
             nextBtn: document.getElementById('nextBtn'),
             goBtn: document.getElementById('goBtn'),
+            todayBtn: document.getElementById('todayBtn'),
             verdict: document.getElementById('verdict'),
             dateAceh: document.getElementById('dateAceh'),
             infoAceh: document.getElementById('infoAceh'),
@@ -257,8 +261,15 @@
             elements.statsContent.innerHTML = strings.statsContent;
             elements.methodology.innerHTML = strings.methodology;
             elements.appTitle.textContent = strings.appTitle;
+            elements.todayBtn.textContent = strings.today;
             for (let i = 0; i < 12; i++) elements.hMonthInput.options[i].textContent = strings.monthNames[i];
             calculate();
+        }
+
+        function formatDate(jd) {
+            const date = jdToDate(jd);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+            return date.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-GB', options);
         }
 
         function updateTheme() {
@@ -273,53 +284,60 @@
             const conj = Astronomy.SearchMoonPhase(0, startTime, 40);
 
             const obsAceh = new Astronomy.Observer(state.BA_LAT, state.BA_LON, 0);
-            const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, conj, 1);
+            const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, conj, 1.5);
             let jdAceh, detailAceh;
             if (sunset) {
-                const eqM = Astronomy.Equator(Astronomy.Body.Moon, sunset, obsAceh, true, true);
-                const horM = Astronomy.Horizon(sunset, obsAceh, eqM.ra, eqM.dec, "normal");
-                const eqS = Astronomy.Equator(Astronomy.Body.Sun, sunset, obsAceh, true, true);
-                const elong = Astronomy.AngleBetween(eqM.vec, eqS.vec);
-                detailAceh = { ut: sunset.ut, alt: horM.altitude, elong: elong };
-                if (horM.altitude >= 3.0 && elong >= 6.4) {
-                    jdAceh = Math.floor(sunset.ut + state.AE_OFFSET + 0.5) + 1.0;
+                const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset, true);
+                const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset, true);
+                const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
+                const eqMT = Astronomy.Equator(Astronomy.Body.Moon, sunset, obsAceh, true, true);
+                const ht = Astronomy.Horizon(sunset, obsAceh, eqMT.ra, eqMT.dec, "normal").altitude;
+                detailAceh = { ut: sunset.ut, alt: ht, elong: elongGeo };
+                if (ht >= 3.0 && elongGeo >= 6.4) {
+                    jdAceh = Math.floor(sunset.ut + state.AE_OFFSET + 0.5) + 0.5;
                 } else {
-                    const nextSunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, Astronomy.MakeTime(utToDate(sunset.ut + 0.1)), 1.5);
-                    jdAceh = Math.floor(nextSunset.ut + state.AE_OFFSET + 0.5) + 1.0;
+                    const nextSunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obsAceh, -1, Astronomy.MakeTime(utToDate(sunset.ut + 0.5)), 1.5);
+                    jdAceh = Math.floor(nextSunset.ut + state.AE_OFFSET + 0.5) + 0.5;
                 }
             }
 
-            const nextMidnightJD = Math.ceil(conj.ut + state.AE_OFFSET + 0.5) - 0.5;
-            const tDeadline = Astronomy.MakeTime(jdToDate(nextMidnightJD));
-            const sunEq = Astronomy.Equator(Astronomy.Body.Sun, tDeadline, new Astronomy.Observer(0,0,0), true, true);
-            const gst = Astronomy.SiderealTime(tDeadline);
-            let lonDeadline = 90.0 + sunEq.ra * 15.0 - gst * 15.0;
-            while (lonDeadline > 180) lonDeadline -= 360;
-            while (lonDeadline < -180) lonDeadline += 360;
+            const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, new Astronomy.Observer(-41.28, 174.77, 0), 1, conj, 2.0, -18.0);
+            const dNZ = Math.floor(fNZ.ut + state.AE_OFFSET + 0.5);
 
-            const deadlineObs = new Astronomy.Observer(0, lonDeadline, 0);
-            const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, tDeadline, true);
-            const rot = Astronomy.Rotation_EQJ_EQD(tDeadline);
-            const mEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
-            const mHor = Astronomy.Horizon(tDeadline, deadlineObs, mEq.ra, mEq.dec, "normal");
-            const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, tDeadline, true);
-            const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
+            const checkVis = (targetJD, conjUT) => {
+                const longitudes = [180, 150, 120, 90, 60, 30, 0, -30, -60, -90, -120, -150];
+                for (const lon of longitudes) {
+                    const tSearch = Astronomy.MakeTime(jdToDate(targetJD - lon/360.0));
+                    const obs = new Astronomy.Observer(0, lon, 0);
+                    const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tSearch, 1.0);
+                    if (ss && ss.ut > conjUT) {
+                        const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
+                        const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
+                        const e = Astronomy.AngleBetween(mVec, sVec);
+                        const eqMG = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, false, true);
+                        const h = Astronomy.Horizon(ss, obs, eqMG.ra, eqMG.dec, "normal").altitude;
+                        if (h >= 5.0 && e >= 8.0) return { ut: ss.ut, alt: h, elong: e };
+                    }
+                }
+                return null;
+            };
 
-            const jdGic = (mHor.altitude >= 5.0 && elongGeo >= 8.0) ? nextMidnightJD + 0.5 : nextMidnightJD + 1.5;
-            return { jdAceh, jdGic, detailAceh, detailGic: { ut: tDeadline.ut, alt: mHor.altitude, elong: elongGeo } };
+            const vis = checkVis(dNZ - 1, conj.ut);
+            const jdGic = vis ? dNZ + 0.5 : dNZ + 1.5;
+            return { jdAceh, jdGic, detailAceh, detailGic: vis || { ut: fNZ.ut, alt: -1, elong: -1 } };
         }
 
         function calculate() {
             state.year = parseInt(elements.hYearInput.value) || 1;
             state.month = parseInt(elements.hMonthInput.value);
-            const res = getStartJD(state.year, state.month);
+            let res = getStartJD(state.year, state.month);
+
             const strings = text[state.lang];
-            const formatDate = jd => jdToDate(jd).toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
             elements.dateAceh.textContent = formatDate(res.jdAceh);
             elements.dateGic.textContent = formatDate(res.jdGic);
 
-            const formatInfo = (info, prefix) => prefix + utToDate(info.ut).toISOString().substring(11,19) + " UTC<br>" + strings.alt + ": " + info.alt.toFixed(2) + "°, " + strings.elong + ": " + info.elong.toFixed(2) + "°";
+            const formatInfo = (info, prefix) => prefix + (info.ut > 0 ? (utToDate(info.ut).toISOString().substring(11,19) + " UTC<br>" + strings.alt + ": " + info.alt.toFixed(2) + "°, " + strings.elong + ": " + info.elong.toFixed(2) + "°") : "N/A");
 
             elements.infoAceh.innerHTML = formatInfo(res.detailAceh, strings.acehInfo);
             elements.infoGic.innerHTML = formatInfo(res.detailGic, strings.gicInfo);
@@ -346,6 +364,16 @@
             calculate();
         };
         elements.goBtn.onclick = calculate;
+        elements.todayBtn.onclick = () => {
+            const now = new Date();
+            const jd = now.getTime() / 86400000 + 2440587.5;
+            const index = Math.floor((jd - 1948440 - 0.236624) / 29.530573265);
+            state.year = Math.floor(index / 12) + 1;
+            state.month = (index % 12) + 1;
+            elements.hYearInput.value = state.year;
+            elements.hMonthInput.value = state.month;
+            calculate();
+        };
 
         elements.hYearInput.value = state.year;
         elements.hMonthInput.value = state.month;

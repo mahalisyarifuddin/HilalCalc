@@ -691,7 +691,7 @@
 					calTitle: 'Calendar View',
 					today: 'Today',
 					formulaTitle: 'Methodology',
-					formulaDescMabbims: 'Local sighting simulation. MABBIMS: Altitude ≥ 3°, Elongation ≥ 6.4°.',
+					formulaDescMabbims: 'Local sighting simulation. MABBIMS: Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
 					formulaDescLinear: 'Global approximation (Composite: Mecca + Viwa). Accuracy: 69.55% (1–10000 AH).',
 					formulaDescTabular: 'Fixed 30-year cycle. Accuracy: 44.58% (1–10000 AH).',
 					epoch: 'Epoch',
@@ -758,7 +758,7 @@
 					calTitle: 'Tampilan Kalender',
 					today: 'Hari Ini',
 					formulaTitle: 'Metodologi',
-					formulaDescMabbims: 'Simulasi rukyat lokal. MABBIMS: Tinggi ≥ 3°, Elongasi ≥ 6.4°.',
+					formulaDescMabbims: 'Simulasi rukyat lokal. MABBIMS: Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.',
 					formulaDescLinear: 'Aproksimasi global (Komposit: Mekkah + Pulau Viwa). Akurasi: 69.55% (1–10000 H).',
 					formulaDescTabular: 'Siklus tetap 30 tahun. Akurasi: 44.58% (1–10000 H).',
 					epoch: 'Epoh',
@@ -1147,7 +1147,7 @@
 				updateFormula(tr) {
 					const mode = state.calcMode;
 					if (mode === 'astronomic') {
-						$('formulaDisplay').textContent = `${tr.criteria}:\n${tr.altitude} ≥ 3°\n${tr.elongation} ≥ 6.4°`;
+						$('formulaDisplay').textContent = `${tr.criteria}:\n${tr.altitude} (Topo) ≥ 3°\n${tr.elongation} (Geo) ≥ 6.4°`;
 						$('formulaNote').innerHTML = `<i>${tr.footer}</i>`;
 						$('formulaDesc').textContent = tr.formulaDescMabbims;
 					} else if (mode === 'linear') {
@@ -1357,8 +1357,12 @@
 						return false;
 					const me = Astronomy.Equator(Astronomy.Body.Moon, ss.ut, obs, true, true);
 					const mh = Astronomy.Horizon(ss.ut, obs, me.ra, me.dec, 'normal');
-					const se = Astronomy.Equator(Astronomy.Body.Sun, ss.ut, obs, true, true);
-					return (mh.altitude >= 3 && Astronomy.AngleBetween(se.vec, me.vec) >= 6.4);
+
+					const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, ss.ut, true);
+					const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, ss.ut, true);
+					const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
+
+					return (mh.altitude >= 3 && elongGeo >= 6.4);
 				}
 
 				getMonthStart(hy, hm) {

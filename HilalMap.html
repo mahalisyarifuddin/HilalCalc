@@ -531,6 +531,9 @@ self.onmessage = e => {
 		}
 
 		const NZ_LAT = -41.28, NZ_LON = 174.77;
+		const nzObs = new Astronomy.Observer(NZ_LAT, NZ_LON, 0);
+		const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 1.0, -18.0);
+		const conj = Astronomy.SearchMoonPhase(0, date, -40);
 
 		const latToPlateCarreeY = lat => lat;
 		const plateCarreeYToLat = y => y;
@@ -566,30 +569,32 @@ self.onmessage = e => {
 
 				let visible = false;
 				if (sunset) {
-					let isBeforeDeadline = true;
-					if (isGIC) {
-						const nzObs = new Astronomy.Observer(NZ_LAT, NZ_LON, 0);
-						const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
-						isBeforeDeadline = sunset.ut < fajrNZ.ut;
-					}
+					if (sunset.ut >= conj.ut - 0.0001) {
+						let isAllowed = true;
+						if (isGIC) {
+							const limitUT = Math.floor(date.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
+							if (sunset.ut > limitUT) {
+								isAllowed = (lon <= -20 && conj.ut <= fajrNZ.ut + 0.001 && sunset.ut <= fajrNZ.ut + 0.5);
+							}
+						}
 
-					if (isBeforeDeadline) {
-						const obs = new Astronomy.Observer(lat, lon, 0);
-					let mEq, sEq;
-					if (isGIC) {
-						const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
-						const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
-						const rot = Astronomy.Rotation_EQJ_EQD(sunset.ut);
-						mEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
-						sEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
-					} else {
-						mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
-						sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
-					}
-						const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
-
-						if (mHor.altitude >= criteriaMinAlt) {
-							visible = Astronomy.AngleBetween(sEq.vec, mEq.vec) >= criteriaMinElong;
+						if (isAllowed) {
+							const obs = new Astronomy.Observer(lat, lon, 0);
+							let mEq, sEq;
+							const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
+							const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
+							if (isGIC) {
+								const rot = Astronomy.Rotation_EQJ_EQD(sunset.ut);
+								mEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
+								sEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
+							} else {
+								mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
+								sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
+							}
+							const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
+							if (mHor.altitude >= criteriaMinAlt) {
+								visible = Astronomy.AngleBetween(mVecJ, sVecJ) >= criteriaMinElong;
+							}
 						}
 					}
 				}
@@ -892,14 +897,18 @@ self.onmessage = e => {
 					isGICInner = false;
 				}
 
-				let isBeforeDeadline = true;
+				const conjDetail = Astronomy.SearchMoonPhase(0, date, -40);
+				let isAllowed = true;
 				if (isGICInner) {
-					const nzObs = new Astronomy.Observer(-41.28, 174.77, 0);
-					const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
-					isBeforeDeadline = sunsetUT < fajrNZ.ut;
+					const nzObsDetail = new Astronomy.Observer(-41.28, 174.77, 0);
+					const fajrNZDetail = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObsDetail, 1, date, 1.0, -18.0);
+					const limitUTDetail = Math.floor(date.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
+					if (sunsetUT > limitUTDetail) {
+						isAllowed = (longitude <= -20 && conjDetail.ut <= fajrNZDetail.ut + 0.001 && sunsetUT <= fajrNZDetail.ut + 0.5);
+					}
 				}
 
-				const visible = (isBeforeDeadline && moonHor.altitude >= minAlt && elongation >= minElong);
+				const visible = (isAllowed && sunsetUT >= conjDetail.ut - 0.0001 && moonHor.altitude >= minAlt && elongation >= minElong);
 
 				const displayData = [
 					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},

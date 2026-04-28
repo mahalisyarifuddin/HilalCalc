@@ -73,8 +73,8 @@ Exhaustive search to maximize match accuracy against the composite Ground Truth 
 
 ### 1. Simultaneity Rate (MABBIMS vs. KHGT)
 Simulated over 120,000 months (1-10,000 AH):
-- **Overall Rate**: **62.74%**
-- **Ritual Months**: **62.67%** (Ramadan, Shawwal, Dhu al-Hijjah)
+- **Overall Rate**: **61.44%**
+- **Ritual Months**: **61.95%** (Ramadan, Shawwal, Dhu al-Hijjah)
 These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in approximately 37% of months.
 
 ### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)

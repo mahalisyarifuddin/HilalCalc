@@ -16,13 +16,13 @@ async def run():
 
         for mode in modes:
             # Open settings
-            await page.evaluate("document.getElementById('prefDialog').showModal()")
+            await page.evaluate("document.getElementById('settingsDialog').showModal()")
 
             # Select mode
-            await page.select_option("#calcMode", mode)
+            await page.select_option("#calculationMode", mode)
 
             # Save
-            await page.click("#savePrefBtn")
+            await page.click("#saveSettingsButton")
             await page.wait_for_timeout(500)
 
             # Open formula details

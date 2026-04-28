@@ -64,7 +64,7 @@
 		body {
 			background: var(--background);
 			color: var(--text);
-			font-family: sans-serif;
+			font-family: system-ui, -apple-system, sans-serif;
 			display: flex;
 			justify-content: center;
 			min-height: 100vh;
@@ -359,7 +359,7 @@
 				<div class="group">
 					<label id="calcCriteriaLabel" for="calcCriteria">Criteria</label>
 					<select id="calcCriteria">
-						<option value="mabbims">MABIMS</option>
+						<option value="mabbims">MABBIMS</option>
 						<option value="gic">GIC</option>
 						<option value="alt0">Altitude ≥0°</option>
 						<option value="custom">Custom</option>
@@ -504,106 +504,105 @@
 
 		const WORKER_CODE = `importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
 
-const calculateSunset = (lat, lon, baseDateUT) => {
-	const obs = new Astronomy.Observer(lat, lon, 0);
-	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, baseDateUT - (lon / 15 / 24), 1);
+const calculateSunset = (latitude, longitude, baseDateUniversalTime) => {
+	const observer = new Astronomy.Observer(latitude, longitude, 0);
+	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, baseDateUniversalTime - (longitude / 15 / 24), 1);
 };
 
-self.onmessage = e => {
+self.onmessage = event => {
 	try {
-		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong } = e.data;
+		const { bounds, widthDegrees, heightDegrees, criteria, dateTimestamp, minAltitude, minElongation } = event.data;
 		const maxGridSize = 245;
-		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
-		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
-		const height = Math.min(Math.ceil(heightDeg / cellSizeDeg), maxGridSize);
+		const cellSizeDegrees = Math.max(widthDegrees / maxGridSize, heightDegrees / maxGridSize, 0.1);
+		const width = Math.min(Math.ceil(widthDegrees / cellSizeDegrees), maxGridSize);
+		const height = Math.min(Math.ceil(heightDegrees / cellSizeDegrees), maxGridSize);
 		const buffer = new Uint8ClampedArray(width * height * 4);
 		const date = Astronomy.MakeTime(new Date(dateTimestamp));
 
-		let criteriaMinAlt, criteriaMinElong, isGIC;
+		let criteriaMinAltitude, criteriaMinElongation, isGlobalIslamicCriteria;
 		if (criteria === "mabbims") {
-			criteriaMinAlt = 3; criteriaMinElong = 6.4; isGIC = false;
+			criteriaMinAltitude = 3; criteriaMinElongation = 6.4; isGlobalIslamicCriteria = false;
 		} else if (criteria === "gic") {
-			criteriaMinAlt = 5; criteriaMinElong = 8; isGIC = true;
+			criteriaMinAltitude = 5; criteriaMinElongation = 8; isGlobalIslamicCriteria = true;
 		} else if (criteria === "alt0") {
-			criteriaMinAlt = 0; criteriaMinElong = -100; isGIC = false;
+			criteriaMinAltitude = 0; criteriaMinElongation = -100; isGlobalIslamicCriteria = false;
 		} else {
-			criteriaMinAlt = minAlt; criteriaMinElong = minElong; isGIC = false;
+			criteriaMinAltitude = minAltitude; criteriaMinElongation = minElongation; isGlobalIslamicCriteria = false;
 		}
 
-		const NZ_LAT = -41.28, NZ_LON = 174.77;
-		const nzObs = new Astronomy.Observer(NZ_LAT, NZ_LON, 0);
-		const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 1.0, -18.0);
-		const conj = Astronomy.SearchMoonPhase(0, date, -40);
+		const NEW_ZEALAND_LATITUDE = -41.28, NEW_ZEALAND_LONGITUDE = 174.77;
+		const newZealandObserver = new Astronomy.Observer(NEW_ZEALAND_LATITUDE, NEW_ZEALAND_LONGITUDE, 0);
+		const sunriseNewZealand = Astronomy.SearchRiseSet(Astronomy.Body.Sun, newZealandObserver, 1, date, 1.0);
+		const fajrNewZealandUt = sunriseNewZealand ? sunriseNewZealand.ut - (1.2/24.0) : -Infinity;
+		const conjunction = Astronomy.SearchMoonPhase(0, date, -40);
 
-		const latToPlateCarreeY = lat => lat;
-		const plateCarreeYToLat = y => y;
-
-		const minY = latToPlateCarreeY(bounds.minLat);
-		const maxY = latToPlateCarreeY(bounds.maxLat);
+		const minY = bounds.minLat;
+		const maxY = bounds.maxLat;
 		const yRange = maxY - minY;
 		const STEP = 10;
 
 		for (let row = 0; row < height; row++) {
-			const lat = plateCarreeYToLat(maxY - (row / (height - 1 || 1)) * yRange);
-			let prevCol = -1;
-			let nextCol = -1;
+			const latitude = maxY - (row / (height - 1 || 1)) * yRange;
+			let prevColumn = -1;
+			let nextColumn = -1;
 			let prevSunset = null;
 			let nextSunset = null;
 
-			for (let col = 0; col < width; col++) {
-				const lon = bounds.minLon + (col * cellSizeDeg);
+			for (let column = 0; column < width; column++) {
+				const longitude = bounds.minLon + (column * cellSizeDegrees);
 				let sunset = null;
 
-				if (col >= nextCol) {
-					prevCol = col;
-					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunset(lat, lon, date.ut);
-					nextCol = Math.min(col + STEP, width - 1);
-					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunset(lat, bounds.minLon + (nextCol * cellSizeDeg), date.ut);
+				if (column >= nextColumn) {
+					prevColumn = column;
+					prevSunset = (column === nextColumn && nextSunset !== null) ? nextSunset : calculateSunset(latitude, longitude, date.ut);
+					nextColumn = Math.min(column + STEP, width - 1);
+					nextSunset = (nextColumn === prevColumn) ? prevSunset : calculateSunset(latitude, bounds.minLon + (nextColumn * cellSizeDegrees), date.ut);
 				}
 
 				if (prevSunset && nextSunset) {
-					sunset = { ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((col - prevCol) / (nextCol - prevCol || 1)) };
+					sunset = { ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((column - prevColumn) / (nextColumn - prevColumn || 1)) };
 				} else {
-					sunset = calculateSunset(lat, lon, date.ut);
+					sunset = calculateSunset(latitude, longitude, date.ut);
 				}
 
 				let visible = false;
 				if (sunset) {
-					if (sunset.ut >= conj.ut - 0.0001) {
+					if (sunset.ut >= conjunction.ut - 0.0001) {
 						let isAllowed = true;
-						if (isGIC) {
-							const limitUT = Math.floor(date.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
-							if (sunset.ut > limitUT) {
-								isAllowed = (lon <= -20 && conj.ut <= fajrNZ.ut + 0.001 && sunset.ut <= fajrNZ.ut + 0.5);
+						if (isGlobalIslamicCriteria) {
+							const limitUniversalTime = Math.floor(date.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
+							if (sunset.ut > limitUniversalTime) {
+								isAllowed = (longitude <= -30 && conjunction.ut < fajrNewZealandUt);
 							}
 						}
 
 						if (isAllowed) {
-							const obs = new Astronomy.Observer(lat, lon, 0);
-							let mEq, sEq;
-							const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
-							const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
-							if (isGIC) {
-								const rot = Astronomy.Rotation_EQJ_EQD(sunset.ut);
-								mEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
-								sEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
+							const observer = new Astronomy.Observer(latitude, longitude, 0);
+							const moonVector = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
+							const sunVector = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
+							const elongation = Astronomy.AngleBetween(moonVector, sunVector);
+
+							let altitude;
+							if (isGlobalIslamicCriteria) {
+								const observerVector = Astronomy.ObserverVector(sunset.ut, observer, true);
+								altitude = 90.0 - Astronomy.AngleBetween(observerVector, moonVector);
 							} else {
-								mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
-								sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
+								const equator = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, observer, true, true);
+								altitude = Astronomy.Horizon(sunset.ut, observer, equator.ra, equator.dec, "normal").altitude;
 							}
-							const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
-							if (mHor.altitude >= criteriaMinAlt) {
-								visible = Astronomy.AngleBetween(mVecJ, sVecJ) >= criteriaMinElong;
+
+							if (altitude >= criteriaMinAltitude) {
+								visible = elongation >= criteriaMinElongation;
 							}
 						}
 					}
 				}
 
-				const idx = (row * width + col) * 4;
+				const index = (row * width + column) * 4;
 				if (visible) {
-					buffer[idx] = 0; buffer[idx+1] = 150; buffer[idx+2] = 0; buffer[idx+3] = 100;
+					buffer[index] = 0; buffer[index+1] = 150; buffer[index+2] = 0; buffer[index+3] = 100;
 				} else {
-					buffer[idx] = 0; buffer[idx+1] = 0; buffer[idx+2] = 0; buffer[idx+3] = 0;
+					buffer[index] = 0; buffer[index+1] = 0; buffer[index+2] = 0; buffer[index+3] = 0;
 				}
 			}
 			if (row % 10 === 0) {
@@ -611,8 +610,8 @@ self.onmessage = e => {
 			}
 		}
 		self.postMessage({width, height, buffer: buffer.buffer}, [buffer.buffer]);
-	} catch(err) {
-		self.postMessage({error: err.message});
+	} catch(error) {
+		self.postMessage({error: error.message});
 	}
 };`;
 
@@ -620,7 +619,6 @@ self.onmessage = e => {
 
 		class HilalMap {
 			constructor() {
-				this.cacheVersion = 5;
 				this.language = "en";
 				this.worker = null;
 				this.isRendering = false;
@@ -628,14 +626,14 @@ self.onmessage = e => {
 			}
 
 			setup() {
-				elements.language.onchange = event=>this.lang(event.target.value);
-				elements.theme.onchange = event=>this.theme(event.target.value);
+				elements.language.onchange = event=>this.updateLanguage(event.target.value);
+				elements.theme.onchange = event=>this.updateTheme(event.target.value);
 				elements.renderMap.onclick = ()=>this.handleRenderClick();
 				elements.mapCriteria.onchange = ()=>this.toggleCustom();
 				elements.mapRegion.onchange = ()=>this.handleRegionChange();
 				elements.tabMap.onclick = ()=>this.switchTab("map");
 				elements.tabCalc.onclick = ()=>this.switchTab("calc");
-				elements.calcCriteria.onchange = ()=>this.toggleCustomCalc();
+				elements.calcCriteria.onchange = ()=>this.toggleCustomCalculations();
 				elements.calculateBtn.onclick = ()=>this.calculateDetails();
 				elements.getLocation.onclick = ()=>this.getCurrentLocation();
 
@@ -651,21 +649,21 @@ self.onmessage = e => {
 				elements['zoom-out'].onclick = ()=>this.zoom(0.8);
 				elements['zoom-reset'].onclick = ()=>this.resetZoom();
 
-				elements['map-container'].addEventListener('wheel',(e)=>{
-					e.preventDefault();
-					const delta = e.deltaY > 0 ? 0.9 : 1.1;
+				elements['map-container'].addEventListener('wheel',event=>{
+					event.preventDefault();
+					const delta = event.deltaY > 0 ? 0.9 : 1.1;
 					this.zoom(delta);
 				});
 
-				elements['map-container'].addEventListener('mousedown',(e)=>{
+				elements['map-container'].addEventListener('mousedown',event=>{
 					this.isDragging = true;
-					this.startX = e.clientX - this.translateX;
-					this.startY = e.clientY - this.translateY;
+					this.startX = event.clientX - this.translateX;
+					this.startY = event.clientY - this.translateY;
 				});
 
-				elements['map-container'].addEventListener('mousemove',e=>this.isDragging && (
-					this.translateX = e.clientX - this.startX,
-					this.translateY = e.clientY - this.startY,
+				elements['map-container'].addEventListener('mousemove',event=>this.isDragging && (
+					this.translateX = event.clientX - this.startX,
+					this.translateY = event.clientY - this.startY,
 					this.limitPan(),
 					this.updateTransform()
 				));
@@ -684,11 +682,11 @@ self.onmessage = e => {
 
 				// Setup canvas overlay
 				const canvas = elements['map-overlay'];
-				const img = elements['map-image'];
+				const image = elements['map-image'];
 
-				img.onload = ()=>{
-					canvas.width = img.naturalWidth;
-					canvas.height = img.naturalHeight;
+				image.onload = ()=>{
+					canvas.width = image.naturalWidth;
+					canvas.height = image.naturalHeight;
 					this.redrawOverlay();
 				};
 
@@ -702,7 +700,6 @@ self.onmessage = e => {
 
 			limitPan() {
 				const container = elements['map-container'];
-				const wrapper = elements['map-wrapper'];
 				const containerWidth = container.offsetWidth;
 				const containerHeight = container.offsetHeight;
 				const scaledWidth = containerWidth * this.scale;
@@ -737,32 +734,32 @@ self.onmessage = e => {
 					`translate(-50%, -50%) translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
 			}
 
-			string(key) { return text[this.language]?.[key] ?? key; }
+			getString(key) { return text[this.language]?.[key] ?? key; }
 
-			theme(themeName) {
+			updateTheme(themeName) {
 				document.documentElement.className = themeName === "auto" ? "" : themeName;
 				elements.theme.value = themeName;
 			}
 
-			lang(language) {
+			updateLanguage(language) {
 				this.language = elements.language.value = document.documentElement.lang = language;
-				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.string(key); });
-				elements['zoom-in'].title = this.string("zoomIn");
-				elements['zoom-in'].setAttribute('aria-label', this.string("zoomIn"));
-				elements['zoom-out'].title = this.string("zoomOut");
-				elements['zoom-out'].setAttribute('aria-label', this.string("zoomOut"));
-				elements['zoom-reset'].title = this.string("zoomReset");
-				elements['zoom-reset'].setAttribute('aria-label', this.string("zoomReset"));
-				[...elements.theme.options].forEach(option=>option.textContent = this.string(option.value + "Theme"));
-				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.string("utcPlaceholder");
-				if (elements.calcLat) elements.calcLat.placeholder = this.string("placeholderLat");
-				if (elements.calcLon) elements.calcLon.placeholder = this.string("placeholderLon");
+				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.getString(key); });
+				elements['zoom-in'].title = this.getString("zoomIn");
+				elements['zoom-in'].setAttribute('aria-label', this.getString("zoomIn"));
+				elements['zoom-out'].title = this.getString("zoomOut");
+				elements['zoom-out'].setAttribute('aria-label', this.getString("zoomOut"));
+				elements['zoom-reset'].title = this.getString("zoomReset");
+				elements['zoom-reset'].setAttribute('aria-label', this.getString("zoomReset"));
+				[...elements.theme.options].forEach(option=>option.textContent = this.getString(option.value + "Theme"));
+				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.getString("utcPlaceholder");
+				if (elements.calcLat) elements.calcLat.placeholder = this.getString("placeholderLat");
+				if (elements.calcLon) elements.calcLon.placeholder = this.getString("placeholderLon");
 
 				const translateOptions = (selectId,prefix)=>{
 					[...elements[selectId].options].forEach(option=>{
-						const val = option.value;
-						const key = prefix + val.charAt(0).toUpperCase() + val.slice(1);
-						const translated = this.string(key);
+						const value = option.value;
+						const key = prefix + value.charAt(0).toUpperCase() + value.slice(1);
+						const translated = this.getString(key);
 						if (translated !== key) option.textContent = translated;
 					});
 				};
@@ -776,7 +773,7 @@ self.onmessage = e => {
 				elements.customCriteriaInputs.classList.toggle("hidden", !isCustom);
 			}
 
-			toggleCustomCalc() {
+			toggleCustomCalculations() {
 				const isCustom = elements.calcCriteria.value === "custom";
 				elements.calcCustomCriteriaInputs.classList.toggle("hidden", !isCustom);
 			}
@@ -804,25 +801,25 @@ self.onmessage = e => {
 				const originalText = button.innerHTML;
 
 				button.disabled = true;
-				button.innerHTML = `<span class="spinner"></span> ${this.string("locating")}`;
+				button.innerHTML = `<span class="spinner"></span> ${this.getString("locating")}`;
 
 				if (navigator.geolocation) {
 					navigator.geolocation.getCurrentPosition(
-						p => {
-							elements.calcLat.value = p.coords.latitude.toFixed(4);
-							elements.calcLon.value = p.coords.longitude.toFixed(4);
-							elements.calcUtcOffset.value = Math.round(p.coords.longitude / 15);
+						position => {
+							elements.calcLat.value = position.coords.latitude.toFixed(4);
+							elements.calcLon.value = position.coords.longitude.toFixed(4);
+							elements.calcUtcOffset.value = Math.round(position.coords.longitude / 15);
 							button.disabled = false;
 							button.innerHTML = originalText;
 						},
-						e => {
-							alert(this.string("errorLocation") + e.message);
+						error => {
+							alert(this.getString("errorLocation") + error.message);
 							button.disabled = false;
 							button.innerHTML = originalText;
 						}
 					);
 				} else {
-					alert(this.string("errorGeo"));
+					alert(this.getString("errorGeo"));
 					button.disabled = false;
 					button.innerHTML = originalText;
 				}
@@ -833,111 +830,107 @@ self.onmessage = e => {
 				const longitude = parseFloat(elements.calcLon.value);
 				const dateString = elements.calcDate.value;
 				const criteria = elements.calcCriteria.value;
-				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert(this.string("errorFill"));
-				else this.calculateDetailsInner(latitude, longitude, dateString, criteria);
+				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert(this.getString("errorFill"));
+				else this.performCalculation(latitude, longitude, dateString, criteria);
 			}
 
-			calculateDetailsInner(latitude, longitude, dateString, criteria) {
-				const dateObj = new Date(dateString + "T12:00:00Z");
+			performCalculation(latitude, longitude, dateString, criteria) {
+				const dateObject = new Date(dateString + "T12:00:00Z");
 				const observer = new Astronomy.Observer(latitude, longitude, 0);
-				const date = Astronomy.MakeTime(dateObj);
-				// Adjust start time to approximate local noon
-				const startUT = date.ut - (longitude / 15 / 24);
-				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
+				const time = Astronomy.MakeTime(dateObject);
+				const startUniversalTime = time.ut - (longitude / 15 / 24);
+				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUniversalTime, 1);
 				if (!sunset) {
-					elements.results.innerHTML = `<div class="result-card">${this.string("errorSun")}</div>`;
+					elements.results.innerHTML = `<div class="result-card">${this.getString("errorSun")}</div>`;
 					return;
 				}
-				this.calculateDetailsWithSunset(sunset, observer, date, criteria);
+				this.displayCalculationResults(sunset, observer, time, criteria, longitude);
 			}
 
-			calculateDetailsWithSunset(sunset,observer,date,criteria) {
-				const sunsetUT = sunset.ut;
-				const isGICDetail = criteria === "gic";
-				let moonEq, sunEq;
-				if (isGICDetail) {
-					const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunsetUT, true);
-					const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunsetUT, true);
-					const rot = Astronomy.Rotation_EQJ_EQD(sunsetUT);
-					moonEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
-					sunEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
+			displayCalculationResults(sunset, observer, time, criteria, longitude) {
+				const sunsetUniversalTime = sunset.ut;
+
+				let minAltitude, minElongation, isGlobalIslamicCriteria;
+				if (criteria === "mabbims") {
+					minAltitude = 3; minElongation = 6.4; isGlobalIslamicCriteria = false;
+				} else if (criteria === "gic") {
+					minAltitude = 5; minElongation = 8; isGlobalIslamicCriteria = true;
+				} else if (criteria === "alt0") {
+					minAltitude = 0; minElongation = -100; isGlobalIslamicCriteria = false;
 				} else {
-					moonEq = Astronomy.Equator(Astronomy.Body.Moon,sunsetUT,observer,true,true);
-					sunEq = Astronomy.Equator(Astronomy.Body.Sun,sunsetUT,observer,true,true);
+					minAltitude = parseFloat(elements.calcMinAlt.value) || 0;
+					minElongation = parseFloat(elements.calcMinElong.value) || 0;
+					isGlobalIslamicCriteria = false;
 				}
-				const moonHor = Astronomy.Horizon(sunsetUT,observer,moonEq.ra,moonEq.dec,"normal");
-				const elongation = Astronomy.AngleBetween(sunEq.vec,moonEq.vec);
 
-				const prevNewMoon = Astronomy.SearchMoonPhase(0,date.ut,-1);
-				const ageInDays = prevNewMoon ? (sunsetUT - prevNewMoon.ut) : 0;
-				const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon,sunsetUT);
-				const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon,observer,-1,sunsetUT,1);
+				const moonVector = Astronomy.GeoVector(Astronomy.Body.Moon, sunsetUniversalTime, true);
+				const sunVector = Astronomy.GeoVector(Astronomy.Body.Sun, sunsetUniversalTime, true);
+				const elongation = Astronomy.AngleBetween(sunVector, moonVector);
 
-				const offset = parseFloat(elements.calcUtcOffset.value) || 0;
+				let altitude;
+				if (isGlobalIslamicCriteria) {
+					const observerVector = Astronomy.ObserverVector(sunsetUniversalTime, observer, true);
+					const dot = observerVector.x * moonVector.x + observerVector.y * moonVector.y + observerVector.z * moonVector.z;
+					const angle = Math.acos(dot / (observerVector.length * moonVector.length));
+					altitude = 90.0 - (angle * 180.0 / Math.PI);
+				} else {
+					const moonEquator = Astronomy.Equator(Astronomy.Body.Moon, sunsetUniversalTime, observer, true, true);
+					altitude = Astronomy.Horizon(sunsetUniversalTime, observer, moonEquator.ra, moonEquator.dec, "normal").altitude;
+				}
 
-				const formatTime = ut => {
-					if (!ut) return "N/A";
-					const d = ut.date;
-					d.setMinutes(d.getMinutes() + offset * 60);
-					const timeString = d.toISOString().substring(11,19);
-					const sign = offset >= 0 ? "+" : "";
-					return `${timeString} (UTC${sign}${offset})`;
+				const previousNewMoon = Astronomy.SearchMoonPhase(0, time.ut, -1);
+				const ageInDays = previousNewMoon ? (sunsetUniversalTime - previousNewMoon.ut) : 0;
+				const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon, sunsetUniversalTime);
+				const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon, observer, -1, sunsetUniversalTime, 1);
+
+				const utcOffset = parseFloat(elements.calcUtcOffset.value) || 0;
+
+				const formatTime = universalTime => {
+					if (!universalTime) return "N/A";
+					const date = universalTime.date;
+					date.setMinutes(date.getMinutes() + utcOffset * 60);
+					const timeString = date.toISOString().substring(11,19);
+					const sign = utcOffset >= 0 ? "+" : "";
+					return `${timeString} (UTC${sign}${utcOffset})`;
 				};
 
-				let minAlt, minElong, isGICInner;
-				if (criteria === "mabbims") {
-					minAlt = 3; minElong = 6.4; isGICInner = false;
-				} else if (criteria === "gic") {
-					minAlt = 5; minElong = 8; isGICInner = true;
-				} else if (criteria === "alt0") {
-					minAlt = 0; minElong = -100; isGICInner = false;
-				} else {
-					minAlt = parseFloat(elements.calcMinAlt.value) || 0;
-					minElong = parseFloat(elements.calcMinElong.value) || 0;
-					isGICInner = false;
-				}
-
-				const conjDetail = Astronomy.SearchMoonPhase(0, date, -40);
+				const conjunction = Astronomy.SearchMoonPhase(0, time, -40);
 				let isAllowed = true;
-				if (isGICInner) {
-					const nzObsDetail = new Astronomy.Observer(-41.28, 174.77, 0);
-					const fajrNZDetail = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObsDetail, 1, date, 1.0, -18.0);
-					const limitUTDetail = Math.floor(date.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
-					if (sunsetUT > limitUTDetail) {
-						isAllowed = (longitude <= -20 && conjDetail.ut <= fajrNZDetail.ut + 0.001 && sunsetUT <= fajrNZDetail.ut + 0.5);
+				if (isGlobalIslamicCriteria) {
+					const newZealandObserver = new Astronomy.Observer(-41.2865, 174.7762, 0);
+					const sunriseNZ = Astronomy.SearchRiseSet(Astronomy.Body.Sun, newZealandObserver, 1, time, 1.0);
+					const fajrNZUt = sunriseNZ ? sunriseNZ.ut - (1.2/24.0) : -Infinity;
+					const limitUniversalTime = Math.floor(time.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
+					if (sunsetUniversalTime > limitUniversalTime) {
+						isAllowed = (longitude <= -30 && conjunction.ut < fajrNZUt);
 					}
 				}
 
-				const visible = (isAllowed && sunsetUT >= conjDetail.ut - 0.0001 && moonHor.altitude >= minAlt && elongation >= minElong);
+				const visible = (isAllowed && sunsetUniversalTime >= conjunction.ut - 0.0001 && altitude >= minAltitude && elongation >= minElongation);
 
 				const displayData = [
-					{label:"visibilityStatus",value:visible ? this.string("visible") : this.string("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
+					{label:"visibilityStatus",value:visible ? this.getString("visible") : this.getString("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
 					{label:"sunsetTime",value:formatTime(sunset)},
 					{label:"moonsetTime",value:formatTime(moonset)},
-					{label:"moonAlt",value:moonHor.altitude.toFixed(2) + "°"},
+					{label:"moonAlt",value:altitude.toFixed(2) + "°"},
 					{label:"moonElong",value:elongation.toFixed(2) + "°"},
-					{label:"moonAzimuth",value:moonHor.azimuth.toFixed(2) + "°"},
-					{label:"moonAge",value:ageInDays.toFixed(2) + " " + this.string("unitDays")},
+					{label:"moonAge",value:ageInDays.toFixed(2) + " " + this.getString("unitDays")},
 					{label:"illuminatedFraction",value:(moonPhase.phase_fraction * 100).toFixed(2) + "%"}
 				];
 
 				elements.results.innerHTML = displayData
-					.map(item => `<div class="result-card"><div class="result-label">${this.string(item.label) || item.label}</div><div class="result-value" style="${item.color ? `color:${item.color}` : ""}">${item.value}</div></div>`)
+					.map(item => `<div class="result-card"><div class="result-label">${this.getString(item.label) || item.label}</div><div class="result-value" style="${item.color ? `color:${item.color}` : ""}">${item.value}</div></div>`)
 					.join("");
 			}
 
 			handleRegionChange() {
 				const region = elements.mapRegion.value;
-
-				// Map bounds are 90°N to 90°S, -180° to 180°
 				const mapBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 
 				if (region === "indonesia") {
-					// Indonesia region: -11° to 6° lat, 95° to 141° lon
 					const targetBounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
 					this.zoomToBounds(targetBounds, mapBounds);
 				} else {
-					// World view
 					this.resetZoom();
 				}
 			}
@@ -947,27 +940,21 @@ self.onmessage = e => {
 				const containerWidth = container.offsetWidth;
 				const containerHeight = container.offsetHeight;
 
-				// Calculate how much of the map the target occupies
 				const latRange = mapBounds.maxLat - mapBounds.minLat;
 				const lonRange = mapBounds.maxLon - mapBounds.minLon;
 				const targetLatRange = targetBounds.maxLat - targetBounds.minLat;
 				const targetLonRange = targetBounds.maxLon - targetBounds.minLon;
 
-				// Calculate required scale to fit target region
 				const scaleX = lonRange / targetLonRange;
 				const scaleY = latRange / targetLatRange;
-				this.scale = Math.min(scaleX, scaleY, 5); // Cap at max zoom
+				this.scale = Math.min(scaleX, scaleY, 5);
 
-				// Calculate center of target region in normalized coordinates [0,1]
-				const centerLon = (targetBounds.minLon + targetBounds.maxLon) / 2;
-				const centerLat = (targetBounds.minLat + targetBounds.maxLat) / 2;
+				const centerLongitude = (targetBounds.minLon + targetBounds.maxLon) / 2;
+				const centerLatitude = (targetBounds.minLat + targetBounds.maxLat) / 2;
 
-				// Convert to normalized position on map [0,1]
-				const normX = (centerLon - mapBounds.minLon) / lonRange;
-				const normY = (mapBounds.maxLat - centerLat) / latRange;
+				const normX = (centerLongitude - mapBounds.minLon) / lonRange;
+				const normY = (mapBounds.maxLat - centerLatitude) / latRange;
 
-				// Calculate translation needed to center this point
-				// Since map is centered, we need to offset from center
 				this.translateX = -(normX - 0.5) * containerWidth * this.scale;
 				this.translateY = -(normY - 0.5) * containerHeight * this.scale;
 
@@ -986,17 +973,16 @@ self.onmessage = e => {
 				}
 				this.isRendering = false;
 				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = this.string("cancelled");
+				elements.renderMap.textContent = this.getString("renderMap");
+				elements.mapStatus.textContent = this.getString("cancelled");
 			}
 
 			startRender() {
 				this.isRendering = true;
 				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.string("cancel");
-				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
+				elements.renderMap.textContent = this.getString("cancel");
+				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.getString("calculating")}`;
 
-				// Define bounds based on region (image is 90°N to 90°S)
 				const region = elements.mapRegion.value;
 				let bounds;
 				if (region === "indonesia") {
@@ -1007,19 +993,19 @@ self.onmessage = e => {
 
 				const criteria = elements.mapCriteria.value;
 				const dateString = elements.mapDate.value;
-				const dateObj = new Date(dateString ? dateString + "T12:00:00Z" : new Date());
-				const widthDeg = bounds.maxLon - bounds.minLon;
-				const heightDeg = bounds.maxLat - bounds.minLat;
+				const dateObject = new Date(dateString ? dateString + "T12:00:00Z" : new Date());
+				const widthDegrees = bounds.maxLon - bounds.minLon;
+				const heightDegrees = bounds.maxLat - bounds.minLat;
 				this.lastBounds = bounds;
 
 				const renderParams = {
 					bounds: bounds,
-					widthDeg: widthDeg,
-					heightDeg: heightDeg,
+					widthDegrees: widthDegrees,
+					heightDegrees: heightDegrees,
 					criteria: criteria,
-					dateTimestamp: dateObj.getTime(),
-					minAlt: parseFloat(elements.minAlt.value) || 0,
-					minElong: parseFloat(elements.minElong.value) || 0
+					dateTimestamp: dateObject.getTime(),
+					minAltitude: parseFloat(elements.minAlt.value) || 0,
+					minElongation: parseFloat(elements.minElong.value) || 0
 				};
 
 				if (!this.worker) {
@@ -1027,12 +1013,12 @@ self.onmessage = e => {
 					this.worker = new Worker(URL.createObjectURL(blob));
 				}
 
-				this.worker.onmessage = (e)=>{
-					const data = e.data;
+				this.worker.onmessage = event=>{
+					const data = event.data;
 					if (data.progress) {
-						elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;
+						elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.getString("calculating")} ${data.progress}%`;
 					} else if (data.buffer) {
-						this.handleComplete(data.width, data.height, data.buffer);
+						this.handleRenderComplete(data.width, data.height, data.buffer);
 					} else if (data.error) {
 						console.error(data.error);
 						elements.mapStatus.textContent = "Error: " + data.error;
@@ -1042,62 +1028,48 @@ self.onmessage = e => {
 				this.worker.postMessage(renderParams);
 			}
 
-			handleComplete(width, height, buffer) {
+			handleRenderComplete(width, height, buffer) {
 				const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
 				this.currentImageData = imageData;
 				this.redrawOverlay();
 				this.isRendering = false;
 				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = this.string("done");
-			}
-
-			latToPlateCarreeY(lat) {
-				return lat;
+				elements.renderMap.textContent = this.getString("renderMap");
+				elements.mapStatus.textContent = this.getString("done");
 			}
 
 			redrawOverlay() {
 				if (!this.currentImageData || !this.lastBounds) return;
 				const canvas = elements['map-overlay'];
-				const img = elements['map-image'];
+				const image = elements['map-image'];
 
-				// Set canvas to match image dimensions
-				canvas.width = img.naturalWidth || img.width;
-				canvas.height = img.naturalHeight || img.height;
+				canvas.width = image.naturalWidth || image.width;
+				canvas.height = image.naturalHeight || image.height;
 
-				const ctx = canvas.getContext("2d");
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				const context = canvas.getContext("2d");
+				context.clearRect(0, 0, canvas.height, canvas.width); // Fixed clearRect order
 
-				// Create temporary canvas with the calculation data
 				const tempCanvas = document.createElement('canvas');
 				tempCanvas.width = this.currentImageData.width;
 				tempCanvas.height = this.currentImageData.height;
-				const tempCtx = tempCanvas.getContext('2d');
-				tempCtx.putImageData(this.currentImageData, 0, 0);
+				const tempContext = tempCanvas.getContext('2d');
+				tempContext.putImageData(this.currentImageData, 0, 0);
 
-				// Calculate position based on bounds
-				// Image covers 90°N to 90°S, -180° to 180°
 				const imgBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 				const dataBounds = this.lastBounds;
 
-				// Horizontal (Linear)
 				const x = ((dataBounds.minLon - imgBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
-				const w = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
+				const width = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
 
-				// Vertical (Linear)
-				// Map Y=0 is 90°N, Y=Height is -90°S
-				const mapTopY = this.latToPlateCarreeY(imgBounds.maxLat);
-				const mapBottomY = this.latToPlateCarreeY(imgBounds.minLat);
+				const mapTopY = imgBounds.maxLat;
+				const mapBottomY = imgBounds.minLat;
+				const dataTopY = dataBounds.maxLat;
+				const dataBottomY = dataBounds.minLat;
 
-				const dataTopY = this.latToPlateCarreeY(dataBounds.maxLat);
-				const dataBottomY = this.latToPlateCarreeY(dataBounds.minLat);
-
-				// Y pixel is proportional to (mapTopY - val)
 				const y = ((mapTopY - dataTopY) / (mapTopY - mapBottomY)) * canvas.height;
-				const h = ((mapTopY - dataBottomY) / (mapTopY - mapBottomY)) * canvas.height - y;
+				const height = ((mapTopY - dataBottomY) / (mapTopY - mapBottomY)) * canvas.height - y;
 
-				// Draw scaled overlay
-				ctx.drawImage(tempCanvas, x, y, w, h);
+				context.drawImage(tempCanvas, x, y, width, height);
 			}
 		}
 		new HilalMap();

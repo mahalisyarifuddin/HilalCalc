@@ -299,11 +299,27 @@
 			};
 
 			const state = {
-				lang: "en",
+				lang: navigator.language?.startsWith('id') ? 'id' : 'en',
+				theme: 'auto',
 				year: 1447,
 				month: 9,
 				AE_OFFSET: 2451545.0
 			};
+
+			function loadState() {
+				try {
+					const s = JSON.parse(localStorage.getItem('hsState') || '{}');
+					if (s.lang) state.lang = s.lang;
+					if (s.theme) state.theme = s.theme;
+				} catch (e) {}
+			}
+
+			function saveState() {
+				localStorage.setItem('hsState', JSON.stringify({
+					lang: state.lang,
+					theme: state.theme
+				}));
+			}
 
 			const elements = {
 				language: document.getElementById('language'),
@@ -335,6 +351,7 @@
 
 			function updateLang() {
 				state.lang = elements.language.value;
+				saveState();
 				const strings = text[state.lang];
 				elements.statsTitle.textContent = strings.statsTitle;
 				elements.statsContent.innerHTML = strings.statsContent;
@@ -359,7 +376,9 @@
 			}
 
 			function updateTheme() {
-				const val = elements.theme.value;
+				state.theme = elements.theme.value;
+				saveState();
+				const val = state.theme;
 				document.documentElement.className = val === 'auto' ? '' : val;
 			}
 
@@ -521,9 +540,17 @@
 				calculate();
 			};
 
+			const now = new Date();
+			const jd = now.getTime() / 86400000 + 2440587.5;
+			const index = Math.floor((jd - 1948440 - 0.236624) / 29.530573265);
+			state.year = Math.floor(index / 12) + 1;
+			state.month = (index % 12) + 1;
+
+			loadState();
 			elements.hYearInput.value = state.year;
 			elements.hMonthInput.value = state.month;
-			elements.language.value = navigator.language?.startsWith('id') ? 'id' : 'en';
+			elements.language.value = state.lang;
+			elements.theme.value = state.theme;
 			updateLang();
 			updateTheme();
 		</script>

@@ -616,13 +616,35 @@ self.onmessage = e => {
 		class HilalMap {
 			constructor() {
 				this.cacheVersion = 5;
-				this.language = "en";
+				this.language = navigator.language?.startsWith('id') ? 'id' : 'en';
+				this.themeName = 'auto';
 				this.worker = null;
 				this.isRendering = false;
+				this.loadState();
 				this.setup();
 			}
 
+			loadState() {
+				try {
+					const s = JSON.parse(localStorage.getItem('hmState') || '{}');
+					if (s.language) this.language = s.language;
+					if (s.theme) this.themeName = s.theme;
+				} catch (e) {}
+			}
+
+			saveState() {
+				localStorage.setItem('hmState', JSON.stringify({
+					language: this.language,
+					theme: this.themeName
+				}));
+			}
+
 			setup() {
+				elements.language.value = this.language;
+				elements.theme.value = this.themeName;
+				this.lang(this.language);
+				this.theme(this.themeName);
+
 				elements.language.onchange = event=>this.lang(event.target.value);
 				elements.theme.onchange = event=>this.theme(event.target.value);
 				elements.renderMap.onclick = ()=>this.handleRenderClick();
@@ -735,12 +757,15 @@ self.onmessage = e => {
 			string(key) { return text[this.language]?.[key] ?? key; }
 
 			theme(themeName) {
+				this.themeName = themeName;
 				document.documentElement.className = themeName === "auto" ? "" : themeName;
 				elements.theme.value = themeName;
+				this.saveState();
 			}
 
 			lang(language) {
 				this.language = elements.language.value = document.documentElement.lang = language;
+				this.saveState();
 				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.string(key); });
 				elements['zoom-in'].title = this.string("zoomIn");
 				elements['zoom-in'].setAttribute('aria-label', this.string("zoomIn"));

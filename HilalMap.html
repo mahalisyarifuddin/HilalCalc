@@ -1,1078 +1,319 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Hilal Visibility Map</title>
-	<style>
-		:root {
-			--primary: #005dac;
-			--on-primary: #ffffff;
-			--hover: #00539a;
-			--background: #f9f9ff;
-			--surface: #ffffff;
-			--text: #181c21;
-			--border: #c1c6d4;
-			--muted: #f2f3fc;
-			--success: #0b6b1d;
-			--on-success: #ffffff;
-			--danger: #ba1a1a;
-			--on-danger: #ffffff;
-			--highlight-bg: #d4e3ff;
-		}
-		@media (prefers-color-scheme: dark) {
-			:root:not(.light) {
-				--primary: #a5c8ff;
-				--on-primary: #00315f;
-				--hover: #72adff;
-				--background: #101319;
-				--surface: #0b0e14;
-				--text: #e0e2ea;
-				--border: #414752;
-				--muted: #181c21;
-				--success: #82db7e;
-				--on-success: #00390a;
-				--danger: #ffb4ab;
-				--on-danger: #93000a;
-				--highlight-bg: #001c3a;
-			}
-		}
-		:root.dark {
-			--primary: #a5c8ff;
-			--on-primary: #00315f;
-			--hover: #72adff;
-			--background: #101319;
-			--surface: #0b0e14;
-			--text: #e0e2ea;
-			--border: #414752;
-			--muted: #181c21;
-			--success: #82db7e;
-			--on-success: #00390a;
-			--danger: #ffb4ab;
-			--on-danger: #93000a;
-			--highlight-bg: #001c3a;
-		}
-		* { 
-			box-sizing: border-box; 
-			margin: 0; 
-			padding: 0; 
-			outline-offset: 2px; 
-		}
-		*:focus-visible { 
-			outline: 2px solid var(--primary); 
-		}
-		body {
-			background: var(--background);
-			color: var(--text);
-			font-family: system-ui, -apple-system, sans-serif;
-			display: flex;
-			justify-content: center;
-			min-height: 100vh;
-			padding: 1rem;
-		}
-		.container {
-			background: var(--surface);
-			border: 1px solid var(--border);
-			border-radius: 8px;
-			max-width: 1200px;
-			padding: 2rem;
-			width: 100%;
-			position: relative;
-			margin: 2rem 0;
-			display: flex;
-			flex-direction: column;
-		}
-		.hidden { 
-			display: none !important; 
-		}
-		h1, h2, h3, label { 
-			margin: .5rem 0; 
-		}
-		label { 
-			display: block; 
-			font-weight: 700; 
-		}
-		input, select, button {
-			background: var(--surface);
-			border: 1px solid var(--border);
-			border-radius: 4px;
-			color: var(--text);
-			font-size: 1rem;
-			padding: .5rem;
-			width: 100%;
-		}
-		button { 
-			cursor: pointer; 
-		}
-		button:disabled { 
-			opacity: .6; 
-			cursor: not-allowed; 
-		}
-		.primary { 
-			background: var(--primary); 
-			color: var(--on-primary); 
-			border: 0; 
-		}
-		.primary:hover:not(:disabled) { 
-			background: var(--hover); 
-		}
-		.secondary:hover:not(:disabled) { 
-			background: var(--muted); 
-		}
-		.selectors {
-			position: absolute;
-			right: 2rem;
-			top: 1rem;
-			display: flex;
-			gap: 8px;
-			z-index: 1000;
-		}
-		.row { 
-			display: flex; 
-			gap: 1rem; 
-			margin-bottom: 1rem; 
-		}
-		.group { 
-			flex: 1; 
-		}
-		.info { 
-			font-size: .9rem; 
-			opacity: .8; 
-			line-height: 1.6; 
-		}
-		#map-container {
-			width: 100%; 
-			height: 500px; 
-			border: 1px solid var(--border); 
-			border-radius: 4px; 
-			margin-top: 1rem; 
-			position: relative;
-			overflow: hidden;
-			background: #aadaff;
-			cursor: grab;
-		}
-		#map-container:active {
-			cursor: grabbing;
-		}
-		#map-wrapper {
-			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform-origin: center center;
-			width: 100%;
-			height: 100%;
-		}
-		#map-image {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-			display: block;
-			user-select: none;
-			position: absolute;
-			top: 0;
-			left: 0;
-		}
-		#map-overlay {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			pointer-events: none;
-		}
-		.map-controls {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			display: flex;
-			flex-direction: column;
-			gap: 5px;
-			z-index: 10;
-		}
-		.map-controls button {
-			width: 30px;
-			height: 30px;
-			padding: 0;
-			font-size: 18px;
-			background: var(--surface);
-			border: 1px solid var(--border);
-			cursor: pointer;
-		}
-		.tabs { 
-			display: flex; 
-			border-bottom: 1px solid var(--border); 
-			margin-bottom: 1rem; 
-		}
-		.tab {
-			background: transparent;
-			border: none;
-			border-bottom: 3px solid transparent;
-			border-radius: 0;
-			cursor: pointer;
-			padding: 0.5rem 1rem;
-			font-weight: 600;
-			color: var(--text);
-			opacity: 0.6;
-			width: auto;
-		}
-		.tab:hover { 
-			background: var(--muted); 
-			opacity: 1; 
-		}
-		.tab.active { 
-			border-bottom-color: var(--primary); 
-			opacity: 1; 
-		}
-		#results { 
-			margin-top: 1rem; 
-			display: grid; 
-			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-			gap: 1rem; 
-		}
-		.result-card {
-			background: var(--surface);
-			padding: 1rem;
-			border-radius: 4px;
-			border: 1px solid var(--border);
-			box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-		}
-		.result-label { 
-			font-size: 0.8rem; 
-			opacity: 0.8; 
-			margin-bottom: 0.25rem; 
-		}
-		.result-value { 
-			font-size: 1.2rem; 
-			font-weight: bold; 
-		}
-		@media(max-width: 768px) {
-			.selectors { 
-				position: static; 
-				justify-content: end; 
-				margin-bottom: .5rem; 
-			}
-			.row { 
-				flex-direction: column; 
-			}
-			#map-container {
-				height: 350px; 
-			}
-		}
-		.spinner {
-			display: inline-block;
-			width: 1em;
-			height: 1em;
-			border: 2px solid currentColor;
-			border-right-color: transparent;
-			border-radius: 50%;
-			animation: spin 0.75s linear infinite;
-			vertical-align: text-bottom;
-			margin-right: 4px;
-		}
-		@keyframes spin { 
-			100% { 
-				transform: rotate(360deg); 
-			} 
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>HilalMap - New Moon Visibility Map</title>
+    <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb; --on-primary: #ffffff; --hover: #1d4ed8; --background: #f8fafc; --surface: #ffffff; --text: #1e293b; --border: #e2e8f0; --muted: #f1f5f9; --success: #059669; --error: #dc2626; --highlight-bg: #dbeafe;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not(.light) {
+                --primary: #60a5fa; --on-primary: #0f172a; --hover: #93c5fd; --background: #0f172a; --surface: #1e293b; --text: #f1f5f9; --border: #334155; --muted: #334155; --success: #34d399; --error: #f87171; --highlight-bg: #1e3a8a;
+            }
+        }
+        :root.dark {
+            --primary: #60a5fa; --on-primary: #0f172a; --hover: #93c5fd; --background: #0f172a; --surface: #1e293b; --text: #f1f5f9; --border: #334155; --muted: #334155; --success: #34d399; --error: #f87171; --highlight-bg: #1e3a8a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; outline-offset: 2px; }
+        body { background: var(--background); color: var(--text); font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .controls { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+        select, input, button { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem; padding: 0.5rem; }
+        button { cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .primary { background: var(--primary); color: var(--on-primary); border: 0; padding-left: 1.5rem; padding-right: 1.5rem; }
+        .primary:hover { background: var(--hover); }
+        .main-container { flex: 1; display: grid; grid-template-columns: 1fr 320px; overflow: hidden; }
+        .map-container { position: relative; background: #9bbff4; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        #visibilityCanvas { width: 100%; height: auto; display: block; background-size: contain; background-repeat: no-repeat; cursor: crosshair; image-rendering: -webkit-optimize-contrast; }
+        .sidebar { background: var(--surface); border-left: 1px solid var(--border); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; }
+        .status-box { padding: 1.25rem; border-radius: 12px; border: 2px solid var(--border); display: flex; flex-direction: column; gap: 0.5rem; }
+        .status-yes { border-color: var(--success); background: rgba(5, 150, 105, 0.05); }
+        .status-no { border-color: var(--error); background: rgba(220, 38, 38, 0.05); }
+        .status-label { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .status-value { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.25rem 0; border-bottom: 1px solid var(--border); }
+        .detail-row:last-child { border: 0; }
+        .criteria-pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-top: 4px; }
+        .pill-mabbims { background: var(--highlight-bg); color: var(--primary); }
+        .pill-gic { background: #fee2e2; color: #b91c1c; }
+        .loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.1); display: none; align-items: center; justify-content: center; z-index: 10; pointer-events: none; }
+        .loading-overlay.active { display: flex; }
+        .spinner { width: 2.5rem; height: 2.5rem; border: 4px solid var(--surface); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; } .sidebar { border-left: 0; border-top: 1px solid var(--border); } }
+        .nav-group { display: flex; gap: 4px; }
+    </style>
 </head>
 <body>
-	<div class="container">
-		<div class="selectors">
-			<select id="language" aria-label="Language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
-			<select id="theme" aria-label="Theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
-		</div>
-		<h1 id="mapTitle">Hilal Visibility Map</h1>
-		<div class="tabs" role="tablist">
-			<button id="tabMap" class="tab active" role="tab" aria-selected="true" aria-controls="mapView"></button>
-			<button id="tabCalc" class="tab" role="tab" aria-selected="false" aria-controls="calcView"></button>
-		</div>
-		<div id="mapView" role="tabpanel" aria-labelledby="tabMap">
-			<div id="controls">
-				<div class="row">
-					<div class="group">
-						<label id="dateLabel" for="mapDate">Date</label>
-						<input type="date" id="mapDate">
-					</div>
-					<div class="group">
-						<label id="regionLabel" for="mapRegion">Region</label>
-						<select id="mapRegion">
-							<option value="world">World</option>
-							<option value="indonesia">Indonesia</option>
-						</select>
-					</div>
-					<div class="group">
-						<label id="criteriaLabel" for="mapCriteria">Criteria</label>
-						<select id="mapCriteria">
-							<option value="mabbims">MABBIMS (Alt ≥3°, Elong ≥6.4°)</option>
-							<option value="gic">GIC (Alt ≥5°, Elong ≥8°)</option>
-							<option value="alt0">Altitude ≥0°</option>
-							<option value="custom">Custom</option>
-						</select>
-					</div>
-				</div>
-				<div id="customCriteriaInputs" class="hidden row">
-					<div class="group">
-						<label id="minAltLabel" for="minAlt">Min Altitude (degrees)</label>
-						<input type="number" id="minAlt" step="0.1" value="3">
-					</div>
-					<div class="group">
-						<label id="minElongLabel" for="minElong">Min Elongation (degrees)</label>
-						<input type="number" id="minElong" step="0.1" value="6.4">
-					</div>
-				</div>
-				<button id="renderMap" class="primary">Render Map</button>
-				<div id="mapStatus" class="info" style="margin-top: .5rem;"></div>
-			</div>
-			<div id="map-container">
-				<div class="map-controls">
-						<button id="zoom-in" title="Zoom In">+</button>
-						<button id="zoom-out" title="Zoom Out">−</button>
-						<button id="zoom-reset" title="Reset">⟲</button>
-				</div>
-				<div id="map-wrapper">
-					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg" alt="World Map" draggable="false">
-					<canvas id="map-overlay"></canvas>
-				</div>
-			</div>
-		</div>
-		<div id="calcView" class="hidden" role="tabpanel" aria-labelledby="tabCalc">
-			<div class="row">
-				<div class="group">
-					<label id="calcDateLabel" for="calcDate">Date</label>
-					<input type="date" id="calcDate">
-				</div>
-				<div class="group">
-					<label id="latLabel" for="calcLat">Latitude</label>
-					<input type="number" id="calcLat" step="0.0001" placeholder="e.g., -6.2088">
-				</div>
-				<div class="group">
-					<label id="lonLabel" for="calcLon">Longitude</label>
-					<input type="number" id="calcLon" step="0.0001" placeholder="e.g., 106.8456">
-				</div>
-			</div>
-			<div class="row">
-				<div class="group">
-					<label id="utcOffsetLabel" for="calcUtcOffset">UTC Offset (hours)</label>
-					<input type="number" id="calcUtcOffset" step="1" value="7" placeholder="e.g., 7">
-				</div>
-				<div class="group">
-					<label id="calcCriteriaLabel" for="calcCriteria">Criteria</label>
-					<select id="calcCriteria">
-						<option value="mabbims">MABBIMS</option>
-						<option value="gic">GIC</option>
-						<option value="alt0">Altitude ≥0°</option>
-						<option value="custom">Custom</option>
-					</select>
-				</div>
-			</div>
-			<div id="calcCustomCriteriaInputs" class="hidden row">
-				<div class="group">
-					<label id="calcMinAltLabel" for="calcMinAlt">Min Altitude (degrees)</label>
-					<input type="number" id="calcMinAlt" step="0.1" value="3">
-				</div>
-				<div class="group">
-					<label id="calcMinElongLabel" for="calcMinElong">Min Elongation (degrees)</label>
-					<input type="number" id="calcMinElong" step="0.1" value="6.4">
-				</div>
-			</div>
-			<div class="row">
-				<button id="getLocation" class="secondary">Get Current Location</button>
-				<button id="calculateBtn" class="primary">Calculate</button>
-			</div>
-			<div id="results"></div>
-		</div>
-	</div>
-	<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-	<script>
-		const text = {
-			en: {
-				mapTitle: "Hilal Visibility Map",
-				dateLabel: "Date",
-				regionLabel: "Region",
-				criteriaLabel: "Criteria",
-				renderMap: "Render Map",
-				calculating: "Calculating...",
-				calcDateLabel: "Date",
-				latLabel: "Latitude",
-				lonLabel: "Longitude",
-				utcOffsetLabel: "UTC Offset (hours)",
-				calcCriteriaLabel: "Criteria",
-				getLocation: "Get Current Location",
-				calculateBtn: "Calculate",
-				visibilityStatus: "Visibility Status",
-				visible: "Visible",
-				notVisible: "Not Visible",
-				sunsetTime: "Sunset Time",
-				moonsetTime: "Moonset Time",
-				moonAlt: "Moon Altitude",
-				moonElong: "Moon Elongation",
-				moonAzimuth: "Moon Azimuth",
-				moonAge: "Moon Age",
-				illuminatedFraction: "Illuminated Fraction",
-				unitDays: "days",
-				locating: "Locating...",
-				autoTheme: "Auto",
-				lightTheme: "Light",
-				darkTheme: "Dark",
-				tabMap: "Map",
-				tabCalc: "Detailed Calculations",
-				zoomIn: "Zoom In",
-				zoomOut: "Zoom Out",
-				zoomReset: "Reset Zoom",
-				regionIndonesia: 'Indonesia',
-				regionWorld: 'World',
-				criteriaMabbims: 'MABBIMS (Alt≥3°, Elong≥6.4°)',
-				criteriaGic: 'GIC (Alt≥5°, Elong≥8°)',
-				criteriaAlt0: 'Altitude > 0°',
-				criteriaCustom: 'Custom Criteria',
-				utcPlaceholder: 'e.g., 7',
-				done: "Done",
-				cancel: "Cancel",
-				cancelled: "Cancelled",
-				minAltLabel: "Min Altitude (degrees)",
-				minElongLabel: "Min Elongation (degrees)",
-				calcMinAltLabel: "Min Altitude (degrees)",
-				calcMinElongLabel: "Min Elongation (degrees)",
-				errorLocation: "Error getting location: ",
-				errorGeo: "Geolocation is not supported by this browser.",
-				errorSun: "Error: Sun does not set on this date/location.",
-				errorFill: "Please fill in all fields correctly.",
-				placeholderLat: "e.g., -6.2088",
-				placeholderLon: "e.g., 106.8456",
-				langLabel: "Language",
-				themeLabel: "Theme"
-			},
-			id: {
-				mapTitle: "Peta Visibilitas Hilal",
-				dateLabel: "Tanggal",
-				regionLabel: "Wilayah",
-				criteriaLabel: "Kriteria",
-				renderMap: "Render Peta",
-				calculating: "Menghitung...",
-				calcDateLabel: "Tanggal",
-				latLabel: "Lintang",
-				lonLabel: "Bujur",
-				utcOffsetLabel: "Offset UTC (jam)",
-				calcCriteriaLabel: "Kriteria",
-				getLocation: "Dapatkan Lokasi Saat Ini",
-				calculateBtn: "Hitung",
-				visibilityStatus: "Status Visibilitas",
-				visible: "Terlihat",
-				notVisible: "Tidak Terlihat",
-				sunsetTime: "Waktu Maghrib",
-				moonsetTime: "Waktu Terbenam Bulan",
-				moonAlt: "Ketinggian Bulan",
-				moonElong: "Elongasi Bulan",
-				moonAzimuth: "Azimuth Bulan",
-				moonAge: "Umur Bulan",
-				illuminatedFraction: "Fraksi Teriluminasi",
-				unitDays: "hari",
-				locating: "Mencari lokasi...",
-				autoTheme: "Otomatis",
-				lightTheme: "Terang",
-				darkTheme: "Gelap",
-				tabMap: "Peta",
-				tabCalc: "Kalkulasi Detail",
-				zoomIn: "Perbesar",
-				zoomOut: "Perkecil",
-				zoomReset: "Atur Ulang Zoom",
-				regionIndonesia: 'Indonesia',
-				regionWorld: 'Dunia',
-				criteriaMabbims: 'MABBIMS (Tinggi≥3°, Elongasi≥6.4°)',
-				criteriaGic: 'GIC (Tinggi≥5°, Elongasi≥8°)',
-				criteriaAlt0: 'Tinggi Bulan > 0°',
-				criteriaCustom: 'Kriteria Kustom',
-				utcPlaceholder: 'contoh: 7',
-				done: "Selesai",
-				cancel: "Batal",
-				cancelled: "Dibatalkan",
-				minAltLabel: "Min Ketinggian (derajat)",
-				minElongLabel: "Min Elongasi (derajat)",
-				calcMinAltLabel: "Min Ketinggian (derajat)",
-				calcMinElongLabel: "Min Elongasi (derajat)",
-				errorLocation: "Gagal mendapatkan lokasi: ",
-				errorGeo: "Geolokasi tidak didukung oleh peramban ini.",
-				errorSun: "Kesalahan: Matahari tidak terbenam pada tanggal/lokasi ini.",
-				errorFill: "Harap isi semua bidang dengan benar.",
-				placeholderLat: "contoh: -6.2088",
-				placeholderLon: "contoh: 106.8456",
-				langLabel: "Bahasa",
-				themeLabel: "Tema"
-			}
-		};
-
-		const WORKER_CODE = `importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
-
-const calculateSunset = (latitude, longitude, baseDateUniversalTime) => {
-	const observer = new Astronomy.Observer(latitude, longitude, 0);
-	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, baseDateUniversalTime - (longitude / 15 / 24), 1);
-};
-
-self.onmessage = event => {
-	try {
-		const { bounds, widthDegrees, heightDegrees, criteria, dateTimestamp, minAltitude, minElongation } = event.data;
-		const maxGridSize = 245;
-		const cellSizeDegrees = Math.max(widthDegrees / maxGridSize, heightDegrees / maxGridSize, 0.1);
-		const width = Math.min(Math.ceil(widthDegrees / cellSizeDegrees), maxGridSize);
-		const height = Math.min(Math.ceil(heightDegrees / cellSizeDegrees), maxGridSize);
-		const buffer = new Uint8ClampedArray(width * height * 4);
-		const date = Astronomy.MakeTime(new Date(dateTimestamp));
-
-		let criteriaMinAltitude, criteriaMinElongation, isGlobalIslamicCriteria;
-		if (criteria === "mabbims") {
-			criteriaMinAltitude = 3; criteriaMinElongation = 6.4; isGlobalIslamicCriteria = false;
-		} else if (criteria === "gic") {
-			criteriaMinAltitude = 5; criteriaMinElongation = 8; isGlobalIslamicCriteria = true;
-		} else if (criteria === "alt0") {
-			criteriaMinAltitude = 0; criteriaMinElongation = -100; isGlobalIslamicCriteria = false;
-		} else {
-			criteriaMinAltitude = minAltitude; criteriaMinElongation = minElongation; isGlobalIslamicCriteria = false;
-		}
-
-		const NEW_ZEALAND_LATITUDE = -41.28, NEW_ZEALAND_LONGITUDE = 174.77;
-		const newZealandObserver = new Astronomy.Observer(NEW_ZEALAND_LATITUDE, NEW_ZEALAND_LONGITUDE, 0);
-		const sunriseNewZealand = Astronomy.SearchRiseSet(Astronomy.Body.Sun, newZealandObserver, 1, date, 1.0);
-		const fajrNewZealandUt = sunriseNewZealand ? sunriseNewZealand.ut - (1.2/24.0) : -Infinity;
-		const conjunction = Astronomy.SearchMoonPhase(0, date, -40);
-
-		const minY = bounds.minLat;
-		const maxY = bounds.maxLat;
-		const yRange = maxY - minY;
-		const STEP = 10;
-
-		for (let row = 0; row < height; row++) {
-			const latitude = maxY - (row / (height - 1 || 1)) * yRange;
-			let prevColumn = -1;
-			let nextColumn = -1;
-			let prevSunset = null;
-			let nextSunset = null;
-
-			for (let column = 0; column < width; column++) {
-				const longitude = bounds.minLon + (column * cellSizeDegrees);
-				let sunset = null;
-
-				if (column >= nextColumn) {
-					prevColumn = column;
-					prevSunset = (column === nextColumn && nextSunset !== null) ? nextSunset : calculateSunset(latitude, longitude, date.ut);
-					nextColumn = Math.min(column + STEP, width - 1);
-					nextSunset = (nextColumn === prevColumn) ? prevSunset : calculateSunset(latitude, bounds.minLon + (nextColumn * cellSizeDegrees), date.ut);
-				}
-
-				if (prevSunset && nextSunset) {
-					sunset = { ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((column - prevColumn) / (nextColumn - prevColumn || 1)) };
-				} else {
-					sunset = calculateSunset(latitude, longitude, date.ut);
-				}
-
-				let visible = false;
-				if (sunset) {
-					if (sunset.ut >= conjunction.ut - 0.0001) {
-						let isAllowed = true;
-						if (isGlobalIslamicCriteria) {
-							const limitUniversalTime = Math.floor(date.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
-							if (sunset.ut > limitUniversalTime) {
-								isAllowed = (longitude <= -30 && conjunction.ut < fajrNewZealandUt);
-							}
-						}
-
-						if (isAllowed) {
-							const observer = new Astronomy.Observer(latitude, longitude, 0);
-							const moonVector = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
-							const sunVector = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
-							const elongation = Astronomy.AngleBetween(moonVector, sunVector);
-
-							let altitude;
-							if (isGlobalIslamicCriteria) {
-								const observerVector = Astronomy.ObserverVector(sunset.ut, observer, true);
-								altitude = 90.0 - Astronomy.AngleBetween(observerVector, moonVector);
-							} else {
-								const equator = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, observer, true, true);
-								altitude = Astronomy.Horizon(sunset.ut, observer, equator.ra, equator.dec, "normal").altitude;
-							}
-
-							if (altitude >= criteriaMinAltitude) {
-								visible = elongation >= criteriaMinElongation;
-							}
-						}
-					}
-				}
-
-				const index = (row * width + column) * 4;
-				if (visible) {
-					buffer[index] = 0; buffer[index+1] = 150; buffer[index+2] = 0; buffer[index+3] = 100;
-				} else {
-					buffer[index] = 0; buffer[index+1] = 0; buffer[index+2] = 0; buffer[index+3] = 0;
-				}
-			}
-			if (row % 10 === 0) {
-				self.postMessage({progress: (row / height * 100).toFixed(0)});
-			}
-		}
-		self.postMessage({width, height, buffer: buffer.buffer}, [buffer.buffer]);
-	} catch(error) {
-		self.postMessage({error: error.message});
-	}
-};`;
-
-		const elements = new Proxy({},{get:(_,id)=>document.getElementById(id) });
-
-		class HilalMap {
-			constructor() {
-				this.language = "en";
-				this.worker = null;
-				this.isRendering = false;
-				this.setup();
-			}
-
-			setup() {
-				elements.language.onchange = event=>this.updateLanguage(event.target.value);
-				elements.theme.onchange = event=>this.updateTheme(event.target.value);
-				elements.renderMap.onclick = ()=>this.handleRenderClick();
-				elements.mapCriteria.onchange = ()=>this.toggleCustom();
-				elements.mapRegion.onchange = ()=>this.handleRegionChange();
-				elements.tabMap.onclick = ()=>this.switchTab("map");
-				elements.tabCalc.onclick = ()=>this.switchTab("calc");
-				elements.calcCriteria.onchange = ()=>this.toggleCustomCalculations();
-				elements.calculateBtn.onclick = ()=>this.calculateDetails();
-				elements.getLocation.onclick = ()=>this.getCurrentLocation();
-
-				// Zoom and pan setup
-				this.scale = 1;
-				this.translateX = 0;
-				this.translateY = 0;
-				this.isDragging = false;
-				this.startX = 0;
-				this.startY = 0;
-
-				elements['zoom-in'].onclick = ()=>this.zoom(1.2);
-				elements['zoom-out'].onclick = ()=>this.zoom(0.8);
-				elements['zoom-reset'].onclick = ()=>this.resetZoom();
-
-				elements['map-container'].addEventListener('wheel',event=>{
-					event.preventDefault();
-					const delta = event.deltaY > 0 ? 0.9 : 1.1;
-					this.zoom(delta);
-				});
-
-				elements['map-container'].addEventListener('mousedown',event=>{
-					this.isDragging = true;
-					this.startX = event.clientX - this.translateX;
-					this.startY = event.clientY - this.translateY;
-				});
-
-				elements['map-container'].addEventListener('mousemove',event=>this.isDragging && (
-					this.translateX = event.clientX - this.startX,
-					this.translateY = event.clientY - this.startY,
-					this.limitPan(),
-					this.updateTransform()
-				));
-
-				elements['map-container'].addEventListener('mouseup',()=>{
-					this.isDragging = false;
-				});
-
-				elements['map-container'].addEventListener('mouseleave',()=>{
-					this.isDragging = false;
-				});
-
-				const today = new Date();
-				elements.mapDate.valueAsDate = today;
-				elements.calcDate.valueAsDate = today;
-
-				// Setup canvas overlay
-				const canvas = elements['map-overlay'];
-				const image = elements['map-image'];
-
-				image.onload = ()=>{
-					canvas.width = image.naturalWidth;
-					canvas.height = image.naturalHeight;
-					this.redrawOverlay();
-				};
-
-				window.addEventListener('resize',()=>{
-					this.redrawOverlay();
-				});
-
-				// Initialize to world view
-				this.handleRegionChange();
-			}
-
-			limitPan() {
-				const container = elements['map-container'];
-				const containerWidth = container.offsetWidth;
-				const containerHeight = container.offsetHeight;
-				const scaledWidth = containerWidth * this.scale;
-				const scaledHeight = containerHeight * this.scale;
-
-				// Limit horizontal pan
-				const maxX = (scaledWidth - containerWidth) / 2;
-				const minX = -maxX;
-				this.translateX = Math.max(minX, Math.min(maxX, this.translateX));
-
-				// Limit vertical pan
-				const maxY = (scaledHeight - containerHeight) / 2;
-				const minY = -maxY;
-				this.translateY = Math.max(minY, Math.min(maxY, this.translateY));
-			}
-
-			zoom(factor) {
-				this.scale = Math.max(0.5, Math.min(5, this.scale * factor));
-				this.limitPan();
-				this.updateTransform();
-			}
-
-			resetZoom() {
-				this.scale = 1;
-				this.translateX = 0;
-				this.translateY = 0;
-				this.updateTransform();
-			}
-
-			updateTransform() {
-				elements['map-wrapper'].style.transform =
-					`translate(-50%, -50%) translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
-			}
-
-			getString(key) { return text[this.language]?.[key] ?? key; }
-
-			updateTheme(themeName) {
-				document.documentElement.className = themeName === "auto" ? "" : themeName;
-				elements.theme.value = themeName;
-			}
-
-			updateLanguage(language) {
-				this.language = elements.language.value = document.documentElement.lang = language;
-				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.getString(key); });
-				elements['zoom-in'].title = this.getString("zoomIn");
-				elements['zoom-in'].setAttribute('aria-label', this.getString("zoomIn"));
-				elements['zoom-out'].title = this.getString("zoomOut");
-				elements['zoom-out'].setAttribute('aria-label', this.getString("zoomOut"));
-				elements['zoom-reset'].title = this.getString("zoomReset");
-				elements['zoom-reset'].setAttribute('aria-label', this.getString("zoomReset"));
-				[...elements.theme.options].forEach(option=>option.textContent = this.getString(option.value + "Theme"));
-				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.getString("utcPlaceholder");
-				if (elements.calcLat) elements.calcLat.placeholder = this.getString("placeholderLat");
-				if (elements.calcLon) elements.calcLon.placeholder = this.getString("placeholderLon");
-
-				const translateOptions = (selectId,prefix)=>{
-					[...elements[selectId].options].forEach(option=>{
-						const value = option.value;
-						const key = prefix + value.charAt(0).toUpperCase() + value.slice(1);
-						const translated = this.getString(key);
-						if (translated !== key) option.textContent = translated;
-					});
-				};
-				translateOptions('mapRegion', 'region');
-				translateOptions('mapCriteria', 'criteria');
-				translateOptions('calcCriteria', 'criteria');
-			}
-
-			toggleCustom() {
-				const isCustom = elements.mapCriteria.value === "custom";
-				elements.customCriteriaInputs.classList.toggle("hidden", !isCustom);
-			}
-
-			toggleCustomCalculations() {
-				const isCustom = elements.calcCriteria.value === "custom";
-				elements.calcCustomCriteriaInputs.classList.toggle("hidden", !isCustom);
-			}
-
-			switchTab(tab) {
-				if (tab === "map") {
-					elements.tabMap.classList.add("active");
-					elements.tabMap.setAttribute("aria-selected", "true");
-					elements.tabCalc.classList.remove("active");
-					elements.tabCalc.setAttribute("aria-selected", "false");
-					elements.mapView.classList.remove("hidden");
-					elements.calcView.classList.add("hidden");
-				} else {
-					elements.tabMap.classList.remove("active");
-					elements.tabMap.setAttribute("aria-selected", "false");
-					elements.tabCalc.classList.add("active");
-					elements.tabCalc.setAttribute("aria-selected", "true");
-					elements.mapView.classList.add("hidden");
-					elements.calcView.classList.remove("hidden");
-				}
-			}
-
-			getCurrentLocation() {
-				const button = elements.getLocation;
-				const originalText = button.innerHTML;
-
-				button.disabled = true;
-				button.innerHTML = `<span class="spinner"></span> ${this.getString("locating")}`;
-
-				if (navigator.geolocation) {
-					navigator.geolocation.getCurrentPosition(
-						position => {
-							elements.calcLat.value = position.coords.latitude.toFixed(4);
-							elements.calcLon.value = position.coords.longitude.toFixed(4);
-							elements.calcUtcOffset.value = Math.round(position.coords.longitude / 15);
-							button.disabled = false;
-							button.innerHTML = originalText;
-						},
-						error => {
-							alert(this.getString("errorLocation") + error.message);
-							button.disabled = false;
-							button.innerHTML = originalText;
-						}
-					);
-				} else {
-					alert(this.getString("errorGeo"));
-					button.disabled = false;
-					button.innerHTML = originalText;
-				}
-			}
-
-			calculateDetails() {
-				const latitude = parseFloat(elements.calcLat.value);
-				const longitude = parseFloat(elements.calcLon.value);
-				const dateString = elements.calcDate.value;
-				const criteria = elements.calcCriteria.value;
-				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert(this.getString("errorFill"));
-				else this.performCalculation(latitude, longitude, dateString, criteria);
-			}
-
-			performCalculation(latitude, longitude, dateString, criteria) {
-				const dateObject = new Date(dateString + "T12:00:00Z");
-				const observer = new Astronomy.Observer(latitude, longitude, 0);
-				const time = Astronomy.MakeTime(dateObject);
-				const startUniversalTime = time.ut - (longitude / 15 / 24);
-				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUniversalTime, 1);
-				if (!sunset) {
-					elements.results.innerHTML = `<div class="result-card">${this.getString("errorSun")}</div>`;
-					return;
-				}
-				this.displayCalculationResults(sunset, observer, time, criteria, longitude);
-			}
-
-			displayCalculationResults(sunset, observer, time, criteria, longitude) {
-				const sunsetUniversalTime = sunset.ut;
-
-				let minAltitude, minElongation, isGlobalIslamicCriteria;
-				if (criteria === "mabbims") {
-					minAltitude = 3; minElongation = 6.4; isGlobalIslamicCriteria = false;
-				} else if (criteria === "gic") {
-					minAltitude = 5; minElongation = 8; isGlobalIslamicCriteria = true;
-				} else if (criteria === "alt0") {
-					minAltitude = 0; minElongation = -100; isGlobalIslamicCriteria = false;
-				} else {
-					minAltitude = parseFloat(elements.calcMinAlt.value) || 0;
-					minElongation = parseFloat(elements.calcMinElong.value) || 0;
-					isGlobalIslamicCriteria = false;
-				}
-
-				const moonVector = Astronomy.GeoVector(Astronomy.Body.Moon, sunsetUniversalTime, true);
-				const sunVector = Astronomy.GeoVector(Astronomy.Body.Sun, sunsetUniversalTime, true);
-				const elongation = Astronomy.AngleBetween(sunVector, moonVector);
-
-				let altitude;
-				if (isGlobalIslamicCriteria) {
-					const observerVector = Astronomy.ObserverVector(sunsetUniversalTime, observer, true);
-					const dot = observerVector.x * moonVector.x + observerVector.y * moonVector.y + observerVector.z * moonVector.z;
-					const angle = Math.acos(dot / (observerVector.length * moonVector.length));
-					altitude = 90.0 - (angle * 180.0 / Math.PI);
-				} else {
-					const moonEquator = Astronomy.Equator(Astronomy.Body.Moon, sunsetUniversalTime, observer, true, true);
-					altitude = Astronomy.Horizon(sunsetUniversalTime, observer, moonEquator.ra, moonEquator.dec, "normal").altitude;
-				}
-
-				const previousNewMoon = Astronomy.SearchMoonPhase(0, time.ut, -1);
-				const ageInDays = previousNewMoon ? (sunsetUniversalTime - previousNewMoon.ut) : 0;
-				const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon, sunsetUniversalTime);
-				const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon, observer, -1, sunsetUniversalTime, 1);
-
-				const utcOffset = parseFloat(elements.calcUtcOffset.value) || 0;
-
-				const formatTime = universalTime => {
-					if (!universalTime) return "N/A";
-					const date = universalTime.date;
-					date.setMinutes(date.getMinutes() + utcOffset * 60);
-					const timeString = date.toISOString().substring(11,19);
-					const sign = utcOffset >= 0 ? "+" : "";
-					return `${timeString} (UTC${sign}${utcOffset})`;
-				};
-
-				const conjunction = Astronomy.SearchMoonPhase(0, time, -40);
-				let isAllowed = true;
-				if (isGlobalIslamicCriteria) {
-					const newZealandObserver = new Astronomy.Observer(-41.2865, 174.7762, 0);
-					const sunriseNZ = Astronomy.SearchRiseSet(Astronomy.Body.Sun, newZealandObserver, 1, time, 1.0);
-					const fajrNZUt = sunriseNZ ? sunriseNZ.ut - (1.2/24.0) : -Infinity;
-					const limitUniversalTime = Math.floor(time.ut + 2451545.0 + 0.5) + 0.5 - 2451545.0;
-					if (sunsetUniversalTime > limitUniversalTime) {
-						isAllowed = (longitude <= -30 && conjunction.ut < fajrNZUt);
-					}
-				}
-
-				const visible = (isAllowed && sunsetUniversalTime >= conjunction.ut - 0.0001 && altitude >= minAltitude && elongation >= minElongation);
-
-				const displayData = [
-					{label:"visibilityStatus",value:visible ? this.getString("visible") : this.getString("notVisible"),color:visible ? "var(--success)" : "var(--danger)"},
-					{label:"sunsetTime",value:formatTime(sunset)},
-					{label:"moonsetTime",value:formatTime(moonset)},
-					{label:"moonAlt",value:altitude.toFixed(2) + "°"},
-					{label:"moonElong",value:elongation.toFixed(2) + "°"},
-					{label:"moonAge",value:ageInDays.toFixed(2) + " " + this.getString("unitDays")},
-					{label:"illuminatedFraction",value:(moonPhase.phase_fraction * 100).toFixed(2) + "%"}
-				];
-
-				elements.results.innerHTML = displayData
-					.map(item => `<div class="result-card"><div class="result-label">${this.getString(item.label) || item.label}</div><div class="result-value" style="${item.color ? `color:${item.color}` : ""}">${item.value}</div></div>`)
-					.join("");
-			}
-
-			handleRegionChange() {
-				const region = elements.mapRegion.value;
-				const mapBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
-
-				if (region === "indonesia") {
-					const targetBounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
-					this.zoomToBounds(targetBounds, mapBounds);
-				} else {
-					this.resetZoom();
-				}
-			}
-
-			zoomToBounds(targetBounds, mapBounds) {
-				const container = elements['map-container'];
-				const containerWidth = container.offsetWidth;
-				const containerHeight = container.offsetHeight;
-
-				const latRange = mapBounds.maxLat - mapBounds.minLat;
-				const lonRange = mapBounds.maxLon - mapBounds.minLon;
-				const targetLatRange = targetBounds.maxLat - targetBounds.minLat;
-				const targetLonRange = targetBounds.maxLon - targetBounds.minLon;
-
-				const scaleX = lonRange / targetLonRange;
-				const scaleY = latRange / targetLatRange;
-				this.scale = Math.min(scaleX, scaleY, 5);
-
-				const centerLongitude = (targetBounds.minLon + targetBounds.maxLon) / 2;
-				const centerLatitude = (targetBounds.minLat + targetBounds.maxLat) / 2;
-
-				const normX = (centerLongitude - mapBounds.minLon) / lonRange;
-				const normY = (mapBounds.maxLat - centerLatitude) / latRange;
-
-				this.translateX = -(normX - 0.5) * containerWidth * this.scale;
-				this.translateY = -(normY - 0.5) * containerHeight * this.scale;
-
-				this.limitPan();
-				this.updateTransform();
-			}
-
-			handleRenderClick() {
-				this.isRendering ? this.cancelRender() : this.startRender();
-			}
-
-			cancelRender() {
-				if (this.worker) {
-					this.worker.terminate();
-					this.worker = null;
-				}
-				this.isRendering = false;
-				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.getString("renderMap");
-				elements.mapStatus.textContent = this.getString("cancelled");
-			}
-
-			startRender() {
-				this.isRendering = true;
-				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.getString("cancel");
-				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.getString("calculating")}`;
-
-				const region = elements.mapRegion.value;
-				let bounds;
-				if (region === "indonesia") {
-					bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
-				} else {
-					bounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
-				}
-
-				const criteria = elements.mapCriteria.value;
-				const dateString = elements.mapDate.value;
-				const dateObject = new Date(dateString ? dateString + "T12:00:00Z" : new Date());
-				const widthDegrees = bounds.maxLon - bounds.minLon;
-				const heightDegrees = bounds.maxLat - bounds.minLat;
-				this.lastBounds = bounds;
-
-				const renderParams = {
-					bounds: bounds,
-					widthDegrees: widthDegrees,
-					heightDegrees: heightDegrees,
-					criteria: criteria,
-					dateTimestamp: dateObject.getTime(),
-					minAltitude: parseFloat(elements.minAlt.value) || 0,
-					minElongation: parseFloat(elements.minElong.value) || 0
-				};
-
-				if (!this.worker) {
-					const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
-					this.worker = new Worker(URL.createObjectURL(blob));
-				}
-
-				this.worker.onmessage = event=>{
-					const data = event.data;
-					if (data.progress) {
-						elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.getString("calculating")} ${data.progress}%`;
-					} else if (data.buffer) {
-						this.handleRenderComplete(data.width, data.height, data.buffer);
-					} else if (data.error) {
-						console.error(data.error);
-						elements.mapStatus.textContent = "Error: " + data.error;
-						this.cancelRender();
-					}
-				};
-				this.worker.postMessage(renderParams);
-			}
-
-			handleRenderComplete(width, height, buffer) {
-				const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
-				this.currentImageData = imageData;
-				this.redrawOverlay();
-				this.isRendering = false;
-				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.getString("renderMap");
-				elements.mapStatus.textContent = this.getString("done");
-			}
-
-			redrawOverlay() {
-				if (!this.currentImageData || !this.lastBounds) return;
-				const canvas = elements['map-overlay'];
-				const image = elements['map-image'];
-
-				canvas.width = image.naturalWidth || image.width;
-				canvas.height = image.naturalHeight || image.height;
-
-				const context = canvas.getContext("2d");
-				context.clearRect(0, 0, canvas.height, canvas.width); // Fixed clearRect order
-
-				const tempCanvas = document.createElement('canvas');
-				tempCanvas.width = this.currentImageData.width;
-				tempCanvas.height = this.currentImageData.height;
-				const tempContext = tempCanvas.getContext('2d');
-				tempContext.putImageData(this.currentImageData, 0, 0);
-
-				const imgBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
-				const dataBounds = this.lastBounds;
-
-				const x = ((dataBounds.minLon - imgBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
-				const width = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
-
-				const mapTopY = imgBounds.maxLat;
-				const mapBottomY = imgBounds.minLat;
-				const dataTopY = dataBounds.maxLat;
-				const dataBottomY = dataBounds.minLat;
-
-				const y = ((mapTopY - dataTopY) / (mapTopY - mapBottomY)) * canvas.height;
-				const height = ((mapTopY - dataBottomY) / (mapTopY - mapBottomY)) * canvas.height - y;
-
-				context.drawImage(tempCanvas, x, y, width, height);
-			}
-		}
-		new HilalMap();
-	</script>
+    <header>
+        <h1 style="font-size: 1.25rem;" id="applicationTitle">HilalMap</h1>
+        <div class="controls">
+            <div class="nav-group">
+                <button id="previousMonthButton">&laquo;</button>
+                <input type="number" id="hijriYearInput" style="width: 70px;">
+                <select id="hijriMonthInput">
+                    <option value="1">Muharram</option><option value="2">Safar</option><option value="3">Rabi'ul Awal</option><option value="4">Rabi'ul Akhir</option><option value="5">Jumadil Ula</option><option value="6">Jumadil Akhira</option><option value="7">Rajab</option><option value="8">Sya'ban</option><option value="9">Ramadan</option><option value="10">Syawal</option><option value="11">Zulkaidah</option><option value="12">Zulhijah</option>
+                </select>
+                <button id="nextMonthButton">&raquo;</button>
+            </div>
+            <button id="calculateButton" class="primary">Calculate</button>
+            <select id="languageSelector"><option value="en">English</option><option value="id">Indonesia</option></select>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="map-container">
+            <div id="loaderOverlay" class="loading-overlay"><div class="spinner"></div></div>
+            <canvas id="visibilityCanvas" width="2048" height="1024"></canvas>
+        </div>
+        <div class="sidebar">
+            <div id="mabbimsStatusBox" class="status-box">
+                <div class="status-label">MABBIMS [Indonesia]</div>
+                <div id="mabbimsVerdictDisplay" class="status-value">...</div>
+                <div class="criteria-pill pill-mabbims">Alt ≥ 3°, Elong ≥ 6.4°</div>
+            </div>
+            <div id="gicStatusBox" class="status-box">
+                <div class="status-label">GIC [Global]</div>
+                <div id="gicVerdictDisplay" class="status-value">...</div>
+                <div class="criteria-pill pill-gic">Alt (Geo) ≥ 5°, Elong ≥ 8°</div>
+            </div>
+            <div class="details">
+                <div style="font-weight:700; margin-bottom:0.5rem; color:var(--primary)" id="pointDetailsTitle">Point Details</div>
+                <div class="detail-row"><span id="latitudeLabel">Latitude</span><span id="latitudeValue">0.00°</span></div>
+                <div class="detail-row"><span id="longitudeLabel">Longitude</span><span id="longitudeValue">0.00°</span></div>
+                <div class="detail-row"><span id="sunsetLabel">Sunset (UTC)</span><span id="sunsetValue">--:--</span></div>
+                <div class="detail-row"><span id="altitudeLabel">Altitude</span><span id="altitudeValue">0.00°</span></div>
+                <div class="detail-row"><span id="elongationLabel">Elongation</span><span id="elongationValue">0.00°</span></div>
+            </div>
+            <div class="details">
+                <div style="font-weight:700; margin-bottom:0.5rem;" id="conjunctionInfoTitle">Conjunction Info</div>
+                <div class="detail-row"><span id="ijtimaLabel">Ijtima (UTC)</span><span id="ijtimaValue">--:--</span></div>
+                <div class="detail-row"><span id="mapDateLabel">Map Date</span><span id="mapDateValue">--</span></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const TRANSLATIONS = {
+            en: {
+                appTitle: "HilalMap", calc: "Calculate", pointDetails: "Point Details", info: "Conjunction Info",
+                verdictYes: "VISIBLE", verdictNo: "NOT VISIBLE", lat: "Latitude", lon: "Longitude", sunset: "Sunset (UTC)", altitude: "Altitude", elongation: "Elongation", ijtima: "Ijtima (UTC)", mapDate: "Map Date",
+                months: ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Ula", "Jumadil Akhira", "Rajab", "Sya'ban", "Ramadan", "Syawal", "Zulkaidah", "Zulhijah"]
+            },
+            id: {
+                appTitle: "HilalMap", calc: "Hitung", pointDetails: "Detail Titik", info: "Informasi Ijtima",
+                verdictYes: "TERLIHAT", verdictNo: "TIDAK TERLIHAT", lat: "Lintang", lon: "Bujur", sunset: "Maghrib (UTC)", altitude: "Tinggi", elongation: "Elongasi", ijtima: "Ijtima (UTC)", mapDate: "Tanggal Peta",
+                months: ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Ula", "Jumadil Akhira", "Rajab", "Sya'ban", "Ramadan", "Syawal", "Zulkaidah", "Zulhijah"]
+            }
+        };
+
+        const WORKER_CODE = `
+            importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
+
+            function getEclipticElongation(universalTime) {
+                const moonGeocentricVector = Astronomy.GeoVector(Astronomy.Body.Moon, universalTime, true);
+                const sunGeocentricVector = Astronomy.GeoVector(Astronomy.Body.Sun, universalTime, true);
+                const moonEcliptic = Astronomy.Ecliptic(moonGeocentricVector);
+                const sunEcliptic = Astronomy.Ecliptic(sunGeocentricVector);
+                return (moonEcliptic.elon - sunEcliptic.elon + 360) % 360;
+            }
+
+            function calculateGeocentricAltitude(universalTime, observer, moonGeocentricVector) {
+                const observerVector = Astronomy.ObserverVector(universalTime, observer, true);
+                const dotProduct = observerVector.x * moonGeocentricVector.x + observerVector.y * moonGeocentricVector.y + observerVector.z * moonGeocentricVector.z;
+                const observerMagnitude = Math.sqrt(observerVector.x**2 + observerVector.y**2 + observerVector.z**2);
+                const moonMagnitude = Math.sqrt(moonGeocentricVector.x**2 + moonGeocentricVector.y**2 + moonGeocentricVector.z**2);
+                return 90.0 - Math.acos(Math.max(-1, Math.min(1, dotProduct / (observerMagnitude * moonMagnitude)))) * 180.0 / Math.PI;
+            }
+
+            self.onmessage = function(event) {
+                const { year, month, offset } = event.data;
+                const observerNewZealand = new Astronomy.Observer(-41.28, 174.77, 0);
+
+                let currentMabbimsJulianDate = 2460144.5; // 1 Muharram 1445
+                let monthIndex = (1445 - 1) * 12;
+                const targetIndex = (year - 1) * 12 + (month - 1);
+
+                if (targetIndex < monthIndex) { currentMabbimsJulianDate = 1948439.5; monthIndex = 0; }
+
+                while (monthIndex < targetIndex) {
+                    const conjunctionSearchTime = Astronomy.MakeTime(new Date((currentMabbimsJulianDate - 2440587.5 + 20) * 86400000));
+                    const conjunction = Astronomy.SearchMoonPhase(0, conjunctionSearchTime, 40);
+                    let day29JulianDate = currentMabbimsJulianDate + 28;
+                    const fajrNewZealand = Astronomy.SearchAltitude(Astronomy.Body.Sun, observerNewZealand, 1, Astronomy.MakeTime(new Date((day29JulianDate - 2440587.5 - 0.5) * 86400000)), 2.0, -18.0);
+
+                    let isMabbimsMatch = false;
+                    if (conjunction.ut <= fajrNewZealand.ut - 0.0001) {
+                        for (let longitude = 141; longitude >= 95; longitude -= 5) {
+                            for (let latitude = -11; latitude <= 7; latitude += 5) {
+                                const observer = new Astronomy.Observer(latitude, longitude, 0);
+                                const sunsetTime = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, Astronomy.MakeTime(new Date((day29JulianDate - 2440587.5 - longitude/360) * 86400000)), 1.0);
+                                if (sunsetTime && sunsetTime.ut >= conjunction.ut - 0.0001) {
+                                    const eclipticElongation = getEclipticElongation(sunsetTime.ut);
+                                    const moonEquator = Astronomy.Equator(Astronomy.Body.Moon, sunsetTime.ut, observer, true, true);
+                                    const topocentricAltitude = Astronomy.Horizon(sunsetTime.ut, observer, moonEquator.ra, moonEquator.dec, "normal").altitude;
+                                    if (topocentricAltitude >= 3.0 && eclipticElongation >= 6.4) { isMabbimsMatch = true; break; }
+                                }
+                            }
+                            if (isMabbimsMatch) break;
+                        }
+                    }
+                    currentMabbimsJulianDate = day29JulianDate + (isMabbimsMatch ? 1 : 2) - 0.5;
+                    monthIndex++;
+                }
+
+                const finalConjunctionSearchTime = Astronomy.MakeTime(new Date((currentMabbimsJulianDate - 2440587.5 - 10) * 86400000));
+                const finalConjunction = Astronomy.SearchMoonPhase(0, finalConjunctionSearchTime, 40);
+                const mapJulianDate = currentMabbimsJulianDate - 1;
+
+                const gridHeight = 100, gridWidth = 200;
+                const visibilityGrid = new Int8Array(gridWidth * gridHeight);
+                const nextFajrNewZealand = Astronomy.SearchAltitude(Astronomy.Body.Sun, observerNewZealand, 1, Astronomy.MakeTime(new Date((mapJulianDate - 2440587.5 + 0.5) * 86400000)), 2.0, -18.0);
+                const midnightUniversalTime = mapJulianDate - 2451545.0;
+
+                for (let j = 0; j < gridHeight; j++) {
+                    const latitude = 90 - (j * 180 / gridHeight);
+                    for (let i = 0; i < gridWidth; i++) {
+                        const longitude = -180 + (i * 360 / gridWidth);
+                        const observer = new Astronomy.Observer(latitude, longitude, 0);
+                        const sunsetTime = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, Astronomy.MakeTime(new Date((mapJulianDate - 2440587.5 - longitude/360) * 86400000)), 1.0);
+
+                        let visibilityStatus = 0;
+                        if (sunsetTime && sunsetTime.ut >= finalConjunction.ut - 0.0001) {
+                            const eclipticElongation = getEclipticElongation(sunsetTime.ut);
+                            const geocentricAltitude = calculateGeocentricAltitude(sunsetTime.ut, observer, Astronomy.GeoVector(Astronomy.Body.Moon, sunsetTime.ut, true));
+                            const moonEquator = Astronomy.Equator(Astronomy.Body.Moon, sunsetTime.ut, observer, true, true);
+                            const topocentricAltitude = Astronomy.Horizon(sunsetTime.ut, observer, moonEquator.ra, moonEquator.dec, "normal").altitude;
+
+                            const isGicVisible = geocentricAltitude >= 5.0 && eclipticElongation >= 8.0 && (sunsetTime.ut <= midnightUniversalTime + 0.0001 || (longitude <= -30 && sunsetTime.ut < nextFajrNewZealand.ut));
+                            const isMabbimsVisible = topocentricAltitude >= 3.0 && eclipticElongation >= 6.4;
+
+                            if (isGicVisible && isMabbimsVisible) visibilityStatus = 3;
+                            else if (isGicVisible) visibilityStatus = 2;
+                            else if (isMabbimsVisible) visibilityStatus = 1;
+                        }
+                        visibilityGrid[j * gridWidth + i] = visibilityStatus;
+                    }
+                }
+                self.postMessage({ mapJulianDate, conjunctionUniversalTime: finalConjunction.ut, visibilityGrid, gridWidth, gridHeight });
+            };
+        `;
+
+        const APPLICATION_STATE = { year: 1447, month: 1, language: 'en', mapJulianDate: 0, conjunctionUniversalTime: 0, grid: null, gridWidth: 0, gridHeight: 0 };
+        const UI_ELEMENTS = {
+            hijriYearInput: document.getElementById('hijriYearInput'), hijriMonthInput: document.getElementById('hijriMonthInput'), calculateButton: document.getElementById('calculateButton'),
+            previousMonthButton: document.getElementById('previousMonthButton'), nextMonthButton: document.getElementById('nextMonthButton'), languageSelector: document.getElementById('languageSelector'),
+            loaderOverlay: document.getElementById('loaderOverlay'), canvas: document.getElementById('visibilityCanvas'),
+            mabbimsVerdictDisplay: document.getElementById('mabbimsVerdictDisplay'), gicVerdictDisplay: document.getElementById('gicVerdictDisplay'),
+            mabbimsStatusBox: document.getElementById('mabbimsStatusBox'), gicStatusBox: document.getElementById('gicStatusBox'),
+            latitudeValue: document.getElementById('latitudeValue'), longitudeValue: document.getElementById('longitudeValue'), sunsetValue: document.getElementById('sunsetValue'),
+            altitudeValue: document.getElementById('altitudeValue'), elongationValue: document.getElementById('elongationValue'), ijtimaValue: document.getElementById('ijtimaValue'), mapDateValue: document.getElementById('mapDateValue')
+        };
+        const canvasContext = UI_ELEMENTS.canvas.getContext('2d');
+        const worldMapImage = new Image();
+        worldMapImage.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Equirectangular-projection.jpg/2048px-Equirectangular-projection.jpg';
+        worldMapImage.onload = () => drawVisibilityMap();
+
+        function updateLocalization() {
+            APPLICATION_STATE.language = UI_ELEMENTS.languageSelector.value; const translations = TRANSLATIONS[APPLICATION_STATE.language];
+            document.getElementById('applicationTitle').textContent = translations.appTitle;
+            UI_ELEMENTS.calculateButton.textContent = translations.calc;
+            document.getElementById('pointDetailsTitle').textContent = translations.pointDetails;
+            document.getElementById('conjunctionInfoTitle').textContent = translations.info;
+            document.getElementById('latitudeLabel').textContent = translations.lat;
+            document.getElementById('longitudeLabel').textContent = translations.lon;
+            document.getElementById('sunsetLabel').textContent = translations.sunset;
+            document.getElementById('altitudeLabel').textContent = translations.altitude;
+            document.getElementById('elongationLabel').textContent = translations.elongation;
+            document.getElementById('ijtimaLabel').textContent = translations.ijtima;
+            document.getElementById('mapDateLabel').textContent = translations.mapDate;
+            for (let i = 0; i < 12; i++) UI_ELEMENTS.hijriMonthInput.options[i].textContent = translations.months[i];
+            updateInfoLabels();
+        }
+
+        function drawVisibilityMap() {
+            canvasContext.clearRect(0, 0, UI_ELEMENTS.canvas.width, UI_ELEMENTS.canvas.height);
+            canvasContext.globalAlpha = 0.7; canvasContext.drawImage(worldMapImage, 0, 0, 2048, 1024);
+            if (!APPLICATION_STATE.grid) return;
+            canvasContext.globalAlpha = 0.4;
+            const cellWidth = 2048 / APPLICATION_STATE.gridWidth, cellHeight = 1024 / APPLICATION_STATE.gridHeight;
+            for (let j = 0; j < APPLICATION_STATE.gridHeight; j++) {
+                for (let i = 0; i < APPLICATION_STATE.gridWidth; i++) {
+                    const status = APPLICATION_STATE.grid[j * APPLICATION_STATE.gridWidth + i];
+                    if (status === 0) continue;
+                    canvasContext.fillStyle = (status === 1) ? '#3b82f6' : (status === 2 ? '#ef4444' : '#10b981');
+                    canvasContext.fillRect(i * cellWidth, j * cellHeight, cellWidth, cellHeight);
+                }
+            }
+        }
+
+        function startVisibilityCalculation() {
+            APPLICATION_STATE.year = parseInt(UI_ELEMENTS.hijriYearInput.value); APPLICATION_STATE.month = parseInt(UI_ELEMENTS.hijriMonthInput.value);
+            UI_ELEMENTS.loaderOverlay.classList.add('active'); UI_ELEMENTS.calculateButton.disabled = true;
+            const workerBlob = new Blob([WORKER_CODE], { type: 'application/javascript' });
+            const worker = new Worker(URL.createObjectURL(workerBlob));
+            worker.onmessage = (event) => {
+                const { mapJulianDate, conjunctionUniversalTime, visibilityGrid, gridWidth, gridHeight } = event.data;
+                APPLICATION_STATE.mapJulianDate = mapJulianDate; APPLICATION_STATE.conjunctionUniversalTime = conjunctionUniversalTime; APPLICATION_STATE.grid = visibilityGrid; APPLICATION_STATE.gridWidth = gridWidth; APPLICATION_STATE.gridHeight = gridHeight;
+                UI_ELEMENTS.loaderOverlay.classList.remove('active'); UI_ELEMENTS.calculateButton.disabled = false;
+                updateInfoLabels(); drawVisibilityMap(); verifyIndonesiaVisibility();
+            };
+            worker.postMessage({ year: APPLICATION_STATE.year, month: APPLICATION_STATE.month, offset: 2451545.0 });
+        }
+
+        function updateInfoLabels() {
+            const translations = TRANSLATIONS[APPLICATION_STATE.language];
+            UI_ELEMENTS.ijtimaValue.textContent = new Date((APPLICATION_STATE.conjunctionUniversalTime + 2451545.0 - 2440587.5) * 86400000).toISOString().substring(11, 16);
+            UI_ELEMENTS.mapDateValue.textContent = new Date((APPLICATION_STATE.mapJulianDate - 2440587.5 + 0.5) * 86400000).toLocaleDateString(APPLICATION_STATE.language === 'id' ? 'id-ID' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
+        }
+
+        function verifyIndonesiaVisibility() {
+            const translations = TRANSLATIONS[APPLICATION_STATE.language];
+            let isMabbimsMatch = false;
+            const startIndexI = Math.floor((95 + 180) * APPLICATION_STATE.gridWidth / 360), endIndexI = Math.ceil((141 + 180) * APPLICATION_STATE.gridWidth / 360);
+            const startIndexJ = Math.floor((90 - 7) * APPLICATION_STATE.gridHeight / 180), endIndexJ = Math.ceil((90 + 11) * APPLICATION_STATE.gridHeight / 180);
+            for (let j = startIndexJ; j <= endIndexJ; j++) {
+                for (let i = startIndexI; i <= endIndexI; i++) {
+                    const status = APPLICATION_STATE.grid[j * APPLICATION_STATE.gridWidth + i];
+                    if (status === 1 || status === 3) { isMabbimsMatch = true; break; }
+                }
+                if (isMabbimsMatch) break;
+            }
+            UI_ELEMENTS.mabbimsVerdictDisplay.textContent = isMabbimsMatch ? translations.verdictYes : translations.verdictNo;
+            UI_ELEMENTS.mabbimsStatusBox.className = 'status-box status-' + (isMabbimsMatch ? 'yes' : 'no');
+
+            let isGicMatch = false;
+            for (let k = 0; k < APPLICATION_STATE.grid.length; k++) { if (APPLICATION_STATE.grid[k] >= 2) { isGicMatch = true; break; } }
+            UI_ELEMENTS.gicVerdictDisplay.textContent = isGicMatch ? translations.verdictYes : translations.verdictNo;
+            UI_ELEMENTS.gicStatusBox.className = 'status-box status-' + (isGicMatch ? 'yes' : 'no');
+        }
+
+        UI_ELEMENTS.canvas.onmousemove = (event) => {
+            const rect = UI_ELEMENTS.canvas.getBoundingClientRect();
+            const mouseX = (event.clientX - rect.left) / rect.width * 2048, mouseY = (event.clientY - rect.top) / rect.height * 1024;
+            const longitude = -180 + mouseX * 360 / 2048, latitude = 90 - mouseY * 180 / 1024;
+            UI_ELEMENTS.latitudeValue.textContent = latitude.toFixed(2) + '°'; UI_ELEMENTS.longitudeValue.textContent = longitude.toFixed(2) + '°';
+
+            const observer = new Astronomy.Observer(latitude, longitude, 0);
+            const sunsetTime = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, Astronomy.MakeTime(new Date((APPLICATION_STATE.mapJulianDate - 2440587.5 - longitude/360) * 86400000)), 1.0);
+            if (sunsetTime && sunsetTime.ut >= APPLICATION_STATE.conjunctionUniversalTime - 0.0001) {
+                UI_ELEMENTS.sunsetValue.textContent = new Date((sunsetTime.ut + 2451545.0 - 2440587.5) * 86400000).toISOString().substring(11, 16);
+                const moonGeocentricVector = Astronomy.GeoVector(Astronomy.Body.Moon, sunsetTime.ut, true), sunGeocentricVector = Astronomy.GeoVector(Astronomy.Body.Sun, sunsetTime.ut, true);
+                const moonEcliptic = Astronomy.Ecliptic(moonGeocentricVector), sunEcliptic = Astronomy.Ecliptic(sunGeocentricVector);
+                UI_ELEMENTS.elongationValue.textContent = ((moonEcliptic.elon - sunEcliptic.elon + 360) % 360).toFixed(2) + '°';
+                const moonEquator = Astronomy.Equator(Astronomy.Body.Moon, sunsetTime.ut, observer, true, true);
+                UI_ELEMENTS.altitudeValue.textContent = Astronomy.Horizon(sunsetTime.ut, observer, moonEquator.ra, moonEquator.dec, "normal").altitude.toFixed(2) + '°';
+            } else {
+                UI_ELEMENTS.sunsetValue.textContent = '--:--'; UI_ELEMENTS.altitudeValue.textContent = '0.00°'; UI_ELEMENTS.elongationValue.textContent = '0.00°';
+            }
+        };
+
+        UI_ELEMENTS.languageSelector.onchange = updateLocalization; UI_ELEMENTS.hijriYearInput.value = 1447; UI_ELEMENTS.hijriMonthInput.value = 1;
+        UI_ELEMENTS.previousMonthButton.onclick = () => { UI_ELEMENTS.hijriMonthInput.value--; if(UI_ELEMENTS.hijriMonthInput.value < 1){ UI_ELEMENTS.hijriMonthInput.value=12; UI_ELEMENTS.hijriYearInput.value--; } startVisibilityCalculation(); };
+        UI_ELEMENTS.nextMonthButton.onclick = () => { UI_ELEMENTS.hijriMonthInput.value++; if(UI_ELEMENTS.hijriMonthInput.value > 12){ UI_ELEMENTS.hijriMonthInput.value=1; UI_ELEMENTS.hijriYearInput.value++; } startVisibilityCalculation(); };
+        UI_ELEMENTS.calculateButton.onclick = startVisibilityCalculation;
+        updateLocalization(); startVisibilityCalculation();
+    </script>
 </body>
 </html>

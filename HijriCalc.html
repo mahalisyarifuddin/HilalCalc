@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>HijriCalc</title>
+		<title>MABBIMS Hijri Calendar</title>
 		<style>
 			:root {
 				--primary: #005dac;
@@ -25,327 +25,1464 @@
 			}
 			@media (prefers-color-scheme: dark) {
 				:root:not(.light) {
-					--primary: #a5c8ff; --on-primary: #00315f; --hover: #72adff; --background: #101319; --surface: #0b0e14; --text: #e0e2ea; --border: #414752; --muted: #181c21; --success: #82db7e; --on-success: #00390a; --danger: #ffb4ab; --on-danger: #93000a; --highlight-bg: #001c3a; --accent-bg: #1f1600;
+					--primary: #a5c8ff;
+					--on-primary: #00315f;
+					--hover: #72adff;
+					--background: #101319;
+					--surface: #0b0e14;
+					--text: #e0e2ea;
+					--border: #414752;
+					--muted: #181c21;
+					--success: #82db7e;
+					--on-success: #00390a;
+					--danger: #ffb4ab;
+					--on-danger: #93000a;
+					--highlight-bg: #001c3a;
+					--accent-bg: #1f1600;
 				}
 			}
 			:root.dark {
-				--primary: #a5c8ff; --on-primary: #00315f; --hover: #72adff; --background: #101319; --surface: #0b0e14; --text: #e0e2ea; --border: #414752; --muted: #181c21; --success: #82db7e; --on-success: #00390a; --danger: #ffb4ab; --on-danger: #93000a; --highlight-bg: #001c3a; --accent-bg: #1f1600;
+				--primary: #a5c8ff;
+				--on-primary: #00315f;
+				--hover: #72adff;
+				--background: #101319;
+				--surface: #0b0e14;
+				--text: #e0e2ea;
+				--border: #414752;
+				--muted: #181c21;
+				--success: #82db7e;
+				--on-success: #00390a;
+				--danger: #ffb4ab;
+				--on-danger: #93000a;
+				--highlight-bg: #001c3a;
+				--accent-bg: #1f1600;
 			}
-			* { box-sizing: border-box; margin: 0; padding: 0; }
-			*:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			*:focus-visible {
+				outline: 2px solid var(--primary);
+				outline-offset: 2px;
+			}
 			body {
-				background: var(--background); color: var(--text); font-family: system-ui, -apple-system, sans-serif; line-height: 1.4; padding: 1.5rem; min-height: 100vh;
+				background: var(--background);
+				color: var(--text);
+				font-family: sans-serif;
+				line-height: 1.25;
+				padding: 1.5rem;
+				min-height: 100vh;
 			}
-			header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; max-width: 1600px; margin-left: auto; margin-right: auto; }
-			h1 { margin: .5rem 0; font-size: 2rem; font-weight: 600; }
-			main { display: grid; grid-template-columns: 350px 1fr; gap: 2rem; max-width: 1600px; margin: 0 auto; }
-			section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; min-width: 0; }
-			.section-title { margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: .75rem; font-size: 1.25rem; font-weight: 700; }
-			.group { background: var(--background); border: 1px solid var(--border); padding: 1rem; border-radius: 6px; margin-bottom: 1rem; }
-			.topbar-info { flex: 1; min-width: 0; }
-			#appSubtitle { font-size: .85rem; opacity: .7; margin-top: 4px; font-weight: 500; }
-			.inputs { display: flex; flex-direction: column; gap: 8px; }
-			.input-row { display: flex; gap: 8px; align-items: center; }
-			.input-row > * { flex: 1; }
-			input:not([type=color]):not([type=range]), select, button { width: 100%; padding: .6rem .8rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); font-family: inherit; font-size: .95rem; }
-			label { display: block; margin-bottom: .5rem; font-weight: 600; font-size: .9rem; }
-			#hijriDayInput { flex: 1; }
-			#hijriMonthInput { flex: 2; }
-			#hijriYearInput { flex: 1.5; }
-			.cal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-			.cal-head { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--muted); }
-			.cal-title { flex: 1; text-align: center; }
-			.cal-title-text { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.01em; }
-			.cal-subtitle { font-size: .8rem; opacity: .7; margin-top: 2px; font-weight: 500; }
-			.nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: .85rem; font-weight: 600; padding: 6px 12px; width: auto; transition: all 0.2s; }
-			.nav-btn:hover { border-color: var(--primary); color: var(--primary); }
-			.today-btn { display: block; margin: 12px 20px; width: calc(100% - 40px); background: transparent; border: 1px dashed var(--border); border-radius: 6px; font-size: .8rem; font-weight: 700; padding: 6px; transition: all 0.2s; }
-			.today-btn:hover { background: var(--muted); border-color: var(--primary); color: var(--primary); }
-			.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-			.day-hdr { padding: 10px 4px; text-align: center; font-size: .75rem; font-weight: 800; opacity: .6; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
-			.day-hdr.friday { color: var(--accent); opacity: 1; }
-			.cell { padding: 8px 4px; min-height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: background .15s; position: relative; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
-			.cell:nth-child(7n) { border-right: none; }
-			.cell:hover { background: var(--muted); }
-			.cell.friday-cell { background: var(--accent-bg); }
-			.cell.other { opacity: .3; background: var(--background); }
-			.cell.selected { background: var(--highlight-bg); border: 2px solid var(--primary); padding: 6px 2px; }
-			.cell.today::after { content: ''; position: absolute; inset: 4px; border: 2px solid var(--primary); border-radius: 4px; pointer-events: none; }
-			.primary-date { font-size: 1.1rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-			.secondary-date { font-size: .75rem; opacity: .65; font-weight: 500; text-align: center; line-height: 1.2; }
-			.secondary-date.new-month { color: var(--success); opacity: 1; font-weight: 800; }
-			.julian-label { font-size: .55rem; opacity: .8; vertical-align: super; font-weight: 700; color: var(--primary); }
-			.detail-section { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
-			details summary { cursor: pointer; font-size: .9rem; font-weight: 700; user-select: none; list-style: none; display: flex; align-items: center; gap: 10px; padding: 8px 0; }
-			details summary::before { content: '▶'; font-size: .7rem; transition: transform 0.2s; }
-			details[open] summary::before { transform: rotate(90deg); }
-			.formula-box { font-family: ui-monospace, monospace; font-size: .85rem; background: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin: 12px 0; white-space: pre-line; line-height: 1.5; }
-			.formula-note { font-size: .8rem; opacity: .7; margin-bottom: 8px; font-style: italic; }
-			.footer-note { font-size: .8rem; opacity: .6; margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 0.75rem; }
-			.button-primary { background: var(--primary); color: var(--on-primary); border: 0; padding: 10px 20px; font-size: .95rem; font-weight: 700; }
-			.button-secondary { background: transparent; border: 1px solid var(--border); padding: 10px 20px; font-size: .95rem; font-weight: 600; }
-			.button-icon { background: transparent; border: 1px solid var(--border); padding: 8px 12px; font-size: 1.1rem; flex-shrink: 0; }
-			dialog { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; max-width: 450px; width: 90%; margin: auto; position: fixed; box-shadow: 0 12px 48px rgba(0,0,0,.3); }
-			dialog::backdrop { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(2px); }
-			.dialog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-			.dialog-header h3 { font-size: 1.5rem; font-weight: 700; }
-			.dialog-body { display: flex; flex-direction: column; gap: 16px; }
-			.dialog-footer { display: flex; gap: 8px; margin-top: 2rem; justify-content: flex-end; }
-			.field-row { display: flex; gap: 12px; }
-			.field-row > * { flex: 1; }
-			.button-link { background: none; border: none; color: var(--primary); font-size: .9rem; padding: 0; cursor: pointer; width: auto; font-weight: 600; }
-			.button-link:hover { text-decoration: underline; }
-			.close-button { background: transparent; border: none; font-size: 2rem; cursor: pointer; padding: 4px; line-height: 1; width: auto; color: var(--text); opacity: 0.5; }
-			.close-button:hover { opacity: 1; }
-			@media (max-width: 1000px) { main { grid-template-columns: 1fr; } }
+			header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 2rem;
+				max-width: 1600px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			h1 {
+				margin: .5rem 0;
+				font-size: 2rem;
+				font-weight: 600;
+			}
+			main {
+				display: grid;
+				grid-template-columns: 330px 1fr;
+				gap: 1.5rem;
+				max-width: 1600px;
+				margin: 0 auto;
+			}
+			section {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 1.5rem;
+				min-width: 0;
+			}
+			.section-title {
+				margin: .5rem 0 1rem;
+				border-bottom: 1px solid var(--border);
+				padding-bottom: .75rem;
+				font-size: 1.2rem;
+				font-weight: 600;
+			}
+			#prefBtn, .nav-btn, .dlg-foot button, #myLocBtn, .close-button {
+				width: auto;
+				margin-top: 0;
+			}
+			.group {
+				background: var(--background);
+				border: 1px solid var(--border);
+				padding: 1rem;
+				border-radius: 6px;
+				margin-bottom: 1rem;
+				position: relative;
+			}
+			.topbar-info {
+				flex: 1;
+				min-width: 0;
+			}
+
+			#appSubtitle {
+				font-size: .8rem;
+				opacity: .6;
+				margin-top: 4px;
+			}
+
+			.inputs {
+				display: flex;
+				flex-direction: column;
+				gap: 6px;
+			}
+
+			.input-row {
+				display: flex;
+				gap: 6px;
+				align-items: center;
+			}
+
+			.input-row > * {
+				flex: 1;
+			}
+
+			.lbl {
+				font-size: .7rem;
+				font-weight: 600;
+				opacity: .6;
+				margin-bottom: 2px;
+				display: block;
+			}
+
+			input:not([type=color]):not([type=range]), textarea, select, button {
+				width: 100%;
+				padding: .5rem .75rem;
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				background: var(--surface);
+				color: var(--text);
+				margin-top: 4px;
+				font-family: inherit;
+				font-size: .95rem;
+			}
+			label {
+				display: block;
+				margin-bottom: .5rem;
+				font-weight: 500;
+				font-size: .9rem;
+			}
+
+			#hDayInput {
+				flex: 1;
+			}
+
+			#hMonthInput {
+				flex: 2;
+			}
+
+			#hYearInput {
+				flex: 1.5;
+			}
+
+			.cal-card {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				overflow: hidden;
+			}
+
+			.cal-head {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+				padding: 10px 12px 6px;
+			}
+
+			.cal-title {
+				flex: 1;
+				text-align: center;
+			}
+
+			.cal-title-text {
+				font-size: 1rem;
+				font-weight: 700;
+			}
+
+			.cal-subtitle {
+				font-size: .7rem;
+				opacity: .55;
+				margin-top: 1px;
+			}
+
+			.nav-btn {
+				background: var(--muted);
+				border: 1px solid var(--border);
+				border-radius: 6px;
+				color: var(--text);
+				cursor: pointer;
+				font-size: .8rem;
+				padding: 5px 8px;
+				white-space: nowrap;
+				transition: background .15s;
+				width: auto;
+				flex: none;
+			}
+
+			.nav-btn:hover {
+				background: var(--border);
+			}
+
+			.today-btn {
+				display: block;
+				margin: 0 12px 8px;
+				width: calc(100% - 24px);
+				background: transparent;
+				border: 1px dashed var(--border);
+				border-radius: 6px;
+				color: var(--text);
+				cursor: pointer;
+				font-size: .75rem;
+				font-weight: 600;
+				padding: 4px;
+				transition: background .15s, border-color .15s;
+			}
+
+			.today-btn:hover {
+				background: var(--muted);
+				border-color: var(--primary);
+			}
+
+			.cal-grid {
+				display: grid;
+				grid-template-columns: repeat(7, 1fr);
+				border-top: 1px solid var(--border);
+			}
+
+			.day-hdr {
+				padding: 6px 2px;
+				text-align: center;
+				font-size: .7rem;
+				font-weight: 700;
+				opacity: .5;
+				border-bottom: 1px solid var(--border);
+			}
+
+			.day-hdr.fri {
+				color: var(--accent);
+				opacity: 1;
+			}
+
+			.cell {
+				padding: 4px 2px;
+				min-height: 52px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+				border-radius: 0;
+				transition: background .12s;
+				position: relative;
+			}
+
+			.cell:hover {
+				background: var(--muted);
+			}
+
+			.cell.fri-cell {
+				background: var(--accent-bg);
+			}
+
+			.cell.fri-cell:hover {
+				background: var(--muted);
+			}
+
+			.cell.other {
+				opacity: .25;
+			}
+
+			.cell.sel {
+				background: var(--highlight-bg);
+			}
+
+			.cell.sel.fri-cell {
+				background: var(--highlight-bg);
+			}
+
+			.cell.today::after {
+				content: '';
+				position: absolute;
+				inset: 0px;
+				border: 2px solid var(--primary);
+				pointer-events: none;
+			}
+
+			.cell.today .pdate {
+				color: var(--primary);
+				font-weight: 800;
+			}
+
+			.pdate {
+				font-size: .95rem;
+				font-weight: 700;
+				line-height: 1;
+			}
+
+			.sdate {
+				font-size: .65rem;
+				opacity: .55;
+				text-align: center;
+				line-height: 1.3;
+				margin-top: 2px;
+			}
+
+			.sdate.new-m {
+				color: var(--success);
+				opacity: 1;
+				font-weight: 700;
+			}
+
+			.jul-lbl {
+				font-size: .5rem;
+				opacity: .7;
+				vertical-align: super;
+			}
+
+			.detail-section {
+				background: var(--surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 8px 12px;
+			}
+
+			details summary {
+				cursor: pointer;
+				font-size: .8rem;
+				opacity: .65;
+				user-select: none;
+				list-style: none;
+				display: flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			details summary::before {
+				content: '▶';
+				font-size: .6rem;
+				transition: transform .2s;
+			}
+
+			details[open] summary::before {
+				transform: rotate(90deg);
+			}
+
+			details summary:hover {
+				opacity: 1;
+				color: var(--primary);
+			}
+
+			.formula-box {
+				font-family: 'Courier New', monospace;
+				font-size: .78rem;
+				background: var(--muted);
+				border: 1px solid var(--border);
+				border-radius: 6px;
+				padding: 8px;
+				margin-top: 6px;
+				white-space: pre-line;
+			}
+
+			.formula-note {
+				font-size: .72rem;
+				opacity: .65;
+				margin-top: 6px;
+			}
+
+			.footer-note {
+				font-size: .7rem;
+				opacity: .5;
+				margin-top: 8px;
+				text-align: center;
+			}
+
+			button {
+				font-family: inherit;
+				cursor: pointer;
+				border-radius: 6px;
+				transition: background .15s;
+			}
+
+			.btn-pri {
+				background: var(--primary);
+				color: var(--on-primary);
+				border: 0;
+				padding: 7px 14px;
+				font-size: .875rem;
+				font-weight: 600;
+			}
+
+			.btn-pri:hover {
+				background: var(--hover);
+			}
+
+			.btn-sec {
+				background: transparent;
+				border: 1px solid var(--border);
+				color: var(--text);
+				padding: 7px 14px;
+				font-size: .875rem;
+			}
+
+			.btn-sec:hover {
+				background: var(--muted);
+			}
+
+			.btn-icon {
+				background: transparent;
+				border: 1px solid var(--border);
+				color: var(--text);
+				padding: 6px 10px;
+				font-size: .85rem;
+				flex-shrink: 0;
+			}
+
+			.btn-icon:hover {
+				background: var(--muted);
+			}
+
+			dialog {
+				background: var(--surface);
+				color: var(--text);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 1.5rem;
+				max-width: 400px;
+				width: 100%;
+				margin: auto;
+				position: fixed;
+				box-shadow: 0 8px 40px rgba(0,0,0,.2);
+			}
+			dialog::backdrop {
+				background: rgba(0, 0, 0, 0.5);
+			}
+			.dialog-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 1.5rem;
+			}
+			.dialog-header h3 {
+				font-size: 1.25rem;
+				font-weight: 600;
+			}
+			.dlg-body {
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+				max-height: 70vh;
+				overflow-y: auto;
+			}
+
+			.dlg-foot {
+				display: flex;
+				gap: 8px;
+				margin-top: 1rem;
+				justify-content: flex-end;
+			}
+
+			.field-row {
+				display: flex;
+				gap: 8px;
+			}
+
+			.field-row > * {
+				flex: 1;
+			}
+
+			.dlg-section-head {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 4px;
+			}
+
+			.btn-link {
+				background: none;
+				border: none;
+				color: var(--primary);
+				font-size: .8rem;
+				padding: 0;
+				cursor: pointer;
+			}
+
+			.btn-link:hover {
+				text-decoration: underline;
+			}
+
+			.close-button {
+				background: transparent;
+				color: var(--text);
+				padding: .25rem;
+				font-size: 1.5rem;
+				line-height: 1;
+				border: none;
+			}
+			.close-button:hover {
+				background: var(--background);
+				color: var(--text);
+			}
+
+			.offline-warn {
+				background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+				border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
+				border-radius: 8px;
+				padding: 8px 12px;
+				font-size: .8rem;
+				color: var(--danger);
+				text-align: center;
+			}
+
+			.sr {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				padding: 0;
+				margin: -1px;
+				overflow: hidden;
+				clip: rect(0,0,0,0);
+				border: 0;
+			}
+
+			.spinner {
+				display: inline-block;
+				width: .9em;
+				height: .9em;
+				border: 2px solid currentColor;
+				border-right-color: transparent;
+				border-radius: 50%;
+				animation: spin .75s linear infinite;
+				vertical-align: middle;
+			}
+
+			@keyframes spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+
+			@media (max-width: 900px) {
+				main {
+					grid-template-columns: 1fr;
+				}
+			}
+
+			@media (max-width: 380px) {
+				.pdate {
+					font-size: .85rem;
+				}
+
+				.sdate {
+					font-size: .6rem;
+				}
+
+				.cell {
+					min-height: 46px;
+				}
+
+				.nav-btn {
+					padding: 5px 7px;
+					font-size: .75rem;
+					width: auto;
+				}
+			}
 		</style>
 	</head>
 	<body>
 		<header>
 			<div class="topbar-info">
-				<h1 id="appTitle">HijriCalc</h1>
+				<h1 id="appTitle"></h1>
 				<div id="appSubtitle"></div>
 			</div>
-			<button id="settingsButton" class="button-icon" title="Settings">⚙</button>
+			<button id="prefBtn" class="btn-icon" data-i18n-aria="prefTitle"></button>
 		</header>
 		<main>
 			<section>
-				<div class="section-title" id="navigationTitle">Date Navigation</div>
-				<div class="inputs">
+				<div class="section-title" id="navTitle"></div>
+				<div class="inputs" aria-label="Date navigation">
 					<div class="group">
-						<label for="gregorianDateInput" id="gregorianLabel">Gregorian Date</label>
-						<input type="date" id="gregorianDateInput">
+						<label for="gDateInput" id="gLbl"></label>
+						<input type="date" id="gDateInput">
 					</div>
 					<div class="group">
-						<label id="hijriLabel">Hijri Date</label>
+						<label id="hLbl"></label>
 						<div class="input-row">
-							<input type="number" id="hijriDayInput" min="1" max="30">
-							<select id="hijriMonthInput"></select>
-							<input type="number" id="hijriYearInput" min="1" max="10000">
+							<input type="number" id="hDayInput" placeholder="D" min="1" max="30" aria-label="Day">
+							<select id="hMonthInput" aria-label="Month"></select>
+							<input type="number" id="hYearInput" placeholder="Year" min="1300" max="2500" aria-label="Year">
 						</div>
 					</div>
 				</div>
 			</section>
 			<section>
-				<div class="section-title" id="calendarTitle">Calendar View</div>
+				<div class="section-title" id="calTitle"></div>
 				<div class="cal-card">
 					<div class="cal-head">
-						<button id="previousMonthButton" class="nav-btn">← Previous</button>
+						<button id="prevMonthBtn" class="nav-btn"></button>
 						<div class="cal-title">
 							<div id="monthDisplay" class="cal-title-text"></div>
 							<div id="hijriRangeDisplay" class="cal-subtitle"></div>
 						</div>
-						<button id="nextMonthButton" class="nav-btn">Next →</button>
+						<button id="nextMonthBtn" class="nav-btn"></button>
 					</div>
-					<button id="todayButton" class="today-btn">Today</button>
-					<div class="cal-grid" id="calendar"></div>
+					<button id="todayBtn" class="today-btn"></button>
+					<div class="cal-grid" id="calendar" role="grid"></div>
 				</div>
-				<div class="detail-section">
+				<div class="detail-section" style="margin-top: 1.5rem;">
 					<details>
-						<summary id="formulaTitle">Calculation Methodology</summary>
+						<summary>
+							<span id="formulaTitle"></span>
+						</summary>
 						<pre id="formulaDisplay" class="formula-box"></pre>
-						<p id="formulaDescription" class="formula-note"></p>
+						<p id="formulaDesc" class="formula-note"></p>
 						<p id="formulaNote" class="formula-note"></p>
 						<p id="footerNote" class="footer-note"></p>
 					</details>
 				</div>
 			</section>
 		</main>
-		<dialog id="settingsDialog">
+		<dialog id="prefDialog">
 			<div class="dialog-header">
-				<h3 id="settingsTitle">Settings</h3>
-				<button id="closeSettings" class="close-button">&times;</button>
+				<h3 id="prefTitle"></h3>
+				<button id="closePref" class="close-button" aria-label="Close">&times;</button>
 			</div>
-			<div class="dialog-body">
-				<div class="group">
-					<label><span id="languageLabel">Language</span><select id="language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select></label>
-					<label><span id="themeLabel">Theme</span><select id="theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
-					<label><span id="primaryCalendarLabel">Main Calendar</span><select id="primaryCalendar"><option value="gregorian">Gregorian</option><option value="hijri">Hijri</option></select></label>
-					<label><span id="weekStartLabel">Week Starts On</span><select id="weekStart"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select></label>
-				</div>
-				<div class="group">
-					<label><span id="calculationModeLabel">Hijri Calculation</span><select id="calculationMode"><option value="astronomic">Local Sighting (MABBIMS)</option><option value="linear">Global Formula (Linear)</option><option value="tabular">Global Tabular (30-Year)</option></select></label>
-					<label><span id="gregorianModeLabel">Gregorian Mode</span><select id="gregorianModeSelect"><option value="transition">Historical (1582)</option><option value="proleptic">Continuous</option></select></label>
-					<div style="display:flex;justify-content:space-between;align-items:center;margin:0.5rem 0;">
-						<span id="locationLabel" style="font-weight:600;font-size:0.9rem;">Sighting Location</span>
-						<button id="useMyLocationButton" class="button-link">Use my location</button>
-					</div>
-					<div class="field-row">
-						<label><span id="latitudeLabel">Latitude</span><input type="number" id="latitudeInput" step="0.0001"></label>
-						<label><span id="longitudeLabel">Longitude</span><input type="number" id="longitudeInput" step="0.0001"></label>
-					</div>
-					<label><span id="adjustmentLabel">Manual Adjustment (days)</span><input type="number" id="hijriAdjustment" value="0" min="-2" max="2"></label>
-				</div>
+			<div class="group">
+				<label><span id="langLabel"></span><select id="languageSelector"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select></label>
+				<label><span id="themeLabel"></span><select id="themeSelector"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+				<label><span id="primaryCalLabel"></span><select id="primaryCalendarSelector"><option value="gregorian">Gregorian</option><option value="hijri">Hijri</option></select></label>
+				<label><span id="weekStartLabel"></span><select id="weekStartSelector"><option value="0">Sunday</option><option value="1">Monday</option><option value="6">Saturday</option></select></label>
 			</div>
-			<div class="dialog-footer">
-				<button id="resetSettingsButton" class="button-secondary">Reset</button>
-				<button id="saveSettingsButton" class="button-primary">Save & Close</button>
+			<div class="group">
+				<label><span id="gModeLabel"></span><select id="gregorianModeSelector"><option value="transition">Historical (1582)</option><option value="proleptic">Continuous</option></select></label>
+				<label><span id="calcModeLabel"></span><select id="calculationModeSelector"><option value="astronomic">MABBIMS</option><option value="linear">Linear</option><option value="tabular">Tabular</option></select></label>
+				<div style="display: flex; justify-content: space-between; align-items: flex-end; margin: 0.5rem 0 0.25rem;">
+					<span id="locLabel" style="font-weight: 500; font-size: 0.9rem;"></span>
+					<button id="myLocBtn" class="btn-link"></button>
+				</div>
+				<div class="field-row">
+					<label><span id="latLabel"></span><input type="number" id="latitudeInput" step="0.0001"></label>
+					<label><span id="lonLabel"></span><input type="number" id="longitudeInput" step="0.0001"></label>
+				</div>
+				<label><span id="adjLabel"></span><input type="number" id="hijriAdjustmentInput" value="0" min="-2" max="2"></label>
+				<div id="adjNote" style="opacity:.6;font-size:.72rem;margin-top:-0.25rem;"></div>
+			</div>
+			<div class="dlg-foot">
+				<button id="resetPrefBtn" class="btn-sec"></button>
+				<button id="savePrefBtn" class="btn-pri"></button>
 			</div>
 		</dialog>
 		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 		<script>
 			const TRANSLATIONS = {
 				en: {
-					appTitle: 'HijriCalc', navigationTitle: 'Date Navigation', calendarTitle: 'Calendar View', today: 'Today', formulaTitle: 'Calculation Methodology', formulaDescMabbims: 'Local topocentric sighting simulation. Standard: Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.', formulaDescLinear: 'Global approximation using astronomical mean lunar constants. Accuracy: ~69.55%.', formulaDescTabular: 'Standard arithmetic approximation with a fixed 30-year cycle (Leap years: 2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29).', epoch: 'Epoch', settingsTitle: 'Settings', languageLabel: 'Language', themeLabel: 'Theme', primaryCalendarLabel: 'Main Calendar', weekStartLabel: 'Week Starts On', locationLabel: 'Sighting Location', latitudeLabel: 'Latitude', longitudeLabel: 'Longitude', adjustmentLabel: 'Manual Adjustment (days)', save: 'Save & Close', reset: 'Reset', useMyLocation: 'Use my location', locating: 'Locating…',
-					months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"], monthsShort: ["Muh", "Saf", "RabI", "RabII", "JumI", "JumII", "Raj", "Sha", "Ram", "Shaw", "DhuQ", "DhuH"], days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], footer: '* Sighting: Altitude ≥ 3°, Elongation ≥ 6.4°. Dates transition at sunset.', gregorianDateLabel: 'Gregorian Date', hijriDateLabel: 'Hijri Date', previousButton: '← Previous', nextButton: 'Next →', offlineWarning: 'ASTRONOMY ENGINE OFFLINE: Linear Mode Active', calculationModeLabel: 'Hijri Calculation', calculationModeAstronomic: 'Local Sighting (MABBIMS)', calculationModeLinear: 'Global Formula (Linear)', calculationModeTabular: 'Global Tabular (30-Year)', linearSuffix: ' (Linear)', tabularSuffix: ' (Tabular)', gregorianModeLabel: 'Gregorian Mode', gregorianModeTransition: 'Historical (1582)', gregorianModeProleptic: 'Continuous', directionNorth: 'N', directionSouth: 'S', directionEast: 'E', directionWest: 'W', themeAuto: 'Auto', themeLight: 'Light', themeDark: 'Dark', calendarGregorian: 'Gregorian', calendarHijri: 'Hijri', weekSunday: 'Sunday', weekMonday: 'Monday', weekSaturday: 'Saturday'
+					appTitle: 'MABBIMS Hijri Calendar',
+					navTitle: 'Date Navigation',
+					calTitle: 'Calendar View',
+					today: 'Today',
+					formulaTitle: 'Methodology',
+					formulaDescMabbims: 'Local sighting simulation. MABBIMS: Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
+					formulaDescLinear: 'Global approximation (Composite: Mecca + Viwa). Accuracy: 69.55% (1–10000 AH).',
+					formulaDescTabular: 'Fixed 30-year cycle. Accuracy: 44.58% (1–10000 AH).',
+					epoch: 'Epoch',
+					leapYears: 'Leap years',
+					ofCycle: 'of 30-yr cycle',
+					prefTitle: 'Settings',
+					prefBtn: '⚙ Settings',
+					langLabel: 'Language',
+					themeLabel: 'Theme',
+					primaryCalLabel: 'Main View',
+					weekStartLabel: 'Week starts',
+					locLabel: 'Location',
+					adjLabel: 'Hijri Adjustment (days)',
+					save: 'Save & Close',
+					reset: 'Reset',
+					closeLabel: 'Close',
+					myLoc: 'Use my location',
+					locating: 'Locating…',
+					months: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-awwal", "Jumada al-thani", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"],
+					monthsShort: ["Muh", "Saf", "RabI", "RabII", "JumI", "JumII", "Raj", "Sha", "Ram", "Shaw", "DhuQ", "DhuH"],
+					days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+					footer: '* Dates start at sunset. MABBIMS: Alt ≥ 3°, Elong ≥ 6.4°.',
+					gDateLabel: 'Gregorian date',
+					hDateLabel: 'Hijri date',
+					hDay: 'D',
+					hYear: 'Year',
+					prevBtn: '← Prev',
+					nextBtn: 'Next →',
+					offlineWarning: 'Offline: Linear approximation active',
+					geoNotSupported: 'Geolocation not supported.',
+					errorLocation: 'Location error: ',
+					latLabel: 'Latitude',
+					lonLabel: 'Longitude',
+					adjNote: 'Shifts the linear formula.',
+					calcModeLabel: 'Hijri Method',
+					calcModeAstronomic: 'MABBIMS',
+					calcModeLinear: 'Linear',
+					calcModeTabular: 'Tabular',
+					linearSuffix: ' (Linear)',
+					tabularSuffix: ' (Tabular)',
+					criteria: 'Criteria',
+					altitude: 'Altitude',
+					elongation: 'Elongation',
+					gModeLabel: 'Gregorian mode',
+					gModeTransition: 'Historical (1582)',
+					gModeProleptic: 'Continuous',
+					julian: 'Jul',
+					dirN: 'N',
+					dirS: 'S',
+					dirE: 'E',
+					dirW: 'W',
+					themeAuto: 'Auto',
+					themeLight: 'Light',
+					themeDark: 'Dark',
+					calGregorian: 'Gregorian',
+					calHijri: 'Hijri',
+					weekSun: 'Sunday',
+					weekMon: 'Monday',
+					weekSat: 'Saturday',
 				},
 				id: {
-					appTitle: 'HijriCalc', navigationTitle: 'Navigasi Tanggal', calendarTitle: 'Tampilan Kalender', today: 'Hari Ini', formulaTitle: 'Metodologi Kalkulasi', formulaDescMabbims: 'Simulasi rukyat topomentris lokal. Standar: Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.', formulaDescLinear: 'Aproksimasi global menggunakan konstanta rerata lunar astronomis. Akurasi: ~69.55%.', formulaDescTabular: 'Aproksimasi aritmatika standar dengan siklus tetap 30 tahun (Kabisat: 2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29).', epoch: 'Epoh', settingsTitle: 'Pengaturan', languageLabel: 'Bahasa', themeLabel: 'Tema', primaryCalendarLabel: 'Kalender Utama', weekStartLabel: 'Awal Pekan', locationLabel: 'Lokasi Rukyat', latitudeLabel: 'Lintang', longitudeLabel: 'Bujur', adjustmentLabel: 'Penyesuaian Manual (hari)', save: 'Simpan & Tutup', reset: 'Reset', useMyLocation: 'Gunakan lokasi saya', locating: 'Mencari lokasi…',
-					months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"], monthsShort: ["Muh", "Saf", "Raw", "Rak", "Jaw", "Jak", "Raj", "Sya", "Ram", "Syaw", "Dzk", "Dzh"], days: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], footer: '* Rukyat: Tinggi ≥ 3°, Elongasi ≥ 6.4°. Tanggal berganti saat maghrib.', gregorianDateLabel: 'Tanggal Masehi', hijriDateLabel: 'Tanggal Hijriyah', previousButton: '← Sebelumnya', nextButton: 'Lanjut →', offlineWarning: 'ASTRONOMY ENGINE OFFLINE: Mode Linear Aktif', calculationModeLabel: 'Kalkulasi Hijri', calculationModeAstronomic: 'Rukyat Lokal (MABBIMS)', calculationModeLinear: 'Rumus Global (Linear)', calculationModeTabular: 'Tabular Global (30-Tahun)', linearSuffix: ' (Linear)', tabularSuffix: ' (Tabular)', gregorianModeLabel: 'Mode Masehi', gregorianModeTransition: 'Sejarah (1582)', gregorianModeProleptic: 'Berkelanjutan', directionNorth: 'LU', directionSouth: 'LS', directionEast: 'BT', directionWest: 'BB', themeAuto: 'Otomatis', themeLight: 'Terang', themeDark: 'Gelap', calendarGregorian: 'Masehi', calendarHijri: 'Hijriyah', weekSunday: 'Minggu', weekMonday: 'Senin', weekSaturday: 'Sabtu'
+					appTitle: 'Kalender Hijriyah MABBIMS',
+					navTitle: 'Navigasi Tanggal',
+					calTitle: 'Tampilan Kalender',
+					today: 'Hari Ini',
+					formulaTitle: 'Metodologi',
+					formulaDescMabbims: 'Simulasi rukyat lokal. MABBIMS: Tinggi ≥ 3°, Elongasi (Geo) ≥ 6,4°.',
+					formulaDescLinear: 'Aproksimasi global (Komposit: Mekkah + Pulau Viwa). Akurasi: 69,55% (1–10.000 H).',
+					formulaDescTabular: 'Siklus tetap 30 tahun. Akurasi: 44,58% (1–10.000 H).',
+					epoch: 'Epoh',
+					leapYears: 'Tahun kabisat',
+					ofCycle: 'dalam siklus 30 tahun',
+					prefTitle: 'Pengaturan',
+					prefBtn: '⚙ Pengaturan',
+					langLabel: 'Bahasa',
+					themeLabel: 'Tema',
+					primaryCalLabel: 'Tampilan Utama',
+					weekStartLabel: 'Awal pekan',
+					locLabel: 'Lokasi',
+					adjLabel: 'Penyesuaian Hijriyah (hari)',
+					save: 'Simpan & Tutup',
+					reset: 'Atur Ulang',
+					closeLabel: 'Tutup',
+					myLoc: 'Gunakan lokasi saya',
+					locating: 'Mencari…',
+					months: ["Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Syaban", "Ramadhan", "Syawal", "Dzulkaidah", "Dzulhijjah"],
+					monthsShort: ["Muh", "Saf", "Raw", "Rak", "Jaw", "Jak", "Raj", "Sya", "Ram", "Syaw", "Dzk", "Dzh"],
+					days: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+					footer: '* Tanggal dimulai saat maghrib. MABBIMS: Alt ≥ 3°, Elong ≥ 6,4°.',
+					gDateLabel: 'Tanggal Masehi',
+					hDateLabel: 'Tanggal Hijriyah',
+					hDay: 'Tgl',
+					hYear: 'Tahun',
+					prevBtn: '← Sblm',
+					nextBtn: 'Lanjut →',
+					offlineWarning: 'Offline: Menggunakan aproksimasi linear',
+					geoNotSupported: 'Geolokasi tidak didukung.',
+					errorLocation: 'Gagal lokasi: ',
+					latLabel: 'Lintang',
+					lonLabel: 'Bujur',
+					adjNote: 'Menggeser rumus linear.',
+					calcModeLabel: 'Metode Hijri',
+					calcModeAstronomic: 'MABBIMS',
+					calcModeLinear: 'Linear',
+					calcModeTabular: 'Tabular',
+					linearSuffix: ' (Linear)',
+					tabularSuffix: ' (Tabular)',
+					criteria: 'Kriteria',
+					altitude: 'Tinggi',
+					elongation: 'Elongasi',
+					gModeLabel: 'Mode Masehi',
+					gModeTransition: 'Sejarah (1582)',
+					gModeProleptic: 'Berkelanjutan',
+					julian: 'Jul',
+					dirN: 'LU',
+					dirS: 'LS',
+					dirE: 'BT',
+					dirW: 'BB',
+					themeAuto: 'Otomatis',
+					themeLight: 'Terang',
+					themeDark: 'Gelap',
+					calGregorian: 'Masehi',
+					calHijri: 'Hijriyah',
+					weekSun: 'Minggu',
+					weekMon: 'Senin',
+					weekSat: 'Sabtu',
 				}
 			};
 
-			const UI_PROXY = new Proxy({}, { get: (target, name) => document.getElementById(name) });
+			const elementProxy = new Proxy({}, {
+				get: (target, property) => document.getElementById(property)
+			});
+
 			let applicationState = {
-				latitude: 6.075, longitude: 95.1125, language: navigator.language?.startsWith('id') ? 'id' : 'en', theme: 'auto', weekStart: 0, hijriAdjustment: 0, primaryCalendar: 'gregorian', calculationMode: 'astronomic', gregorianMode: 'transition', currentViewDate: new Date()
+				latitude: 6.075,
+				longitude: 95.1125,
+				language: navigator.language?.startsWith('id') ? 'id' : 'en',
+				theme: 'auto',
+				weekStart: 0,
+				hijriAdjustment: 0,
+				primaryCalendar: 'gregorian',
+				calculationMode: 'astronomic',
+				gregorianMode: 'transition',
+				viewDate: new Date()
 			};
 
 			class HijriCalc {
 				constructor() {
-					this.isOffline = (typeof Astronomy === 'undefined'); this.cache = null; this.loadState();
-					applicationState.currentViewDate = new Date(); this.initializeEvents(); this.applyTheme(applicationState.theme); this.syncSettingsFields();
-					this.updateLanguage(applicationState.language); if (this.isOffline) this.showOfflineWarning();
+					this.isOffline = (typeof Astronomy === 'undefined');
+					this.calculationCache = null;
+					this.loadState();
+					applicationState.viewDate = new Date();
+					this.bindUserInterface();
+					this.applyTheme(applicationState.theme);
+					this.synchronizeFormFields();
+					this.updateLanguage(applicationState.language);
+					this.renderCalendar();
+					if (this.isOffline) this.showOfflineWarning();
 				}
-				loadState() { try { const saved = JSON.parse(localStorage.getItem('hcState') || '{}'); Object.keys(applicationState).forEach(key => { if (saved[key] !== undefined) applicationState[key] = saved[key]; }); } catch (e) {} }
-				saveState() { localStorage.setItem('hcState', JSON.stringify(applicationState)); }
-				loadCache() { try { this.cache = JSON.parse(localStorage.getItem('hcCache') || '{}'); } catch (e) { this.cache = {}; } }
-				scheduleCacheSave() { clearTimeout(this.saveTimer); this.saveTimer = setTimeout(() => { try { localStorage.setItem('hcCache', JSON.stringify(this.cache)); } catch (e) {} }, 1000); }
-				showOfflineWarning() { const div = document.createElement('div'); div.style = 'background:#fee2e2;color:#b91c1c;padding:0.5rem;text-align:center;font-weight:700;font-size:0.85rem;border-bottom:1px solid #f87171'; div.textContent = TRANSLATIONS[applicationState.language].offlineWarning; document.body.prepend(div); }
-				applyTheme(theme) { document.documentElement.className = theme === 'auto' ? '' : theme; }
-				formatCoords(lat, lon) { const t = TRANSLATIONS[applicationState.language]; return `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? t.directionNorth : t.directionSouth}, ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? t.directionEast : t.directionWest}`; }
-				setDateValue(input, date) { input.value = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
-				getDateValue(input) { if (!input.value) return null; const [y, m, d] = input.value.split('-').map(Number); return new Date(y, m - 1, d); }
 
-				initializeEvents() {
-					UI_PROXY.settingsButton.onclick = () => UI_PROXY.settingsDialog.showModal();
-					UI_PROXY.closeSettings.onclick = () => UI_PROXY.settingsDialog.close();
-					UI_PROXY.saveSettingsButton.onclick = () => { this.readSettingsFields(); this.saveState(); this.applyTheme(applicationState.theme); this.updateLanguage(applicationState.language); UI_PROXY.settingsDialog.close(); };
-					UI_PROXY.resetSettingsButton.onclick = () => { this.resetState(); UI_PROXY.settingsDialog.close(); };
-					UI_PROXY.useMyLocationButton.onclick = () => this.getLocation();
-					UI_PROXY.todayButton.onclick = () => { applicationState.currentViewDate = new Date(); this.setDateValue(UI_PROXY.gregorianDateInput, applicationState.currentViewDate); this.syncHijriInputs(applicationState.currentViewDate); this.render(); };
-					UI_PROXY.previousMonthButton.onclick = () => this.navigateMonth(-1);
-					UI_PROXY.nextMonthButton.onclick = () => this.navigateMonth(1);
-					UI_PROXY.gregorianDateInput.addEventListener('change', () => { const d = this.getDateValue(UI_PROXY.gregorianDateInput); if (d) { applicationState.currentViewDate = d; this.syncHijriInputs(d); this.render(); } });
-					const handleH = () => { const d = parseInt(UI_PROXY.hijriDayInput.value), m = parseInt(UI_PROXY.hijriMonthInput.value), y = parseInt(UI_PROXY.hijriYearInput.value); if (d && m && y) { const g = this.hijriToGregorian(y, m, d); applicationState.currentViewDate = g; this.setDateValue(UI_PROXY.gregorianDateInput, g); this.syncHijriInputs(g); this.render(); } };
-					[UI_PROXY.hijriDayInput, UI_PROXY.hijriMonthInput, UI_PROXY.hijriYearInput].forEach(el => { el.addEventListener('change', handleH); el.addEventListener('keydown', e => e.key === 'Enter' && handleH()); });
-					UI_PROXY.hijriMonthInput.addEventListener('change', () => this.updateHijriDayLimit()); UI_PROXY.hijriYearInput.addEventListener('input', () => this.updateHijriDayLimit());
-					UI_PROXY.calendar.addEventListener('keydown', e => { const cell = e.target.closest('.cell'); if (!cell) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cell.click(); return; } const nav = { ArrowRight: 1, ArrowLeft: -1, ArrowUp: -7, ArrowDown: 7 }; if (!(e.key in nav)) return; e.preventDefault(); const cells = [...UI_PROXY.calendar.querySelectorAll('.cell')], idx = cells.indexOf(cell); let nIdx = idx + nav[e.key]; if (nIdx >= 0 && nIdx < cells.length) { cell.tabIndex = -1; cells[nIdx].tabIndex = 0; cells[nIdx].focus(); } });
-					TRANSLATIONS.en.months.forEach((name, i) => { const opt = document.createElement('option'); opt.value = i + 1; opt.textContent = name; UI_PROXY.hijriMonthInput.appendChild(opt); });
-					this.setDateValue(UI_PROXY.gregorianDateInput, new Date());
-					const h = this.gregorianToHijriLinear(new Date()); UI_PROXY.hijriDayInput.value = h.day; UI_PROXY.hijriMonthInput.value = h.month; UI_PROXY.hijriYearInput.value = h.year;
+				loadState() {
+					try {
+						const savedState = JSON.parse(localStorage.getItem('hcState') || '{}');
+						['latitude', 'longitude', 'language', 'theme', 'weekStart', 'hijriAdjustment', 'primaryCalendar', 'calculationMode', 'gregorianMode'].forEach(key => {
+							if (savedState[key] !== undefined) applicationState[key] = savedState[key];
+						});
+					} catch (error) {}
+				}
+
+				saveState() {
+					localStorage.setItem('hcState', JSON.stringify(applicationState));
+				}
+
+				loadCache() {
+					try {
+						this.calculationCache = JSON.parse(localStorage.getItem('hcCache') || '{}');
+					} catch (error) {
+						this.calculationCache = {};
+					}
+				}
+
+				scheduleSaveCache() {
+					clearTimeout(this.cacheSaveTimeout);
+					this.cacheSaveTimeout = setTimeout(() => {
+						try {
+							localStorage.setItem('hcCache', JSON.stringify(this.calculationCache));
+						} catch (error) {}
+					}, 1000);
+				}
+
+				showOfflineWarning() {
+					const warningElement = document.createElement('div');
+					warningElement.className = 'offline-warn';
+					warningElement.textContent = TRANSLATIONS[applicationState.language].offlineWarning;
+					document.body.prepend(warningElement);
+				}
+
+				applyTheme(theme) {
+					document.documentElement.className = theme === 'auto' ? '' : theme;
+				}
+
+				formatCoordinates(latitude, longitude) {
+					const translations = TRANSLATIONS[applicationState.language];
+					return `${Math.abs(latitude).toFixed(4)}° ${latitude >= 0 ? translations.dirN : translations.dirS}, ${Math.abs(longitude).toFixed(4)}° ${longitude >= 0 ? translations.dirE : translations.dirW}`;
+				}
+
+				setGregorianInput(inputElement, date) {
+					inputElement.value = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+				}
+
+				getGregorianInput(inputElement) {
+					if (!inputElement.value) return null;
+					const [year, month, day] = inputElement.value.split('-').map(Number);
+					return new Date(year, month - 1, day);
+				}
+
+				bindUserInterface() {
+					elementProxy.prefBtn.onclick = () => elementProxy.prefDialog.showModal();
+					elementProxy.closePref.onclick = () => elementProxy.prefDialog.close();
+					elementProxy.savePrefBtn.onclick = () => {
+						this.readFormFields();
+						this.saveState();
+						this.applyTheme(applicationState.theme);
+						this.updateLanguage(applicationState.language);
+						this.renderCalendar();
+						elementProxy.prefDialog.close();
+					};
+					elementProxy.resetPrefBtn.onclick = () => {
+						this.resetApplicationState();
+						elementProxy.prefDialog.close();
+					};
+					elementProxy.myLocBtn.onclick = () => this.getCurrentLocation();
+					elementProxy.todayBtn.onclick = () => {
+						applicationState.viewDate = new Date();
+						this.setGregorianInput(elementProxy.gDateInput, applicationState.viewDate);
+						this.synchronizeHijriInputs(applicationState.viewDate);
+						this.renderCalendar();
+					};
+					elementProxy.prevMonthBtn.onclick = () => this.navigateMonth(-1);
+					elementProxy.nextMonthBtn.onclick = () => this.navigateMonth(1);
+
+					const handleGregorianChange = () => {
+						const selectedDate = this.getGregorianInput(elementProxy.gDateInput);
+						if (selectedDate) {
+							applicationState.viewDate = selectedDate;
+							this.synchronizeHijriInputs(selectedDate);
+							this.renderCalendar();
+						}
+					};
+					elementProxy.gDateInput.addEventListener('change', handleGregorianChange);
+					elementProxy.gDateInput.addEventListener('keydown', event => event.key === 'Enter' && handleGregorianChange());
+
+					const handleHijriChange = () => {
+						const day = parseInt(elementProxy.hDayInput.value);
+						const month = parseInt(elementProxy.hMonthInput.value);
+						const year = parseInt(elementProxy.hYearInput.value);
+						if (day && month && year) {
+							const gregorianDate = this.convertHijriToGregorian(year, month, day);
+							applicationState.viewDate = gregorianDate;
+							this.setGregorianInput(elementProxy.gDateInput, gregorianDate);
+							this.synchronizeHijriInputs(gregorianDate);
+							this.renderCalendar();
+						}
+					};
+					[elementProxy.hDayInput, elementProxy.hMonthInput, elementProxy.hYearInput].forEach(element => {
+						element.addEventListener('change', handleHijriChange);
+						element.addEventListener('keydown', event => event.key === 'Enter' && handleHijriChange());
+					});
+					elementProxy.hMonthInput.addEventListener('change', () => this.updateHijriDayLimit());
+					elementProxy.hYearInput.addEventListener('input', () => this.updateHijriDayLimit());
+
+					elementProxy.calendar.addEventListener('keydown', event => {
+						const targetCell = event.target.closest('.cell');
+						if (!targetCell) return;
+						if (event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							targetCell.click();
+							return;
+						}
+						const navigationMap = { ArrowRight: 1, ArrowLeft: -1, ArrowUp: -7, ArrowDown: 7, Home: null, End: null, PageUp: null, PageDown: null };
+						if (!(event.key in navigationMap)) return;
+						event.preventDefault();
+						const cells = [...elementProxy.calendar.querySelectorAll('.cell')];
+						const currentIndex = cells.indexOf(targetCell);
+						let nextIndex = currentIndex;
+						if (event.key === 'Home') nextIndex = 0;
+						else if (event.key === 'End') nextIndex = cells.length - 1;
+						else if (event.key === 'PageUp' || event.key === 'PageDown') {
+							this.navigateMonth(event.key === 'PageDown' ? 1 : -1);
+							return;
+						} else nextIndex += navigationMap[event.key];
+						if (nextIndex >= 0 && nextIndex < cells.length) {
+							targetCell.tabIndex = -1;
+							cells[nextIndex].tabIndex = 0;
+							cells[nextIndex].focus();
+						}
+					});
+
+					TRANSLATIONS.en.months.forEach((monthName, index) => {
+						const option = document.createElement('option');
+						option.value = index + 1;
+						option.textContent = monthName;
+						elementProxy.hMonthInput.appendChild(option);
+					});
+					this.setGregorianInput(elementProxy.gDateInput, new Date());
+					const hijriDate = this.convertGregorianToHijri(new Date());
+					elementProxy.hDayInput.value = hijriDate.day;
+					elementProxy.hMonthInput.value = hijriDate.month;
+					elementProxy.hYearInput.value = hijriDate.year;
 					this.updateHijriDayLimit();
 				}
 
-				syncSettingsFields() { UI_PROXY.latitudeInput.value = applicationState.latitude; UI_PROXY.longitudeInput.value = applicationState.longitude; UI_PROXY.language.value = applicationState.language; UI_PROXY.weekStart.value = applicationState.weekStart; UI_PROXY.hijriAdjustment.value = applicationState.hijriAdjustment; UI_PROXY.primaryCalendar.value = applicationState.primaryCalendar; UI_PROXY.theme.value = applicationState.theme; UI_PROXY.calculationMode.value = applicationState.calculationMode; UI_PROXY.gregorianModeSelect.value = applicationState.gregorianMode; if (this.isOffline) { UI_PROXY.calculationMode.value = 'linear'; UI_PROXY.calculationMode.disabled = true; } }
-				readSettingsFields() { applicationState.latitude = parseFloat(UI_PROXY.latitudeInput.value); applicationState.longitude = parseFloat(UI_PROXY.longitudeInput.value); applicationState.language = UI_PROXY.language.value; applicationState.weekStart = parseInt(UI_PROXY.weekStart.value); applicationState.hijriAdjustment = parseInt(UI_PROXY.hijriAdjustment.value); applicationState.primaryCalendar = UI_PROXY.primaryCalendar.value; applicationState.theme = UI_PROXY.theme.value; applicationState.calculationMode = UI_PROXY.calculationMode.value; applicationState.gregorianMode = UI_PROXY.gregorianModeSelect.value; }
-				resetState() { applicationState = { ...applicationState, latitude: 6.075, longitude: 95.1125, language: 'en', theme: 'auto', weekStart: 0, hijriAdjustment: 0, primaryCalendar: 'gregorian', calculationMode: this.isOffline ? 'linear' : 'astronomic', gregorianMode: 'transition' }; this.syncSettingsFields(); this.saveState(); this.applyTheme('auto'); this.updateLanguage('en'); }
-
-				updateLanguage(lang) {
-					const t = TRANSLATIONS[lang]; UI_PROXY.appTitle.textContent = t.appTitle; let sfx = ''; if (this.isOffline) sfx = ' (Offline)'; else if (applicationState.calculationMode === 'linear') sfx = t.linearSuffix; else if (applicationState.calculationMode === 'tabular') sfx = t.tabularSuffix;
-					UI_PROXY.appSubtitle.textContent = this.formatCoords(applicationState.latitude, applicationState.longitude) + sfx; UI_PROXY.navigationTitle.textContent = t.navigationTitle; UI_PROXY.calendarTitle.textContent = t.calendarTitle; UI_PROXY.gregorianLabel.textContent = t.gregorianDateLabel; UI_PROXY.hijriLabel.textContent = t.hijriDateLabel; UI_PROXY.settingsTitle.textContent = t.settingsTitle; UI_PROXY.languageLabel.textContent = t.languageLabel; UI_PROXY.themeLabel.textContent = t.themeLabel; UI_PROXY.primaryCalendarLabel.textContent = t.primaryCalendarLabel; UI_PROXY.weekStartLabel.textContent = t.weekStartLabel; UI_PROXY.locationLabel.textContent = t.locationLabel; UI_PROXY.latitudeLabel.textContent = t.latitudeLabel; UI_PROXY.longitudeLabel.textContent = t.longitudeLabel; UI_PROXY.adjustmentLabel.textContent = t.adjustmentLabel; UI_PROXY.useMyLocationButton.textContent = t.useMyLocation; UI_PROXY.saveSettingsButton.textContent = t.save; UI_PROXY.resetSettingsButton.textContent = t.reset; UI_PROXY.todayButton.textContent = t.today; UI_PROXY.previousMonthButton.textContent = t.previousButton; UI_PROXY.nextMonthButton.textContent = t.nextButton; UI_PROXY.formulaTitle.textContent = t.formulaTitle; UI_PROXY.footerNote.textContent = t.footer; UI_PROXY.calculationModeLabel.textContent = t.calculationModeLabel; UI_PROXY.gregorianModeLabel.textContent = t.gregorianModeLabel;
-					[...UI_PROXY.hijriMonthInput.options].forEach((o, i) => o.textContent = t.months[i]);
-					const trans = (id, prefix) => [...UI_PROXY[id].options].forEach(o => { const k = prefix + o.value.charAt(0).toUpperCase() + o.value.slice(1); if (t[k]) o.textContent = t[k]; });
-					trans('theme', 'theme'); trans('primaryCalendar', 'calendar'); trans('gregorianModeSelect', 'gregorianMode'); trans('calculationMode', 'calculationMode');
-					[...UI_PROXY.weekStart.options].forEach(o => { const m = { '0': 'weekSunday', '1': 'weekMonday', '6': 'weekSaturday' }; if (t[m[o.value]]) o.textContent = t[m[o.value]]; });
-					this.updateFormulaBox(t); this.render();
+				synchronizeFormFields() {
+					elementProxy.latitudeInput.value = applicationState.latitude;
+					elementProxy.longitudeInput.value = applicationState.longitude;
+					elementProxy.languageSelector.value = applicationState.language;
+					elementProxy.weekStartSelector.value = applicationState.weekStart;
+					elementProxy.hijriAdjustmentInput.value = applicationState.hijriAdjustment;
+					elementProxy.primaryCalendarSelector.value = applicationState.primaryCalendar;
+					elementProxy.themeSelector.value = applicationState.theme;
+					elementProxy.calculationModeSelector.value = applicationState.calculationMode;
+					elementProxy.gregorianModeSelector.value = applicationState.gregorianMode;
+					if (this.isOffline) {
+						elementProxy.calculationModeSelector.value = 'linear';
+						elementProxy.calculationModeSelector.disabled = true;
+					}
 				}
 
-				updateFormulaBox(t) {
-					const m = applicationState.calculationMode;
-					if (m === 'astronomic') { UI_PROXY.formulaDisplay.textContent = `Criteria:\nAltitude (Topocentric) ≥ 3°\nElongation (Geocentric) ≥ 6.4°`; UI_PROXY.formulaDescription.textContent = t.formulaDescMabbims; UI_PROXY.formulaNote.textContent = ''; }
-					else if (m === 'linear') { UI_PROXY.formulaDisplay.textContent = `JD = 1948440 + floor(29.530573265·Index + 0.236624) + Day − 1`; UI_PROXY.formulaDescription.textContent = t.formulaDescLinear; UI_PROXY.formulaNote.innerHTML = `<i>${t.epoch}: 1 Muharram 1 AH = JD 1948440.0</i>`; }
-					else { UI_PROXY.formulaDisplay.textContent = `JD = 1948440 + (Cycle·10631) + YearStarts[Y] + MonthOffsets[M] + Day − 1`; UI_PROXY.formulaDescription.textContent = t.formulaDescTabular; UI_PROXY.formulaNote.textContent = ''; }
+				readFormFields() {
+					applicationState.latitude = parseFloat(elementProxy.latitudeInput.value);
+					applicationState.longitude = parseFloat(elementProxy.longitudeInput.value);
+					applicationState.language = elementProxy.languageSelector.value;
+					applicationState.weekStart = parseInt(elementProxy.weekStartSelector.value);
+					applicationState.hijriAdjustment = parseInt(elementProxy.hijriAdjustmentInput.value);
+					applicationState.primaryCalendar = elementProxy.primaryCalendarSelector.value;
+					applicationState.theme = elementProxy.themeSelector.value;
+					applicationState.calculationMode = elementProxy.calculationModeSelector.value;
+					applicationState.gregorianMode = elementProxy.gregorianModeSelector.value;
 				}
 
-				syncHijriInputs(date) { const h = this.gregorianToHijri(date); UI_PROXY.hijriDayInput.value = h.day; UI_PROXY.hijriMonthInput.value = String(h.month); UI_PROXY.hijriYearInput.value = h.year; this.updateHijriDayLimit(); }
-				updateHijriDayLimit() { const m = parseInt(UI_PROXY.hijriMonthInput.value), y = parseInt(UI_PROXY.hijriYearInput.value); if (!isNaN(m) && !isNaN(y)) { const s = this.getHijriMonthStart(y, m), {year: ny, month: nm} = this.addHijriMonths(y, m, 1), next = this.getHijriMonthStart(ny, nm), len = Math.round((next.gregorianDate - s.gregorianDate) / 86400000); UI_PROXY.hijriDayInput.max = len; if (parseInt(UI_PROXY.hijriDayInput.value) > len) UI_PROXY.hijriDayInput.value = len; } }
-
-				getLocation() { const t = TRANSLATIONS[applicationState.language]; if (!navigator.geolocation) return; UI_PROXY.useMyLocationButton.disabled = true; UI_PROXY.useMyLocationButton.innerHTML = `<span class="spinner"></span> ${t.locating}`; navigator.geolocation.getCurrentPosition(p => { UI_PROXY.latitudeInput.value = p.coords.latitude.toFixed(4); UI_PROXY.longitudeInput.value = p.coords.longitude.toFixed(4); UI_PROXY.useMyLocationButton.disabled = false; UI_PROXY.useMyLocationButton.textContent = t.useMyLocation; }, e => { UI_PROXY.useMyLocationButton.disabled = false; UI_PROXY.useMyLocationButton.textContent = t.useMyLocation; }); }
-
-				addHijriMonths(y, m, d) { const total = m - 1 + d; return { year: y + Math.floor(total / 12), month: ((total % 12) + 12) % 12 + 1 }; }
-				julianDateToDate(jd) { const i = Math.floor(jd + 0.5), f = jd + 0.5 - i; let a = i; if (applicationState.gregorianMode === 'proleptic' || i >= 2299161) { const g = Math.floor((i - 1867216.25) / 36524.25); a = i + 1 + g - Math.floor(g / 4); } const b = a + 1524, c = Math.floor((b - 122.1) / 365.25), d = Math.floor(365.25 * c), e = Math.floor((b - d) / 30.6001), day = b - d - Math.floor(30.6001 * e) + f, month = e < 14 ? e - 1 : e - 13, year = month > 2 ? c - 4716 : c - 4715; const res = new Date(0); res.setFullYear(year, month - 1, Math.floor(day)); return res; }
-				dateToJulianDate(d) { let y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate(), corr = 0; if (m <= 2) { y--; m += 12; } if (applicationState.gregorianMode === 'proleptic' || y > 1582 || (y === 1582 && (m > 10 || (m === 10 && day >= 15)))) { const s = Math.floor(y / 100); corr = 2 - s + Math.floor(s / 4); } return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + corr - 1524; }
-				getDayOfWeek(jd) { return (Math.floor(jd + 1.5) % 7); }
-
-				getLinearMonthStartJD(i) {
-					if (applicationState.calculationMode === 'tabular') { const c = Math.floor(i / 360), ic = ((i % 360) + 360) % 360, yc = Math.floor(ic / 12), mc = ic % 12, leaps = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29]; return 1948440 + c * 10631 + yc * 354 + leaps.filter(y => y <= yc).length + Math.ceil(mc * 29.5); }
-					return 1948440 + Math.floor(29.530573265 * i + 0.236624);
-				}
-				getLinearIndexFromJD(jd) {
-					if (applicationState.calculationMode === 'tabular') { let i = Math.round((jd - 1948440) / 29.530555); while (this.getLinearMonthStartJD(i + 1) <= jd) i++; while (this.getLinearMonthStartJD(i) > jd) i--; return i; }
-					return Math.floor((jd - 1948440 + 0.763376) / 29.530573265);
-				}
-
-				hijriToGregorian(y, m, d) { if (this.isOffline || applicationState.calculationMode !== 'astronomic') return this.julianDateToDate(this.getLinearMonthStartJD((y - 1) * 12 + m - 1) + d - 1 + applicationState.hijriAdjustment); const s = this.getHijriMonthStart(y, m), res = new Date(s.gregorianDate); res.setDate(res.getDate() + d - 1); return res; }
-				gregorianToHijriLinear(d) { const jd = this.dateToJulianDate(d) - applicationState.hijriAdjustment, i = this.getLinearIndexFromJD(jd), day = jd - this.getLinearMonthStartJD(i) + 1; let m = (i % 12); if (m < 0) m += 12; return { day, month: m + 1, year: Math.floor(i / 12) + 1 }; }
-				gregorianToHijri(d) {
-					if (this.isOffline || applicationState.calculationMode !== 'astronomic') return this.gregorianToHijriLinear(d);
-					const lin = this.gregorianToHijriLinear(d), s = this.getHijriMonthStart(lin.year, lin.month), dt = d.getTime(), st = s.gregorianDate.getTime();
-					if (dt < st) { const {year: py, month: pm} = this.addHijriMonths(lin.year, lin.month, -1), ps = this.getHijriMonthStart(py, pm); return { day: Math.round((dt - ps.gregorianDate.getTime()) / 86400000) + 1, month: pm, year: py }; }
-					const {year: ny, month: nm} = this.addHijriMonths(lin.year, lin.month, 1), ns = this.getHijriMonthStart(ny, nm);
-					if (dt >= ns.gregorianDate.getTime()) return { day: Math.round((dt - ns.gregorianDate.getTime()) / 86400000) + 1, month: nm, year: ny };
-					return { day: Math.round((dt - st) / 86400000) + 1, month: lin.month, year: lin.year };
+				resetApplicationState() {
+					applicationState = {
+						...applicationState,
+						latitude: 6.075,
+						longitude: 95.1125,
+						language: navigator.language?.startsWith('id') ? 'id' : 'en',
+						theme: 'auto',
+						weekStart: 0,
+						hijriAdjustment: 0,
+						primaryCalendar: 'gregorian',
+						calculationMode: this.isOffline ? 'linear' : 'astronomic',
+						gregorianMode: 'transition'
+					};
+					this.synchronizeFormFields();
+					this.saveState();
+					this.applyTheme(applicationState.theme);
+					this.updateLanguage(applicationState.language);
+					this.renderCalendar();
 				}
 
-				checkVisibility(dateObj, nmUT) {
-					const t = Astronomy.MakeTime(dateObj), o = new Astronomy.Observer(applicationState.latitude, applicationState.longitude, 0), s = Astronomy.SearchRiseSet(Astronomy.Body.Sun, o, -1, t.ut, 1);
-					if (!s || s.ut < nmUT) return false;
-					const mv = Astronomy.GeoVector(Astronomy.Body.Moon, s.ut, true), sv = Astronomy.GeoVector(Astronomy.Body.Sun, s.ut, true), el = Astronomy.AngleBetween(mv, sv), me = Astronomy.Equator(Astronomy.Body.Moon, s.ut, o, true, true), h = Astronomy.Horizon(s.ut, o, me.ra, me.dec, 'normal');
-					return (h.altitude >= 3 && el >= 6.4);
+				updateLanguage(languageCode) {
+					const translations = TRANSLATIONS[languageCode];
+					document.querySelectorAll('[data-i18n-aria]').forEach(element => {
+						const key = element.getAttribute('data-i18n-aria');
+						if (translations[key]) element.setAttribute('aria-label', translations[key]);
+					});
+					document.title = translations.appTitle;
+					elementProxy.appTitle.textContent = translations.appTitle;
+					let subtitleSuffix = '';
+					if (this.isOffline) subtitleSuffix = ' (Offline)';
+					else if (applicationState.calculationMode === 'linear') subtitleSuffix = translations.linearSuffix;
+					else if (applicationState.calculationMode === 'tabular') subtitleSuffix = translations.tabularSuffix;
+					elementProxy.appSubtitle.textContent = this.formatCoordinates(applicationState.latitude, applicationState.longitude) + subtitleSuffix;
+					elementProxy.navTitle.textContent = translations.navTitle;
+					elementProxy.calTitle.textContent = translations.calTitle;
+					elementProxy.gLbl.textContent = translations.gDateLabel;
+					elementProxy.hLbl.textContent = translations.hDateLabel;
+					elementProxy.prefTitle.textContent = translations.prefTitle;
+					elementProxy.langLabel.textContent = translations.langLabel;
+					elementProxy.themeLabel.textContent = translations.themeLabel;
+					elementProxy.primaryCalLabel.textContent = translations.primaryCalLabel;
+					elementProxy.weekStartLabel.textContent = translations.weekStartLabel;
+					elementProxy.locLabel.textContent = translations.locLabel;
+					elementProxy.latLabel.textContent = translations.latLabel;
+					elementProxy.lonLabel.textContent = translations.lonLabel;
+					elementProxy.adjLabel.textContent = translations.adjLabel;
+					elementProxy.adjNote.textContent = translations.adjNote;
+					elementProxy.hDayInput.placeholder = translations.hDay;
+					elementProxy.hYearInput.placeholder = translations.hYear;
+					elementProxy.myLocBtn.textContent = translations.myLoc;
+					elementProxy.savePrefBtn.textContent = translations.save;
+					elementProxy.resetPrefBtn.textContent = translations.reset;
+					elementProxy.prefBtn.textContent = translations.prefBtn;
+					this.updateHijriMonthTooltip();
+					elementProxy.todayBtn.textContent = translations.today;
+					elementProxy.prevMonthBtn.textContent = translations.prevBtn;
+					elementProxy.nextMonthBtn.textContent = translations.nextBtn;
+					elementProxy.formulaTitle.textContent = translations.formulaTitle;
+					elementProxy.footerNote.textContent = translations.footer;
+					elementProxy.calcModeLabel.textContent = translations.calcModeLabel;
+					elementProxy.gModeLabel.textContent = translations.gModeLabel;
+					[...elementProxy.hMonthInput.options].forEach((option, index) => option.textContent = translations.months[index]);
+
+					const translateSelectOptions = (selectorId, prefix) => [...elementProxy[selectorId].options].forEach(option => {
+						const key = prefix + option.value.charAt(0).toUpperCase() + option.value.slice(1);
+						if (translations[key]) option.textContent = translations[key];
+					});
+					translateSelectOptions('themeSelector', 'theme');
+					translateSelectOptions('primaryCalendarSelector', 'cal');
+					translateSelectOptions('gregorianModeSelector', 'gMode');
+					translateSelectOptions('calculationModeSelector', 'calcMode');
+
+					[...elementProxy.weekStartSelector.options].forEach(option => {
+						const weekdayMap = { '0': 'weekSun', '1': 'weekMon', '6': 'weekSat' };
+						if (translations[weekdayMap[option.value]]) option.textContent = translations[weekdayMap[option.value]];
+					});
+
+					this.updateFormulaDescription(translations);
+					this.renderCalendar();
 				}
 
-				getHijriMonthStart(y, m) {
-					if (this.isOffline || applicationState.calculationMode !== 'astronomic' || y < 1) return { gregorianDate: this.julianDateToDate(this.getLinearMonthStartJD((y - 1) * 12 + m - 1) + applicationState.hijriAdjustment) };
-					if (!this.cache) this.loadCache(); const k = `${y}-${m}-${applicationState.latitude}-${applicationState.longitude}-${applicationState.gregorianMode}`;
-					if (this.cache[k]) { if (typeof this.cache[k].gregorianDate === 'string') this.cache[k].gregorianDate = new Date(this.cache[k].gregorianDate); return this.cache[k]; }
-					const anc = new Date('2023-07-19T12:00:00Z'), days = ((y - 1445) * 354.367) + ((m - 1) * 29.53), app = new Date(anc.getTime() + days * 86400000), nm = Astronomy.SearchMoonPhase(0, Astronomy.MakeTime(new Date(app.getTime() - 5 * 86400000)).ut, 10);
-					if (!nm) return { gregorianDate: app };
-					const off = Math.round(applicationState.longitude / 15), lt = new Date(nm.date.getTime() + off * 3600000), ly = lt.getUTCFullYear(), lm = lt.getUTCMonth(), ld = lt.getUTCDate(), v = this.checkVisibility(new Date(Date.UTC(ly, lm, ld, 12 - off, 0, 0)), nm.ut), res = { gregorianDate: new Date(ly, lm, ld + (v ? 1 : 2)) };
-					this.cache[k] = res; this.scheduleCacheSave(); return res;
+				updateFormulaDescription(translations) {
+					const mode = applicationState.calculationMode;
+					if (mode === 'astronomic') {
+						elementProxy.formulaDisplay.textContent = `${translations.criteria}:\n${translations.altitude} (Topo) ≥ 3°\n${translations.elongation} (Geo) ≥ 6.4°`;
+						elementProxy.formulaNote.innerHTML = `<i>${translations.footer}</i>`;
+						elementProxy.formulaDesc.textContent = translations.formulaDescMabbims;
+					} else if (mode === 'linear') {
+						elementProxy.formulaDisplay.textContent = `JD = 1948440 + floor(29.530573265·N + 0.236624) + Day − 1\nN = (Year−1)·12 + Month−1`;
+						elementProxy.formulaNote.innerHTML = `<i>${translations.epoch}: 1 Muharram 1 AH = JD 1948440.</i>`;
+						elementProxy.formulaDesc.textContent = translations.formulaDescLinear;
+					} else {
+						elementProxy.formulaDisplay.textContent = `JD = 1948440 + (Cycle·10631) + YearStarts[Y] + MonthOffsets[M] + Day − 1`;
+						elementProxy.formulaNote.innerHTML = `<i>Fixed cycle. ${translations.leapYears}: 1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26 ${translations.ofCycle}.</i>`;
+						elementProxy.formulaDesc.textContent = translations.formulaDescTabular;
+					}
+				}
+
+				synchronizeHijriInputs(date) {
+					const hijriDate = this.convertGregorianToHijri(date);
+					elementProxy.hDayInput.value = hijriDate.day;
+					elementProxy.hMonthInput.value = String(hijriDate.month);
+					elementProxy.hYearInput.value = hijriDate.year;
+					this.updateHijriDayLimit();
+					this.updateHijriMonthTooltip();
+				}
+
+				updateHijriMonthTooltip() {
+					const monthValue = parseInt(elementProxy.hMonthInput.value);
+					if (!isNaN(monthValue)) elementProxy.hMonthInput.title = TRANSLATIONS[applicationState.language].months[monthValue - 1];
+				}
+
+				updateHijriDayLimit() {
+					const month = parseInt(elementProxy.hMonthInput.value);
+					const year = parseInt(elementProxy.hYearInput.value);
+					if (!isNaN(month) && !isNaN(year)) {
+						this.updateHijriMonthTooltip();
+						const currentMonthStart = this.getHijriMonthStart(year, month);
+						const nextMonthInfo = this.addHijriMonths(year, month, 1);
+						const nextMonthStart = this.getHijriMonthStart(nextMonthInfo.year, nextMonthInfo.month);
+						const daysInMonth = Math.round((nextMonthStart.gregorianDate - currentMonthStart.gregorianDate) / 86400000);
+						elementProxy.hDayInput.max = daysInMonth;
+						elementProxy.hDayInput.placeholder = `1-${daysInMonth}`;
+						if (parseInt(elementProxy.hDayInput.value) > daysInMonth) elementProxy.hDayInput.value = daysInMonth;
+					}
+				}
+
+				getCurrentLocation() {
+					const translations = TRANSLATIONS[applicationState.language];
+					if (!navigator.geolocation) return alert(translations.geoNotSupported);
+					elementProxy.myLocBtn.disabled = true;
+					elementProxy.myLocBtn.innerHTML = `<span class="spinner"></span> ${translations.locating}`;
+					navigator.geolocation.getCurrentPosition(position => {
+						elementProxy.latitudeInput.value = position.coords.latitude.toFixed(4);
+						elementProxy.longitudeInput.value = position.coords.longitude.toFixed(4);
+						elementProxy.myLocBtn.disabled = false;
+						elementProxy.myLocBtn.textContent = translations.myLoc;
+					}, error => {
+						alert(translations.errorLocation + error.message);
+						elementProxy.myLocBtn.disabled = false;
+						elementProxy.myLocBtn.textContent = translations.myLoc;
+					});
+				}
+
+				addHijriMonths(year, month, delta) {
+					const totalMonths = (month - 1) + delta;
+					return {
+						year: year + Math.floor(totalMonths / 12),
+						month: ((totalMonths % 12) + 12) % 12 + 1
+					};
+				}
+
+				getTimezoneOffset() {
+					return Math.round(applicationState.longitude / 15);
+				}
+
+				convertJulianDateToDate(julianDate) {
+					const integerPart = Math.floor(julianDate + 0.5);
+					const fractionalPart = julianDate + 0.5 - integerPart;
+					let adjustedInteger = integerPart;
+					if (applicationState.gregorianMode === 'proleptic' || integerPart >= 2299161) {
+						const alpha = Math.floor((integerPart - 1867216.25) / 36524.25);
+						adjustedInteger = integerPart + 1 + alpha - Math.floor(alpha / 4);
+					}
+					const offsetInteger = adjustedInteger + 1524;
+					const yearApproximation = Math.floor((offsetInteger - 122.1) / 365.25);
+					const dayCountApproximation = Math.floor(365.25 * yearApproximation);
+					const monthApproximation = Math.floor((offsetInteger - dayCountApproximation) / 30.6001);
+					const day = offsetInteger - dayCountApproximation - Math.floor(30.6001 * monthApproximation) + fractionalPart;
+					const month = monthApproximation < 14 ? monthApproximation - 1 : monthApproximation - 13;
+					const year = month > 2 ? yearApproximation - 4716 : yearApproximation - 4715;
+					const resultDate = new Date(0);
+					resultDate.setFullYear(year, month - 1, Math.floor(day));
+					return resultDate;
+				}
+
+				convertDateToJulianDate(date) {
+					let year = date.getFullYear();
+					let month = date.getMonth() + 1;
+					const day = date.getDate();
+					let adjustment = 0;
+					if (month <= 2) { year--; month += 12; }
+					if (applicationState.gregorianMode === 'proleptic' || year > 1582 || (year === 1582 && (month > 10 || (month === 10 && day >= 15)))) {
+						const centuries = Math.floor(year / 100);
+						adjustment = 2 - centuries + Math.floor(centuries / 4);
+					}
+					return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + adjustment - 1524;
+				}
+
+				getDayOfWeek(julianDate) {
+					return (Math.floor(julianDate + 1.5) % 7);
+				}
+
+				getLinearMonthStartJulianDate(monthIndex) {
+					if (applicationState.calculationMode === 'tabular') {
+						const cycleNumber = Math.floor(monthIndex / 360);
+						const indexInCycle = ((monthIndex % 360) + 360) % 360;
+						const yearInCycle = Math.floor(indexInCycle / 12);
+						const monthInYear = indexInCycle % 12;
+						const leapYears = [1, 2, 5, 7, 10, 13, 16, 18, 21, 24, 26];
+						const leapCount = leapYears.filter(leapYear => leapYear <= yearInCycle).length;
+						return 1948440 + cycleNumber * 10631 + yearInCycle * 354 + leapCount + Math.ceil(monthInYear * 29.5);
+					}
+					return 1948440 + Math.floor(29.530573265 * monthIndex + 0.236624);
+				}
+
+				getLinearIndexFromJulianDate(julianDate) {
+					if (applicationState.calculationMode === 'tabular') {
+						let index = Math.round((julianDate - 1948440) / 29.530555);
+						while (this.getLinearMonthStartJulianDate(index + 1) <= julianDate) index++;
+						while (this.getLinearMonthStartJulianDate(index) > julianDate) index--;
+						return index;
+					}
+					return Math.floor((julianDate - 1948440 + 0.763376) / 29.530573265);
+				}
+
+				convertHijriToGregorianLinear(year, month, day) {
+					const monthIndex = (year - 1) * 12 + month - 1;
+					return this.convertJulianDateToDate(this.getLinearMonthStartJulianDate(monthIndex) + day - 1 + applicationState.hijriAdjustment);
+				}
+
+				convertHijriToGregorian(year, month, day) {
+					if (this.isOffline || applicationState.calculationMode !== 'astronomic') return this.convertHijriToGregorianLinear(year, month, day);
+					const startInfo = this.getHijriMonthStart(year, month);
+					const gregorianDate = new Date(startInfo.gregorianDate);
+					gregorianDate.setDate(gregorianDate.getDate() + (day - 1));
+					return gregorianDate;
+				}
+
+				convertGregorianToHijriLinear(date) {
+					let julianDate = this.convertDateToJulianDate(date) - applicationState.hijriAdjustment;
+					const monthIndex = this.getLinearIndexFromJulianDate(julianDate);
+					const day = julianDate - this.getLinearMonthStartJulianDate(monthIndex) + 1;
+					let month = (monthIndex % 12);
+					if (month < 0) month += 12;
+					return { day, month: month + 1, year: Math.floor(monthIndex / 12) + 1 };
+				}
+
+				convertGregorianToHijri(date) {
+					if (this.isOffline || applicationState.calculationMode !== 'astronomic') return this.convertGregorianToHijriLinear(date);
+					const approximation = this.convertGregorianToHijriLinear(date);
+					const currentStart = this.getHijriMonthStart(approximation.year, approximation.month);
+					const dateTime = date.getTime();
+					const currentStartTime = currentStart.gregorianDate.getTime();
+					if (dateTime < currentStartTime) {
+						const previousMonthInfo = this.addHijriMonths(approximation.year, approximation.month, -1);
+						const previousStart = this.getHijriMonthStart(previousMonthInfo.year, previousMonthInfo.month);
+						return { day: Math.round((dateTime - previousStart.gregorianDate.getTime()) / 86400000) + 1, month: previousMonthInfo.month, year: previousMonthInfo.year };
+					}
+					const nextMonthInfo = this.addHijriMonths(approximation.year, approximation.month, 1);
+					const nextStart = this.getHijriMonthStart(nextMonthInfo.year, nextMonthInfo.month);
+					if (dateTime >= nextStart.gregorianDate.getTime()) {
+						return { day: Math.round((dateTime - nextStart.gregorianDate.getTime()) / 86400000) + 1, month: nextMonthInfo.month, year: nextMonthInfo.year };
+					}
+					return { day: Math.round((dateTime - currentStartTime) / 86400000) + 1, month: approximation.month, year: approximation.year };
+				}
+
+				checkVisibility(dateObject, newMoonUniversalTime) {
+					const time = Astronomy.MakeTime(dateObject);
+					const observer = new Astronomy.Observer(applicationState.latitude, applicationState.longitude, 0);
+					const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, time.ut, 1);
+					if (!sunset) return false;
+					let newMoonUT = newMoonUniversalTime;
+					if (newMoonUT == null) {
+						const searchResult = Astronomy.SearchMoonPhase(0, time.ut, -35);
+						if (!searchResult) return false;
+						newMoonUT = searchResult.ut;
+					}
+					if (sunset.ut - newMoonUT < 0) return false;
+					const moonEquator = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, observer, true, true);
+					const moonHorizon = Astronomy.Horizon(sunset.ut, observer, moonEquator.ra, moonEquator.dec, 'normal');
+					const moonGeocentricVector = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
+					const sunGeocentricVector = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
+					const geocentricElongation = Astronomy.AngleBetween(moonGeocentricVector, sunGeocentricVector);
+					return (moonHorizon.altitude >= 3 && geocentricElongation >= 6.4);
+				}
+
+				getHijriMonthStart(year, month) {
+					if (this.isOffline || applicationState.calculationMode !== 'astronomic' || year < 1300) {
+						return { gregorianDate: this.convertHijriToGregorianLinear(year, month, 1) };
+					}
+					if (!this.calculationCache) this.loadCache();
+					const cacheKey = `${year}-${month}-${applicationState.latitude}-${applicationState.longitude}-${applicationState.gregorianMode}`;
+					if (this.calculationCache[cacheKey]) {
+						if (typeof this.calculationCache[cacheKey].gregorianDate === 'string') {
+							this.calculationCache[cacheKey].gregorianDate = new Date(this.calculationCache[cacheKey].gregorianDate);
+						}
+						return this.calculationCache[cacheKey];
+					}
+					const anchorDate = new Date('2023-07-19T12:00:00Z');
+					const dayDifference = ((year - 1445) * 354.367) + ((month - 1) * 29.53);
+					const approximateDate = new Date(anchorDate.getTime() + dayDifference * 86400000);
+					const searchTime = Astronomy.MakeTime(new Date(approximateDate.getTime() - 5 * 86400000));
+					const newMoonResult = Astronomy.SearchMoonPhase(0, searchTime.ut, 10);
+					if (!newMoonResult || Math.abs(newMoonResult.date - approximateDate) > 4 * 86400000) {
+						return { gregorianDate: approximateDate };
+					}
+					const timezoneOffset = this.getTimezoneOffset();
+					const localTimeAtNewMoon = new Date(newMoonResult.date.getTime() + timezoneOffset * 3600000);
+					const newMoonYear = localTimeAtNewMoon.getUTCFullYear();
+					const newMoonMonth = localTimeAtNewMoon.getUTCMonth();
+					const newMoonDay = localTimeAtNewMoon.getUTCDate();
+					const isVisible = this.checkVisibility(new Date(Date.UTC(newMoonYear, newMoonMonth, newMoonDay, 12 - timezoneOffset, 0, 0)), newMoonResult.ut);
+					const result = { gregorianDate: new Date(newMoonYear, newMoonMonth, newMoonDay + (isVisible ? 1 : 2)) };
+					this.calculationCache[cacheKey] = result;
+					this.scheduleSaveCache();
+					return result;
 				}
 
 				navigateMonth(delta) {
-					if (applicationState.primaryCalendar === 'hijri') { const h = this.gregorianToHijri(applicationState.currentViewDate), {year, month} = this.addHijriMonths(h.year, h.month, delta), s = this.getHijriMonthStart(year, month); applicationState.currentViewDate = new Date(s.gregorianDate.getTime() + 15 * 86400000); }
-					else { const d = applicationState.currentViewDate.getDate(); applicationState.currentViewDate.setDate(1); applicationState.currentViewDate.setMonth(applicationState.currentViewDate.getMonth() + delta); const max = new Date(applicationState.currentViewDate.getFullYear(), applicationState.currentViewDate.getMonth() + 1, 0).getDate(); applicationState.currentViewDate.setDate(Math.min(d, max)); }
-					this.render();
-				}
-
-				render() {
-					const t = TRANSLATIONS[applicationState.language], isG = applicationState.primaryCalendar !== 'hijri';
-					if (isG) {
-						const y = applicationState.currentViewDate.getFullYear(), m = applicationState.currentViewDate.getMonth(); UI_PROXY.monthDisplay.textContent = applicationState.currentViewDate.toLocaleDateString(applicationState.language === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' });
-						const sh = this.gregorianToHijri(new Date(y, m, 1)), eh = this.gregorianToHijri(new Date(y, m + 1, 0)); UI_PROXY.hijriRangeDisplay.textContent = `${t.months[sh.month - 1]} ${sh.year} – ${t.months[eh.month - 1]} ${eh.year}`;
-						const fjd = this.dateToJulianDate(new Date(y, m, 1)); let o = this.getDayOfWeek(fjd) - applicationState.weekStart; if (o < 0) o += 7; this.buildGrid(fjd - o, true, { month: m, year: y });
+					if (applicationState.primaryCalendar === 'hijri') {
+						const hijriDate = this.convertGregorianToHijri(applicationState.viewDate);
+						const nextMonthInfo = this.addHijriMonths(hijriDate.year, hijriDate.month, delta);
+						const startInfo = this.getHijriMonthStart(nextMonthInfo.year, nextMonthInfo.month);
+						applicationState.viewDate = new Date(startInfo.gregorianDate.getTime() + 15 * 86400000);
 					} else {
-						const h = this.gregorianToHijri(applicationState.currentViewDate), s = this.getHijriMonthStart(h.year, h.month), {year: ny, month: nm} = this.addHijriMonths(h.year, h.month, 1), next = this.getHijriMonthStart(ny, nm); UI_PROXY.monthDisplay.textContent = `${t.months[h.month - 1]} ${h.year}`;
-						const sg = s.gregorianDate, eg = new Date(next.gregorianDate.getTime() - 86400000), loc = applicationState.language === 'id' ? 'id-ID' : 'en-US'; UI_PROXY.hijriRangeDisplay.textContent = `${sg.toLocaleDateString(loc, { month: 'short', year: 'numeric' })} – ${eg.toLocaleDateString(loc, { month: 'short', year: 'numeric' })}`;
-						const sjd = this.dateToJulianDate(s.gregorianDate); let o = this.getDayOfWeek(sjd) - applicationState.weekStart; if (o < 0) o += 7; this.buildGrid(sjd - o, false, { hijriMonth: h.month, hijriYear: h.year, startJulianDate: sjd, endJulianDate: this.dateToJulianDate(next.gregorianDate) });
+						const day = applicationState.viewDate.getDate();
+						applicationState.viewDate.setDate(1);
+						applicationState.viewDate.setMonth(applicationState.viewDate.getMonth() + delta);
+						const maxDays = new Date(applicationState.viewDate.getFullYear(), applicationState.viewDate.getMonth() + 1, 0).getDate();
+						applicationState.viewDate.setDate(Math.min(day, maxDays));
+					}
+					this.renderCalendar();
+				}
+
+				renderCalendar() {
+					const translations = TRANSLATIONS[applicationState.language];
+					const isGregorianView = applicationState.primaryCalendar !== 'hijri';
+					if (isGregorianView) {
+						const year = applicationState.viewDate.getFullYear();
+						const month = applicationState.viewDate.getMonth();
+						elementProxy.monthDisplay.textContent = applicationState.viewDate.toLocaleDateString(applicationState.language === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' });
+						const startHijri = this.convertGregorianToHijri(new Date(year, month, 1));
+						const endHijri = this.convertGregorianToHijri(new Date(year, month + 1, 0));
+						elementProxy.hijriRangeDisplay.textContent = `${translations.months[startHijri.month - 1]} ${startHijri.year} – ${translations.months[endHijri.month - 1]} ${endHijri.year}`;
+						const firstJulianDate = this.convertDateToJulianDate(new Date(year, month, 1));
+						let offset = this.getDayOfWeek(firstJulianDate) - applicationState.weekStart;
+						if (offset < 0) offset += 7;
+						this.buildCalendarGrid(firstJulianDate - offset, true, { month, year });
+					} else {
+						const hijriDate = this.convertGregorianToHijri(applicationState.viewDate);
+						const currentStart = this.getHijriMonthStart(hijriDate.year, hijriDate.month);
+						const nextMonthInfo = this.addHijriMonths(hijriDate.year, hijriDate.month, 1);
+						const nextStart = this.getHijriMonthStart(nextMonthInfo.year, nextMonthInfo.month);
+						elementProxy.monthDisplay.textContent = `${translations.months[hijriDate.month - 1]} ${hijriDate.year}`;
+						const startDate = currentStart.gregorianDate;
+						const endDate = new Date(nextStart.gregorianDate.getTime() - 86400000);
+						elementProxy.hijriRangeDisplay.textContent = `${startDate.toLocaleDateString(applicationState.language === 'id' ? 'id-ID' : 'en-US', { month: 'short', year: 'numeric' })} – ${endDate.toLocaleDateString(applicationState.language === 'id' ? 'id-ID' : 'en-US', { month: 'short', year: 'numeric' })}`;
+						const startJulianDate = this.convertDateToJulianDate(currentStart.gregorianDate);
+						let offset = this.getDayOfWeek(startJulianDate) - applicationState.weekStart;
+						if (offset < 0) offset += 7;
+						this.buildCalendarGrid(startJulianDate - offset, false, { hMonth: hijriDate.month, hYear: hijriDate.year, startJD: startJulianDate, endJD: this.convertDateToJulianDate(nextStart.gregorianDate) });
 					}
 				}
 
-				buildGrid(startJD, isG, ctx) {
-					const t = TRANSLATIONS[applicationState.language], frag = document.createDocumentFragment(); UI_PROXY.calendar.innerHTML = '';
-					for (let i = 0; i < 7; i++) { const di = (applicationState.weekStart + i) % 7; const h = document.createElement('div'); h.className = 'day-hdr' + (di === 5 ? ' friday' : ''); h.textContent = t.days[di]; frag.appendChild(h); }
-					let hs = []; if (isG) { const startH = this.gregorianToHijri(this.julianDateToDate(startJD)); for (let i = -1; i <= 3; i++) { const {year, month} = this.addHijriMonths(startH.year, startH.month, i); const s = this.getHijriMonthStart(year, month); hs.push({ year, month, julianDate: this.dateToJulianDate(s.gregorianDate) }); } hs.sort((a, b) => a.julianDate - b.julianDate); }
-					const todayJD = this.dateToJulianDate(new Date()), selJD = this.dateToJulianDate(this.getDateValue(UI_PROXY.gregorianDateInput) || new Date());
+				buildCalendarGrid(startJulianDate, isGregorianView, context) {
+					const translations = TRANSLATIONS[applicationState.language];
+					const gridElement = elementProxy.calendar;
+					const fragment = document.createDocumentFragment();
+					gridElement.innerHTML = '';
+					for (let i = 0; i < 7; i++) {
+						const dayIndex = (applicationState.weekStart + i) % 7;
+						const header = document.createElement('div');
+						header.className = 'day-hdr' + (dayIndex === 5 ? ' fri' : '');
+						header.setAttribute('role', 'columnheader');
+						header.textContent = translations.days[dayIndex];
+						fragment.appendChild(header);
+					}
+					let hijriMonthStarts = [];
+					if (isGregorianView) {
+						const startHijri = this.convertGregorianToHijri(this.convertJulianDateToDate(startJulianDate));
+						for (let i = -1; i <= 3; i++) {
+							const monthInfo = this.addHijriMonths(startHijri.year, startHijri.month, i);
+							const startInfo = this.getHijriMonthStart(monthInfo.year, monthInfo.month);
+							hijriMonthStarts.push({ year: monthInfo.year, month: monthInfo.month, jd: this.convertDateToJulianDate(startInfo.gregorianDate) });
+						}
+						hijriMonthStarts.sort((a, b) => a.jd - b.jd);
+					}
+					const todayJulianDate = this.convertDateToJulianDate(new Date());
+					const selectedDate = this.getGregorianInput(elementProxy.gDateInput);
+					const selectedJulianDate = selectedDate ? this.convertDateToJulianDate(selectedDate) : -1;
+
 					for (let i = 0; i < 42; i++) {
-						const jd = startJD + i, date = this.julianDateToDate(jd), info = this.getCellData(jd, isG, ctx, hs), isJul = (applicationState.gregorianMode === 'transition' && jd < 2299161), isOM = isG ? (date.getMonth() !== ctx.month) : (jd < ctx.startJulianDate || jd >= ctx.endJulianDate), cell = document.createElement('div');
-						cell.className = 'cell' + (this.getDayOfWeek(jd) === 5 ? ' friday-cell' : '') + (isOM ? ' other' : '') + (jd === todayJD ? ' today' : '') + (jd === selJD ? ' selected' : '');
-						cell.tabIndex = -1; if (jd === todayJD) cell.setAttribute('aria-current', 'date');
-						const pv = isG ? date.getDate() : info.day, sv = isG ? info.day : date.getDate(), isNS = isG ? (info.day === 1) : (date.getDate() === 1), smn = ((i === 0) || isNS) ? ` ${isG ? info.monthShort : date.toLocaleDateString(applicationState.language === 'id' ? 'id-ID' : 'en-US', { month: 'short' })}` : '';
-						cell.innerHTML = `<div class="primary-date">${pv}${isG && isJul ? '<sup class="julian-label">Jul</sup>' : ''}</div><div class="secondary-date${isNS ? ' new-month' : ''}">${sv}${!isG && isJul ? '<sup class="julian-label">Jul</sup>' : ''}${smn}</div>`;
-						cell.onclick = () => { applicationState.currentViewDate = date; this.setDateValue(UI_PROXY.gregorianDateInput, date); this.syncHijriInputs(date); this.render(); }; frag.appendChild(cell);
+						const currentJulianDate = startJulianDate + i;
+						const date = this.convertJulianDateToDate(currentJulianDate);
+						const hijriCellInfo = this.getHijriCellInfo(currentJulianDate, isGregorianView, context, hijriMonthStarts);
+						const isJulianPeriod = (applicationState.gregorianMode === 'transition' && currentJulianDate < 2299161);
+						const isOtherMonth = isGregorianView ? (date.getMonth() !== context.month) : (currentJulianDate < context.startJD || currentJulianDate >= context.endJD);
+						const isToday = (currentJulianDate === todayJulianDate);
+						const isSelected = (currentJulianDate === selectedJulianDate);
+						const isFriday = (this.getDayOfWeek(currentJulianDate) === 5);
+
+						const cellElement = document.createElement('div');
+						cellElement.className = 'cell' + (isFriday ? ' fri-cell' : '') + (isOtherMonth ? ' other' : '') + (isToday ? ' today' : '') + (isSelected ? ' sel' : '');
+						cellElement.setAttribute('role', 'gridcell');
+						cellElement.tabIndex = -1;
+						if (isToday) cellElement.setAttribute('aria-current', 'date');
+						if (isSelected) cellElement.setAttribute('aria-selected', 'true');
+						cellElement.dataset.date = `${String(date.getFullYear()).padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+						const isPrimaryGregorian = applicationState.primaryCalendar !== 'hijri';
+						const primaryValue = isPrimaryGregorian ? date.getDate() : hijriCellInfo.day;
+						const secondaryValue = isPrimaryGregorian ? hijriCellInfo.day : date.getDate();
+						const isNewHijriMonth = (hijriCellInfo.day === 1);
+						const isNewGregorianMonth = (date.getDate() === 1);
+						const isNewSecondaryMonth = isPrimaryGregorian ? isNewHijriMonth : isNewGregorianMonth;
+						const shouldShowSecondaryMonthName = (i === 0) || isNewSecondaryMonth;
+						const julianLabel = `<sup class="jul-lbl">${translations.julian}</sup>`;
+						const secondaryMonthName = shouldShowSecondaryMonthName ? ` ${isPrimaryGregorian ? hijriCellInfo.monthNameShort : date.toLocaleDateString(applicationState.language === 'id' ? 'id-ID' : 'en-US', { month: 'short' })}` : '';
+
+						cellElement.innerHTML = `<div class="pdate">${primaryValue}${isPrimaryGregorian && isJulianPeriod ? julianLabel : ''}</div><div class="sdate${isNewSecondaryMonth ? ' new-m' : ''}">${secondaryValue}${!isPrimaryGregorian && isJulianPeriod ? julianLabel : ''}${secondaryMonthName}</div>`;
+						cellElement.onclick = () => {
+							applicationState.viewDate = date;
+							this.setGregorianInput(elementProxy.gDateInput, date);
+							this.synchronizeHijriInputs(date);
+							this.renderCalendar();
+							elementProxy.calendar.querySelector('.cell.sel')?.focus();
+						};
+						cellElement.setAttribute('aria-label', `${date.toLocaleDateString(applicationState.language === 'id' ? 'id-ID' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}, ${hijriCellInfo.day} ${hijriCellInfo.monthNameFull}`);
+						fragment.appendChild(cellElement);
 					}
-					UI_PROXY.calendar.appendChild(frag); const focus = UI_PROXY.calendar.querySelector('.cell.selected') || UI_PROXY.calendar.querySelector('.cell.today') || UI_PROXY.calendar.querySelector('.cell'); if (focus) focus.tabIndex = 0;
+					gridElement.appendChild(fragment);
+					const focusCell = gridElement.querySelector('.cell.sel') || gridElement.querySelector('.cell.today') || gridElement.querySelector('.cell');
+					if (focusCell) focusCell.tabIndex = 0;
 				}
 
-				getCellData(jd, isG, ctx, hs) {
-					const t = TRANSLATIONS[applicationState.language];
-					if (isG) { for (let k = 0; k < hs.length - 1; k++) { if (jd >= hs[k].julianDate && jd < hs[k + 1].julianDate) { const mi = hs[k].month - 1; return { day: Math.round(jd - hs[k].julianDate) + 1, monthName: t.months[mi], monthShort: t.monthsShort[mi] }; } } return { day: '', monthName: '', monthShort: '' }; }
-					let sjd, mi; if (jd >= ctx.startJulianDate && jd < ctx.endJulianDate) { sjd = ctx.startJulianDate; mi = ctx.hijriMonth - 1; }
-					else if (jd < ctx.startJulianDate) { const {year, month} = this.addHijriMonths(ctx.hijriYear, ctx.hijriMonth, -1); sjd = this.dateToJulianDate(this.getHijriMonthStart(year, month).gregorianDate); mi = month - 1; }
-					else { const {year, month} = this.addHijriMonths(ctx.hijriYear, ctx.hijriMonth, 1); sjd = this.dateToJulianDate(this.getHijriMonthStart(year, month).gregorianDate); mi = month - 1; }
-					return { day: Math.round(jd - sjd) + 1, monthName: t.months[mi], monthShort: t.monthsShort[mi] };
+				getHijriCellInfo(julianDate, isGregorianView, context, hijriMonthStarts) {
+					const translations = TRANSLATIONS[applicationState.language];
+					if (isGregorianView) {
+						for (let k = 0; k < hijriMonthStarts.length - 1; k++) {
+							if (julianDate >= hijriMonthStarts[k].jd && julianDate < hijriMonthStarts[k + 1].jd) {
+								const monthIndex = hijriMonthStarts[k].month - 1;
+								return { day: Math.round(julianDate - hijriMonthStarts[k].jd) + 1, monthNameFull: translations.months[monthIndex], monthNameShort: translations.monthsShort[monthIndex] };
+							}
+						}
+						return { day: '', monthNameFull: '', monthNameShort: '' };
+					}
+					let startJD, monthNum;
+					if (julianDate >= context.startJD && julianDate < context.endJD) {
+						startJD = context.startJD;
+						monthNum = context.hMonth;
+					} else if (julianDate < context.startJD) {
+						const previousMonth = this.addHijriMonths(context.hYear, context.hMonth, -1);
+						startJD = this.convertDateToJulianDate(this.getHijriMonthStart(previousMonth.year, previousMonth.month).gregorianDate);
+						monthNum = previousMonth.month;
+					} else {
+						const nextMonth = this.addHijriMonths(context.hYear, context.hMonth, 1);
+						startJD = this.convertDateToJulianDate(this.getHijriMonthStart(nextMonth.year, nextMonth.month).gregorianDate);
+						monthNum = nextMonth.month;
+					}
+					return { day: Math.round(julianDate - startJD) + 1, monthNameFull: translations.months[monthNum - 1], monthNameShort: translations.monthsShort[monthNum - 1] };
 				}
 			}
 			new HijriCalc();

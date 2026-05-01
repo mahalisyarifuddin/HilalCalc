@@ -73,9 +73,9 @@ Pencarian lengkap untuk memaksimalkan akurasi pencocokan terhadap Ground Truth k
 
 ### 1. Tingkat Keserempakan (MABBIMS vs. KHGT)
 Disimulasikan selama 120.000 bulan (1-10.000 H):
-- **Tingkat Total**: **62,74%**
-- **Bulan Ritual**: **62,67%** (Ramadan, Syawal, Dzulhijjah)
-Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada sekitar 37% bulan.
+- **Tingkat Total**: **46,49%**
+- **Bulan Ritual**: **46,36%** (Ramadan, Syawal, Dzulhijjah)
+Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada sekitar 54% bulan.
 
 ### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
 Perbandingan metode aproksimasi terhadap Ground Truth Komposit (1-10.000 H).

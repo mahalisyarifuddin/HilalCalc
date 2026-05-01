@@ -57,11 +57,11 @@ These criteria are used for regional and global religious coordination.
 To model long-term historical trends and optimize global approximations, we use a custom **Composite Ground Truth**.
 
 **Composite Rule:**
-A month starts if the moon satisfies MABBIMS visibility in **Mecca** while being physically above the horizon (Altitude ≥ 0°) at **Viwa Island (Fiji)**, representing the easternmost point of the Islamic day cycle.
+A month starts if the moon satisfies MABBIMS visibility in **San Francisco** while being physically above the horizon (Altitude ≥ 0°) at **Viwa Island (Fiji)**, representing the easternmost point of the Islamic day cycle.
 
 **Optimized Global Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is:
-`JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Day - 1`
+`JD = 1948440 + floor(29.5305732845 * Index - 0.1286209) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
 **Optimal Local Thresholds**:
@@ -82,9 +82,9 @@ Comparison of approximation methods against the Composite Ground Truth (1-10,000
 
 | Rank | Method                    | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :------------------------ | :----------- | :------------- | :--------------- |
-| 1.   | **Global Linear Formula** | **69.55%**   | **69.65%**     | **83,463**       |
-| 2.   | Global Tabular (30Y DP)   | 44.58%       | 45.08%         | 53,491           |
-| 3.   | Global Tabular (30Y k=29) | 39.37%       | 38.68%         | 47,247           |
+| 1.   | **Global Linear Formula** | **65.74%**   | **65.81%**     | **78,887**       |
+| 2.   | Global Tabular (30Y DP)   | 44.33%       | 44.82%         | 53,193           |
+| 3.   | Global Tabular (30Y k=29) | 44.17%       | 44.20%         | 53,001           |
 | 4.   | Traditional (Scheme I)    | 28.62%       | 27.63%         | 34,339           |
 | 5.   | Traditional (Kuwaiti)     | 27.86%       | 26.89%         | 33,426           |
 

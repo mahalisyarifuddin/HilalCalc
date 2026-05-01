@@ -57,11 +57,11 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
 Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Ground Truth Komposit** kustom.
 
 **Aturan Komposit:**
-Bulan dimulai jika bulan memenuhi visibilitas MABBIMS di **Mekkah** sekaligus berada secara fisik di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa (Fiji)**, yang mewakili titik paling timur dari siklus hari Islam.
+Bulan dimulai jika bulan memenuhi visibilitas MABBIMS di **San Francisco** sekaligus berada secara fisik di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa (Fiji)**, yang mewakili titik paling timur dari siklus hari Islam.
 
 **Rumus Global Teroptimasi:**
 Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah adalah:
-`JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Hari - 1`
+`JD = 1948440 + floor(29.5305732845 * Index - 0.1286209) + Hari - 1`
 *(Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
 **Ambang Batas Lokal Optimal**:
@@ -82,9 +82,9 @@ Perbandingan metode aproksimasi terhadap Ground Truth Komposit (1-10.000 H).
 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :------------------------- | :---------- | :--------- | :-------------- |
-| 1.        | **Rumus Global Linear**    | **69,55%**  | **69,65%** | **83.463**      |
-| 2.        | Tabular Global (30 thn DP) | 44,58%      | 45,08%     | 53.491          |
-| 3.        | Tabular Global (30 thn k)  | 39,37%      | 38,68%     | 47.247          |
+| 1.        | **Rumus Global Linear**    | **65,74%**  | **65,81%** | **78.887**      |
+| 2.        | Tabular Global (30 thn DP) | 44,33%      | 44,82%     | 53.193          |
+| 3.        | Tabular Global (30 thn k)  | 44,17%      | 44,20%     | 53.001          |
 | 4.        | Tradisional (Skema I)      | 28,62%      | 27,63%     | 34.339          |
 | 5.        | Tradisional (Kuwaiti)      | 27,86%      | 26,89%     | 33.426          |
 

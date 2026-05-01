@@ -57,17 +57,19 @@ These criteria are used for regional and global religious coordination.
 To model long-term historical trends and optimize global approximations, we use a custom **Composite Ground Truth**.
 
 **Composite Rule:**
-A month starts if the moon satisfies MABBIMS visibility in **Mecca** while being physically above the horizon (Altitude ≥ 0°) at **Viwa Island (Fiji)**, representing the easternmost point of the Islamic day cycle.
+A month starts if the moon satisfies MABBIMS visibility (Alt ≥ 3°, Elong ≥ 6.4°) in **Adak, Alaska** (the westernmost inhabited point) while being physically above the horizon (Altitude ≥ 0°) at **Viwa Island, Fiji**, representing the easternmost point of the Islamic day cycle.
 
 **Optimized Global Formula:**
 The derived linear formula for the Julian Date (JD) of a Hijri date is:
-`JD = 1948440 + floor(29.530573265 * Index + 0.236624) + Day - 1`
+`JD = 1948440 + floor(29.5305742461 * Index - 0.242938) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
-**Optimal Local Thresholds**:
-Exhaustive search to maximize match accuracy against the composite Ground Truth identified these optimal thresholds:
-- **Mecca**: Altitude ≥ 3°, Elongation ≥ 6° (**97.24%** accuracy).
-- **San Francisco**: Altitude ≥ 3°, Elongation ≥ 12° (**94.13%** accuracy).
+**The "Universality" Experiment & Local Thresholds**:
+Analysis against 120,000 months (1-10,000 AH) highlights the tension between global criteria and local sighting reality. By anchoring the calendar to the westernmost edge (Adak) to prevent western observers from "waiting," we observe a significant divergence for the religious center:
+- **Adak (Anchor)**: Altitude ≥ 3°, Elongation ≥ 6.5° (**99.51%** accuracy).
+- **Mecca (Local)**: Altitude ≥ 0.5°, Elongation ≥ 0° (**73.35%** accuracy).
+
+*Observation: Shifting the global anchor westward to achieve universality often "throws Mecca under the bus," as local visibility in Mecca becomes an unreliable predictor for a western-anchored global start, failing to match in ~27% of months even with near-zero thresholds.*
 
 ## Statistical Analysis
 
@@ -82,11 +84,11 @@ Comparison of approximation methods against the Composite Ground Truth (1-10,000
 
 | Rank | Method                    | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :------------------------ | :----------- | :------------- | :--------------- |
-| 1.   | **Global Linear Formula** | **69.55%**   | **69.65%**     | **83,463**       |
-| 2.   | Global Tabular (30Y DP)   | 44.58%       | 45.08%         | 53,491           |
-| 3.   | Global Tabular (30Y k=29) | 39.37%       | 38.68%         | 47,247           |
-| 4.   | Traditional (Scheme I)    | 28.62%       | 27.63%         | 34,339           |
-| 5.   | Traditional (Kuwaiti)     | 27.86%       | 26.89%         | 33,426           |
+| 1.   | **Global Linear Formula** | **56.17%**   | **56.38%**     | **67,400**       |
+| 2.   | Global Tabular (30Y DP)   | 41.43%       | 41.65%         | 49,716           |
+| 3.   | Global Tabular (30Y k=29) | 41.43%       | 41.65%         | 49,715           |
+| 4.   | Traditional (Scheme I)    | 35.03%       | 34.50%         | 42,034           |
+| 5.   | Traditional (Kuwaiti)     | 32.85%       | 32.23%         | 39,418           |
 
 - **DP**: Leap years optimized via Dynamic Programming.
 - **k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.

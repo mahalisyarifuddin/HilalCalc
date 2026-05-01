@@ -532,7 +532,7 @@
 			elements.todayBtn.onclick = () => {
 				const now = new Date();
 				const jd = now.getTime() / 86400000 + 2440587.5;
-				const index = Math.floor((jd - 1948440 - 0.236624) / 29.530573265);
+				const index = Math.floor((jd - 1948440 + 0.242938 + 0.5) / 29.5305742461);
 				state.year = Math.floor(index / 12) + 1;
 				state.month = (index % 12) + 1;
 				elements.hYearInput.value = state.year;
@@ -542,7 +542,7 @@
 
 			const now = new Date();
 			const jd = now.getTime() / 86400000 + 2440587.5;
-			const index = Math.floor((jd - 1948440 - 0.236624) / 29.530573265);
+			const index = Math.floor((jd - 1948440 + 0.242938 + 0.5) / 29.5305742461);
 			state.year = Math.floor(index / 12) + 1;
 			state.month = (index % 12) + 1;
 

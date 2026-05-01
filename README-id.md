@@ -57,17 +57,19 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
 Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Ground Truth Komposit** kustom.
 
 **Aturan Komposit:**
-Bulan dimulai jika bulan memenuhi visibilitas MABBIMS di **San Francisco** sekaligus berada secara fisik di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa (Fiji)**, yang mewakili titik paling timur dari siklus hari Islam.
+Bulan dimulai jika bulan memenuhi visibilitas MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°) di **Adak, Alaska** (titik berpenghuni paling barat) sekaligus berada secara fisik di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa, Fiji**, yang mewakili titik paling timur dari siklus hari Islam.
 
 **Rumus Global Teroptimasi:**
 Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah adalah:
-`JD = 1948440 + floor(29.5305732845 * Index - 0.1286209) + Hari - 1`
+`JD = 1948440 + floor(29.5305742461 * Index - 0.242938) + Hari - 1`
 *(Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
-**Ambang Batas Lokal Optimal**:
-Pencarian lengkap untuk memaksimalkan akurasi pencocokan terhadap Ground Truth komposit mengidentifikasi ambang batas optimal berikut:
-- **Mekkah**: Tinggi ≥ 3°, Elongasi ≥ 6° (akurasi **97,24%**).
-- **San Francisco**: Tinggi ≥ 3°, Elongasi ≥ 12° (akurasi **94,13%**).
+**Eksperimen "Universalitas" & Ambang Batas Lokal**:
+Analisis terhadap 120.000 bulan (1-10.000 H) menyoroti ketegangan antara kriteria global dan realitas rukyat lokal. Dengan menambatkan kalender ke ujung paling barat (Adak) untuk mencegah pengamat barat "menunggu," kami mengamati divergensi yang signifikan bagi pusat keagamaan:
+- **Adak (Penambat)**: Tinggi ≥ 3°, Elongasi ≥ 6,5° (akurasi **99,51%**).
+- **Mekkah (Lokal)**: Tinggi ≥ 0,5°, Elongasi ≥ 0° (akurasi **73,35%**).
+
+*Observasi: Menggeser penambat global ke arah barat demi mencapai universalitas sering kali "mengabaikan kepentingan Mekkah" (throws Mecca under the bus), karena visibilitas lokal di Mekkah menjadi prediktor yang tidak andal bagi awal global yang ditambatkan di barat, gagal cocok dalam ~27% bulan bahkan dengan ambang batas mendekati nol.*
 
 ## Analisis Statistik
 
@@ -82,11 +84,11 @@ Perbandingan metode aproksimasi terhadap Ground Truth Komposit (1-10.000 H).
 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :------------------------- | :---------- | :--------- | :-------------- |
-| 1.        | **Rumus Global Linear**    | **65,74%**  | **65,81%** | **78.887**      |
-| 2.        | Tabular Global (30 thn DP) | 44,33%      | 44,82%     | 53.193          |
-| 3.        | Tabular Global (30 thn k)  | 44,17%      | 44,20%     | 53.001          |
-| 4.        | Tradisional (Skema I)      | 28,62%      | 27,63%     | 34.339          |
-| 5.        | Tradisional (Kuwaiti)      | 27,86%      | 26,89%     | 33.426          |
+| 1.        | **Rumus Global Linear**    | **56,17%**  | **56,38%** | **67.400**      |
+| 2.        | Tabular Global (30 thn DP) | 41,43%      | 41,65%     | 49.716          |
+| 3.        | Tabular Global (30 thn k)  | 41,43%      | 41,65%     | 49.715          |
+| 4.        | Tradisional (Skema I)      | 35,03%      | 34,50%     | 42.034          |
+| 5.        | Tradisional (Kuwaiti)      | 32,85%      | 32,23%     | 39.418          |
 
 - **DP**: Tahun kabisat dioptimalkan melalui Dynamic Programming.
 - **k=29**: Konstanta modular yang dioptimalkan untuk `(11y + k) % 30 < 11`.

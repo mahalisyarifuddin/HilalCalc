@@ -508,28 +508,21 @@
 
 			elements.language.onchange = updateLang;
 			elements.theme.onchange = updateTheme;
-			elements.prevBtn.onclick = () => {
-				state.month--;
-				if (state.month < 1) {
-					state.month = 12;
-					state.year--;
-				}
+
+			function navMonth(delta) {
+				const x = state.month - 1 + delta;
+				state.year += Math.floor(x / 12);
+				state.month = ((x % 12) + 12) % 12 + 1;
 				elements.hYearInput.value = state.year;
 				elements.hMonthInput.value = state.month;
 				calculate();
-			};
-			elements.nextBtn.onclick = () => {
-				state.month++;
-				if (state.month > 12) {
-					state.month = 1;
-					state.year++;
-				}
-				elements.hYearInput.value = state.year;
-				elements.hMonthInput.value = state.month;
-				calculate();
-			};
+			}
+			elements.prevBtn.onclick = () => navMonth(-1);
+			elements.nextBtn.onclick = () => navMonth(1);
+
 			elements.goBtn.onclick = calculate;
-			elements.todayBtn.onclick = () => {
+
+			function goToday() {
 				const now = new Date();
 				const jd = now.getTime() / 86400000 + 2440587.5;
 				const index = Math.floor((jd - 1948440 + 0.242938 + 0.5) / 29.5305742461);
@@ -538,7 +531,8 @@
 				elements.hYearInput.value = state.year;
 				elements.hMonthInput.value = state.month;
 				calculate();
-			};
+			}
+			elements.todayBtn.onclick = goToday;
 
 			const now = new Date();
 			const jd = now.getTime() / 86400000 + 2440587.5;

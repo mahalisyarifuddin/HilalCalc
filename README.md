@@ -66,10 +66,11 @@ The derived linear formula for the Julian Date (JD) of a Hijri date is:
 
 **The "Universality" Experiment & Local Thresholds**:
 Analysis against 120,000 months (1-10,000 AH) highlights the tension between global criteria and local sighting reality. By anchoring the calendar to the westernmost edge (Adak) to prevent western observers from "waiting," we observe a significant divergence for the religious center:
-- **Adak (Anchor)**: Altitude ≥ 3°, Elongation ≥ 6.5° (**99.51%** accuracy).
-- **Mecca (Local)**: Altitude ≥ 0.5°, Elongation ≥ 0° (**73.35%** accuracy).
+- **Adak (Anchor)**: Altitude ≥ 3°, Elongation ≥ 6.4° (**100.00%** accuracy).
+- **Mecca (Local)**: Altitude ≥ 0°, Elongation ≥ 0° (**79.90%** accuracy).
+- **San Francisco (Local)**: Altitude ≥ 4°, Elongation ≥ 5° (**90.79%** accuracy).
 
-*Observation: Shifting the global anchor westward to achieve universality often "throws Mecca under the bus," as local visibility in Mecca becomes an unreliable predictor for a western-anchored global start, failing to match in ~27% of months even with near-zero thresholds.*
+*Observation: Shifting the global anchor westward to achieve universality often "throws Mecca under the bus," as local visibility in Mecca becomes an unreliable predictor for a western-anchored global start, failing to match in ~20% of months even with zero thresholds.*
 
 ## Statistical Analysis
 

@@ -66,10 +66,11 @@ Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah adalah
 
 **Eksperimen "Universalitas" & Ambang Batas Lokal**:
 Analisis terhadap 120.000 bulan (1-10.000 H) menyoroti ketegangan antara kriteria global dan realitas rukyat lokal. Dengan menambatkan kalender ke ujung paling barat (Adak) untuk mencegah pengamat barat "menunggu," kami mengamati divergensi yang signifikan bagi pusat keagamaan:
-- **Adak (Penambat)**: Tinggi ≥ 3°, Elongasi ≥ 6,5° (akurasi **99,51%**).
-- **Mekkah (Lokal)**: Tinggi ≥ 0,5°, Elongasi ≥ 0° (akurasi **73,35%**).
+- **Adak (Penambat)**: Tinggi ≥ 3°, Elongasi ≥ 6,4° (akurasi **100,00%**).
+- **Mekkah (Lokal)**: Tinggi ≥ 0°, Elongasi ≥ 0° (akurasi **79,90%**).
+- **San Francisco (Lokal)**: Tinggi ≥ 4°, Elongasi ≥ 5° (akurasi **90,79%**).
 
-*Observasi: Menggeser penambat global ke arah barat demi mencapai universalitas sering kali "mengabaikan kepentingan Mekkah" (throws Mecca under the bus), karena visibilitas lokal di Mekkah menjadi prediktor yang tidak andal bagi awal global yang ditambatkan di barat, gagal cocok dalam ~27% bulan bahkan dengan ambang batas mendekati nol.*
+*Observasi: Menggeser penambat global ke arah barat demi mencapai universalitas sering kali "mengabaikan kepentingan Mekkah" (throws Mecca under the bus), karena visibilitas lokal di Mekkah menjadi prediktor yang tidak andal bagi awal global yang ditambatkan di barat, gagal cocok dalam ~20% bulan bahkan dengan ambang batas nol.*
 
 ## Analisis Statistik
 

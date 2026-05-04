@@ -59,28 +59,28 @@ To model long-term historical trends and optimize global approximations, we use 
 **Composite Rule:**
 A month starts if the moon satisfies MABBIMS visibility (Alt ≥ 3°, Elong ≥ 6.4°) in **Adak, Alaska** (the westernmost inhabited point) while being physically above the horizon (Altitude ≥ 0°) at **Viwa Island, Fiji**, representing the easternmost point of the Islamic day cycle.
 
-**Optimized Global Formula:**
+## Statistical Analysis: Simultaneity Rate
+Simulated over 120,000 months (1-10,000 AH) comparing MABBIMS vs. KHGT:
+- **Overall Rate**: **46.49%**
+- **Ritual Months**: **46.36%** (Ramadan, Shawwal, Dhu al-Hijjah)
+
+These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in approximately 54% of months.
+
+## Optimized Results & Benchmarks
+
+### 1. Optimized Global Formula
 The derived linear formula for the Julian Date (JD) of a Hijri date is:
 `JD = 1948440 + floor(29.5305742461 * Index - 0.242938) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
-**The "Universality" Experiment & Local Thresholds**:
+### 2. Local Threshold Benchmarks
 Analysis against 120,000 months (1-10,000 AH) highlights the tension between global criteria and local sighting reality. By anchoring the calendar to the westernmost edge (Adak) to prevent western observers from "waiting," we observe a significant divergence for the religious center:
 - **Adak (Anchor)**: Altitude ≥ 3°, Elongation ≥ 6.4° (**100.00%** accuracy).
 - **Mecca (Local)**: Altitude ≥ 0°, Elongation ≥ 0° (**79.90%** accuracy).
-- **San Francisco (Local)**: Altitude ≥ 4°, Elongation ≥ 5° (**90.79%** accuracy).
 
 *Observation: Shifting the global anchor westward to achieve universality often "throws Mecca under the bus," as local visibility in Mecca becomes an unreliable predictor for a western-anchored global start, failing to match in ~20% of months even with zero thresholds.*
 
-## Statistical Analysis
-
-### 1. Simultaneity Rate (MABBIMS vs. KHGT)
-Simulated over 120,000 months (1-10,000 AH):
-- **Overall Rate**: **46.49%**
-- **Ritual Months**: **46.36%** (Ramadan, Shawwal, Dhu al-Hijjah)
-These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in approximately 54% of months.
-
-### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
+### 3. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
 Comparison of approximation methods against the Composite Ground Truth (1-10,000 AH).
 
 | Rank | Method                    | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
@@ -95,10 +95,8 @@ Comparison of approximation methods against the Composite Ground Truth (1-10,000
 - **k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
 - **Note**: The linear approach models long-term lunar drift, providing a **~25% absolute accuracy gain** over fixed tabular cycles.
 
-### 3. Knee Point Analysis (Cycle Efficiency)
+### 4. Knee Point Analysis (Cycle Efficiency)
 Analysis of cycle lengths (L=10 to 1000) identifies **L=30** as the primary knee point. Its leap year ratio (11/30 ≈ 0.3667) perfectly balances simplicity with the astronomical mean lunar year (drift of only ~4 days over 10,000 years).
-
-These results indicate that while there is significant alignment, the differing geographical and astronomical constraints lead to divergent starts in nearly half of the months.
 
 ## How Hijri Leap Years Work
 The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). In leap years, a single day is added to the 12th month, **Dhu al-Hijjah**.

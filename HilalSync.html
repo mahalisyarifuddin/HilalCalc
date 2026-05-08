@@ -273,7 +273,7 @@
 					simultaneous: "SIMULTANEOUS",
 					divergent: "DIVERGENT",
 					statsTitle: "Simultaneity rate (1-10,000 AH)",
-					statsContent: "Overall: <b>46.49%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>46.36%</b>. Validated 100% against T. Djamaluddin's 1447 dataset.",
+					statsContent: "Overall: <b>46.60%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>46.49%</b>. Validated 100% against T. Djamaluddin's 1447 dataset.",
 					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally before Fajr in NZ, or Americas if Conjunction < Fajr NZ.",
 					acehInfo: "Sunset in Archipelago: ",
 					gicInfo: "KHGT Deadline: ",
@@ -287,7 +287,7 @@
 					simultaneous: "SEREMPAK",
 					divergent: "BERBEDA",
 					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
-					statsContent: "Total: <b>46,49%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>46,36%</b>.",
+					statsContent: "Total: <b>46,60%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>46,49%</b>.",
 					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° sebelum Fajar di NZ, atau Amerika jika Ijtimak < Fajar NZ.",
 					acehInfo: "Maghrib di Kepulauan: ",
 					gicInfo: "Tenggat KHGT: ",
@@ -525,7 +525,7 @@
 			function goToday() {
 				const now = new Date();
 				const jd = now.getTime() / 86400000 + 2440587.5;
-				const index = Math.floor((jd - 1948440 + 0.242938 + 0.5) / 29.5305742461);
+				const index = Math.floor((jd - 1948439 - 0.757062 + 0.5) / 29.5305742461);
 				state.year = Math.floor(index / 12) + 1;
 				state.month = (index % 12) + 1;
 				elements.hYearInput.value = state.year;
@@ -536,7 +536,7 @@
 
 			const now = new Date();
 			const jd = now.getTime() / 86400000 + 2440587.5;
-			const index = Math.floor((jd - 1948440 + 0.242938 + 0.5) / 29.5305742461);
+			const index = Math.floor((jd - 1948439 - 0.757062 + 0.5) / 29.5305742461);
 			state.year = Math.floor(index / 12) + 1;
 			state.month = (index % 12) + 1;
 

@@ -12,7 +12,7 @@ def get_tabular_jd(Index, leap_years):
         days += 355 if (y + 1) in leap_years else 354
     for m in range(m_in_year):
         days += 30 if m % 2 == 0 else 29
-    return 1948440 + days
+    return 1948439 + days
 
 def evaluate(leap_years, data, is_oblig):
     matches = 0
@@ -60,8 +60,8 @@ def find_best_fixed_cycle(data, is_oblig):
     # Since each leap year choice affects all future dates, we can't easily DP without state.
     # But we can try to find them one by one or use the known best as a starting point.
 
-    # Given the known best: [1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27]
-    known_best = [1, 2, 5, 8, 10, 13, 16, 18, 21, 24, 27]
+    # Given the known best: [1, 3, 6, 9, 11, 14, 17, 19, 22, 25, 28]
+    known_best = [1, 3, 6, 9, 11, 14, 17, 19, 22, 25, 28]
 
     # Verify known best
     matches, pct, o_matches, o_pct = evaluate(known_best, data, is_oblig)

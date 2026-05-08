@@ -18,8 +18,8 @@ def generate():
 	adak_obs = astronomy.Observer(adak_lat, adak_lon, 0)
 	viwa_obs = astronomy.Observer(viwa_lat, viwa_lon, 0)
 
-	# Start: 1 Muharram 1 AH = 1948440 (Noon)
-	initial_jd = 1948440
+	# Start: 1 Muharram 1 AH = 1948439 (Noon)
+	initial_jd = 1948439
 	total_months = 120000
 
 	script_dir = os.path.dirname(os.path.abspath(__file__))

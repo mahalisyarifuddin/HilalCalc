@@ -14,7 +14,7 @@ def verify_gt():
         reader = csv.reader(f)
         next(reader) # skip header
 
-        current_jd = 1948440
+        current_jd = 1948439
         row0 = next(reader)
         if int(row0[0]) != 0 or int(row0[1]) != current_jd:
             print(f"Error: First row mismatch. Expected (0, {current_jd}), got ({row0[0]}, {row0[1]})")

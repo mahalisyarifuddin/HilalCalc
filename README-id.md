@@ -54,52 +54,42 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
   - **Timeline**: Visibilitas harus tercapai di mana pun secara global sebelum Fajar di Wellington, Selandia Baru.
 
 ### 2. Kriteria Analitis Kustom (1-10.000 H)
-Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Ground Truth Komposit** kustom.
+Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Skenario Komposit Global** yang secara gamblang mempertimbangkan belahan bumi barat dan timur.
 
 **Aturan Komposit:**
-Bulan dimulai jika bulan memenuhi visibilitas MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°) di **Adak, Alaska** (titik berpenghuni paling barat) sekaligus berada secara fisik di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa, Fiji**, yang mewakili titik paling timur dari siklus hari Islam.
+Bulan dimulai jika bulan memenuhi visibilitas MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°) di **Adak, Alaska** (mewakili titik berpenghuni paling barat) DAN secara fisik berada di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa, Fiji** (mewakili titik paling timur dari siklus hari Islam).
 
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan selama 120.000 bulan (1-10.000 H) membandingkan MABBIMS vs. KHGT:
-- **Tingkat Total**: **46,49%**
-- **Bulan Ritual**: **46,36%** (Ramadan, Syawal, Dzulhijjah)
+- **Tingkat Total**: **46,60%**
+- **Bulan Ritual**: **46,49%** (Ramadan, Syawal, Dzulhijjah)
 
-Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada sekitar 54% bulan.
+Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada lebih dari 53% bulan.
 
 ## Hasil Optimasi & Tolok Ukur
 
 ### 1. Rumus Global Teroptimasi
-Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah adalah:
-`JD = 1948440 + floor(29.5305742461 * Index - 0.242938) + Hari - 1`
+Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk Skenario Komposit Global) adalah:
+`JD = 1948439 + floor(29.5305742461 * Index + 0.757062) + Hari - 1`
 *(Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
-### 2. Tolok Ukur Ambang Batas Lokal
-Analisis terhadap 120.000 bulan (1-10.000 H) menyoroti ketegangan antara kriteria global dan realitas rukyat lokal. Dengan menambatkan kalender ke ujung paling barat (Adak) untuk mencegah pengamat barat "menunggu," kami mengamati divergensi yang signifikan bagi pusat keagamaan:
-- **Adak (Penambat)**: Tinggi ≥ 3°, Elongasi ≥ 6,4° (akurasi **100,00%**).
-- **Mekkah (Lokal)**: Tinggi ≥ 0°, Elongasi ≥ 0° (akurasi **79,90%**).
-
-*Observasi: Menggeser penambat global ke arah barat demi mencapai universalitas sering kali "mengabaikan kepentingan Mekkah" (throws Mecca under the bus), karena visibilitas lokal di Mekkah menjadi prediktor yang tidak andal bagi awal global yang ditambatkan di barat, gagal cocok dalam ~20% bulan bahkan dengan ambang batas nol.*
-
-### 3. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
-Perbandingan metode aproksimasi terhadap Ground Truth Komposit (1-10.000 H).
+### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
+Perbandingan metode aproksimasi terhadap Skenario Komposit Global (1-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria komposit.
 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :------------------------- | :---------- | :--------- | :-------------- |
-| 1.        | **Rumus Global Linear**    | **56,17%**  | **56,38%** | **67.400**      |
-| 2.        | Tabular Global (30 thn DP) | 41,43%      | 41,65%     | 49.716          |
-| 3.        | Tabular Global (30 thn k)  | 41,43%      | 41,65%     | 49.715          |
-| 4.        | Tradisional (Skema I)      | 35,03%      | 34,50%     | 42.034          |
-| 5.        | Tradisional (Kuwaiti)      | 32,85%      | 32,23%     | 39.418          |
+| 1.        | **Rumus Linear Teroptimasi** | **56,17%**  | **56,38%** | **67.400**      |
+| 2.        | Tabular Modular (k=29)     | 23,81%      | 23,51%     | 28.574          |
+| 3.        | Tradisional (Kuwaiti)      | 12,23%      | 12,11%     | 14.677          |
 
-- **DP**: Tahun kabisat dioptimalkan melalui Dynamic Programming.
 - **k=29**: Konstanta modular yang dioptimalkan untuk `(11y + k) % 30 < 11`.
-- **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan **keuntungan akurasi absolut ~25%** dibandingkan siklus tabular tetap.
+- **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)
 Analisis panjang siklus (L=10 hingga 1000) mengidentifikasi **L=30** sebagai knee point utama. Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran hanya ~4 hari selama 10.000 tahun).
 
 ## Cara Kerja Tahun Kabisat Hijriyah
-Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
+Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
 
 ## Skrip Teknis
 Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:

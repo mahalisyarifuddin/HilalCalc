@@ -54,52 +54,42 @@ These criteria are used for regional and global religious coordination.
   - **Timeline**: Visibility must be achieved anywhere globally before Fajr in Wellington, New Zealand.
 
 ### 2. Custom Analytical Criteria (1-10,000 AH)
-To model long-term historical trends and optimize global approximations, we use a custom **Composite Ground Truth**.
+To model long-term historical trends and optimize global approximations, we use a **Global Composite Scenario** that unapologetically accounts for both the western and eastern hemispheres.
 
 **Composite Rule:**
-A month starts if the moon satisfies MABBIMS visibility (Alt ≥ 3°, Elong ≥ 6.4°) in **Adak, Alaska** (the westernmost inhabited point) while being physically above the horizon (Altitude ≥ 0°) at **Viwa Island, Fiji**, representing the easternmost point of the Islamic day cycle.
+A month starts if the moon satisfies MABBIMS visibility (Alt ≥ 3°, Elong ≥ 6.4°) in **Adak, Alaska** (representing the westernmost inhabited point) AND is physically above the horizon (Altitude ≥ 0°) at **Viwa Island, Fiji** (representing the easternmost point of the Islamic day cycle).
 
 ## Statistical Analysis: Simultaneity Rate
 Simulated over 120,000 months (1-10,000 AH) comparing MABBIMS vs. KHGT:
-- **Overall Rate**: **46.49%**
-- **Ritual Months**: **46.36%** (Ramadan, Shawwal, Dhu al-Hijjah)
+- **Overall Rate**: **46.60%**
+- **Ritual Months**: **46.49%** (Ramadan, Shawwal, Dhu al-Hijjah)
 
-These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in approximately 54% of months.
+These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in more than 53% of months.
 
 ## Optimized Results & Benchmarks
 
 ### 1. Optimized Global Formula
-The derived linear formula for the Julian Date (JD) of a Hijri date is:
-`JD = 1948440 + floor(29.5305742461 * Index - 0.242938) + Day - 1`
+The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Global Composite Scenario) is:
+`JD = 1948439 + floor(29.5305742461 * Index + 0.757062) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
-### 2. Local Threshold Benchmarks
-Analysis against 120,000 months (1-10,000 AH) highlights the tension between global criteria and local sighting reality. By anchoring the calendar to the westernmost edge (Adak) to prevent western observers from "waiting," we observe a significant divergence for the religious center:
-- **Adak (Anchor)**: Altitude ≥ 3°, Elongation ≥ 6.4° (**100.00%** accuracy).
-- **Mecca (Local)**: Altitude ≥ 0°, Elongation ≥ 0° (**79.90%** accuracy).
+### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
+Comparison of approximation methods against the Global Composite Scenario (1-10,000 AH). These percentages reflect how well each optimization predicts the composite criteria.
 
-*Observation: Shifting the global anchor westward to achieve universality often "throws Mecca under the bus," as local visibility in Mecca becomes an unreliable predictor for a western-anchored global start, failing to match in ~20% of months even with zero thresholds.*
+| Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
+| :--- | :--------------------------- | :----------- | :------------- | :--------------- |
+| 1.   | **Optimized Linear Formula** | **56.17%**   | **56.38%**     | **67,400**       |
+| 2.   | Modular Tabular (k=29)       | 23.81%       | 23.51%         | 28,574           |
+| 3.   | Traditional (Kuwaiti)        | 12.23%       | 12.11%         | 14,677           |
 
-### 3. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
-Comparison of approximation methods against the Composite Ground Truth (1-10,000 AH).
-
-| Rank | Method                    | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
-| :--- | :------------------------ | :----------- | :------------- | :--------------- |
-| 1.   | **Global Linear Formula** | **56.17%**   | **56.38%**     | **67,400**       |
-| 2.   | Global Tabular (30Y DP)   | 41.43%       | 41.65%         | 49,716           |
-| 3.   | Global Tabular (30Y k=29) | 41.43%       | 41.65%         | 49,715           |
-| 4.   | Traditional (Scheme I)    | 35.03%       | 34.50%         | 42,034           |
-| 5.   | Traditional (Kuwaiti)     | 32.85%       | 32.23%         | 39,418           |
-
-- **DP**: Leap years optimized via Dynamic Programming.
-- **k=29**: Optimized modular constant for `(11y + k) % 30 < 11`.
-- **Note**: The linear approach models long-term lunar drift, providing a **~25% absolute accuracy gain** over fixed tabular cycles.
+- **k=29**: Optimal modular constant for `(11y + k) % 30 < 11`.
+- **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)
 Analysis of cycle lengths (L=10 to 1000) identifies **L=30** as the primary knee point. Its leap year ratio (11/30 ≈ 0.3667) perfectly balances simplicity with the astronomical mean lunar year (drift of only ~4 days over 10,000 years).
 
 ## How Hijri Leap Years Work
-The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). In leap years, a single day is added to the 12th month, **Dhu al-Hijjah**.
+The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). Modular calendars use the formula `(11y + k) mod 30 < 11` to distribute these leap years. In leap years, a single day is added to the 12th month, **Dhu al-Hijjah**.
 
 ## Technical Scripts
 The `scripts/` directory contains the Python tools used for data generation and optimization:

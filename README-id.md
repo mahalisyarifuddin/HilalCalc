@@ -73,7 +73,11 @@ Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah (diopt
 `JD = 1948439 + floor(29.5305742461 * Index + 0.757062) + Hari - 1`
 *(Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
-### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
+### 2. Tolok Ukur Ambang Batas Lokal
+Analisis terhadap 120.000 bulan (1-10.000 H) menyoroti akurasi prediktif ambang batas lokal terhadap Skenario Komposit Global.
+- **Mekkah (Lokal)**: Tinggi ≥ 0°, Elongasi ≥ 0° (**79,90%** akurasi).
+
+### 3. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
 Perbandingan metode aproksimasi terhadap Skenario Komposit Global (1-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria komposit.
 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |

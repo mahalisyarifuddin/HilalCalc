@@ -73,7 +73,11 @@ The derived linear formula for the Julian Date (JD) of a Hijri date (optimized f
 `JD = 1948439 + floor(29.5305742461 * Index + 0.757062) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
-### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
+### 2. Local Threshold Benchmarks
+Analysis against 120,000 months (1-10,000 AH) highlights the predictive accuracy of local thresholds against the Global Composite Scenario.
+- **Mecca (Local)**: Altitude ≥ 0°, Elongation ≥ 0° (**79.90%** accuracy).
+
+### 3. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
 Comparison of approximation methods against the Global Composite Scenario (1-10,000 AH). These percentages reflect how well each optimization predicts the composite criteria.
 
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |

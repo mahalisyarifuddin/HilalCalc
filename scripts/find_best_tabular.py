@@ -1,5 +1,6 @@
 import csv
 import os
+from collections import Counter
 
 def get_tabular_jd(Index, k):
     cycle = Index // 360
@@ -14,20 +15,6 @@ def get_tabular_jd(Index, k):
     month_days = (m_in_year * 59 + 1) // 2 # Equivalent to Math.ceil(m * 29.5)
 
     return 1948439 + cycle * 10631 + y_in_cycle * 354 + leaps + month_days
-
-def evaluate(k, data, is_oblig):
-    matches = 0
-    oblig_matches = 0
-    total_oblig = sum(is_oblig)
-
-    for i, (idx, target_jd) in enumerate(data):
-        pred_jd = get_tabular_jd(idx, k)
-        if pred_jd == target_jd:
-            matches += 1
-            if is_oblig[i]:
-                oblig_matches += 1
-
-    return matches, (matches / len(data)) * 100, oblig_matches, (oblig_matches / total_oblig) * 100
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -44,23 +31,22 @@ def main():
         print(f"{csv_file} not found.")
         return
 
-    oblig_indices = {8, 9, 11}
-    is_oblig = [(idx % 12) in oblig_indices for idx, _ in data]
-
-    print("| k | Matches | Accuracy (%) | Oblig. Matches | Oblig. Accuracy (%) |")
-    print("|---|---------|--------------|----------------|---------------------|")
-
-    best_k = -1
-    best_score = -1
+    print("| k | -2 days | -1 day | 0 days (Acc) | +1 day | +2 days |")
+    print("|---|---------|--------|--------------|--------|---------|")
 
     for k in range(30):
-        matches, pct, o_matches, o_pct = evaluate(k, data, is_oblig)
-        if matches > best_score:
-            best_score = matches
-            best_k = k
-        print(f"| {k:2d} | {matches:7d} | {pct:12.2f}% | {o_matches:14d} | {o_pct:19.2f}% |")
+        diffs = []
+        for idx, target_jd in data:
+            pred_jd = get_tabular_jd(idx, k)
+            diffs.append(target_jd - pred_jd)
 
-    print(f"\nBest k: {best_k}")
+        counts = Counter(diffs)
+        total = len(data)
+
+        def get_pct(d):
+            return (counts.get(d, 0) / total) * 100
+
+        print(f"| {k:2d} | {get_pct(-2):7.2f}% | {get_pct(-1):6.2f}% | {get_pct(0):12.2f}% | {get_pct(1):6.2f}% | {get_pct(2):7.2f}% |")
 
 if __name__ == "__main__":
     main()

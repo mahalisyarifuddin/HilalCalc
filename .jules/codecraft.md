@@ -9,3 +9,8 @@
 **Mode:** Palette
 **Learning:** The codebase used empty `<label>` elements for alignment in flex containers, which is brittle. `align-items: flex-end` is the robust solution here.
 **Action:** Inspect form layouts for similar hacks before attempting other UI changes.
+
+## 2024-05-09 - [Avoid Proxy Anti-Pattern for DOM Access]
+**Mode:** Razor
+**Learning:** Replaced a cached DOM mapping object with an ES6 `Proxy` querying `document.getElementById` on every access. It was rejected because the performance penalty of dynamic DOM querying outweighs the conciseness.
+**Action:** Preserve explicit one-time DOM query mapping objects instead of relying on dynamic proxies.

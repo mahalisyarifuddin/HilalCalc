@@ -83,10 +83,10 @@ Comparison of approximation methods against the Global Composite Scenario (1-10,
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
 | 1.   | **Optimized Linear Formula** | **56.17%**   | **56.38%**     | **67,400**       |
-| 2.   | Modular Tabular (k=29)       | 23.81%       | 23.51%         | 28,574           |
+| 2.   | Modular Tabular (k=29)       | 41.32%       | 41.51%         | 47,569           |
 | 3.   | Traditional (Kuwaiti)        | 12.23%       | 12.11%         | 14,677           |
 
-- **k=29**: Optimal modular constant for `(11y + k) % 30 < 11`.
+- **k=29**: Optimal modular constant for `(11y + k) % 30 < 11`. Optimized with Epoch JD 1948086 (0 AH).
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)

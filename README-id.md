@@ -83,10 +83,10 @@ Perbandingan metode aproksimasi terhadap Skenario Komposit Global (1-10.000 H). 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :------------------------- | :---------- | :--------- | :-------------- |
 | 1.        | **Rumus Linear Teroptimasi** | **56,17%**  | **56,38%** | **67.400**      |
-| 2.        | Tabular Modular (k=29)     | 23,81%      | 23,51%     | 28.574          |
+| 2.        | Tabular Modular (k=29)     | 41,32%      | 41,51%     | 47.569          |
 | 3.        | Tradisional (Kuwaiti)      | 12,23%      | 12,11%     | 14.677          |
 
-- **k=29**: Konstanta modular yang dioptimalkan untuk `(11y + k) % 30 < 11`.
+- **k=29**: Konstanta modular optimal untuk `(11y + k) % 30 < 11`. Dioptimasi dengan Epoh JD 1948086 (0 H).
 - **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)

@@ -2,7 +2,7 @@ import csv
 import os
 from collections import Counter
 
-def get_tabular_jd(Index, k):
+def get_tabular_jd(Index, k, epoch):
     cycle = Index // 360
     idx_in_cycle = Index % 360
     y_in_cycle = idx_in_cycle // 12
@@ -11,7 +11,30 @@ def get_tabular_jd(Index, k):
     leaps = (11 * y_in_cycle + k) // 30
     month_days = (m_in_year * 59 + 1) // 2
 
-    return 1948439 + cycle * 10631 + y_in_cycle * 354 + leaps + month_days
+    return epoch + cycle * 10631 + y_in_cycle * 354 + leaps + month_days
+
+def print_dist(epoch, k, data):
+    diffs = []
+    for idx, target_jd in data:
+        pred_jd = get_tabular_jd(idx, k, epoch)
+        diffs.append(target_jd - pred_jd)
+
+    counts = Counter(diffs)
+    total = len(data)
+
+    print(f"\nCorrection Offset Distribution for Epoch {epoch}, k={k}:")
+    print("| Offset | Months | Percentage |")
+    print("|--------|--------|------------|")
+
+    for d in range(-5, 6):
+        count = counts.get(d, 0)
+        pct = (count / total) * 100
+        print(f"| {d: >6} | {count: >6} | {pct:10.2f}% |")
+
+    acc = (counts.get(0, 0) / total) * 100
+    within_one = ( (counts.get(-1, 0) + counts.get(0, 0) + counts.get(1, 0)) / total) * 100
+    print(f"Accuracy (0-day): {acc:.2f}%")
+    print(f"Within +/- 1 day: {within_one:.2f}%")
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -28,23 +51,8 @@ def main():
         print(f"{csv_file} not found.")
         return
 
-    k = 29
-    diffs = []
-    for idx, target_jd in data:
-        pred_jd = get_tabular_jd(idx, k)
-        diffs.append(target_jd - pred_jd)
-
-    counts = Counter(diffs)
-    total = len(data)
-
-    print(f"Correction Offset Distribution for k={k} (1-10,000 AH):")
-    print("| Offset | Months | Percentage |")
-    print("|--------|--------|------------|")
-
-    for d in range(-5, 6):
-        count = counts.get(d, 0)
-        pct = (count / total) * 100
-        print(f"| {d: >6} | {count: >6} | {pct:10.2f}% |")
+    print_dist(1948439, 29, data)
+    print_dist(1948440, 29, data)
 
 if __name__ == "__main__":
     main()

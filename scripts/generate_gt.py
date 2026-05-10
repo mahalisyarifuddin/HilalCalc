@@ -18,8 +18,8 @@ def generate():
 	adak_obs = astronomy.Observer(adak_lat, adak_lon, 0)
 	viwa_obs = astronomy.Observer(viwa_lat, viwa_lon, 0)
 
-	# Start: 1 Muharram 1 AH = 1948439 (Noon)
-	initial_jd = 1948439
+	# Start: 1 Muharram 0 AH = 1948086 (Noon)
+	initial_jd = 1948086
 	total_months = 120000
 
 	script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -57,7 +57,7 @@ def generate():
 			current_jd += 29 if adak_ok and viwa_ok else 30
 			writer.writerow([i + 1, current_jd])
 
-			if (i + 1) % 10000 == 0:
+			if (i + 1) % 5000 == 0:
 				elapsed = time.time() - start_time
 				print(f"Processed {i + 1} months ({elapsed:.2f}s)")
 

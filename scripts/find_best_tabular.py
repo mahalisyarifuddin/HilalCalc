@@ -12,7 +12,7 @@ def get_tabular_jd(Index, leap_years):
         days += 355 if (y + 1) in leap_years else 354
     for m in range(m_in_year):
         days += 30 if m % 2 == 0 else 29
-    return 1948439 + days
+    return 1948086 + days
 
 def evaluate(leap_years, data, is_oblig):
     matches = 0

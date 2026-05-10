@@ -14,7 +14,7 @@ def verify_gt_quick():
         reader = csv.reader(f)
         next(reader) # skip header
 
-        current_jd = 1948439
+        current_jd = 1948086
         row0 = next(reader)
         print(f"Index 0: {row0[1]}")
 

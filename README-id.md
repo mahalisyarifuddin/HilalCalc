@@ -86,7 +86,7 @@ Perbandingan metode aproksimasi terhadap Skenario Komposit Global (0-10.000 H). 
 | 2.        | Tabular Modular (k=1)      | 41,49%      | 41,76%     | 49.792          |
 | 3.        | Tradisional (Kuwaiti)      | 35,03%      | 35,40%     | 42.032          |
 
-- **k=1**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, asumsi 0 H adalah Tahun 0.
+- **k=1**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, asumsi 0 H adalah Tahun 30.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
 Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=1) dan ground truth komposit (0-10.000 H).
@@ -106,7 +106,7 @@ Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=1
 Analisis panjang siklus (L=10 hingga 1000) mengidentifikasi **L=30** sebagai knee point utama. Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran hanya ~4 hari selama 10.000 tahun).
 
 ## Cara Kerja Tahun Kabisat Hijriyah
-Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
+Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat (3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30), satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**. 0 H setara dengan Tahun 30 dalam siklus.
 
 ## Skrip Teknis
 Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:

@@ -1155,8 +1155,8 @@
 						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
-						$('formulaDisplay').textContent = `Leap Year: (11·Y + 1) mod 30 < 11\nJD = 1948086 + Cycle·10631 + Y·354 + Leaps(Y) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(Y) = ⌊(11·Y + 20) / 30⌋  (Y = year in cycle, 0 = year 0 AH)`;
-						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086. ${tr.leapYears}: 0, 3, 6, 9, 11, 14, 17, 19, 22, 25, 28 ${tr.ofCycle}.</i>`;
+						$('formulaDisplay').textContent = `Leap Year: (11·Y + 1) mod 30 < 11\nJD = 1948086 + Cycle·10631 + Y·354 + Leaps(Y) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(Y) = ⌊(11·Y + 20) / 30⌋  (Y = Hijri Year)`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086 (Year 30). ${tr.leapYears}: 3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30 ${tr.ofCycle}.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescTabular;
 					}
 				}

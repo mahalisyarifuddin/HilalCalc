@@ -86,7 +86,7 @@ Comparison of approximation methods against the Global Composite Scenario (0-10,
 | 2.   | Modular Tabular (k=1)        | 41.49%       | 41.76%     | 49,792           |
 | 3.   | Traditional (Kuwaiti)        | 35.03%       | 35.40%     | 42,032           |
 
-- **k=1**: Standard modular constant for `(11y + k) % 30 < 11`, assuming 0 AH is Year 0.
+- **k=1**: Standard modular constant for `(11y + k) % 30 < 11`, assuming 0 AH is Year 30.
 
 #### Tabular Correction Distribution (+/- 5 Days)
 The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=1) and the composite ground truth (0-10,000 AH).
@@ -106,7 +106,7 @@ The distribution of day-level variance between the arithmetic tabular Hijri cale
 Analysis of cycle lengths (L=10 to 1000) identifies **L=30** as the primary knee point. Its leap year ratio (11/30 ≈ 0.3667) perfectly balances simplicity with the astronomical mean lunar year (drift of only ~4 days over 10,000 years).
 
 ## How Hijri Leap Years Work
-The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). Modular calendars use the formula `(11y + k) mod 30 < 11` to distribute these leap years. In leap years, a single day is added to the 12th month, **Dhu al-Hijjah**.
+The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). Modular calendars use the formula `(11y + k) mod 30 < 11` to distribute these leap years. In leap years (3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30), a single day is added to the 12th month, **Dhu al-Hijjah**. 0 AH corresponds to Year 30 of the cycle.
 
 ## Technical Scripts
 The `scripts/` directory contains the Python tools used for data generation and optimization:

@@ -349,6 +349,7 @@
 				return jdToDate(ut + state.AE_OFFSET);
 			}
 
+
 			function updateLang() {
 				state.lang = elements.language.value;
 				saveState();
@@ -522,7 +523,7 @@
 
 			elements.goBtn.onclick = calculate;
 
-			function goToday() {
+			function goToday(runCalc = true) {
 				const now = new Date();
 				const jd = now.getTime() / 86400000 + 2440587.5;
 				const index = Math.floor((jd - 1948439 - 0.757062 + 0.5) / 29.5305742461);
@@ -530,15 +531,11 @@
 				state.month = (index % 12) + 1;
 				elements.hYearInput.value = state.year;
 				elements.hMonthInput.value = state.month;
-				calculate();
+				if (runCalc) calculate();
 			}
 			elements.todayBtn.onclick = goToday;
 
-			const now = new Date();
-			const jd = now.getTime() / 86400000 + 2440587.5;
-			const index = Math.floor((jd - 1948439 - 0.757062 + 0.5) / 29.5305742461);
-			state.year = Math.floor(index / 12) + 1;
-			state.month = (index % 12) + 1;
+			goToday(false);
 
 			loadState();
 			elements.hYearInput.value = state.year;

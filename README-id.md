@@ -83,10 +83,10 @@ Perbandingan metode aproksimasi terhadap Skenario Komposit Global (0-10.000 H). 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :------------------------- | :---------- | :--------- | :-------------- |
 | 1.        | **Rumus Linear Teroptimasi** | **56,28%**  | **56,53%** | **67.536**      |
-| 2.        | Tabular Modular (k=1)      | 41,49%      | 41,76%     | 49.792          |
+| 2.        | Tabular Modular (k=1)      | 41,49%      | 41,76%     | 49.793          |
 | 3.        | Tradisional (Kuwaiti)      | 35,03%      | 35,40%     | 42.032          |
 
-- **k=1**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, asumsi 0 H adalah Tahun 30.
+- **k=1**: Konstanta modular standar untuk `((11y + k) mod 30) < 11`, mengasumsikan 0 H adalah Tahun 30.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
 Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=1) dan ground truth komposit (0-10.000 H).

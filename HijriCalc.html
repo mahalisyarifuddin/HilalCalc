@@ -1155,8 +1155,8 @@
 						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
-						$('formulaDisplay').textContent = `Leap Year: (11·Y + 29) mod 30 < 11\nJD = 1948086 + Cycle·10631 + Y·354 + Leaps(Y) + ⌈M·29.5⌉ + Day − 1\nYear 0 = Year 30 in 30-year cycle`;
-						$('formulaNote').innerHTML = `<i>Modular cycle (k=29). ${tr.leapYears}: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28 ${tr.ofCycle}.</i>`;
+						$('formulaDisplay').textContent = `Leap Year: (11·Y + 29) mod 30 < 11\nJD = 1948086 + Cycle·10631 + Y·354 + Leaps(Y) + ⌈M·29.5⌉ + Day − 1\nLeaps(Y) = ⌊(11·Y + 18) / 30⌋  (Y = year in cycle, 0 = year 0 AH)`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086. ${tr.leapYears}: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28 ${tr.ofCycle}.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescTabular;
 					}
 				}
@@ -1260,21 +1260,28 @@
 					return (Math.floor(jd + 1.5) % 7);
 				}
 
+				// ── Epoch unified: both linear and tabular use JD 1948086
+				//    (= 1 Muharram 0 AH).  idx = year*12 + (month-1).
+				//
+				// Tabular cumulative-leap formula: Leaps(yc) = ⌊(11·yc + 18) / 30⌋
+				//   where yc is 0-indexed from year 0 AH within the 30-year cycle.
+				//   This is derived by shifting the classical ⌊(11·yc + 29) / 30⌋
+				//   (which counts from year 1 AH) back by one year.
 				linMonthStartJD(idx) {
 					if (state.calcMode === 'tabular') {
-						const off = idx - 12;
+						const off = idx;
 						const cyc = Math.floor(off / 360);
 						const rem = ((off % 360) + 360) % 360;
 						const yc = Math.floor(rem / 12);
 						const mc = rem % 12;
-						const leaps = Math.floor((11 * yc + 29) / 30);
-						return 1948440 + cyc * 10631 + yc * 354 + leaps + Math.ceil(mc * 29.5);
+						const leaps = Math.floor((11 * yc + 18) / 30);
+						return 1948086 + cyc * 10631 + yc * 354 + leaps + Math.ceil(mc * 29.5);
 					}
 					return 1948086 + Math.floor(29.53056638319 * idx);
 				}
 				linIdxFromJD(jd) {
 					if (state.calcMode === 'tabular') {
-						return Math.floor((jd - 1948440 + 0.5) / 29.530555) + 12;
+						return Math.floor((jd - 1948086 + 0.5) / 29.530555);
 					}
 					return Math.floor((jd - 1948086 + 0.5) / 29.53056638319);
 				}

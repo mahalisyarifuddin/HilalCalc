@@ -83,10 +83,10 @@ Comparison of approximation methods against the Global Composite Scenario (0-10,
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
 | 1.   | **Optimized Linear Formula** | **56.28%**   | **56.53%**     | **67,536**       |
-| 2.   | Modular Tabular (k=1)        | 41.49%       | 41.76%     | 49,792           |
+| 2.   | Modular Tabular (k=1)        | 41.49%       | 41.76%     | 49,793           |
 | 3.   | Traditional (Kuwaiti)        | 35.03%       | 35.40%     | 42,032           |
 
-- **k=1**: Standard modular constant for `(11y + k) % 30 < 11`, assuming 0 AH is Year 30.
+- **k=1**: Standard modular constant for `((11y + k) mod 30) < 11`, assuming 0 AH is Year 30.
 
 #### Tabular Correction Distribution (+/- 5 Days)
 The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=1) and the composite ground truth (0-10,000 AH).

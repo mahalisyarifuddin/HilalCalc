@@ -1155,8 +1155,8 @@
 						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
-						$('formulaDisplay').textContent = `Leap Year: (11·Y + 1) mod 30 < 11\nJD = 1948086 + Cycle·10631 + Y·354 + Leaps(Y) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(Y) = ⌊(11·Y + 20) / 30⌋  (Y = Hijri Year)`;
-						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086 (Year 30). ${tr.leapYears}: 3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30 ${tr.ofCycle}.</i>`;
+						$('formulaDisplay').textContent = `Leap Year: ((11·Y + 1) mod 30) < 11\nJD = 1948086 + Cycle·10631 + yc·354 + Leaps(yc) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(yc) = ⌊(11·yc + 20) / 30⌋`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086. Y = cycle year 1–30 (0 AH = Year 30). yc = years since 0 AH (0–29). M = month 1–12. ${tr.leapYears}: 3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30 ${tr.ofCycle}.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescTabular;
 					}
 				}
@@ -1263,10 +1263,9 @@
 				// ── Epoch unified: both linear and tabular use JD 1948086
 				//    (= 1 Muharram 0 AH).  idx = year*12 + (month-1).
 				//
-				// Tabular cumulative-leap formula: Leaps(yc) = ⌊(11·yc + 18) / 30⌋
-				//   where yc is 0-indexed from year 0 AH within the 30-year cycle.
-				//   This is derived by shifting the classical ⌊(11·yc + 29) / 30⌋
-				//   (which counts from year 1 AH) back by one year.
+				// Tabular cumulative-leap formula: Leaps(yc) = ⌊(11·yc + 20) / 30⌋
+				//   where yc is 0-indexed from year 0 AH.
+				//   Based on modular formula ((11*Y + 1) mod 30) < 11 where Year 0 AH is Year 30.
 				linMonthStartJD(idx) {
 					if (state.calcMode === 'tabular') {
 						const off = idx;

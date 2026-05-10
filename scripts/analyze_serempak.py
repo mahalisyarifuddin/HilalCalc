@@ -75,7 +75,7 @@ def process_month(args):
     return sim, h_month in [9, 10, 12]
 
 def analyze(total_years=10000):
-    current_time_ut = -503115.0
+    current_time_ut = -503459.0
     month_conjs = []
     for i in range(total_years * 12):
         conj = astronomy.SearchMoonPhase(0, astronomy.Time(current_time_ut), 40)

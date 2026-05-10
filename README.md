@@ -83,23 +83,23 @@ Comparison of approximation methods against the Global Composite Scenario (0-10,
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
 | 1.   | **Optimized Linear Formula** | **56.28%**   | **56.53%**     | **67,536**       |
-| 2.   | Modular Tabular (k=29)       | 41.42%       | 41.22%     | 49,708           |
-| 3.   | Traditional (Kuwaiti)        | 38.77%       | 38.65%     | 46,520           |
+| 2.   | Modular Tabular (k=1)        | 41.49%       | 41.76%     | 49,792           |
+| 3.   | Traditional (Kuwaiti)        | 35.03%       | 35.40%     | 42,032           |
 
-- **k=29**: Standard modular constant for `(11y + k) % 30 < 11`, assuming 0 AH is Year 30.
+- **k=1**: Standard modular constant for `(11y + k) % 30 < 11`, assuming 0 AH is Year 0.
 
 #### Tabular Correction Distribution (+/- 5 Days)
-The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29) and the composite ground truth (0-10,000 AH).
+The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=1) and the composite ground truth (0-10,000 AH).
 
 | Offset | Matches | Accuracy (%) | Cumulative (%) |
 | :----- | :------ | :----------- | :------------- |
-| -3     | 330     | 0.27%        | 0.27%          |
-| -2     | 7,696   | 6.41%        | 6.69%          |
-| -1     | 28,578  | 23.82%       | 30.50%         |
-| **0**  | 49,708  | 41.42%       | 71.93%         |
-| +1     | 27,756  | 23.13%       | 95.06%         |
-| +2     | 5,733   | 4.78%        | 99.83%         |
-| +3     | 199     | 0.17%        | 100.00%        |
+| -3     | 393     | 0.33%        | 0.33%          |
+| -2     | 8,193   | 6.83%        | 7.16%          |
+| -1     | 29,448  | 24.54%       | 31.70%         |
+| **0**  | 49,792  | 41.49%       | 73.19%         |
+| +1     | 26,651  | 22.21%       | 95.40%         |
+| +2     | 5,356   | 4.46%        | 99.86%         |
+| +3     | 167     | 0.14%        | 100.00%        |
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)

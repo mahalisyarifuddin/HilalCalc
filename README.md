@@ -86,7 +86,20 @@ Comparison of approximation methods against the Global Composite Scenario (0-10,
 | 2.   | Modular Tabular (k=29)       | 41.42%       | 41.22%     | 49,708           |
 | 3.   | Traditional (Kuwaiti)        | 38.77%       | 38.65%     | 46,520           |
 
-- **k=29**: Standard modular constant for `(11y + k) % 30 < 11`, optimized for Year 1 AH = Year 1.
+- **k=29**: Standard modular constant for `(11y + k) % 30 < 11`, assuming 0 AH is Year 30.
+
+#### Tabular Correction Distribution (+/- 5 Days)
+The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29) and the composite ground truth (0-10,000 AH).
+
+| Offset | Matches | Accuracy (%) | Cumulative (%) |
+| :----- | :------ | :----------- | :------------- |
+| -3     | 330     | 0.27%        | 0.27%          |
+| -2     | 7,696   | 6.41%        | 6.69%          |
+| -1     | 28,578  | 23.82%       | 30.50%         |
+| **0**  | 49,708  | 41.42%       | 71.93%         |
+| +1     | 27,756  | 23.13%       | 95.06%         |
+| +2     | 5,733   | 4.78%        | 99.83%         |
+| +3     | 199     | 0.17%        | 100.00%        |
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)

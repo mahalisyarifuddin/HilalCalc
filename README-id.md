@@ -86,7 +86,20 @@ Perbandingan metode aproksimasi terhadap Skenario Komposit Global (0-10.000 H). 
 | 2.        | Tabular Modular (k=29)     | 41,42%      | 41,22%     | 49.708          |
 | 3.        | Tradisional (Kuwaiti)      | 38,77%      | 38,65%     | 46.520          |
 
-- **k=29**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, dioptimalkan untuk Tahun 1 H = Tahun 1.
+- **k=29**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, asumsi 0 H adalah Tahun 30.
+
+#### Distribusi Koreksi Tabular (+/- 5 Hari)
+Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=29) dan ground truth komposit (0-10.000 H).
+
+| Offset | Cocok   | Akurasi (%) | Kumulatif (%)  |
+| :----- | :------ | :---------- | :------------- |
+| -3     | 330     | 0,27%       | 0,27%          |
+| -2     | 7.696   | 6,41%       | 6,69%          |
+| -1     | 28.578  | 23,82%      | 30,50%         |
+| **0**  | 49.708  | 41,42%      | 71,93%         |
+| +1     | 27.756  | 23,13%      | 95,06%         |
+| +2     | 5.733   | 4,78%       | 99,83%         |
+| +3     | 199     | 0,17%       | 100,00%        |
 - **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)

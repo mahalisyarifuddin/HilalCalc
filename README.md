@@ -53,14 +53,14 @@ These criteria are used for regional and global religious coordination.
   - **Thresholds**: Altitude (Geocentric) ≥ 5°, Elongation (Geocentric) ≥ 8°.
   - **Timeline**: Visibility must be achieved anywhere globally before Fajr in Wellington, New Zealand.
 
-### 2. Custom Analytical Criteria (1-10,000 AH)
+### 2. Custom Analytical Criteria (0-10,000 AH)
 To model long-term historical trends and optimize global approximations, we use a **Global Composite Scenario** that unapologetically accounts for both the western and eastern hemispheres.
 
 **Composite Rule:**
 A month starts if the moon satisfies MABBIMS visibility (Alt ≥ 3°, Elong ≥ 6.4°) in **Adak, Alaska** (representing the westernmost inhabited point) AND is physically above the horizon (Altitude ≥ 0°) at **Viwa Island, Fiji** (representing the easternmost point of the Islamic day cycle).
 
 ## Statistical Analysis: Simultaneity Rate
-Simulated over 120,000 months (1-10,000 AH) comparing MABBIMS vs. KHGT:
+Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS vs. KHGT:
 - **Overall Rate**: **46.60%**
 - **Ritual Months**: **46.49%** (Ramadan, Shawwal, Dhu al-Hijjah)
 
@@ -70,23 +70,36 @@ These results indicate that differences in geographical anchoring and visibility
 
 ### 1. Optimized Global Formula
 The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Global Composite Scenario) is:
-`JD = 1948439 + floor(29.5305742461 * Index + 0.757062) + Day - 1`
-*(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
+`JD = 1948086 + floor(29.530573359 * Index - 0.569207) + Day - 1`
+*(Index = HijriYear * 12 + (HijriMonth - 1))*
 
 ### 2. Local Threshold Benchmarks
-Analysis against 120,000 months (1-10,000 AH) highlights the predictive accuracy of local thresholds against the Global Composite Scenario.
+Analysis against 120,000 months (0-10,000 AH) highlights the predictive accuracy of local thresholds against the Global Composite Scenario.
 - **Mecca (Local)**: Altitude ≥ 0°, Elongation ≥ 0° (**79.90%** accuracy).
 
 ### 3. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
-Comparison of approximation methods against the Global Composite Scenario (1-10,000 AH). These percentages reflect how well each optimization predicts the composite criteria.
+Comparison of approximation methods against the Global Composite Scenario (0-10,000 AH). These percentages reflect how well each optimization predicts the composite criteria.
 
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
-| 1.   | **Optimized Linear Formula** | **56.17%**   | **56.38%**     | **67,400**       |
-| 2.   | Modular Tabular (k=29)       | 23.81%       | 23.51%         | 28,574           |
-| 3.   | Traditional (Kuwaiti)        | 12.23%       | 12.11%         | 14,677           |
+| 1.   | **Optimized Linear Formula** | **56.28%**   | **56.53%**     | **67,536**       |
+| 2.   | Modular Tabular (k=29)       | 41.42%       | 41.22%     | 49,708           |
+| 3.   | Traditional (Kuwaiti)        | 38.77%       | 38.65%     | 46,520           |
 
-- **k=29**: Optimal modular constant for `(11y + k) % 30 < 11`.
+- **k=29**: Standard modular constant for `(11y + k) % 30 < 11`, assuming 0 AH is Year 30.
+
+#### Tabular Correction Distribution (+/- 5 Days)
+The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29) and the composite ground truth (0-10,000 AH).
+
+| Offset | Matches | Accuracy (%) | Cumulative (%) |
+| :----- | :------ | :----------- | :------------- |
+| -3     | 330     | 0.27%        | 0.27%          |
+| -2     | 7,696   | 6.41%        | 6.69%          |
+| -1     | 28,578  | 23.82%       | 30.50%         |
+| **0**  | 49,708  | 41.42%       | 71.93%         |
+| +1     | 27,756  | 23.13%       | 95.06%         |
+| +2     | 5,733   | 4.78%        | 99.83%         |
+| +3     | 199     | 0.17%        | 100.00%        |
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)

@@ -53,14 +53,14 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
   - **Ambang Batas**: Tinggi (Geosentrik) ≥ 5°, Elongasi (Geosentrik) ≥ 8°.
   - **Timeline**: Visibilitas harus tercapai di mana pun secara global sebelum Fajar di Wellington, Selandia Baru.
 
-### 2. Kriteria Analitis Kustom (1-10.000 H)
+### 2. Kriteria Analitis Kustom (0-10.000 H)
 Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Skenario Komposit Global** yang secara gamblang mempertimbangkan belahan bumi barat dan timur.
 
 **Aturan Komposit:**
 Bulan dimulai jika bulan memenuhi visibilitas MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°) di **Adak, Alaska** (mewakili titik berpenghuni paling barat) DAN secara fisik berada di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa, Fiji** (mewakili titik paling timur dari siklus hari Islam).
 
 ## Analisis Statistik: Tingkat Keserempakan
-Disimulasikan selama 120.000 bulan (1-10.000 H) membandingkan MABBIMS vs. KHGT:
+Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS vs. KHGT:
 - **Tingkat Total**: **46,60%**
 - **Bulan Ritual**: **46,49%** (Ramadan, Syawal, Dzulhijjah)
 
@@ -70,23 +70,36 @@ Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi 
 
 ### 1. Rumus Global Teroptimasi
 Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk Skenario Komposit Global) adalah:
-`JD = 1948439 + floor(29.5305742461 * Index + 0.757062) + Hari - 1`
-*(Index = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
+`JD = 1948086 + floor(29.530573359 * Index - 0.569207) + Hari - 1`
+*(Index = TahunHijriyah * 12 + (BulanHijriyah - 1))*
 
 ### 2. Tolok Ukur Ambang Batas Lokal
-Analisis terhadap 120.000 bulan (1-10.000 H) menyoroti akurasi prediktif ambang batas lokal terhadap Skenario Komposit Global.
+Analisis terhadap 120.000 bulan (0-10.000 H) menyoroti akurasi prediktif ambang batas lokal terhadap Skenario Komposit Global.
 - **Mekkah (Lokal)**: Tinggi ≥ 0°, Elongasi ≥ 0° (**79,90%** akurasi).
 
 ### 3. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
-Perbandingan metode aproksimasi terhadap Skenario Komposit Global (1-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria komposit.
+Perbandingan metode aproksimasi terhadap Skenario Komposit Global (0-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria komposit.
 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :------------------------- | :---------- | :--------- | :-------------- |
-| 1.        | **Rumus Linear Teroptimasi** | **56,17%**  | **56,38%** | **67.400**      |
-| 2.        | Tabular Modular (k=29)     | 23,81%      | 23,51%     | 28.574          |
-| 3.        | Tradisional (Kuwaiti)      | 12,23%      | 12,11%     | 14.677          |
+| 1.        | **Rumus Linear Teroptimasi** | **56,28%**  | **56,53%** | **67.536**      |
+| 2.        | Tabular Modular (k=29)     | 41,42%      | 41,22%     | 49.708          |
+| 3.        | Tradisional (Kuwaiti)      | 38,77%      | 38,65%     | 46.520          |
 
-- **k=29**: Konstanta modular yang dioptimalkan untuk `(11y + k) % 30 < 11`.
+- **k=29**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, asumsi 0 H adalah Tahun 30.
+
+#### Distribusi Koreksi Tabular (+/- 5 Hari)
+Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=29) dan ground truth komposit (0-10.000 H).
+
+| Offset | Cocok   | Akurasi (%) | Kumulatif (%)  |
+| :----- | :------ | :---------- | :------------- |
+| -3     | 330     | 0,27%       | 0,27%          |
+| -2     | 7.696   | 6,41%       | 6,69%          |
+| -1     | 28.578  | 23,82%      | 30,50%         |
+| **0**  | 49.708  | 41,42%      | 71,93%         |
+| +1     | 27.756  | 23,13%      | 95,06%         |
+| +2     | 5.733   | 4,78%       | 99,83%         |
+| +3     | 199     | 0,17%       | 100,00%        |
 - **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)

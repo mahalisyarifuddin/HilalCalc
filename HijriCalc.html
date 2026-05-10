@@ -692,8 +692,8 @@
 					today: 'Today',
 					formulaTitle: 'Methodology',
 					formulaDescMabbims: 'Local sighting simulation. MABBIMS: Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
-					formulaDescLinear: 'Global approximation (Global-Scale Composite). Accuracy: 56.17% (1–10000 AH).',
-					formulaDescTabular: 'Modular 30-year cycle. Accuracy: 23.81% (1–10000 AH).',
+					formulaDescLinear: 'Global approximation (Global-Scale Composite). Accuracy: 53.54% (0–10000 AH).',
+					formulaDescTabular: 'Modular 30-year cycle. Accuracy: 41.42% (0–10000 AH).',
 					epoch: 'Epoch',
 					leapYears: 'Leap years',
 					ofCycle: 'of 30-yr cycle',
@@ -759,8 +759,8 @@
 					today: 'Hari Ini',
 					formulaTitle: 'Metodologi',
 					formulaDescMabbims: 'Simulasi rukyat lokal. MABBIMS: Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.',
-					formulaDescLinear: 'Aproksimasi global (Komposit Global). Akurasi: 56.17% (1–10000 H).',
-					formulaDescTabular: 'Siklus modular 30 tahun. Akurasi: 23.81% (1–10000 H).',
+					formulaDescLinear: 'Aproksimasi global (Komposit Global). Akurasi: 53.54% (0–10000 H).',
+					formulaDescTabular: 'Siklus modular 30 tahun. Akurasi: 41.42% (0–10000 H).',
 					epoch: 'Epoh',
 					leapYears: 'Tahun kabisat',
 					ofCycle: 'dalam siklus 30 tahun',
@@ -1151,11 +1151,11 @@
 						$('formulaNote').innerHTML = `<i>${tr.footer}</i>`;
 						$('formulaDesc').textContent = tr.formulaDescMabbims;
 					} else if (mode === 'linear') {
-						$('formulaDisplay').textContent = `JD = 1948439 + floor(29.5305742461·N + 0.757062) + Day − 1\nN = (Year−1)·12 + Month−1`;
-						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 1 AH = JD 1948439.</i>`;
+						$('formulaDisplay').textContent = `JD = 1948086 + floor(29.53056638319·N) + Day − 1\nN = Year·12 + Month−1`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
-						$('formulaDisplay').textContent = `Leap Year: (11·Y + 29) mod 30 < 11\nJD = 1948439 + Cycle·10631 + Y·354 + Leaps(Y) + ⌈M·29.5⌉ + Day − 1`;
+						$('formulaDisplay').textContent = `Leap Year: (11·Y + 29) mod 30 < 11\nJD = 1948086 + Cycle·10631 + Y·354 + Leaps(Y) + ⌈M·29.5⌉ + Day − 1\nYear 0 = Year 30 in 30-year cycle`;
 						$('formulaNote').innerHTML = `<i>Modular cycle (k=29). ${tr.leapYears}: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28 ${tr.ofCycle}.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescTabular;
 					}
@@ -1262,21 +1262,25 @@
 
 				linMonthStartJD(idx) {
 					if (state.calcMode === 'tabular') {
-						const cyc = Math.floor(idx / 360)
-						  , ic = ((idx % 360) + 360) % 360
-						  , yc = Math.floor(ic / 12)
-						  , mc = ic % 12;
+						const off = idx - 12;
+						const cyc = Math.floor(off / 360);
+						const rem = ((off % 360) + 360) % 360;
+						const yc = Math.floor(rem / 12);
+						const mc = rem % 12;
 						const leaps = Math.floor((11 * yc + 29) / 30);
-						return 1948439 + cyc * 10631 + yc * 354 + leaps + Math.ceil(mc * 29.5);
+						return 1948440 + cyc * 10631 + yc * 354 + leaps + Math.ceil(mc * 29.5);
 					}
-					return 1948439 + Math.floor(29.5305742461 * idx + 0.757062);
+					return 1948086 + Math.floor(29.53056638319 * idx);
 				}
 				linIdxFromJD(jd) {
-					return Math.floor((jd - 1948439 + 0.5) / (state.calcMode === 'tabular' ? 29.530555 : 29.5305742461));
+					if (state.calcMode === 'tabular') {
+						return Math.floor((jd - 1948440 + 0.5) / 29.530555) + 12;
+					}
+					return Math.floor((jd - 1948086 + 0.5) / 29.53056638319);
 				}
 
 				hijriToGregorianLinear(hy, hm, hd) {
-					const idx = (hy - 1) * 12 + hm - 1;
+					const idx = hy * 12 + hm - 1;
 					return this.jdToDate(this.linMonthStartJD(idx) + hd - 1 + state.hijriAdj);
 				}
 				hijriToGregorian(hy, hm, hd) {
@@ -1298,7 +1302,7 @@
 					return {
 						day: d,
 						month: hm + 1,
-						year: Math.floor(idx / 12) + 1
+						year: Math.floor(idx / 12)
 					};
 				}
 				gregorianToHijri(date) {

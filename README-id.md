@@ -83,30 +83,30 @@ Perbandingan metode aproksimasi terhadap Skenario Komposit Global (0-10.000 H). 
 | Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :------------------------- | :---------- | :--------- | :-------------- |
 | 1.        | **Rumus Linear Teroptimasi** | **56,28%**  | **56,53%** | **67.536**      |
-| 2.        | Tabular Modular (k=29)     | 41,42%      | 41,22%     | 49.708          |
-| 3.        | Tradisional (Kuwaiti)      | 38,77%      | 38,65%     | 46.520          |
+| 2.        | Tabular Modular (k=1)      | 41,49%      | 41,76%     | 49.792          |
+| 3.        | Tradisional (Kuwaiti)      | 35,03%      | 35,40%     | 42.032          |
 
-- **k=29**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, asumsi 0 H adalah Tahun 30.
+- **k=1**: Konstanta modular standar untuk `(11y + k) % 30 < 11`, asumsi 0 H adalah Tahun 30.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
-Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=29) dan ground truth komposit (0-10.000 H).
+Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=1) dan ground truth komposit (0-10.000 H).
 
 | Offset | Cocok   | Akurasi (%) | Kumulatif (%)  |
 | :----- | :------ | :---------- | :------------- |
-| -3     | 330     | 0,27%       | 0,27%          |
-| -2     | 7.696   | 6,41%       | 6,69%          |
-| -1     | 28.578  | 23,82%      | 30,50%         |
-| **0**  | 49.708  | 41,42%      | 71,93%         |
-| +1     | 27.756  | 23,13%      | 95,06%         |
-| +2     | 5.733   | 4,78%       | 99,83%         |
-| +3     | 199     | 0,17%       | 100,00%        |
+| -3     | 393     | 0,33%       | 0,33%          |
+| -2     | 8.193   | 6,83%       | 7,16%          |
+| -1     | 29.448  | 24,54%      | 31,70%         |
+| **0**  | 49.792  | 41,49%      | 73,19%         |
+| +1     | 26.651  | 22,21%      | 95,40%         |
+| +2     | 5.356   | 4,46%       | 99,86%         |
+| +3     | 167     | 0,14%       | 100,00%        |
 - **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)
 Analisis panjang siklus (L=10 hingga 1000) mengidentifikasi **L=30** sebagai knee point utama. Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran hanya ~4 hari selama 10.000 tahun).
 
 ## Cara Kerja Tahun Kabisat Hijriyah
-Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat, satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**.
+Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat (3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30), satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**. 0 H setara dengan Tahun 30 dalam siklus.
 
 ## Skrip Teknis
 Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:

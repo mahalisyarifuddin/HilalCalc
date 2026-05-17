@@ -209,6 +209,10 @@
 					margin-bottom: .5rem;
 				}
 			}
+
+			.hidden {
+				display: none !important;
+			}
 		</style>
 	</head>
 	<body>
@@ -241,6 +245,11 @@
 					<option value="10">Shawwal</option>
 					<option value="11">Dhu al-Qi'dah</option>
 					<option value="12">Dhu al-Hijjah</option>
+				</select>
+				<select id="dhuDayInput" class="hidden">
+					<option value="0"></option>
+					<option value="8"></option>
+					<option value="9"></option>
 				</select>
 				<button id="goBtn" class="primary">Go</button>
 				<button id="todayBtn">Today</button>
@@ -280,6 +289,9 @@
 					alt: "Alt",
 					elong: "Elong",
 					today: "Today",
+					dhuStart: "1st Dhu al-Hijjah",
+					dhuArafat: "Day of Arafat",
+					dhuEid: "Eid al-Adha",
 					monthNames: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-ula", "Jumada al-akhira", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"]
 				},
 				id: {
@@ -294,6 +306,9 @@
 					alt: "Tinggi",
 					elong: "Elongasi",
 					today: "Hari Ini",
+					dhuStart: "1 Zulhijah",
+					dhuArafat: "Hari Arafah",
+					dhuEid: "Iduladha",
 					monthNames: ["Muharram", "Safar", "Rabi'ul Awal", "Rabi'ul Akhir", "Jumadil Ula", "Jumadil Akhira", "Rajab", "Sya'ban", "Ramadan", "Syawal", "Zulkaidah", "Zulhijah"]
 				}
 			};
@@ -326,6 +341,7 @@
 				theme: document.getElementById('theme'),
 				hYearInput: document.getElementById('hYearInput'),
 				hMonthInput: document.getElementById('hMonthInput'),
+				dhuDayInput: document.getElementById('dhuDayInput'),
 				prevBtn: document.getElementById('prevBtn'),
 				nextBtn: document.getElementById('nextBtn'),
 				goBtn: document.getElementById('goBtn'),
@@ -361,6 +377,12 @@
 				elements.todayBtn.textContent = strings.today;
 				for (let i = 0; i < 12; i++)
 					elements.hMonthInput.options[i].textContent = strings.monthNames[i];
+
+				const dhuOptions = elements.dhuDayInput.options;
+				dhuOptions[0].textContent = strings.dhuStart;
+				dhuOptions[1].textContent = strings.dhuArafat;
+				dhuOptions[2].textContent = strings.dhuEid;
+
 				calculate();
 			}
 
@@ -492,23 +514,29 @@
 				state.month = parseInt(elements.hMonthInput.value);
 				let res = getStartJD(state.year, state.month);
 
+				const isDhu = state.month === 12;
+				elements.dhuDayInput.classList.toggle('hidden', !isDhu);
+				const offset = isDhu ? parseInt(elements.dhuDayInput.value) : 0;
+
 				const strings = text[state.lang];
 
-				elements.dateAceh.textContent = formatDate(res.jdAceh);
-				elements.dateGic.textContent = formatDate(res.jdGic);
+				elements.dateAceh.textContent = formatDate(res.jdAceh + offset);
+				elements.dateGic.textContent = formatDate(res.jdGic + offset);
 
 				const formatInfo = (info, prefix) => prefix + (info.ut > 0 ? (utToDate(info.ut).toISOString().substring(11, 19) + " UTC<br>" + strings.alt + ": " + info.alt.toFixed(2) + "°, " + strings.elong + ": " + info.elong.toFixed(2) + "°") : "N/A");
 
 				elements.infoAceh.innerHTML = formatInfo(res.detailAceh, strings.acehInfo);
 				elements.infoGic.innerHTML = formatInfo(res.detailGic, strings.gicInfo);
 
-				const sim = Math.abs(res.jdAceh - res.jdGic) < 0.1;
+				const sim = Math.abs((res.jdAceh + offset) - (res.jdGic + offset)) < 0.1;
 				elements.verdict.textContent = strings[sim ? 'simultaneous' : 'divergent'];
 				elements.verdict.className = "verdict-box verdict-" + (sim ? "simultaneous" : "divergent");
 			}
 
 			elements.language.onchange = updateLang;
 			elements.theme.onchange = updateTheme;
+			elements.hMonthInput.onchange = calculate;
+			elements.dhuDayInput.onchange = calculate;
 
 			function navMonth(delta) {
 				const x = state.month - 1 + delta;

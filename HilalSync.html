@@ -558,6 +558,12 @@
 
 			elements.goBtn.onclick = calculate;
 
+			window.addEventListener('keydown', e => {
+				if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+				if (e.key === 'ArrowLeft') navMonth(-1);
+				if (e.key === 'ArrowRight') navMonth(1);
+			});
+
 			function goToday(runCalc = true) {
 				const now = new Date();
 				const jd = now.getTime() / 86400000 + 2440587.5;

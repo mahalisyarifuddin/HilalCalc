@@ -959,6 +959,12 @@
 					$('prevMonthBtn').onclick = ()=>this.navMonth(-1);
 					$('nextMonthBtn').onclick = ()=>this.navMonth(1);
 
+					window.addEventListener('keydown', e => {
+						if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+						if (e.key === 'PageUp' || (e.key === 'ArrowLeft' && e.ctrlKey)) { e.preventDefault(); this.navMonth(-1); }
+						if (e.key === 'PageDown' || (e.key === 'ArrowRight' && e.ctrlKey)) { e.preventDefault(); this.navMonth(1); }
+					});
+
 					$('calcMode').onchange = () => {
 						$('mabbimsSettings').classList.toggle('hidden', $('calcMode').value !== 'astronomic');
 					};

@@ -282,8 +282,8 @@
 					simultaneous: "SIMULTANEOUS",
 					divergent: "DIVERGENT",
 					statsTitle: "Simultaneity rate (1-10,000 AH)",
-					statsContent: "Overall: <b>46.60%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>46.49%</b>. Validated 100% against T. Djamaluddin's 1447 dataset.",
-					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally before Fajr in NZ, or Americas if Conjunction < Fajr NZ.",
+					statsContent: "Overall: <b>43.18%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>43.02%</b>. Validated against East Cape NZ (Fajr -18°).",
+					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–140°E, 5°N–10°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally before Fajr in East Cape NZ (-37.69°S, 178.55°E, -18°), or Americas if Conjunction < Fajr NZ. 5° grid.",
 					acehInfo: "Sunset in Archipelago: ",
 					gicInfo: "KHGT Deadline: ",
 					alt: "Alt",
@@ -299,8 +299,8 @@
 					simultaneous: "SEREMPAK",
 					divergent: "BERBEDA",
 					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
-					statsContent: "Total: <b>46,60%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>46,49%</b>.",
-					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° sebelum Fajar di NZ, atau Amerika jika Ijtimak < Fajar NZ.",
+					statsContent: "Total: <b>43,18%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>43,02%</b>.",
+					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–140°BT, 5°LU–10°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° sebelum Fajar di East Cape NZ (-37,69°LS, 178,55°BT, -18°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
 					acehInfo: "Maghrib di Kepulauan: ",
 					gicInfo: "Tenggat KHGT: ",
 					alt: "Tinggi",
@@ -411,8 +411,8 @@
 				const startTime = Astronomy.MakeTime(jdToDate(approxJD - 15));
 				const conj = Astronomy.SearchMoonPhase(0, startTime, 40);
 
-				const mabbimsLats = [7, 5, 3, 1, -1, -3, -5, -7, -9, -11];
-				const mabbimsLons = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 141];
+				const mabbimsLats = Array.from({ length: 4 }, (_, i) => 5 - i * 5);
+				const mabbimsLons = Array.from({ length: 10 }, (_, i) => 95 + i * 5);
 				
 				let jdAceh = null;
 				let detailAceh = null;
@@ -421,8 +421,8 @@
 					let searchTime = Astronomy.MakeTime(utToDate(conj.ut + day * 1.0));
 					let met = false;
 					
-					for (let lat of mabbimsLats) {
-						for (let lon of mabbimsLons) {
+					for (let lon of mabbimsLons) {
+						for (let lat of mabbimsLats) {
 							const obs = new Astronomy.Observer(lat, lon, 0);
 							const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, searchTime, 1.5);
 							
@@ -431,19 +431,23 @@
 								const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset, true);
 								const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
 								
-								const eqMT = Astronomy.Equator(Astronomy.Body.Moon, sunset, obs, true, true);
-								const ht = Astronomy.Horizon(sunset, obs, eqMT.ra, eqMT.dec, "normal").altitude;
-								
-								if (ht >= 3.0 && elongGeo >= 6.4) {
-									const jdCandidate = Math.floor(sunset.ut + state.AE_OFFSET + 0.5) + 0.5;
-									if (!jdAceh || jdCandidate < jdAceh) {
-										jdAceh = jdCandidate;
-										detailAceh = { ut: sunset.ut, alt: ht, elong: elongGeo };
+								if (elongGeo >= 6.4) {
+									const eqMT = Astronomy.Equator(Astronomy.Body.Moon, sunset, obs, true, true);
+									const ht = Astronomy.Horizon(sunset, obs, eqMT.ra, eqMT.dec, "normal").altitude;
+
+									if (ht >= 3.0) {
+										const jdCandidate = Math.floor(sunset.ut + state.AE_OFFSET + 0.5) + 0.5;
+										if (!jdAceh || jdCandidate < jdAceh) {
+											jdAceh = jdCandidate;
+											detailAceh = { ut: sunset.ut, alt: ht, elong: elongGeo };
+										}
+										met = true;
 									}
-									met = true;
 								}
 							}
+							if (met) break;
 						}
+						if (met) break;
 					}
 					if (met) break;
 				}
@@ -455,7 +459,7 @@
 					detailAceh = { ut: ss.ut, alt: -1, elong: -1 };
 				}
 
-				const nzObs = new Astronomy.Observer(-41.28, 174.77, 0);
+				const nzObs = new Astronomy.Observer(-37.689563, 178.550687, 0);
 				const fNext = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, conj, 1.5, -18.0);
 				
 				let jdGic, detailGic;
@@ -473,7 +477,8 @@
 						if (!fNZ || conjUT >= fNZ.ut) return null;
 
 						const dayEndUT = targetJD + 0.5 - state.AE_OFFSET;
-						const longitudes = [180, 165, 150, 135, 120, 105, 90, 75, 60, 45, 30, 15, 0, -15, -30, -45, -60, -75, -90, -105, -120, -135, -150, -165];
+						const longitudes = [];
+						for (let l = 180; l >= -180; l -= 5) longitudes.push(l);
 						
 						for (const lon of longitudes) {
 							const tSearch = Astronomy.MakeTime(jdToDate(targetJD - lon / 360.0));
@@ -485,11 +490,13 @@
 								const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
 								const e = Astronomy.AngleBetween(mVec, sVec);
 								
-								const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
-								const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
-								
-								if (h >= 5.0 && e >= 8.0) {
-									if (ss.ut <= dayEndUT || lon < -30) return { ut: ss.ut, alt: h, elong: e };
+								if (e >= 8.0) {
+									const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
+									const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
+
+									if (h >= 5.0) {
+										if (ss.ut <= dayEndUT || lon < -30) return { ut: ss.ut, alt: h, elong: e };
+									}
 								}
 							}
 						}
@@ -550,6 +557,12 @@
 			elements.nextBtn.onclick = () => navMonth(1);
 
 			elements.goBtn.onclick = calculate;
+
+			window.addEventListener('keydown', e => {
+				if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+				if (e.key === 'ArrowLeft') navMonth(-1);
+				if (e.key === 'ArrowRight') navMonth(1);
+			});
 
 			function goToday(runCalc = true) {
 				const now = new Date();

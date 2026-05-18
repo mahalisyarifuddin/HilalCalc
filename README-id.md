@@ -49,9 +49,9 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
 - **MABBIMS (2021)**: Utamanya digunakan di Asia Tenggara (Brunei, Indonesia, Malaysia, Singapura).
   - **Ambang Batas**: Tinggi (Toposentrik) ≥ 3°, Elongasi (Geosentrik) ≥ 6,4°.
   - **Referensi**: Banda Aceh (5,55° LU, 95,32° BT) pada saat matahari terbenam lokal.
-- **KHGT / GIC (2016)**: Kriteria Kalender Hijriyah Global Tunggal yang diadopsi di Istanbul.
-  - **Ambang Batas**: Tinggi (Geosentrik) ≥ 5°, Elongasi (Geosentrik) ≥ 8°.
-  - **Timeline**: Visibilitas harus tercapai di mana pun secara global sebelum Fajar di Wellington, Selandia Baru.
+- **KHGT / GIC (Turki 2016)**: Kriteria Kalender Hijriyah Global Tunggal yang diadopsi di Istanbul.
+  - **Ambang Batas**: Tinggi (Toposentrik) ≥ 5°, Elongasi (Geosentrik) ≥ 8°.
+  - **Timeline**: Visibilitas harus tercapai di mana pun secara global sebelum Fajar di East Cape, Selandia Baru (-37,69°LS, 178,55°BT, -18°).
 
 ### 2. Kriteria Analitis Kustom (0-10.000 H)
 Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Skenario Komposit Global** yang secara gamblang mempertimbangkan belahan bumi barat dan timur.
@@ -60,9 +60,9 @@ Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi glo
 Bulan dimulai jika bulan memenuhi visibilitas MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°) di **Adak, Alaska** (mewakili titik berpenghuni paling barat) DAN secara fisik berada di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa, Fiji** (mewakili titik paling timur dari siklus hari Islam).
 
 ## Analisis Statistik: Tingkat Keserempakan
-Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS vs. KHGT:
-- **Tingkat Total**: **46,60%**
-- **Bulan Ritual**: **46,49%** (Ramadan, Syawal, Dzulhijjah)
+Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5°):
+- **Tingkat Total**: **43,18%**
+- **Bulan Ritual**: **43,02%** (Ramadan, Syawal, Dzulhijjah)
 
 Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada lebih dari 53% bulan.
 

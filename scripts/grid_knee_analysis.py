@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from multiprocessing import Pool
 
 AE_OFFSET = 2451545.0
-NZ_OBS = astronomy.Observer(-41.28, 174.77, 0)
+NZ_OBS = astronomy.Observer(-37.689563, 178.550687, 0)
 
 def get_start_jd_mabbims(conj_ut, lats, lons):
     conj = astronomy.Time(conj_ut)
@@ -42,6 +42,7 @@ def get_start_jd_mabbims(conj_ut, lats, lons):
 
 def get_start_jd_gic(conj_ut, lons):
     conj = astronomy.Time(conj_ut)
+    # SearchAltitude with -18.0 for Fajr at East Cape
     f_nz = astronomy.SearchAltitude(astronomy.Body.Sun, NZ_OBS, astronomy.Direction.Rise, conj, 2.0, -18.0)
     if not f_nz: return math.floor(conj.ut + AE_OFFSET + 0.5) + 1.5
     jd_search = math.floor(f_nz.ut + AE_OFFSET + 0.5)

@@ -49,9 +49,9 @@ These criteria are used for regional and global religious coordination.
 - **MABBIMS (2021)**: Primarily used in Southeast Asia (Brunei, Indonesia, Malaysia, Singapore).
   - **Thresholds**: Altitude (Topocentric) ≥ 3°, Elongation (Geocentric) ≥ 6.4°.
   - **Reference**: Banda Aceh (5.55° N, 95.32° E) at local sunset.
-- **KHGT / GIC (2016)**: The Global Hijri Calendar criteria adopted in Istanbul.
-  - **Thresholds**: Altitude (Geocentric) ≥ 5°, Elongation (Geocentric) ≥ 8°.
-  - **Timeline**: Visibility must be achieved anywhere globally before Fajr in Wellington, New Zealand.
+- **KHGT / GIC (Turkey 2016)**: The Global Hijri Calendar criteria adopted in Istanbul.
+  - **Thresholds**: Altitude (Topocentric) ≥ 5°, Elongation (Geocentric) ≥ 8°.
+  - **Timeline**: Visibility must be achieved anywhere globally before Fajr in East Cape, New Zealand (-37.69°S, 178.55°E, -18°).
 
 ### 2. Custom Analytical Criteria (0-10,000 AH)
 To model long-term historical trends and optimize global approximations, we use a **Global Composite Scenario** that unapologetically accounts for both the western and eastern hemispheres.
@@ -60,9 +60,9 @@ To model long-term historical trends and optimize global approximations, we use 
 A month starts if the moon satisfies MABBIMS visibility (Alt ≥ 3°, Elong ≥ 6.4°) in **Adak, Alaska** (representing the westernmost inhabited point) AND is physically above the horizon (Altitude ≥ 0°) at **Viwa Island, Fiji** (representing the easternmost point of the Islamic day cycle).
 
 ## Statistical Analysis: Simultaneity Rate
-Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS vs. KHGT:
-- **Overall Rate**: **46.60%**
-- **Ritual Months**: **46.49%** (Ramadan, Shawwal, Dhu al-Hijjah)
+Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid):
+- **Overall Rate**: **43.18%**
+- **Ritual Months**: **43.02%** (Ramadan, Shawwal, Dhu al-Hijjah)
 
 These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in more than 53% of months.
 

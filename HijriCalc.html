@@ -597,6 +597,7 @@
 					width: auto;
 				}
 			}
+			.hidden { display: none !important; }
 		</style>
 	</head>
 	<body>
@@ -666,14 +667,21 @@
 			<div class="group">
 				<label><span id="gModeLabel"></span><select id="gModeSelect"><option value="transition">Historical (1582)</option><option value="proleptic">Continuous</option></select></label>
 				<label><span id="calcModeLabel"></span><select id="calcMode"><option value="astronomic">MABBIMS</option><option value="linear">Linear</option><option value="tabular">Tabular</option></select></label>
-				<div style="display: flex; justify-content: space-between; align-items: flex-end; margin: 0.5rem 0 0.25rem;">
-					<span id="locLabel" style="font-weight: 500; font-size: 0.9rem;"></span>
-					<button id="myLocBtn" class="btn-link"></button>
+
+				<div id="mabbimsSettings">
+					<label><span id="mabbimsSearchLabel"></span><select id="mabbimsSearchMode"><option value="point">Custom Coordinate</option><option value="archipelago">Archipelago Wide</option></select></label>
+					<div id="customLocGroup">
+						<div style="display: flex; justify-content: space-between; align-items: flex-end; margin: 0.5rem 0 0.25rem;">
+							<span id="locLabel" style="font-weight: 500; font-size: 0.9rem;"></span>
+							<button id="myLocBtn" class="btn-link"></button>
+						</div>
+						<div class="field-row">
+							<label><span id="latLabel"></span><input type="number" id="latInput" step="0.0001"></label>
+							<label><span id="lonLabel"></span><input type="number" id="lonInput" step="0.0001"></label>
+						</div>
+					</div>
 				</div>
-				<div class="field-row">
-					<label><span id="latLabel"></span><input type="number" id="latInput" step="0.0001"></label>
-					<label><span id="lonLabel"></span><input type="number" id="lonInput" step="0.0001"></label>
-				</div>
+
 				<label><span id="adjLabel"></span><input type="number" id="hijriAdj" value="0" min="-2" max="2"></label>
 				<div id="adjNote" style="opacity:.6;font-size:.72rem;margin-top:-0.25rem;"></div>
 			</div>
@@ -691,7 +699,7 @@
 					calTitle: 'Calendar View',
 					today: 'Today',
 					formulaTitle: 'Methodology',
-					formulaDescMabbims: 'Local sighting simulation. MABBIMS: Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
+					formulaDescMabbims: 'MABBIMS criteria search. Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
 					formulaDescLinear: 'Global approximation (Global-Scale Composite). Accuracy: 53.54% (0–10000 AH).',
 					formulaDescTabular: 'Modular 30-year cycle. Accuracy: 41.49% (0–10000 AH).',
 					epoch: 'Epoch',
@@ -751,6 +759,9 @@
 					weekSun: 'Sunday',
 					weekMon: 'Monday',
 					weekSat: 'Saturday',
+					mabbimsSearchLabel: 'Search Area',
+					mabbimsPoint: 'Custom Coordinate',
+					mabbimsArchipelago: 'Archipelago Wide'
 				},
 				id: {
 					appTitle: 'Kalender Hijriyah MABBIMS',
@@ -758,7 +769,7 @@
 					calTitle: 'Tampilan Kalender',
 					today: 'Hari Ini',
 					formulaTitle: 'Metodologi',
-					formulaDescMabbims: 'Simulasi rukyat lokal. MABBIMS: Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.',
+					formulaDescMabbims: 'Pencarian kriteria MABBIMS. Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.',
 					formulaDescLinear: 'Aproksimasi global (Komposit Global). Akurasi: 53.54% (0–10000 H).',
 					formulaDescTabular: 'Siklus modular 30 tahun. Akurasi: 41.49% (0–10000 H).',
 					epoch: 'Epoh',
@@ -818,6 +829,9 @@
 					weekSun: 'Minggu',
 					weekMon: 'Senin',
 					weekSat: 'Sabtu',
+					mabbimsSearchLabel: 'Area Pencarian',
+					mabbimsPoint: 'Koordinat Kustom',
+					mabbimsArchipelago: 'Seluruh Kepulauan'
 				}
 			};
 
@@ -831,6 +845,7 @@
 				hijriAdj: 0,
 				primaryCalendar: 'gregorian',
 				calcMode: 'astronomic',
+				mabbimsSearchMode: 'archipelago',
 				gMode: 'transition',
 				viewDate: new Date()
 			};
@@ -853,7 +868,7 @@
 				loadState() {
 					try {
 						const s = JSON.parse(localStorage.getItem('hcState') || '{}');
-						['lat', 'lon', 'lang', 'theme', 'weekStart', 'hijriAdj', 'primaryCalendar', 'calcMode', 'gMode'].forEach(k=>{
+						['lat', 'lon', 'lang', 'theme', 'weekStart', 'hijriAdj', 'primaryCalendar', 'calcMode', 'mabbimsSearchMode', 'gMode'].forEach(k=>{
 							if (s[k] !== undefined)
 								state[k] = s[k];
 						}
@@ -861,7 +876,7 @@
 					} catch (e) {}
 				}
 				saveState() {
-					const {lat, lon, lang, theme, weekStart, hijriAdj, primaryCalendar, calcMode, gMode} = state;
+					const {lat, lon, lang, theme, weekStart, hijriAdj, primaryCalendar, calcMode, mabbimsSearchMode, gMode} = state;
 					localStorage.setItem('hcState', JSON.stringify({
 						lat,
 						lon,
@@ -871,6 +886,7 @@
 						hijriAdj,
 						primaryCalendar,
 						calcMode,
+						mabbimsSearchMode,
 						gMode
 					}));
 				}
@@ -942,6 +958,13 @@
 					;
 					$('prevMonthBtn').onclick = ()=>this.navMonth(-1);
 					$('nextMonthBtn').onclick = ()=>this.navMonth(1);
+
+					$('calcMode').onchange = () => {
+						$('mabbimsSettings').classList.toggle('hidden', $('calcMode').value !== 'astronomic');
+					};
+					$('mabbimsSearchMode').onchange = () => {
+						$('customLocGroup').classList.toggle('hidden', $('mabbimsSearchMode').value !== 'point');
+					};
 
 					const goG = ()=>{
 						const d = this.getInput($('gDateInput'));
@@ -1042,11 +1065,14 @@
 					$('primaryCalendar').value = state.primaryCalendar;
 					$('theme').value = state.theme;
 					$('calcMode').value = state.calcMode;
+					$('mabbimsSearchMode').value = state.mabbimsSearchMode;
 					$('gModeSelect').value = state.gMode;
 					if (this.offline) {
 						$('calcMode').value = 'linear';
 						$('calcMode').disabled = true;
 					}
+					$('mabbimsSettings').classList.toggle('hidden', state.calcMode !== 'astronomic');
+					$('customLocGroup').classList.toggle('hidden', state.mabbimsSearchMode !== 'point');
 				}
 				readFormFields() {
 					state.lat = parseFloat($('latInput').value);
@@ -1057,6 +1083,7 @@
 					state.primaryCalendar = $('primaryCalendar').value;
 					state.theme = $('theme').value;
 					state.calcMode = $('calcMode').value;
+					state.mabbimsSearchMode = $('mabbimsSearchMode').value;
 					state.gMode = $('gModeSelect').value;
 				}
 				resetState() {
@@ -1070,6 +1097,7 @@
 						hijriAdj: 0,
 						primaryCalendar: 'gregorian',
 						calcMode: this.offline ? 'linear' : 'astronomic',
+						mabbimsSearchMode: 'archipelago',
 						gMode: 'transition'
 					};
 					this.syncFormFields();
@@ -1096,7 +1124,10 @@
 						sfx = tr.linearSuffix;
 					else if (state.calcMode === 'tabular')
 						sfx = tr.tabularSuffix;
-					$('appSubtitle').textContent = this.fmtCoords(state.lat, state.lon) + sfx;
+
+					const locText = state.mabbimsSearchMode === 'archipelago' && state.calcMode === 'astronomic' ? tr.mabbimsArchipelago : this.fmtCoords(state.lat, state.lon);
+					$('appSubtitle').textContent = locText + sfx;
+
 					$('navTitle').textContent = tr.navTitle;
 					$('calTitle').textContent = tr.calTitle;
 					$('gLbl').textContent = tr.gDateLabel;
@@ -1124,6 +1155,7 @@
 					$('formulaTitle').textContent = tr.formulaTitle;
 					$('footerNote').textContent = tr.footer;
 					$('calcModeLabel').textContent = tr.calcModeLabel;
+					$('mabbimsSearchLabel').textContent = tr.mabbimsSearchLabel;
 					$('gModeLabel').textContent = tr.gModeLabel;
 					[...$('hMonthInput').options].forEach((o,i)=>o.textContent = tr.months[i]);
 
@@ -1135,6 +1167,7 @@
 					tOpt('primaryCalendar', 'cal');
 					tOpt('gModeSelect', 'gMode');
 					tOpt('calcMode', 'calcMode');
+					tOpt('mabbimsSearchMode', 'mabbims');
 
 					[...$('weekStart').options].forEach(o => {
 						const map = { '0': 'weekSun', '1': 'weekMon', '6': 'weekSat' };
@@ -1147,7 +1180,8 @@
 				updateFormula(tr) {
 					const mode = state.calcMode;
 					if (mode === 'astronomic') {
-						$('formulaDisplay').textContent = `${tr.criteria}:\n${tr.altitude} (Topo) ≥ 3°\n${tr.elongation} (Geo) ≥ 6.4°`;
+						const area = state.mabbimsSearchMode === 'archipelago' ? 'Malay Archipelago (5° grid)' : 'Local Point';
+						$('formulaDisplay').textContent = `${tr.criteria}:\n${tr.altitude} (Topo) ≥ 3°\n${tr.elongation} (Geo) ≥ 6.4°\nArea: ${area}`;
 						$('formulaNote').innerHTML = `<i>${tr.footer}</i>`;
 						$('formulaDesc').textContent = tr.formulaDescMabbims;
 					} else if (mode === 'linear') {
@@ -1260,12 +1294,6 @@
 					return (Math.floor(jd + 1.5) % 7);
 				}
 
-				// ── Epoch unified: both linear and tabular use JD 1948086
-				//    (= 1 Muharram 0 AH).  idx = year*12 + (month-1).
-				//
-				// Tabular cumulative-leap formula: Leaps(yc) = ⌊(11·yc + 20) / 30⌋
-				//   where yc is 0-indexed from year 0 AH.
-				//   Based on modular formula ((11*Y + 1) mod 30) < 11 where Year 0 AH is Year 30.
 				linMonthStartJD(idx) {
 					if (state.calcMode === 'tabular') {
 						const off = idx;
@@ -1342,29 +1370,20 @@
 					};
 				}
 
-				checkVisibility(dateObj, nmUT) {
+				checkVisibility(dateObj, nmUT, lat, lon) {
 					const date = Astronomy.MakeTime(dateObj)
-					  , obs = new Astronomy.Observer(state.lat,state.lon,0);
+					  , obs = new Astronomy.Observer(lat, lon, 0);
 					const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, date.ut, 1);
 					if (!ss)
 						return false;
-					let nm = nmUT;
-					if (nm == null) {
-						const b = Astronomy.SearchMoonPhase(0, date.ut, -35);
-						if (!b)
-							return false;
-						nm = b.ut;
-					}
-					if (ss.ut - nm < 0)
-						return false;
-					const me = Astronomy.Equator(Astronomy.Body.Moon, ss.ut, obs, true, true);
-					const mh = Astronomy.Horizon(ss.ut, obs, me.ra, me.dec, 'normal');
-
 					const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, ss.ut, true);
 					const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, ss.ut, true);
 					const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
+					if (elongGeo < 6.4) return false;
 
-					return (mh.altitude >= 3 && elongGeo >= 6.4);
+					const me = Astronomy.Equator(Astronomy.Body.Moon, ss.ut, obs, true, true);
+					const mh = Astronomy.Horizon(ss.ut, obs, me.ra, me.dec, 'normal');
+					return (mh.altitude >= 3);
 				}
 
 				getMonthStart(hy, hm) {
@@ -1374,30 +1393,53 @@
 						};
 					if (!this.cache)
 						this.loadCache();
-					const k = `${hy}-${hm}-${state.lat}-${state.lon}-${state.gMode}`;
+					const k = `${hy}-${hm}-${state.lat}-${state.lon}-${state.mabbimsSearchMode}-${state.gMode}`;
 					if (this.cache[k]) {
 						if (typeof this.cache[k].gDate === 'string')
 							this.cache[k].gDate = new Date(this.cache[k].gDate);
 						return this.cache[k];
 					}
-					const anchor = new Date('2023-07-19T12:00:00Z')
-					  , days = ((hy - 1445) * 354.367) + ((hm - 1) * 29.53);
-					const approx = new Date(anchor.getTime() + days * 86400000);
+					const approx = this.hijriToGregorianLinear(hy, hm, 1);
 					const t = Astronomy.MakeTime(new Date(approx.getTime() - 5 * 86400000));
 					const nm = Astronomy.SearchMoonPhase(0, t.ut, 10);
-					if (!nm || Math.abs(nm.date - approx) > 4 * 86400000)
-						return {
-							gDate: approx
-						};
-					const tz = this.tzOff()
-					  , lt = new Date(nm.date.getTime() + tz * 3600000);
-					const y = lt.getUTCFullYear()
-					  , m = lt.getUTCMonth()
-					  , d = lt.getUTCDate();
-					const vis = this.checkVisibility(new Date(Date.UTC(y, m, d, 12 - tz, 0, 0)), nm.ut);
-					const res = {
-						gDate: new Date(y,m,d + (vis ? 1 : 2))
-					};
+
+					let jdRes = null;
+					if (state.mabbimsSearchMode === 'archipelago') {
+						const lats = [5, 0, -5, -10];
+						const lons = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140];
+						for (let dOff = 1; dOff <= 2; dOff++) {
+							const base = new Date(nm.date.getTime() + dOff * 86400000);
+							const y = base.getUTCFullYear(), m = base.getUTCMonth(), d = base.getUTCDate();
+							let met = false;
+							for (const lon of lons) {
+								const tz = Math.round(lon / 15);
+								for (const lat of lats) {
+									if (this.checkVisibility(new Date(Date.UTC(y, m, d, 12 - tz, 0, 0)), nm.ut, lat, lon)) {
+										met = true; break;
+									}
+								}
+								if (met) break;
+							}
+							if (met) {
+								jdRes = this.dateToJD(new Date(y, m, d)) + 1;
+								break;
+							}
+						}
+						if (!jdRes) jdRes = this.dateToJD(new Date(nm.date.getTime() + 3 * 86400000));
+					} else {
+						const tz = this.tzOff();
+						for (let dOff = 1; dOff <= 2; dOff++) {
+							const base = new Date(nm.date.getTime() + dOff * 86400000);
+							const y = base.getUTCFullYear(), m = base.getUTCMonth(), d = base.getUTCDate();
+							if (this.checkVisibility(new Date(Date.UTC(y, m, d, 12 - tz, 0, 0)), nm.ut, state.lat, state.lon)) {
+								jdRes = this.dateToJD(new Date(y, m, d)) + 1;
+								break;
+							}
+						}
+						if (!jdRes) jdRes = this.dateToJD(new Date(nm.date.getTime() + 3 * 86400000));
+					}
+
+					const res = { gDate: this.jdToDate(jdRes) };
 					this.cache[k] = res;
 					this.schedSaveCache();
 					return res;

@@ -76,9 +76,9 @@ def process_month(args):
     return (abs(jd_a - jd_g) < 0.1)
 
 def run_experiment(inc, month_conjs):
-    m_lats = np.arange(7, -11.001, -inc)
-    m_lons = np.arange(95, 141.001, inc)
-    g_lons = np.arange(180, -165.001, -inc)
+    m_lats = np.arange(5, -10.001, -inc)
+    m_lons = np.arange(95, 140.001, inc)
+    g_lons = np.arange(180, -180.001, -inc)
 
     start_time = time.time()
     task_args = [(conj_ut, m_lats, m_lons, g_lons) for conj_ut in month_conjs]

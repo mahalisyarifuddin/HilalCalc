@@ -7,8 +7,8 @@ AE_OFFSET = 2451545.0
 
 # MABBIMS Archipelago Grid (95E-140E, 5N-10S, 5 degree increments)
 # Sorted West to East (95 to 140) for better early break performance
-MABBIMS_LONS = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140]
-MABBIMS_LATS = [5, 0, -5, -10]
+MABBIMS_LONS = list(range(95, 141, 5))
+MABBIMS_LATS = list(range(5, -11, -5))
 
 # GIC Global Longitudes (5 degree increments)
 # Sorted West to East (-180 to 180) for better early break performance

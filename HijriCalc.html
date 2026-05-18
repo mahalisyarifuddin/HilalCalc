@@ -1405,8 +1405,8 @@
 
 					let jdRes = null;
 					if (state.mabbimsSearchMode === 'archipelago') {
-						const lats = [5, 0, -5, -10];
-						const lons = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140];
+						const lats = Array.from({ length: 4 }, (_, i) => 5 - i * 5);
+						const lons = Array.from({ length: 10 }, (_, i) => 95 + i * 5);
 						for (let dOff = 1; dOff <= 2; dOff++) {
 							const base = new Date(nm.date.getTime() + dOff * 86400000);
 							const y = base.getUTCFullYear(), m = base.getUTCMonth(), d = base.getUTCDate();

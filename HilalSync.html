@@ -283,7 +283,7 @@
 					divergent: "DIVERGENT",
 					statsTitle: "Simultaneity rate (1-10,000 AH)",
 					statsContent: "Overall: <b>43.16%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>43.01%</b>. Validated against Wellington NZ (Fajr -18°).",
-					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–140°E, 5°N–10°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -18°), or Americas if Conjunction < Fajr NZ. 5° grid.",
+					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -18°), or Americas if Conjunction < Fajr NZ. 5° grid.",
 					acehInfo: "Sunset in Archipelago: ",
 					gicInfo: "KHGT Deadline: ",
 					alt: "Alt",
@@ -300,7 +300,7 @@
 					divergent: "BERBEDA",
 					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
 					statsContent: "Total: <b>43,16%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>43,01%</b>. Divalidasi terhadap Wellington NZ (Fajar -18°).",
-					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–140°BT, 5°LU–10°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -18°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
+					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -18°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
 					acehInfo: "Maghrib di Kepulauan: ",
 					gicInfo: "Tenggat KHGT: ",
 					alt: "Tinggi",
@@ -318,7 +318,8 @@
 				theme: 'auto',
 				year: 1447,
 				month: 9,
-				AE_OFFSET: 2451545.0
+				AE_OFFSET: 2451545.0,
+				cache: {}
 			};
 
 			function loadState() {
@@ -406,40 +407,61 @@
 			}
 
 			function getStartJD(year, month) {
+				const cacheKey = `${year}-${month}`;
+				if (state.cache[cacheKey]) return state.cache[cacheKey];
+
 				const totalMonths = year * 12 + (month - 1);
 				const approxJD = 1948086 + totalMonths * 29.53059;
 				const startTime = Astronomy.MakeTime(jdToDate(approxJD - 15));
 				const conj = Astronomy.SearchMoonPhase(0, startTime, 40);
 
-				const mabbimsLats = Array.from({ length: 4 }, (_, i) => 5 - i * 5);
-				const mabbimsLons = Array.from({ length: 10 }, (_, i) => 95 + i * 5);
+				const mabbimsLons = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 141];
+				const mabbimsLats = [7, 5, 0, -5, -10, -11];
 				
 				let jdAceh = null;
 				let detailAceh = null;
 				
-				for (let day = 0; day < 5; day++) {
+				const mabbimsLonsReverse = [...mabbimsLons].reverse();
+				for (let day = 0; day < 3; day++) {
 					let searchTime = Astronomy.MakeTime(utToDate(conj.ut + day * 1.0));
-					let met = false;
-					
-					for (let lon of mabbimsLons) {
-						for (let lat of mabbimsLats) {
-							const obs = new Astronomy.Observer(lat, lon, 0);
-							const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, searchTime, 1.5);
-							
-							if (sunset && sunset.ut > conj.ut) {
-								const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset, true);
-								const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset, true);
-								const elongGeo = Astronomy.AngleBetween(mVecJ, sVecJ);
-								
-								if (elongGeo >= 6.4) {
-									const eqMT = Astronomy.Equator(Astronomy.Body.Moon, sunset, obs, true, true);
-									const ht = Astronomy.Horizon(sunset, obs, eqMT.ra, eqMT.dec, "normal").altitude;
+					let quickMet = false;
+					const moonEq = Astronomy.Equator(Astronomy.Body.Moon, searchTime, new Astronomy.Observer(0, 95, 0), true, true);
+					const sortedMabbimsLats = [...mabbimsLats].sort((a, b) => Math.abs(a - moonEq.dec) - Math.abs(b - moonEq.dec));
 
-									if (ht >= 3.0) {
-										const jdCandidate = Math.floor(sunset.ut + state.AE_OFFSET + 0.5) + 0.5;
+					for (let lat of sortedMabbimsLats) {
+						const obs = new Astronomy.Observer(lat, 95, 0);
+						const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, searchTime, 1.5);
+						if (ss && ss.ut > conj.ut) {
+							const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
+							const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
+							if (Astronomy.AngleBetween(mVec, sVec) >= 6.4) {
+								const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
+								if (Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude >= 3.0) {
+									quickMet = true;
+									break;
+								}
+							}
+						}
+					}
+					if (!quickMet) continue;
+
+					let met = false;
+					for (let lon of mabbimsLonsReverse) {
+						for (let lat of sortedMabbimsLats) {
+							const obs = new Astronomy.Observer(lat, lon, 0);
+							const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, searchTime, 1.5);
+							if (ss && ss.ut > conj.ut) {
+								const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
+								const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
+								const e = Astronomy.AngleBetween(mVec, sVec);
+								if (e >= 6.4) {
+									const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
+									const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
+									if (h >= 3.0) {
+										const jdCandidate = Math.floor(ss.ut + state.AE_OFFSET + 0.5) + 0.5;
 										if (!jdAceh || jdCandidate < jdAceh) {
 											jdAceh = jdCandidate;
-											detailAceh = { ut: sunset.ut, alt: ht, elong: elongGeo };
+											detailAceh = { ut: ss.ut, alt: h, elong: e };
 										}
 										met = true;
 									}
@@ -476,31 +498,43 @@
 						const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, timeStartOfDay, 1.0, -18.0);
 						if (!fNZ || conjUT >= fNZ.ut) return null;
 
-						const dayEndUT = targetJD + 0.5 - state.AE_OFFSET;
-						const longitudes = [];
-						for (let l = 180; l >= -180; l -= 5) longitudes.push(l);
-
 						const moonEq = Astronomy.Equator(Astronomy.Body.Moon, conj, nzObs, true, true);
 						const latNearMoon = Math.max(-60, Math.min(60, moonEq.dec));
 						const testLats = [...new Set([0, latNearMoon, 30, -30, 60, -60])].sort((a, b) => Math.abs(a - latNearMoon) - Math.abs(b - latNearMoon));
-						
-						for (const lon of longitudes) {
-							const tSearch = Astronomy.MakeTime(jdToDate(targetJD - lon / 360.0));
+
+						let quickMet = false;
+						const tQuick = Astronomy.MakeTime(jdToDate(targetJD - (-180) / 360.0));
+						for (const lat of testLats) {
+							const obs = new Astronomy.Observer(lat, -180, 0);
+							const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tQuick, 1.0);
+							if (ss && ss.ut > conjUT) {
+								const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
+								const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
+								if (Astronomy.AngleBetween(mVec, sVec) >= 8.0) {
+									const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
+									if (Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude >= 5.0) {
+										quickMet = true;
+										break;
+									}
+								}
+							}
+						}
+						if (!quickMet) return null;
+
+						for (let l = 180; l >= -180; l -= 5) {
+							const tSearch = Astronomy.MakeTime(jdToDate(targetJD - l / 360.0));
 							for (const lat of testLats) {
-								const obs = new Astronomy.Observer(lat, lon, 0);
+								const obs = new Astronomy.Observer(lat, l, 0);
 								const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tSearch, 1.0);
-								
 								if (ss && ss.ut > conjUT) {
 									const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
 									const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
 									const e = Astronomy.AngleBetween(mVec, sVec);
-
 									if (e >= 8.0) {
 										const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
 										const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
-
 										if (h >= 5.0) {
-											if (ss.ut <= fNZ.ut || lon < -30) return { ut: ss.ut, alt: h, elong: e };
+											if (ss.ut <= fNZ.ut || l < -30) return { ut: ss.ut, alt: h, elong: e };
 										}
 									}
 								}
@@ -514,12 +548,14 @@
 					detailGic = vis || { ut: conj.ut, alt: -1, elong: -1 };
 				}
 
-				return {
+				const res = {
 					jdAceh,
 					jdGic,
 					detailAceh,
 					detailGic
 				};
+				state.cache[cacheKey] = res;
+				return res;
 			}
 
 			function calculate() {

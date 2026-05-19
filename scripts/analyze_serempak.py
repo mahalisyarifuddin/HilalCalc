@@ -6,7 +6,7 @@ import sys
 
 AE_OFFSET = 2451545.0
 MABBIMS_LONS = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 141]
-MABBIMS_LATS = [7, 2, -3, -8, -11]
+MABBIMS_LATS = [7, 5, 0, -5, -10, -11]
 GIC_LONS = list(range(180, -181, -5))
 NZ_OBS = astronomy.Observer(-41.2889, 174.7772, 0)
 

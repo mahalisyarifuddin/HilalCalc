@@ -282,8 +282,8 @@
 					simultaneous: "SIMULTANEOUS",
 					divergent: "DIVERGENT",
 					statsTitle: "Simultaneity rate (1-10,000 AH)",
-					statsContent: "Overall: <b>43.18%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>43.02%</b>. Validated against East Cape NZ (Fajr -18°).",
-					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–140°E, 5°N–10°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally before Fajr in East Cape NZ (-37.69°S, 178.55°E, -18°), or Americas if Conjunction < Fajr NZ. 5° grid.",
+					statsContent: "Overall: <b>43.16%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>43.01%</b>. Validated against Wellington NZ (Fajr -18°).",
+					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–140°E, 5°N–10°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -18°), or Americas if Conjunction < Fajr NZ. 5° grid.",
 					acehInfo: "Sunset in Archipelago: ",
 					gicInfo: "KHGT Deadline: ",
 					alt: "Alt",
@@ -299,8 +299,8 @@
 					simultaneous: "SEREMPAK",
 					divergent: "BERBEDA",
 					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
-					statsContent: "Total: <b>43,18%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>43,02%</b>.",
-					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–140°BT, 5°LU–10°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° sebelum Fajar di East Cape NZ (-37,69°LS, 178,55°BT, -18°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
+					statsContent: "Total: <b>43,16%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>43,01%</b>. Divalidasi terhadap Wellington NZ (Fajar -18°).",
+					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–140°BT, 5°LU–10°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -18°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
 					acehInfo: "Maghrib di Kepulauan: ",
 					gicInfo: "Tenggat KHGT: ",
 					alt: "Tinggi",
@@ -459,7 +459,7 @@
 					detailAceh = { ut: ss.ut, alt: -1, elong: -1 };
 				}
 
-				const nzObs = new Astronomy.Observer(-37.689563, 178.550687, 0);
+				const nzObs = new Astronomy.Observer(-41.2889, 174.7772, 0);
 				const fNext = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, conj, 1.5, -18.0);
 				
 				let jdGic, detailGic;
@@ -479,23 +479,29 @@
 						const dayEndUT = targetJD + 0.5 - state.AE_OFFSET;
 						const longitudes = [];
 						for (let l = 180; l >= -180; l -= 5) longitudes.push(l);
+
+						const moonEq = Astronomy.Equator(Astronomy.Body.Moon, conj, nzObs, true, true);
+						const latNearMoon = Math.max(-60, Math.min(60, moonEq.dec));
+						const testLats = [...new Set([0, latNearMoon, 30, -30, 60, -60])].sort((a, b) => Math.abs(a - latNearMoon) - Math.abs(b - latNearMoon));
 						
 						for (const lon of longitudes) {
 							const tSearch = Astronomy.MakeTime(jdToDate(targetJD - lon / 360.0));
-							const obs = new Astronomy.Observer(0, lon, 0);
-							const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tSearch, 1.0);
-							
-							if (ss && ss.ut > conjUT) {
-								const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
-								const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
-								const e = Astronomy.AngleBetween(mVec, sVec);
+							for (const lat of testLats) {
+								const obs = new Astronomy.Observer(lat, lon, 0);
+								const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, tSearch, 1.0);
 								
-								if (e >= 8.0) {
-									const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
-									const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
+								if (ss && ss.ut > conjUT) {
+									const mVec = Astronomy.GeoVector(Astronomy.Body.Moon, ss, true);
+									const sVec = Astronomy.GeoVector(Astronomy.Body.Sun, ss, true);
+									const e = Astronomy.AngleBetween(mVec, sVec);
 
-									if (h >= 5.0) {
-										if (ss.ut <= dayEndUT || lon < -30) return { ut: ss.ut, alt: h, elong: e };
+									if (e >= 8.0) {
+										const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
+										const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
+
+										if (h >= 5.0) {
+											if (ss.ut <= fNZ.ut || lon < -30) return { ut: ss.ut, alt: h, elong: e };
+										}
 									}
 								}
 							}

@@ -306,6 +306,7 @@
 						<select id="mapCriteria">
 							<option value="mabbims">MABBIMS (Alt ≥3°, Elong ≥6.4°)</option>
 							<option value="gic">GIC (Alt ≥5°, Elong ≥8°)</option>
+							<option value="global">Custom Global (Alt ≥0°, Elong ≥0°)</option>
 							<option value="alt0">Altitude ≥0°</option>
 							<option value="custom">Custom</option>
 						</select>
@@ -361,6 +362,7 @@
 					<select id="calcCriteria">
 						<option value="mabbims">MABIMS</option>
 						<option value="gic">GIC</option>
+						<option value="global">Custom Global</option>
 						<option value="alt0">Altitude ≥0°</option>
 						<option value="custom">Custom</option>
 					</select>
@@ -424,6 +426,7 @@
 				regionWorld: 'World',
 				criteriaMabbims: 'MABBIMS (Alt≥3°, Elong≥6.4°)',
 				criteriaGic: 'GIC (Alt≥5°, Elong≥8°)',
+				criteriaGlobal: 'Custom Global (Alt≥0°, Elong≥0°)',
 				criteriaAlt0: 'Altitude > 0°',
 				criteriaCustom: 'Custom Criteria',
 				utcPlaceholder: 'e.g., 7',
@@ -481,6 +484,7 @@
 				regionWorld: 'Dunia',
 				criteriaMabbims: 'MABBIMS (Tinggi≥3°, Elongasi≥6.4°)',
 				criteriaGic: 'GIC (Tinggi≥5°, Elongasi≥8°)',
+				criteriaGlobal: 'Global Kustom (Tinggi≥0°, Elongasi≥0°)',
 				criteriaAlt0: 'Tinggi Bulan > 0°',
 				criteriaCustom: 'Kriteria Kustom',
 				utcPlaceholder: 'contoh: 7',
@@ -524,6 +528,8 @@ self.onmessage = e => {
 			criteriaMinAlt = 3; criteriaMinElong = 6.4; isGIC = false;
 		} else if (criteria === "gic") {
 			criteriaMinAlt = 5; criteriaMinElong = 8; isGIC = true;
+		} else if (criteria === "global") {
+			criteriaMinAlt = 0; criteriaMinElong = 0; isGIC = false;
 		} else if (criteria === "alt0") {
 			criteriaMinAlt = 0; criteriaMinElong = -100; isGIC = false;
 		} else {
@@ -909,6 +915,8 @@ self.onmessage = e => {
 					minAlt = 3; minElong = 6.4; isGICInner = false;
 				} else if (criteria === "gic") {
 					minAlt = 5; minElong = 8; isGICInner = true;
+				} else if (criteria === "global") {
+					minAlt = 0; minElong = 0; isGICInner = false;
 				} else if (criteria === "alt0") {
 					minAlt = 0; minElong = -100; isGICInner = false;
 				} else {

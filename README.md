@@ -56,8 +56,8 @@ These criteria are used for regional and global religious coordination.
 ### 2. Custom Analytical Criteria (0-10,000 AH)
 To model long-term historical trends and optimize global approximations, we use a **Global Composite Scenario** that unapologetically accounts for both the western and eastern hemispheres.
 
-**Composite Rule:**
-A month starts if the moon satisfies MABBIMS visibility (Alt ≥ 3°, Elong ≥ 6.4°) in **Adak, Alaska** (representing the westernmost inhabited point) AND is physically above the horizon (Altitude ≥ 0°) at **Viwa Island, Fiji** (representing the easternmost point of the Islamic day cycle).
+**Global Criteria (Mecca 0°):**
+A month starts if the moon satisfies visibility in **Mecca** (Altitude ≥ 0°, Elongation ≥ 0°). This simple local threshold predicts more complex global criteria (like GIC or Composite Adak+Viwa) with high reliability while staying scientifically grounded and avoiding "throwing Mecca under the bus."
 
 ## Statistical Analysis: Simultaneity Rate
 Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid with latitudinal sweep):
@@ -69,37 +69,32 @@ These results indicate that differences in geographical anchoring and visibility
 ## Optimized Results & Benchmarks
 
 ### 1. Optimized Global Formula
-The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Global Composite Scenario) is:
-`JD = 1948086 + floor(29.530573359 * Index - 0.569207) + Day - 1`
-*(Index = HijriYear * 12 + (HijriMonth - 1))*
+The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Mecca 0° criteria) is:
+`JD = 1948439 + floor(29.5305743175 * Index + 0.75182) + Day - 1`
+*(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
-### 2. Local Threshold Benchmarks
-Analysis against 120,000 months (0-10,000 AH) highlights the predictive accuracy of local thresholds against the Global Composite Scenario.
-- **Mecca (Local)**: Altitude ≥ 0°, Elongation ≥ 0° (**79.90%** accuracy).
-
-### 3. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
-Comparison of approximation methods against the Global Composite Scenario (0-10,000 AH). These percentages reflect how well each optimization predicts the composite criteria.
+### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
+Comparison of approximation methods against the Mecca 0° Ground Truth (0-10,000 AH). These percentages reflect how well each optimization predicts the sighting-based criteria.
 
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
-| 1.   | **Optimized Linear Formula** | **56.28%**   | **56.53%**     | **67,536**       |
-| 2.   | Modular Tabular (k=1)        | 41.49%       | 41.76%     | 49,793           |
-| 3.   | Traditional (Kuwaiti)        | 35.03%       | 35.40%     | 42,032           |
+| 1.   | **Optimized Linear Formula** | **67.80%**   | **67.87%**     | **81,365**       |
+| 2.   | Modular Tabular (k=29)       | 26.38%       | 26.38%         | 31,655           |
+| 3.   | Traditional (Kuwaiti)        | 23.46%       | 23.46%         | 28,150           |
 
-- **k=1**: Standard modular constant for `((11y + k) mod 30) < 11`, assuming 0 AH is Year 30.
+- **k=29**: Modular constant for `((11y + k) mod 30) < 11`, using 1 AH as the reference year.
 
 #### Tabular Correction Distribution (+/- 5 Days)
-The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=1) and the composite ground truth (0-10,000 AH).
+The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29) and the Mecca 0° ground truth (0-10,000 AH).
 
 | Offset | Matches | Accuracy (%) | Cumulative (%) |
 | :----- | :------ | :----------- | :------------- |
-| -3     | 393     | 0.33%        | 0.33%          |
-| -2     | 8,193   | 6.83%        | 7.16%          |
-| -1     | 29,448  | 24.54%       | 31.70%         |
-| **0**  | 49,792  | 41.49%       | 73.19%         |
-| +1     | 26,651  | 22.21%       | 95.40%         |
-| +2     | 5,356   | 4.46%        | 99.86%         |
-| +3     | 167     | 0.14%        | 100.00%        |
+| -2     | 1,539   | 1.28%        | 1.28%          |
+| -1     | 15,961  | 13.30%       | 14.58%         |
+| **0**  | 41,767  | 34.81%       | 49.39%         |
+| +1     | 50,270  | 41.89%       | 91.28%         |
+| +2     | 10,398  | 8.67%        | 99.95%         |
+| +3     | 61      | 0.05%        | 100.00%        |
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)

@@ -70,22 +70,22 @@ Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi 
 
 ### 1. Rumus Global Teroptimasi
 Rumus linear untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk kriteria Mekkah 0°) adalah:
-`JD = 1948085 + floor(29.5305743174 * Indeks + 0.384931) + Hari - 1`
-*(Indeks = TahunHijriyah * 12 + (BulanHijriyah - 1))*
+`JD = 1948439 + floor(29.5305743175 * Indeks + 0.75182) + Hari - 1`
+*(Indeks = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
 ### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
 Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (0-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria berbasis rukyat.
 
 | Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
-| 1.        | **Rumus Linear Teroptimasi** | **67,81%**  | **67,87%** | **81.366**          |
-| 2.        | Tabular Modular (k=10)       | 34,81%      | 34,81%     | 41.767              |
+| 1.        | **Rumus Linear Teroptimasi** | **67,80%**  | **67,87%** | **81.365**          |
+| 2.        | Tabular Modular (k=29)       | 26,38%      | 26,38%     | 31.655              |
 | 3.        | Tradisional (Kuwaiti)        | 23,46%      | 23,46%     | 28.150              |
 
-- **k=10**: Konstanta modular teroptimasi untuk `((11y + k) mod 30) < 11`, mengasumsikan 0 H adalah Tahun 30.
+- **k=29**: Konstanta modular untuk `((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
-Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=10) dan ground truth Mekkah 0° (0-10.000 H).
+Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=29) dan ground truth Mekkah 0° (0-10.000 H).
 
 | Ofset | Cocok   | Akurasi (%) | Kumulatif (%)  |
 | :----- | :------ | :---------- | :------------- |

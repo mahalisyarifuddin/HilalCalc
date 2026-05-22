@@ -410,8 +410,8 @@
 				const cacheKey = `${year}-${month}`;
 				if (state.cache[cacheKey]) return state.cache[cacheKey];
 
-				const totalMonths = year * 12 + (month - 1);
-				const approxJD = 1948086 + totalMonths * 29.53059;
+				const totalMonths = (year - 1) * 12 + (month - 1);
+				const approxJD = 1948439 + totalMonths * 29.53059;
 				const startTime = Astronomy.MakeTime(jdToDate(approxJD - 15));
 				const conj = Astronomy.SearchMoonPhase(0, startTime, 40);
 
@@ -609,8 +609,8 @@
 			function goToday(runCalc = true) {
 				const now = new Date();
 				const jd = now.getTime() / 86400000 + 2440587.5;
-				const index = Math.round((jd - 1948085) / 29.5305743174);
-				state.year = Math.floor(index / 12);
+				const index = Math.round((jd - 1948439) / 29.5305743175);
+				state.year = Math.floor(index / 12) + 1;
 				state.month = (index % 12) + 1;
 				elements.hYearInput.value = state.year;
 				elements.hMonthInput.value = state.month;

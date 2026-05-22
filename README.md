@@ -70,22 +70,22 @@ These results indicate that differences in geographical anchoring and visibility
 
 ### 1. Optimized Global Formula
 The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Mecca 0° criteria) is:
-`JD = 1948085 + floor(29.5305743174 * Index + 0.384931) + Day - 1`
-*(Index = HijriYear * 12 + (HijriMonth - 1))*
+`JD = 1948439 + floor(29.5305743175 * Index + 0.75182) + Day - 1`
+*(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
 ### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
 Comparison of approximation methods against the Mecca 0° Ground Truth (0-10,000 AH). These percentages reflect how well each optimization predicts the sighting-based criteria.
 
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
-| 1.   | **Optimized Linear Formula** | **67.81%**   | **67.87%**     | **81,366**       |
-| 2.   | Modular Tabular (k=10)       | 34.81%       | 34.81%         | 41,767           |
+| 1.   | **Optimized Linear Formula** | **67.80%**   | **67.87%**     | **81,365**       |
+| 2.   | Modular Tabular (k=29)       | 26.38%       | 26.38%         | 31,655           |
 | 3.   | Traditional (Kuwaiti)        | 23.46%       | 23.46%         | 28,150           |
 
-- **k=10**: Optimized modular constant for `((11y + k) mod 30) < 11`, assuming 0 AH is Year 30.
+- **k=29**: Modular constant for `((11y + k) mod 30) < 11`, using 1 AH as the reference year.
 
 #### Tabular Correction Distribution (+/- 5 Days)
-The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=10) and the Mecca 0° ground truth (0-10,000 AH).
+The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29) and the Mecca 0° ground truth (0-10,000 AH).
 
 | Offset | Matches | Accuracy (%) | Cumulative (%) |
 | :----- | :------ | :----------- | :------------- |

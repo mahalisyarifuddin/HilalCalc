@@ -56,8 +56,8 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
 ### 2. Kriteria Analitis Kustom (0-10.000 H)
 Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Skenario Komposit Global** yang secara gamblang mempertimbangkan belahan bumi barat dan timur.
 
-**Aturan Komposit:**
-Bulan dimulai jika bulan memenuhi visibilitas MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°) di **Adak, Alaska** (mewakili titik berpenghuni paling barat) DAN secara fisik berada di atas ufuk (Tinggi ≥ 0°) di **Pulau Viwa, Fiji** (mewakili titik paling timur dari siklus hari Islam).
+**Kriteria Global (Mekkah 0°):**
+Bulan dimulai jika bulan memenuhi visibilitas di **Mekkah** (Tinggi ≥ 0°, Elongasi ≥ 0°). Ambang batas lokal yang sederhana ini memprediksi kriteria global yang lebih kompleks (seperti KHGT atau Komposit Adak+Viwa) dengan keandalan tinggi sambil tetap berpijak secara ilmiah dan menghindari "mengabaikan Mekkah".
 
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang):
@@ -69,37 +69,32 @@ Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi 
 ## Hasil Optimasi & Tolok Ukur
 
 ### 1. Rumus Global Teroptimasi
-Rumus linear yang diturunkan untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk Skenario Komposit Global) adalah:
-`JD = 1948086 + floor(29.530573359 * Index - 0.569207) + Hari - 1`
-*(Index = TahunHijriyah * 12 + (BulanHijriyah - 1))*
+Rumus linear untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk kriteria Mekkah 0°) adalah:
+`JD = 1948085 + floor(29.5305743174 * Indeks + 0.384931) + Hari - 1`
+*(Indeks = TahunHijriyah * 12 + (BulanHijriyah - 1))*
 
-### 2. Tolok Ukur Ambang Batas Lokal
-Analisis terhadap 120.000 bulan (0-10.000 H) menyoroti akurasi prediktif ambang batas lokal terhadap Skenario Komposit Global.
-- **Mekkah (Lokal)**: Tinggi ≥ 0°, Elongasi ≥ 0° (**79,90%** akurasi).
+### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
+Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (0-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria berbasis rukyat.
 
-### 3. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
-Perbandingan metode aproksimasi terhadap Skenario Komposit Global (0-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria komposit.
+| Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
+| :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
+| 1.        | **Rumus Linear Teroptimasi** | **67,81%**  | **67,87%** | **81.366**          |
+| 2.        | Tabular Modular (k=10)       | 34,81%      | 34,81%     | 41.767              |
+| 3.        | Tradisional (Kuwaiti)        | 23,46%      | 23,46%     | 28.150              |
 
-| Peringkat | Metode                     | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
-| :-------- | :------------------------- | :---------- | :--------- | :-------------- |
-| 1.        | **Rumus Linear Teroptimasi** | **56,28%**  | **56,53%** | **67.536**      |
-| 2.        | Tabular Modular (k=1)      | 41,49%      | 41,76%     | 49.793          |
-| 3.        | Tradisional (Kuwaiti)      | 35,03%      | 35,40%     | 42.032          |
-
-- **k=1**: Konstanta modular standar untuk `((11y + k) mod 30) < 11`, mengasumsikan 0 H adalah Tahun 30.
+- **k=10**: Konstanta modular teroptimasi untuk `((11y + k) mod 30) < 11`, mengasumsikan 0 H adalah Tahun 30.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
-Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmatika (k=1) dan ground truth komposit (0-10.000 H).
+Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=10) dan ground truth Mekkah 0° (0-10.000 H).
 
-| Offset | Cocok   | Akurasi (%) | Kumulatif (%)  |
+| Ofset | Cocok   | Akurasi (%) | Kumulatif (%)  |
 | :----- | :------ | :---------- | :------------- |
-| -3     | 393     | 0,33%       | 0,33%          |
-| -2     | 8.193   | 6,83%       | 7,16%          |
-| -1     | 29.448  | 24,54%      | 31,70%         |
-| **0**  | 49.792  | 41,49%      | 73,19%         |
-| +1     | 26.651  | 22,21%      | 95,40%         |
-| +2     | 5.356   | 4,46%       | 99,86%         |
-| +3     | 167     | 0,14%       | 100,00%        |
+| -2     | 1.539   | 1,28%       | 1,28%          |
+| -1     | 15.961  | 13,30%      | 14,58%         |
+| **0**  | 41.767  | 34,81%      | 49,39%         |
+| +1     | 50.270  | 41,89%      | 91,28%         |
+| +2     | 10.398  | 8,67%       | 99,95%         |
+| +3     | 61      | 0,05%       | 100,00%        |
 - **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)

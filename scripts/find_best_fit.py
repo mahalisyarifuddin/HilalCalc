@@ -158,7 +158,7 @@ def optimize():
 	jds = [d[1] for d in data]
 	is_oblig = [(i % 12) in oblig_indices for i in indices]
 
-	epoch = 1948086
+	epoch = 1948085
 	targets = [jd - epoch for jd in jds]
 
 	# Linear Regression

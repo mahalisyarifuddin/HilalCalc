@@ -3,7 +3,7 @@ import os
 
 def get_tabular_jd(Index, k):
     # k can be int (modular constant) or list of leap years (1-30)
-    off = Index - 12
+    off = Index
     cyc = off // 360
     rem = ((off % 360) + 360) % 360
     yc = rem // 12
@@ -12,7 +12,7 @@ def get_tabular_jd(Index, k):
         leaps = (11 * yc + k) // 30
     else:
         leaps = sum(1 for y in k if y <= yc)
-    return 1948440 + cyc * 10631 + yc * 354 + leaps + (mc * 29.5 + 0.5).__floor__()
+    return 1948085 + cyc * 10631 + yc * 354 + leaps + (mc * 29.5 + 0.5).__floor__()
 
 def evaluate(k, data, is_oblig):
     matches = 0

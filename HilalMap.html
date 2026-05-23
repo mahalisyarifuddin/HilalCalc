@@ -702,8 +702,10 @@ self.onmessage = e => {
 				});
 
 				const today = new Date();
-				elements.mapDate.valueAsDate = today;
-				elements.calcDate.valueAsDate = today;
+				// Use local YYYY-MM-DD instead of valueAsDate to avoid UTC timezone off-by-one errors
+				const formattedDate = `${String(today.getFullYear()).padStart(4, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+				elements.mapDate.value = formattedDate;
+				elements.calcDate.value = formattedDate;
 
 				// Setup canvas overlay
 				const canvas = elements['map-overlay'];

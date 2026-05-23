@@ -57,14 +57,19 @@ These criteria are used for regional and global religious coordination.
 To model long-term historical trends and optimize global approximations, we use a **Global Composite Scenario** that unapologetically accounts for both the western and eastern hemispheres.
 
 **Global Criteria (Mecca 0°):**
-A month starts if the moon satisfies visibility in **Mecca** (Altitude ≥ 0°, Elongation ≥ 0°). This simple local threshold predicts more complex global criteria (like GIC or Composite Adak+Viwa) with high reliability while staying scientifically grounded and avoiding "throwing Mecca under the bus."
+A month starts if the moon satisfies visibility in **Mecca** (Altitude ≥ 0°, Elongation ≥ 0°).
+
+Mecca 0° was chosen as the proposed global criteria for three reasons:
+1.  **Scientific Grounding**: It represents the earliest possible physical visibility at the center of the Islamic world.
+2.  **Robust Correlation**: Our tests show it predicts complex global criteria (like KHGT/Turkey 2016 or composite Adak+Viwa) with higher reliability than fixed tabular methods.
+3.  **Spiritual Centrality**: It provides a unified global anchor based on the geographical 'Qibla' of the Ummah without compromising astronomical accuracy.
 
 ## Statistical Analysis: Simultaneity Rate
 Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid with latitudinal sweep):
-- **Overall Rate**: **43.16%**
-- **Ritual Months**: **43.01%** (Ramadan, Shawwal, Dhu al-Hijjah)
+- **Overall Rate**: **40.20%**
+- **Ritual Months**: **40.15%** (Ramadan, Shawwal, Dhu al-Hijjah)
 
-These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in more than 53% of months.
+These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in nearly 60% of months.
 
 ## Optimized Results & Benchmarks
 
@@ -79,10 +84,10 @@ Comparison of approximation methods against the Mecca 0° Ground Truth (0-10,000
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
 | 1.   | **Optimized Linear Formula** | **67.80%**   | **67.87%**     | **81,365**       |
-| 2.   | Modular Tabular (k=29)       | 26.38%       | 26.38%         | 31,655           |
-| 3.   | Traditional (Kuwaiti)        | 23.46%       | 23.46%         | 28,150           |
+| 2.   | Modular Tabular (k=29)       | 34.81%       | 34.10%         | 41,767           |
+| 3.   | Traditional (Kuwaiti)        | 23.46%       | 22.51%         | 28,150           |
 
-- **k=29**: Modular constant for `((11y + k) mod 30) < 11`, using 1 AH as the reference year.
+- **k=29**: Modular constant for `((11y + k) mod 30) < 11`, using 0 AH as the reference year.
 
 #### Tabular Correction Distribution (+/- 5 Days)
 The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29) and the Mecca 0° ground truth (0-10,000 AH).

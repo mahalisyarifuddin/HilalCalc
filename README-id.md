@@ -57,14 +57,19 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
 Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Skenario Komposit Global** yang secara gamblang mempertimbangkan belahan bumi barat dan timur.
 
 **Kriteria Global (Mekkah 0°):**
-Bulan dimulai jika bulan memenuhi visibilitas di **Mekkah** (Tinggi ≥ 0°, Elongasi ≥ 0°). Ambang batas lokal yang sederhana ini memprediksi kriteria global yang lebih kompleks (seperti KHGT atau Komposit Adak+Viwa) dengan keandalan tinggi sambil tetap berpijak secara ilmiah dan menghindari "mengabaikan Mekkah".
+Bulan dimulai jika bulan memenuhi visibilitas di **Mekkah** (Tinggi ≥ 0°, Elongasi ≥ 0°).
+
+Mekkah 0° dipilih sebagai usulan kriteria global karena tiga alasan:
+1.  **Landasan Ilmiah**: Mewakili visibilitas fisik paling awal yang mungkin terjadi di pusat dunia Islam.
+2.  **Korelasi Kuat**: Pengujian kami menunjukkan kriteria ini memprediksi kriteria global yang kompleks (seperti KHGT/Turki 2016 atau komposit Adak+Viwa) dengan keandalan lebih tinggi daripada metode tabular tetap.
+3.  **Sentralitas Spiritual**: Menyediakan jangkar global terpadu berdasarkan 'Kiblat' geografis Ummat tanpa mengorbankan akurasi astronomis.
 
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang):
-- **Tingkat Keseluruhan**: **43,16%**
-- **Bulan Ritual**: **43,01%** (Ramadan, Syawal, Zulhijah)
+- **Tingkat Keseluruhan**: **40,20%**
+- **Bulan Ritual**: **40,15%** (Ramadan, Syawal, Zulhijah)
 
-Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada lebih dari 53% bulan.
+Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada hampir 60% bulan.
 
 ## Hasil Optimasi & Tolok Ukur
 
@@ -78,11 +83,11 @@ Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (0-10.000 H). P
 
 | Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
-| 1.        | **Rumus Linear Teroptimasi** | **67,80%**  | **67,87%** | **81.365**          |
-| 2.        | Tabular Modular (k=29)       | 26,38%      | 26,38%     | 31.655              |
-| 3.        | Tradisional (Kuwaiti)        | 23,46%      | 23,46%     | 28.150              |
+| 1.        | **Rumus Linear Teroptimasi** | **67.80%**  | **67.87%** | **81.365**          |
+| 2.        | Tabular Modular (k=29)       | 34.81%      | 34.10%     | 41.767              |
+| 3.        | Tradisional (Kuwaiti)        | 23.46%      | 22.51%     | 28.150              |
 
-- **k=29**: Konstanta modular untuk `((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.
+- **k=29**: Konstanta modular untuk `((11y + k) mod 30) < 11`, menggunakan 0 H sebagai tahun referensi.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
 Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=29) dan ground truth Mekkah 0° (0-10.000 H).

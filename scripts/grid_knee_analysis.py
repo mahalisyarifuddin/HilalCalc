@@ -13,23 +13,44 @@ def get_start_jd_mabbims(conj_ut, lats, lons):
     jd_mabbims = None
     for day in range(3):
         search_time = astronomy.Time(conj.ut + day * 1.0)
+
+        # Optimization: Prioritize latitudes near moon's declination
+        moon_eq = astronomy.Equator(astronomy.Body.Moon, search_time, astronomy.Observer(0, 95, 0), True, True)
+        test_lats = sorted(lats, key=lambda x: abs(x - moon_eq.dec))
+
+        # Quick check at westernmost and easternmost edges
+        quick_met = False
+        for lon_check in [lons[-1], lons[0]]:
+            for lat in test_lats:
+                obs = astronomy.Observer(lat, lon_check, 0)
+                ss = astronomy.SearchRiseSet(astronomy.Body.Sun, obs, astronomy.Direction.Set, search_time, 1.0)
+                if ss and ss.ut > conj.ut:
+                    m_vec = astronomy.GeoVector(astronomy.Body.Moon, ss, True)
+                    s_vec = astronomy.GeoVector(astronomy.Body.Sun, ss, True)
+                    if astronomy.AngleBetween(m_vec, s_vec) >= 6.4:
+                        eq_m = astronomy.Equator(astronomy.Body.Moon, ss, obs, True, True)
+                        if astronomy.Horizon(ss, obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal).altitude >= 3.0:
+                            quick_met = True
+                            break
+            if quick_met: break
+        if not quick_met: continue
+
         met = False
-        # Checking West to East in MABBIMS grid (visibility usually better in West)
+        # Checking West to East in MABBIMS grid
         for lon in lons:
-            for lat in lats:
+            for lat in test_lats:
                 obs = astronomy.Observer(lat, lon, 0)
                 sunset = astronomy.SearchRiseSet(astronomy.Body.Sun, obs, astronomy.Direction.Set, search_time, 1.0)
                 if sunset and sunset.ut > conj.ut:
-                    eq_m_topo = astronomy.Equator(astronomy.Body.Moon, sunset, obs, True, True)
-                    hor_m = astronomy.Horizon(sunset, obs, eq_m_topo.ra, eq_m_topo.dec, astronomy.Refraction.Normal)
                     m_vec_geo = astronomy.GeoVector(astronomy.Body.Moon, sunset, True)
                     s_vec_geo = astronomy.GeoVector(astronomy.Body.Sun, sunset, True)
-                    elong_geo = astronomy.AngleBetween(m_vec_geo, s_vec_geo)
-                    if hor_m.altitude >= 3.0 and elong_geo >= 6.4:
-                        jd_candidate = math.floor(sunset.ut + AE_OFFSET + 0.5) + 0.5
-                        if jd_mabbims is None or jd_candidate < jd_mabbims:
-                            jd_mabbims = jd_candidate
-                        met = True
+                    if astronomy.AngleBetween(m_vec_geo, s_vec_geo) >= 6.4:
+                        eq_m_topo = astronomy.Equator(astronomy.Body.Moon, sunset, obs, True, True)
+                        if astronomy.Horizon(sunset, obs, eq_m_topo.ra, eq_m_topo.dec, astronomy.Refraction.Normal).altitude >= 3.0:
+                            jd_candidate = math.floor(sunset.ut + AE_OFFSET + 0.5) + 0.5
+                            if jd_mabbims is None or jd_candidate < jd_mabbims:
+                                jd_mabbims = jd_candidate
+                            met = True
                 if met: break
             if met: break
         if met: break

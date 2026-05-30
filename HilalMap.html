@@ -576,7 +576,7 @@ self.onmessage = e => {
 					if (isGIC) {
 						const nzObs = new Astronomy.Observer(NZ_LAT, NZ_LON, 0);
 						const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
-						isBeforeDeadline = sunset.ut < fajrNZ.ut;
+						isBeforeDeadline = fajrNZ ? sunset.ut < fajrNZ.ut : false;
 					}
 
 					if (isBeforeDeadline) {
@@ -931,7 +931,7 @@ self.onmessage = e => {
 				if (isGICInner) {
 					const nzObs = new Astronomy.Observer(-41.28, 174.77, 0);
 					const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
-					isBeforeDeadline = sunsetUT < fajrNZ.ut;
+					isBeforeDeadline = fajrNZ ? sunsetUT < fajrNZ.ut : false;
 				}
 
 				const visible = (isBeforeDeadline && moonHor.altitude >= minAlt && elongation >= minElong);

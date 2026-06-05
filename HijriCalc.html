@@ -700,7 +700,7 @@
 					today: 'Today',
 					formulaTitle: 'Methodology',
 					formulaDescMabbims: 'MABBIMS criteria search. Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
-					formulaDescLinear: 'Global approximation (Mecca 0°). Accuracy: 67.16% (0–10000 AH).',
+					formulaDescLinear: 'Global approximation (Mecca 0°). Accuracy: 67.80% (0–10000 AH).',
 					formulaDescTabular: 'Modular 30-year cycle. Accuracy: 45.11% (0–10000 AH).',
 					epoch: 'Epoch',
 					leapYears: 'Leap years',
@@ -770,7 +770,7 @@
 					today: 'Hari Ini',
 					formulaTitle: 'Metodologi',
 					formulaDescMabbims: 'Pencarian kriteria MABBIMS. Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.',
-					formulaDescLinear: 'Aproksimasi global (Mekkah 0°). Akurasi: 67.16% (0–10000 H).',
+					formulaDescLinear: 'Aproksimasi global (Mekkah 0°). Akurasi: 67,80% (0–10000 H).',
 					formulaDescTabular: 'Siklus modular 30 tahun. Akurasi: 45.11% (0–10000 H).',
 					epoch: 'Epoh',
 					leapYears: 'Tahun kabisat',
@@ -1191,8 +1191,8 @@
 						$('formulaNote').innerHTML = `<i>${tr.footer}</i>`;
 						$('formulaDesc').textContent = tr.formulaDescMabbims;
 					} else if (mode === 'linear') {
-						$('formulaDisplay').textContent = `JD = 1948440 + floor(29.53057017233·N + 0.0068) + Day − 1\nN = (Year−1)·12 + Month−1`;
-						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 1 AH = JD 1948440.</i>`;
+						$('formulaDisplay').textContent = `JD = 1948440 + floor(29.5305743175·N − 0.24817992) + Day − 1\nN = (Year−1)·12 + Month−1`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 1 AH = JD 1948439.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
 						$('formulaDisplay').textContent = `Leap Year: ((11·Y + 29) mod 30) < 11\nJD = 1948440 + Cycle·10631 + yc·354 + Leaps(yc) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(yc) = ⌊(11·yc + 29) / 30⌋`;
@@ -1310,7 +1310,7 @@
 						const leaps = Math.floor((11 * yc + 29) / 30);
 						return 1948440 + cyc * 10631 + yc * 354 + leaps + Math.floor(mc * 29.5 + 0.5);
 					}
-					return 1948440 + Math.floor(29.53057017233 * off + 0.0068);
+					return 1948440 + Math.floor(29.5305743175 * off - 0.24817992);
 				}
 				linIdxFromJD(jd) {
 					let i = Math.floor((jd - 1948440) / 29.530555) + 12;

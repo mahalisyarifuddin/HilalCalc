@@ -13,7 +13,7 @@ def load_gt():
 
 def main():
     gt = load_gt()
-    # Align to 1 AH (JD 1948441)
+    # Align to 1 AH (JD 1948440)
     # The current GT starts at JD 1948085 (0 AH)
     # 1 AH is Index 12.
     gt_from_1ah = gt[12:]
@@ -30,7 +30,7 @@ def main():
         for k in range(L):
             abs_years = np.arange(num_years)
             leaps = (abs_years[:, None] * N + k) // L
-            preds = 1948441 + abs_years[:, None] * 354 + leaps + month_offsets
+            preds = 1948440 + abs_years[:, None] * 354 + leaps + month_offsets
             m = np.sum(preds == gt_years)
             if m > best_m: best_m = m
         acc = (best_m / (num_years * 12)) * 100

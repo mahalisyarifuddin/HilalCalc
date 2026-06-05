@@ -75,7 +75,7 @@ Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi 
 
 ### 1. Rumus Global Teroptimasi
 Rumus linear untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk kriteria Mekkah 0°) adalah:
-`JD = 1948441 + floor(29.5305719911 * Indeks + 0.01) + Hari - 1`
+`JD = 1948440 + floor(29.53057017233 * Indeks + 0.0068) + Hari - 1`
 *(Indeks = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
 ### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
@@ -83,22 +83,22 @@ Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (0-10.000 H). P
 
 | Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
-| 1.        | **Rumus Linear Teroptimasi** | **10.83%**  | **10.75%** | **13.001**          |
-| 2.        | Tabular Modular (k=1)        | 45.20%      | 46.06%     | 54.236              |
+| 1.        | **Rumus Linear Teroptimasi** | **67.16%**  | **10.75%** | **80.593**          |
+| 2.        | Tabular Modular (k=29)        | 45.11%      | 46.06%     | 54.132              |
 | 3.        | Tradisional (Kuwaiti)        | 23.46%      | 22.51%     | 28.150              |
 
-- **k=1**: Konstanta modular untuk `((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.
+- **k=29**: Konstanta modular untuk `(((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
-Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=1) dan ground truth Mekkah 0° (0-10.000 H).
+Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=29) dan ground truth Mekkah 0° (0-10.000 H).
 
 | Ofset | Cocok   | Akurasi (%) | Kumulatif (%)  |
 | :----- | :------ | :---------- | :------------- |
-| -2     | 9.789   | 8,16%       | 8,16%          |
-| -1     | 33.463  | 27,89%      | 36,04%         |
-| **0**  | 54.236  | 45,20%      | 81,25%         |
-| +1     | 21.535  | 17,95%      | 99,19%         |
-| +2     | 527     | 0,44%       | 99,63%         |
+| -2     | 8.613   | 7,18%        | 7,18%          |
+| -1     | 31.655  | 26,38%       | 33,56%         |
+| **0**  | 54.132  | 45,20%      | 81,25%         |
+| +1     | 24.507  | 20,42%       | 99,09%         |
+| +2     | 771     | 0,64%        | 99,73%         |
 | +3     | 0       | 0,00%       | 100,00%        |
 - **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
 
@@ -106,7 +106,7 @@ Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=1
 Analisis panjang siklus (L=10 hingga 1000) mengidentifikasi **L=30** sebagai knee point utama. Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran hanya ~4 hari selama 10.000 tahun).
 
 ## Cara Kerja Tahun Kabisat Hijriyah
-Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat (3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30), satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**. 1 H setara dengan Tahun 1 dalam siklus.
+Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat (1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28), satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**. 1 H setara dengan Tahun 1 dalam siklus.
 
 ## Skrip Teknis
 Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:

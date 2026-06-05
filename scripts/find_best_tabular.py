@@ -12,7 +12,7 @@ def get_tabular_jd(Index, k):
         leaps = (11 * yc + k) // 30
     else:
         leaps = sum(1 for y in k if y <= yc)
-    return 1948441 + cyc * 10631 + yc * 354 + leaps + (mc * 29.5 + 0.5).__floor__()
+    return 1948440 + cyc * 10631 + yc * 354 + leaps + (mc * 29.5 + 0.5).__floor__()
 
 def evaluate(k, data, is_oblig):
     matches = 0

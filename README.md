@@ -66,8 +66,8 @@ Mecca 0° was chosen as the proposed global criteria for three reasons:
 
 ## Statistical Analysis: Simultaneity Rate
 Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid with latitudinal sweep):
-- **Overall Rate**: **40.04%**
-- **Ritual Months**: **40.11%** (Ramadan, Shawwal, Dhu al-Hijjah)
+- **Overall Rate**: **40.20%**
+- **Ritual Months**: **40.15%** (Ramadan, Shawwal, Dhu al-Hijjah)
 
 These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in nearly 60% of months.
 
@@ -75,7 +75,7 @@ These results indicate that differences in geographical anchoring and visibility
 
 ### 1. Optimized Global Formula
 The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Mecca 0° criteria) is:
-`JD = 1948440 + floor(29.5305743175 * Index - 0.24817992) + Day - 1`
+`JD = 1948440 + floor(29.53057017233 * Index + 0.0068) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
 ### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
@@ -83,8 +83,8 @@ Comparison of approximation methods against the Mecca 0° Ground Truth (0-10,000
 
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
-| 1.   | **Optimized Linear Formula** | **67.80%**   | **67.87%**     | **81,365**       |
-| 2.   | Modular Tabular (k=29)        | 45.11%       | 45.12%         | 54,132           |
+| 1.   | **Optimized Linear Formula** | **67.16%**   | **10.75%**     | **80,593**       |
+| 2.   | Modular Tabular (k=29)        | 45.11%       | 46.06%         | 54,132           |
 | 3.   | Traditional (Kuwaiti)        | 23.46%       | 22.51%         | 28,150           |
 
 - **k=29**: Modular constant for `(((11y + k) mod 30) < 11`, using 1 AH as the reference year.

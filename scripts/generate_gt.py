@@ -15,8 +15,7 @@ def generate():
 	mecca_obs = astronomy.Observer(mecca_lat, mecca_lon, 0)
 
 	# Start: 1 Muharram 0 AH = 1948085 (Noon)
-	# This aligns 1 Muharram 1 AH to JD 1948439 (Sighting-based)
-	# The approximation epoch used in formulas is JD 1948440 for better fit.
+	# This aligns 1 Muharram 1 AH to JD 1948440
 	initial_jd = 1948085
 	total_months = 120000
 

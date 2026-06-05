@@ -66,8 +66,8 @@ Mekkah 0° dipilih sebagai usulan kriteria global karena tiga alasan:
 
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang):
-- **Tingkat Keseluruhan**: **40.04%**
-- **Bulan Ritual**: **40.11%** (Ramadan, Syawal, Zulhijah)
+- **Tingkat Keseluruhan**: **40,20%**
+- **Bulan Ritual**: **40,15%** (Ramadan, Syawal, Zulhijah)
 
 Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada hampir 60% bulan.
 
@@ -75,7 +75,7 @@ Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi 
 
 ### 1. Rumus Global Teroptimasi
 Rumus linear untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk kriteria Mekkah 0°) adalah:
-`JD = 1948440 + floor(29.5305743175 * Indeks - 0.24817992) + Hari - 1`
+`JD = 1948440 + floor(29.53057017233 * Indeks + 0.0068) + Hari - 1`
 *(Indeks = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
 ### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
@@ -83,8 +83,8 @@ Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (0-10.000 H). P
 
 | Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
-| 1.   | **Rumus Linear Teroptimasi** | **67.80%**   | **67.87%**     | **81.365**       |
-| 2.   | Tabular Modular (k=29)        | 45.11%       | 45.12%         | 54.132           |
+| 1.   | **Rumus Linear Teroptimasi** | **67.16%**   | **10.75%**     | **80.593**       |
+| 2.   | Tabular Modular (k=29)        | 45.11%       | 46.06%         | 54.132           |
 | 3.        | Tradisional (Kuwaiti)        | 23.46%      | 22.51%     | 28.150              |
 
 - **k=29**: Konstanta modular untuk `(((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.

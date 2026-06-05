@@ -83,8 +83,8 @@ Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (0-10.000 H). P
 
 | Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
 | :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
-| 1.        | **Rumus Linear Teroptimasi** | **67.16%**  | **10.75%** | **80.593**          |
-| 2.        | Tabular Modular (k=29)        | 45.11%      | 46.06%     | 54.132              |
+| 1.   | **Rumus Linear Teroptimasi** | **67.16%**   | **10.75%**     | **80.593**       |
+| 2.   | Tabular Modular (k=29)        | 45.11%       | 46.06%         | 54.132           |
 | 3.        | Tradisional (Kuwaiti)        | 23.46%      | 22.51%     | 28.150              |
 
 - **k=29**: Konstanta modular untuk `(((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.

@@ -75,7 +75,7 @@ These results indicate that differences in geographical anchoring and visibility
 
 ### 1. Optimized Global Formula
 The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Mecca 0° criteria) is:
-`JD = 1948439 + floor(29.5305743175 * Index + 0.75182) + Day - 1`
+`JD = 1948441 + floor(29.5305719911 * Index + 0.01) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
 ### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
@@ -83,30 +83,30 @@ Comparison of approximation methods against the Mecca 0° Ground Truth (0-10,000
 
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=120k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
-| 1.   | **Optimized Linear Formula** | **67.80%**   | **67.87%**     | **81,365**       |
-| 2.   | Modular Tabular (k=29)       | 34.81%       | 34.10%         | 41,767           |
+| 1.   | **Optimized Linear Formula** | **10.83%**   | **10.75%**     | **13,001**       |
+| 2.   | Modular Tabular (k=1)        | 45.20%       | 46.06%         | 54,236           |
 | 3.   | Traditional (Kuwaiti)        | 23.46%       | 22.51%         | 28,150           |
 
-- **k=29**: Modular constant for `((11y + k) mod 30) < 11`, using 0 AH as the reference year.
+- **k=1**: Modular constant for `((11y + k) mod 30) < 11`, using 1 AH as the reference year.
 
 #### Tabular Correction Distribution (+/- 5 Days)
-The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29) and the Mecca 0° ground truth (0-10,000 AH).
+The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=1) and the Mecca 0° ground truth (0-10,000 AH).
 
 | Offset | Matches | Accuracy (%) | Cumulative (%) |
 | :----- | :------ | :----------- | :------------- |
-| -2     | 1,539   | 1.28%        | 1.28%          |
-| -1     | 15,961  | 13.30%       | 14.58%         |
-| **0**  | 41,767  | 34.81%       | 49.39%         |
-| +1     | 50,270  | 41.89%       | 91.28%         |
-| +2     | 10,398  | 8.67%        | 99.95%         |
-| +3     | 61      | 0.05%        | 100.00%        |
+| -2     | 9,789   | 8.16%        | 8.16%          |
+| -1     | 33,463  | 27.89%       | 36.04%         |
+| **0**  | 54,236  | 45.20%       | 81.25%         |
+| +1     | 21,535  | 17.95%       | 99.19%         |
+| +2     | 527     | 0.44%        | 99.63%         |
+| +3     | 0       | 0.00%        | 100.00%        |
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)
 Analysis of cycle lengths (L=10 to 1000) identifies **L=30** as the primary knee point. Its leap year ratio (11/30 ≈ 0.3667) perfectly balances simplicity with the astronomical mean lunar year (drift of only ~4 days over 10,000 years).
 
 ## How Hijri Leap Years Work
-The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). Modular calendars use the formula `(11y + k) mod 30 < 11` to distribute these leap years. In leap years (3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30), a single day is added to the 12th month, **Dhu al-Hijjah**. 0 AH corresponds to Year 30 of the cycle.
+The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). Modular calendars use the formula `(11y + k) mod 30 < 11` to distribute these leap years. In leap years (3, 6, 9, 11, 14, 17, 19, 22, 25, 28, 30), a single day is added to the 12th month, **Dhu al-Hijjah**. 1 AH corresponds to Year 1 of the cycle.
 
 ## Technical Scripts
 The `scripts/` directory contains the Python tools used for data generation and optimization:

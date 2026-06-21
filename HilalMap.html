@@ -537,6 +537,12 @@ self.onmessage = e => {
 		}
 
 		const NZ_LAT = -41.28, NZ_LON = 174.77;
+		let fajrNZ_ut = null;
+		if (isGIC) {
+			const nzObs = new Astronomy.Observer(NZ_LAT, NZ_LON, 0);
+			const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
+			if (fajrNZ) fajrNZ_ut = fajrNZ.ut;
+		}
 
 		const latToPlateCarreeY = lat => lat;
 		const plateCarreeYToLat = y => y;
@@ -574,9 +580,7 @@ self.onmessage = e => {
 				if (sunset) {
 					let isBeforeDeadline = true;
 					if (isGIC) {
-						const nzObs = new Astronomy.Observer(NZ_LAT, NZ_LON, 0);
-						const fajrNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, date, 2.0, -18.0);
-						isBeforeDeadline = sunset.ut < fajrNZ.ut;
+						isBeforeDeadline = fajrNZ_ut !== null && sunset.ut < fajrNZ_ut;
 					}
 
 					if (isBeforeDeadline) {

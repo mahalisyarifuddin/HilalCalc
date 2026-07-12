@@ -585,20 +585,24 @@ self.onmessage = e => {
 
 					if (isBeforeDeadline) {
 						const obs = new Astronomy.Observer(lat, lon, 0);
-					let mEq, sEq;
-					if (isGIC) {
-						const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
-						const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
-						const rot = Astronomy.Rotation_EQJ_EQD(sunset.ut);
-						mEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
-						sEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
-					} else {
-						mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
-						sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
-					}
+						let mEq, rot;
+						if (isGIC) {
+							const mVecJ = Astronomy.GeoVector(Astronomy.Body.Moon, sunset.ut, true);
+							rot = Astronomy.Rotation_EQJ_EQD(sunset.ut);
+							mEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, mVecJ));
+						} else {
+							mEq = Astronomy.Equator(Astronomy.Body.Moon, sunset.ut, obs, true, true);
+						}
 						const mHor = Astronomy.Horizon(sunset.ut, obs, mEq.ra, mEq.dec, "normal");
 
 						if (mHor.altitude >= criteriaMinAlt) {
+							let sEq;
+							if (isGIC) {
+								const sVecJ = Astronomy.GeoVector(Astronomy.Body.Sun, sunset.ut, true);
+								sEq = Astronomy.EquatorFromVector(Astronomy.RotateVector(rot, sVecJ));
+							} else {
+								sEq = Astronomy.Equator(Astronomy.Body.Sun, sunset.ut, obs, true, true);
+							}
 							visible = Astronomy.AngleBetween(sEq.vec, mEq.vec) >= criteriaMinElong;
 						}
 					}

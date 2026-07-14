@@ -66,8 +66,8 @@ Mecca 0° was chosen as the proposed global criteria for three reasons:
 
 ## Statistical Analysis: Simultaneity Rate
 Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid with latitudinal sweep):
-- **Overall Rate**: **40.20%**
-- **Ritual Months**: **40.15%** (Ramadan, Shawwal, Dhu al-Hijjah)
+- **Overall Rate**: **53.82%**
+- **Ritual Months**: **52.67%** (Ramadan, Shawwal, Dhu al-Hijjah)
 
 These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in nearly 60% of months.
 

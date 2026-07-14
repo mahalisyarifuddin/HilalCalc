@@ -282,8 +282,8 @@
 					simultaneous: "SIMULTANEOUS",
 					divergent: "DIVERGENT",
 					statsTitle: "Simultaneity rate (1-10,000 AH)",
-					statsContent: "Overall: <b>40.04%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>40.11%</b>. Validated against Wellington NZ (Fajr -18°).",
-					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -18°), or Americas if Conjunction < Fajr NZ. 5° grid.",
+					statsContent: "Overall: <b>53.82%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>52.67%</b>. Validated against Wellington NZ (Fajr -17.5°).",
+					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -17.5°), or Americas if Conjunction < Fajr NZ. 5° grid.",
 					acehInfo: "Sunset in Archipelago: ",
 					gicInfo: "KHGT Deadline: ",
 					alt: "Alt",
@@ -299,8 +299,8 @@
 					simultaneous: "SEREMPAK",
 					divergent: "BERBEDA",
 					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
-					statsContent: "Total: <b>40,04%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>40,11%</b>. Divalidasi terhadap Wellington NZ (Fajar -18°).",
-					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -18°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
+					statsContent: "Total: <b>53,82%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>52,67%</b>. Divalidasi terhadap Wellington NZ (Fajar -17.5°).",
+					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -17.5°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
 					acehInfo: "Maghrib di Kepulauan: ",
 					gicInfo: "Tenggat KHGT: ",
 					alt: "Tinggi",
@@ -321,6 +321,104 @@
 				AE_OFFSET: 2451545.0,
 				cache: {}
 			};
+
+			let landGeojson = null;
+
+			const mabbimsLandMapBuffered = {
+				"7": [1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0],
+				"5": [1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0],
+				"0": [0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+				"-5": [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+				"-10": [0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
+				"-11": [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1]
+			};
+
+			async function loadLandData() {
+				try {
+					const response = await fetch('ne_110m_land.geojson');
+					landGeojson = await response.json();
+				} catch (e) {
+					try {
+						const response = await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson');
+						landGeojson = await response.json();
+					} catch (e2) {}
+				}
+				calculate();
+			}
+
+			const landCache = {};
+
+			function isLandGeoJSON(lat, lon, buffer = 0) {
+				const cacheKey = `${lat.toFixed(4)},${lon.toFixed(4)},${buffer.toFixed(4)}`;
+				if (landCache[cacheKey] !== undefined) return landCache[cacheKey];
+
+				if (!landGeojson) {
+					if (buffer > 0) {
+						const row = mabbimsLandMapBuffered[String(lat)];
+						if (row) {
+							const mabbimsLons = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 141];
+							const idx = mabbimsLons.indexOf(lon);
+							if (idx !== -1) return row[idx] === 1;
+						}
+					}
+					return true;
+				}
+
+				const isPointInRing = (pt, ring) => {
+					const x = pt[0], y = pt[1];
+					let inside = false;
+					for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+						const xi = ring[i][0], yi = ring[i][1];
+						const xj = ring[j][0], yj = ring[j][1];
+						const intersect = ((yi > y) !== (yj > y))
+							&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+						if (intersect) inside = !inside;
+					}
+					return inside;
+				};
+
+				const isPointInPolygon = (pt, rings) => {
+					if (!isPointInRing(pt, rings[0])) return false;
+					for (let i = 1; i < rings.length; i++) {
+						if (isPointInRing(pt, rings[i])) return false;
+					}
+					return true;
+				};
+
+				const checkPoint = (y, x) => {
+					const pt = [x, y];
+					for (const feature of landGeojson.features) {
+						const geom = feature.geometry;
+						if (geom.type === 'Polygon') {
+							if (isPointInPolygon(pt, geom.coordinates)) return true;
+						} else if (geom.type === 'MultiPolygon') {
+							for (const poly of geom.coordinates) {
+								if (isPointInPolygon(pt, poly)) return true;
+							}
+						}
+					}
+					return false;
+				};
+
+				let res = false;
+				if (buffer === 0) {
+					res = checkPoint(lat, lon);
+				} else {
+					const offsets = [
+						[0, 0],
+						[-buffer, -buffer], [-buffer, buffer], [buffer, -buffer], [buffer, buffer],
+						[-buffer, 0], [buffer, 0], [0, -buffer], [0, buffer]
+					];
+					for (const [dy, dx] of offsets) {
+						if (checkPoint(lat + dy, lon + dx)) {
+							res = true;
+							break;
+						}
+					}
+				}
+				landCache[cacheKey] = res;
+				return res;
+			}
 
 			function loadState() {
 				try {
@@ -422,8 +520,10 @@
 				let detailAceh = null;
 				
 				const mabbimsLonsReverse = [...mabbimsLons].reverse();
+				const conjDate = utToDate(conj.ut);
 				for (let day = 0; day < 3; day++) {
-					let searchTime = Astronomy.MakeTime(utToDate(conj.ut + day * 1.0));
+					const targetDate = new Date(Date.UTC(conjDate.getUTCFullYear(), conjDate.getUTCMonth(), conjDate.getUTCDate() + day, 0, 0, 0));
+					const searchTime = Astronomy.MakeTime(targetDate);
 					let quickMet = false;
 					const moonEq = Astronomy.Equator(Astronomy.Body.Moon, searchTime, new Astronomy.Observer(0, 95, 0), true, true);
 					const sortedMabbimsLats = [...mabbimsLats].sort((a, b) => Math.abs(a - moonEq.dec) - Math.abs(b - moonEq.dec));
@@ -448,6 +548,7 @@
 					let met = false;
 					for (let lon of mabbimsLonsReverse) {
 						for (let lat of sortedMabbimsLats) {
+							if (!isLandGeoJSON(lat, lon, 2.0)) continue;
 							const obs = new Astronomy.Observer(lat, lon, 0);
 							const ss = Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, searchTime, 1.5);
 							if (ss && ss.ut > conj.ut) {
@@ -482,7 +583,7 @@
 				}
 
 				const nzObs = new Astronomy.Observer(-41.2889, 174.7772, 0);
-				const fNext = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, conj, 1.5, -18.0);
+				const fNext = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, conj, 1.5, -17.5);
 				
 				let jdGic, detailGic;
 
@@ -494,8 +595,18 @@
 					const jdSearch = Math.floor(fNext.ut + state.AE_OFFSET + 0.5);
 
 					const checkVis = (targetJD, conjUT) => {
+						const isAmericas = (lat, lon) => {
+							if (lon > -30 || lon < -170) return false;
+							if (lat >= -56 && lat < -10) return lon >= -82 && lon <= -34;
+							if (lat >= -10 && lat < 10) return lon >= -83 && lon <= -34;
+							if (lat >= 10 && lat < 30) return lon >= -115 && lon <= -60;
+							if (lat >= 30 && lat < 50) return lon >= -125 && lon <= -60;
+							if (lat >= 50 && lat <= 75) return lon >= -168 && lon <= -50;
+							return false;
+						};
+
 						const timeStartOfDay = Astronomy.MakeTime(jdToDate(targetJD - 0.5));
-						const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, timeStartOfDay, 1.0, -18.0);
+						const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, timeStartOfDay, 1.0, -17.5);
 						if (!fNZ || conjUT >= fNZ.ut) return null;
 
 						const moonEq = Astronomy.Equator(Astronomy.Body.Moon, conj, nzObs, true, true);
@@ -534,7 +645,7 @@
 										const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
 										const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
 										if (h >= 5.0) {
-											if (ss.ut <= fNZ.ut || l < -30) return { ut: ss.ut, alt: h, elong: e };
+											if (ss.ut <= fNZ.ut || (isAmericas(lat, l) && isLandGeoJSON(lat, l, 0.0))) return { ut: ss.ut, alt: h, elong: e };
 										}
 									}
 								}
@@ -629,6 +740,7 @@
 			elements.theme.value = state.theme;
 			updateLang();
 			updateTheme();
+			loadLandData();
 		</script>
 	</body>
 </html>

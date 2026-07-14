@@ -422,8 +422,10 @@
 				let detailAceh = null;
 				
 				const mabbimsLonsReverse = [...mabbimsLons].reverse();
+				const conjDate = utToDate(conj.ut);
 				for (let day = 0; day < 3; day++) {
-					let searchTime = Astronomy.MakeTime(utToDate(conj.ut + day * 1.0));
+					const targetDate = new Date(Date.UTC(conjDate.getUTCFullYear(), conjDate.getUTCMonth(), conjDate.getUTCDate() + day, 0, 0, 0));
+					const searchTime = Astronomy.MakeTime(targetDate);
 					let quickMet = false;
 					const moonEq = Astronomy.Equator(Astronomy.Body.Moon, searchTime, new Astronomy.Observer(0, 95, 0), true, true);
 					const sortedMabbimsLats = [...mabbimsLats].sort((a, b) => Math.abs(a - moonEq.dec) - Math.abs(b - moonEq.dec));
@@ -494,6 +496,16 @@
 					const jdSearch = Math.floor(fNext.ut + state.AE_OFFSET + 0.5);
 
 					const checkVis = (targetJD, conjUT) => {
+						const isAmericas = (lat, lon) => {
+							if (lon > -30 || lon < -170) return false;
+							if (lat >= -56 && lat < -10) return lon >= -82 && lon <= -34;
+							if (lat >= -10 && lat < 10) return lon >= -83 && lon <= -34;
+							if (lat >= 10 && lat < 30) return lon >= -115 && lon <= -60;
+							if (lat >= 30 && lat < 50) return lon >= -125 && lon <= -60;
+							if (lat >= 50 && lat <= 75) return lon >= -168 && lon <= -50;
+							return false;
+						};
+
 						const timeStartOfDay = Astronomy.MakeTime(jdToDate(targetJD - 0.5));
 						const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, timeStartOfDay, 1.0, -18.0);
 						if (!fNZ || conjUT >= fNZ.ut) return null;
@@ -534,7 +546,7 @@
 										const eqM = Astronomy.Equator(Astronomy.Body.Moon, ss, obs, true, true);
 										const h = Astronomy.Horizon(ss, obs, eqM.ra, eqM.dec, "normal").altitude;
 										if (h >= 5.0) {
-											if (ss.ut <= fNZ.ut || l < -30) return { ut: ss.ut, alt: h, elong: e };
+											if (ss.ut <= fNZ.ut || isAmericas(lat, l)) return { ut: ss.ut, alt: h, elong: e };
 										}
 									}
 								}

@@ -2,6 +2,8 @@ import astronomy
 import math
 import time
 import datetime
+import os
+import json
 from multiprocessing import Pool
 import sys
 
@@ -9,6 +11,55 @@ AE_OFFSET = 2451545.0
 MABBIMS_LONS = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 141]
 MABBIMS_LATS = [7, 5, 0, -5, -10, -11]
 NZ_OBS = astronomy.Observer(-41.2889, 174.7772, 0)
+
+# Load GeoJSON
+script_dir = os.path.dirname(os.path.abspath(__file__))
+geojson_path = os.path.join(script_dir, '..', 'ne_110m_land.geojson')
+with open(geojson_path) as f:
+    geojson_data = json.load(f)
+
+def is_point_in_polygon(pt, rings):
+    x, y = pt[0], pt[1]
+    inside = False
+    for ring in rings:
+        if len(ring) < 3: continue
+        for i in range(len(ring)):
+            j = i - 1
+            xi, yi = ring[i][0], ring[i][1]
+            xj, yj = ring[j][0], ring[j][1]
+            intersect = ((yi > y) != (yj > y)) and (x < (xj - xi) * (y - yi) / (yj - yi) + xi)
+            if intersect:
+                inside = not inside
+    return inside
+
+def is_land_geojson(lat, lon, buffer=0.0):
+    pt = [lon, lat]
+
+    def check_pt(y, x):
+        p = [x, y]
+        for feature in geojson_data['features']:
+            geom = feature['geometry']
+            if geom['type'] == 'Polygon':
+                if is_point_in_polygon(p, geom['coordinates']):
+                    return True
+            elif geom['type'] == 'MultiPolygon':
+                for poly in geom['coordinates']:
+                    if is_point_in_polygon(p, poly):
+                        return True
+        return False
+
+    if buffer == 0.0:
+        return check_pt(lat, lon)
+
+    offsets = [
+        (0.0, 0.0),
+        (-buffer, -buffer), (-buffer, buffer), (buffer, -buffer), (buffer, buffer),
+        (-buffer, 0.0), (buffer, 0.0), (0.0, -buffer), (0.0, buffer)
+    ]
+    for dy, dx in offsets:
+        if check_pt(lat + dy, lon + dx):
+            return True
+    return False
 
 def is_americas(lat, lon):
     if lon > -30 or lon < -170: return False
@@ -64,7 +115,7 @@ def check_vis(target_jd, conj_ut):
                     eq_m = astronomy.Equator(astronomy.Body.Moon, ss, obs, True, True)
                     h = astronomy.Horizon(ss, obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal).altitude
                     if h >= 5.0:
-                        if ss.ut <= f_nz.ut or is_americas(lat, float(l)):
+                        if ss.ut <= f_nz.ut or (is_americas(lat, float(l)) and is_land_geojson(lat, float(l), 0.0)):
                             return True
     return False
 
@@ -82,8 +133,8 @@ def get_start_jd_mabbims(conj_ut):
         moon_eq = astronomy.Equator(astronomy.Body.Moon, search_time, astronomy.Observer(0, 95, 0), True, True)
         test_lats = sorted(MABBIMS_LATS, key=lambda x: abs(x - moon_eq.dec))
 
-        # Optimization: Westernmost edge (lon 95) has the best visibility in the region.
-        # If met anywhere in the archipelago, it will be met at the western edge on the same JD day.
+        # Quick check for upper-bound (Banda Aceh)
+        quick_met = False
         for lat in test_lats:
             obs = astronomy.Observer(lat, 95, 0)
             ss = astronomy.SearchRiseSet(astronomy.Body.Sun, obs, astronomy.Direction.Set, search_time, 1.0)
@@ -93,7 +144,22 @@ def get_start_jd_mabbims(conj_ut):
                 if astronomy.AngleBetween(m_vec, s_vec) >= 6.4:
                     eq_m = astronomy.Equator(astronomy.Body.Moon, ss, obs, True, True)
                     if astronomy.Horizon(ss, obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal).altitude >= 3.0:
-                        return math.floor(ss.ut + AE_OFFSET + 0.5) + 0.5
+                        quick_met = True
+                        break
+        if not quick_met: continue
+
+        for lon in reversed(MABBIMS_LONS):
+            for lat in test_lats:
+                if not is_land_geojson(lat, lon, 2.0): continue
+                obs = astronomy.Observer(lat, lon, 0)
+                ss = astronomy.SearchRiseSet(astronomy.Body.Sun, obs, astronomy.Direction.Set, search_time, 1.0)
+                if ss and ss.ut > conj_ut:
+                    m_vec = astronomy.GeoVector(astronomy.Body.Moon, ss, True)
+                    s_vec = astronomy.GeoVector(astronomy.Body.Sun, ss, True)
+                    if astronomy.AngleBetween(m_vec, s_vec) >= 6.4:
+                        eq_m = astronomy.Equator(astronomy.Body.Moon, ss, obs, True, True)
+                        if astronomy.Horizon(ss, obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal).altitude >= 3.0:
+                            return math.floor(ss.ut + AE_OFFSET + 0.5) + 0.5
 
     # Fallback to standard 30-day month start relative to first possible sighting
     obs_fallback = astronomy.Observer(5.54829, 95.32375, 0)

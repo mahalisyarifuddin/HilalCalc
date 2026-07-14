@@ -32,7 +32,13 @@ def is_point_in_polygon(pt, rings):
                 inside = not inside
     return inside
 
+is_land_cache = {}
+
 def is_land_geojson(lat, lon, buffer=0.0):
+    cache_key = (round(lat, 4), round(lon, 4), round(buffer, 4))
+    if cache_key in is_land_cache:
+        return is_land_cache[cache_key]
+
     pt = [lon, lat]
 
     def check_pt(y, x):
@@ -48,18 +54,22 @@ def is_land_geojson(lat, lon, buffer=0.0):
                         return True
         return False
 
+    res = False
     if buffer == 0.0:
-        return check_pt(lat, lon)
+        res = check_pt(lat, lon)
+    else:
+        offsets = [
+            (0.0, 0.0),
+            (-buffer, -buffer), (-buffer, buffer), (buffer, -buffer), (buffer, buffer),
+            (-buffer, 0.0), (buffer, 0.0), (0.0, -buffer), (0.0, buffer)
+        ]
+        for dy, dx in offsets:
+            if check_pt(lat + dy, lon + dx):
+                res = True
+                break
 
-    offsets = [
-        (0.0, 0.0),
-        (-buffer, -buffer), (-buffer, buffer), (buffer, -buffer), (buffer, buffer),
-        (-buffer, 0.0), (buffer, 0.0), (0.0, -buffer), (0.0, buffer)
-    ]
-    for dy, dx in offsets:
-        if check_pt(lat + dy, lon + dx):
-            return True
-    return False
+    is_land_cache[cache_key] = res
+    return res
 
 def is_americas(lat, lon):
     if lon > -30 or lon < -170: return False
@@ -76,7 +86,7 @@ def check_vis(target_jd, conj_ut):
     t_start_jd = (t_start_dt - epoch).total_seconds() / 86400.0 + 2440587.5
     time_start_of_day = astronomy.Time(t_start_jd - AE_OFFSET)
 
-    f_nz = astronomy.SearchAltitude(astronomy.Body.Sun, NZ_OBS, astronomy.Direction.Rise, time_start_of_day, 1.0, -18.0)
+    f_nz = astronomy.SearchAltitude(astronomy.Body.Sun, NZ_OBS, astronomy.Direction.Rise, time_start_of_day, 1.0, -17.5)
     if not f_nz or conj_ut >= f_nz.ut: return False
 
     moon_eq = astronomy.Equator(astronomy.Body.Moon, astronomy.Time(conj_ut), NZ_OBS, True, True)
@@ -170,7 +180,7 @@ def get_start_jd_mabbims(conj_ut):
 
 def get_start_jd_gic(conj_ut):
     conj = astronomy.Time(conj_ut)
-    f_nz_next = astronomy.SearchAltitude(astronomy.Body.Sun, NZ_OBS, astronomy.Direction.Rise, conj, 2.0, -18.0)
+    f_nz_next = astronomy.SearchAltitude(astronomy.Body.Sun, NZ_OBS, astronomy.Direction.Rise, conj, 2.0, -17.5)
     if not f_nz_next:
         return math.floor(conj.ut + AE_OFFSET + 0.5) + 1.5
     jd_search = math.floor(f_nz_next.ut + AE_OFFSET + 0.5)

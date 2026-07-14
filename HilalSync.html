@@ -282,8 +282,8 @@
 					simultaneous: "SIMULTANEOUS",
 					divergent: "DIVERGENT",
 					statsTitle: "Simultaneity rate (1-10,000 AH)",
-					statsContent: "Overall: <b>40.04%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>40.11%</b>. Validated against Wellington NZ (Fajr -18°).",
-					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -18°), or Americas if Conjunction < Fajr NZ. 5° grid.",
+					statsContent: "Overall: <b>53.82%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>52.67%</b>. Validated against Wellington NZ (Fajr -17.5°).",
+					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -17.5°), or Americas if Conjunction < Fajr NZ. 5° grid.",
 					acehInfo: "Sunset in Archipelago: ",
 					gicInfo: "KHGT Deadline: ",
 					alt: "Alt",
@@ -299,8 +299,8 @@
 					simultaneous: "SEREMPAK",
 					divergent: "BERBEDA",
 					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
-					statsContent: "Total: <b>40,04%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>40,11%</b>. Divalidasi terhadap Wellington NZ (Fajar -18°).",
-					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -18°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
+					statsContent: "Total: <b>53,82%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>52,67%</b>. Divalidasi terhadap Wellington NZ (Fajar -17.5°).",
+					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -17.5°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
 					acehInfo: "Maghrib di Kepulauan: ",
 					gicInfo: "Tenggat KHGT: ",
 					alt: "Tinggi",
@@ -346,7 +346,12 @@
 				calculate();
 			}
 
+			const landCache = {};
+
 			function isLandGeoJSON(lat, lon, buffer = 0) {
+				const cacheKey = `${lat.toFixed(4)},${lon.toFixed(4)},${buffer.toFixed(4)}`;
+				if (landCache[cacheKey] !== undefined) return landCache[cacheKey];
+
 				if (!landGeojson) {
 					if (buffer > 0) {
 						const row = mabbimsLandMapBuffered[String(lat)];
@@ -395,17 +400,24 @@
 					return false;
 				};
 
-				if (buffer === 0) return checkPoint(lat, lon);
-
-				const offsets = [
-					[0, 0],
-					[-buffer, -buffer], [-buffer, buffer], [buffer, -buffer], [buffer, buffer],
-					[-buffer, 0], [buffer, 0], [0, -buffer], [0, buffer]
-				];
-				for (const [dy, dx] of offsets) {
-					if (checkPoint(lat + dy, lon + dx)) return true;
+				let res = false;
+				if (buffer === 0) {
+					res = checkPoint(lat, lon);
+				} else {
+					const offsets = [
+						[0, 0],
+						[-buffer, -buffer], [-buffer, buffer], [buffer, -buffer], [buffer, buffer],
+						[-buffer, 0], [buffer, 0], [0, -buffer], [0, buffer]
+					];
+					for (const [dy, dx] of offsets) {
+						if (checkPoint(lat + dy, lon + dx)) {
+							res = true;
+							break;
+						}
+					}
 				}
-				return false;
+				landCache[cacheKey] = res;
+				return res;
 			}
 
 			function loadState() {
@@ -571,7 +583,7 @@
 				}
 
 				const nzObs = new Astronomy.Observer(-41.2889, 174.7772, 0);
-				const fNext = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, conj, 1.5, -18.0);
+				const fNext = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, conj, 1.5, -17.5);
 				
 				let jdGic, detailGic;
 
@@ -594,7 +606,7 @@
 						};
 
 						const timeStartOfDay = Astronomy.MakeTime(jdToDate(targetJD - 0.5));
-						const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, timeStartOfDay, 1.0, -18.0);
+						const fNZ = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, timeStartOfDay, 1.0, -17.5);
 						if (!fNZ || conjUT >= fNZ.ut) return null;
 
 						const moonEq = Astronomy.Equator(Astronomy.Body.Moon, conj, nzObs, true, true);

@@ -66,8 +66,8 @@ Mekkah 0° dipilih sebagai usulan kriteria global karena tiga alasan:
 
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang):
-- **Tingkat Keseluruhan**: **40,20%**
-- **Bulan Ritual**: **40,15%** (Ramadan, Syawal, Zulhijah)
+- **Tingkat Keseluruhan**: **53,82%**
+- **Bulan Ritual**: **52,67%** (Ramadan, Syawal, Zulhijah)
 
 Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada hampir 60% bulan.
 

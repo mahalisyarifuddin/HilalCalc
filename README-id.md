@@ -71,6 +71,22 @@ Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepu
 
 Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada hampir 60% bulan.
 
+### Paradoks Kalender Global (GIC) vs. Rukyat Lokal Mekkah 0°
+Kalender Hijriyah Global Tunggal (KHGT/GIC) bertujuan untuk menyatukan tanggal Hijriyah global. Namun, karena GIC mempertimbangkan visibilitas di mana pun secara global sebelum Fajar di Wellington, Selandia Baru—dan mencakup Pengecualian Amerika—kalender ini sering kali mendahului rukyat fisik lokal di Mekkah.
+
+Melalui **simulasi visibilitas hilal toposentrik selama 10.000 tahun (120.000 bulan)** yang membandingkan GIC dengan ground truth Mekkah 0°, ditemukan distribusi selisih hari awal bulan (GIC - Mekkah 0°) sebagai berikut:
+
+| Selisih Hari (GIC - Mekkah 0°) | Kategori Kasus | Tingkat Keseluruhan (120.000 bulan) | Bulan Ritual (30.000 bulan) |
+| :--- | :--- | :--- | :--- |
+| **-2 hari** | GIC mulai 2 hari lebih awal | 3,71% | 4,00% |
+| **-1 hari** | GIC mulai 1 hari lebih awal | 87,67% | 83,67% |
+| **+0 hari** | Mulai Serempak | 8,62% | 12,33% |
+| **>= +1 hari** | GIC mulai *lebih lambat* dari Mekkah | **0,00%** | **0,00%** |
+
+#### Implikasi Teologis dan Astronomis
+- **GIC Mengabaikan Eksistensi Hilal di Mekkah / "Throwing Mecca Under the Bus" (91,38%)**: Di balik klaimnya untuk mengakomodasi wilayah Barat dan Timur, aturan-aturan rumit GIC pada kenyataannya **mengabaikan sama sekali apakah hilal baru tersebut secara fisik sudah mungkin dirukyat di Mekkah atau belum**. Dalam **91,38%** dari seluruh bulan (dan **87,67%** pada bulan-bulan ritual), GIC memulai bulan Hijriyah global **1 atau 2 hari sebelum hilal secara fisik mungkin untuk terlihat/dirukyat di Mekkah**. Dengan demikian, GIC "mengorbankan" Mekkah (mengabaikan sentralitas spiritual kiblat umat) dalam lebih dari 91% kasus demi mengakomodasi kebergantungan penuh pada visibilitas ekstrem belahan barat.
+- **Paradoks Hari Arafah**: Karena GIC mendahului garis waktu fisik aktual di Mekkah dalam **91,38%** kasus, umat Muslim di seluruh dunia yang mengikuti GIC akan merayakan **Hari Arafah (9 Zulhijah) sebelum peristiwa fisik wukuf di Arafah benar-benar berlangsung di Mekkah**. Pada tahun-tahun seperti 1448 H (2027 M), 1454 H (2033 M), dan 1456 H (2035 M), GIC mendahului rukyat lokal Mekkah selama 1 hari, sementara pada tahun seperti 1467 H (2045 M), 1470 H (2048 M), dan 1476 H (2054 M), GIC mendahului Mekkah selama 2 hari penuh.
+
 ## Hasil Optimasi & Tolok Ukur
 
 ### 1. Rumus Global Teroptimasi

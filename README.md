@@ -71,6 +71,22 @@ Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS (Archipelago 5° g
 
 These results indicate that differences in geographical anchoring and visibility definitions lead to divergent starts in nearly 60% of months.
 
+### Global Calendar (GIC) vs. Local Mecca 0° Sighting Paradox
+The Global Islamic Calendar (GIC/KHGT) seeks to unify global Hijri dates. However, because GIC considers visibility anywhere globally before Wellington NZ Fajr—and includes the Americas Exception—it frequently runs ahead of the local physical sighting in Mecca.
+
+Over a **10,000-year topocentric crescent visibility simulation (120,000 months)** comparing GIC against the Mecca 0° ground truth, we find the following start-day offset distribution (GIC - Mecca 0°):
+
+| Sighting Date Offset (GIC - Mecca 0°) | Case Category | Overall Rate (120,000 months) | Ritual Months (30,000 months) |
+| :--- | :--- | :--- | :--- |
+| **-2 days** | GIC starts 2 days earlier | 3.71% | 4.00% |
+| **-1 day** | GIC starts 1 day earlier | 87.67% | 83.67% |
+| **+0 days** | Simultaneous Start | 8.62% | 12.33% |
+| **>= +1 day** | GIC starts *later* than Mecca | **0.00%** | **0.00%** |
+
+#### Theological and Astronomical Implications
+- **GIC Throwing Mecca Under the Bus (91.38%)**: Despite its claim to accommodate both the East and the West, GIC's convoluted rules end up **ignoring whether the new moon is physically possible to be sighted in Mecca**. In **91.38%** of all months (and **87.67%** of ritual months), GIC starts the global Hijri month **1 or 2 days before the crescent is even physically visible/possible to be sighted in Mecca**. In doing so, GIC effectively "throws Mecca under the bus" over 91% of the time, disregarding the spiritual centrality of the Qibla in favor of far-western extreme sightability.
+- **The Day of Arafat Paradox**: Because GIC runs ahead of Mecca's actual physical timeline in **91.38%** of cases, GIC followers globally observe the **9th of Dhu al-Hijjah (Day of Arafat) before the physical event of Wuquf actually takes place on the ground in Mecca**. In years such as 1448 AH (2027 CE), 1454 AH (2033 CE), and 1456 AH (2035 CE), GIC precedes Mecca's local sighting by 1 day, while in years like 1467 AH (2045 CE), 1470 AH (2048 CE), and 1476 AH (2054 CE), GIC precedes Mecca by 2 full days.
+
 ## Optimized Results & Benchmarks
 
 ### 1. Optimized Global Formula

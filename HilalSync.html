@@ -720,8 +720,16 @@
 			function goToday(runCalc = true) {
 				const now = new Date();
 				const jd = now.getTime() / 86400000 + 2440587.5;
-				const index = Math.round((jd - 1948440) / 29.53057);
-				state.year = Math.floor(index / 12) + 1;
+
+				const linMonthStartJD = idx => {
+					const off = idx - 12;
+					return 1948440 + Math.floor(29.53057017233 * off + 0.0068);
+				};
+				let index = Math.floor((jd - 1948440) / 29.530555) + 12;
+				if (linMonthStartJD(index + 1) <= jd) index++;
+				if (linMonthStartJD(index) > jd) index--;
+
+				state.year = Math.floor(index / 12);
 				let m = (index % 12);
 				if (m < 0) m += 12;
 				state.month = m + 1;

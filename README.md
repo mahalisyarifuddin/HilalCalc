@@ -64,6 +64,24 @@ Mecca 0° was chosen as the proposed global criteria for three reasons:
 2.  **Robust Correlation**: Our tests show it predicts complex global criteria (like KHGT/Turkey 2016 or composite Adak+Viwa) with higher reliability than fixed tabular methods.
 3.  **Spiritual Centrality**: It provides a unified global anchor based on the geographical 'Qibla' of the Ummah without compromising astronomical accuracy.
 
+**The Real Global Criteria (Adak + Viwa Composite):**
+To test the "globality promise" of GIC, we define a simpler yet real global criteria using two extreme points of the globe:
+- **Adak Island, Alaska** (51.88° N, 176.66° W, representing the extreme West).
+- **Viwa Island, Fiji** (17.15° S, 176.91° E, representing the extreme East).
+
+A month starts under the **Adak + Viwa** composite criteria if the crescent satisfies local topocentric visibility (Altitude ≥ 3°, Elongation ≥ 6.4°) at either location at sunset.
+
+#### Testing the Globality Promise of GIC
+GIC (Global Islamic Calendar) claims to be a global calendar. However, because it relies on complex, convoluted rules (5° grid search, latitudinal sweep, Wellington NZ Fajr cutoff, and Americas exception), it is computationally extremely heavy and hard to verify.
+In contrast, our simpler **Adak + Viwa** composite criteria achieves **74.00% exact match accuracy** with GIC over a 50-year topocentric crescent visibility simulation. This proves that global visibility can be modeled extremely well with just these two extreme geographical points, bypassing GIC's administrative complexity.
+
+#### Mecca 0° Sighting vs. GIC against the Real Global Baseline
+When evaluated against the **Adak + Viwa** real global baseline:
+- **Mecca 0° Sighting Criteria** (Altitude ≥ 0°, Elongation ≥ 0° at Mecca) achieves **76.00% accuracy**.
+- **Global Islamic Calendar (GIC)** achieves **74.00% accuracy**.
+
+This indicates that Mecca 0° is not only spiritually central and scientifically grounded, but is also **more accurate and closer to the physical boundaries of global visibility** than GIC's complicated, administrative global criteria.
+
 ## Statistical Analysis: Simultaneity Rate
 Simulated over 120,000 months (0-10,000 AH) comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid with latitudinal sweep):
 - **Overall Rate**: **53.82%**

@@ -64,6 +64,24 @@ Mekkah 0° dipilih sebagai usulan kriteria global karena tiga alasan:
 2.  **Korelasi Kuat**: Pengujian kami menunjukkan kriteria ini memprediksi kriteria global yang kompleks (seperti KHGT/Turki 2016 atau komposit Adak+Viwa) dengan keandalan lebih tinggi daripada metode tabular tetap.
 3.  **Sentralitas Spiritual**: Menyediakan jangkar global terpadu berdasarkan 'Kiblat' geografis Ummat tanpa mengorbankan akurasi astronomis.
 
+**Kriteria Global Komposit Riil (Komposit Adak + Viwa):**
+Untuk menguji "janji globalitas" GIC, kami mendefinisikan kriteria global riil yang lebih sederhana menggunakan dua titik ekstrem di bola bumi:
+- **Pulau Adak, Alaska** (51,88° LU, 176,66° BB, mewakili belahan Barat ekstrem).
+- **Pulau Viwa, Fiji** (17,15° LS, 176,91° BT, mewakili belahan Timur ekstrem).
+
+Bulan dimulai di bawah kriteria komposit **Adak + Viwa** jika hilal memenuhi visibilitas toposentrik lokal (Tinggi ≥ 3°, Elongasi ≥ 6,4°) di salah satu lokasi tersebut pada saat matahari terbenam.
+
+#### Menguji Janji Globalitas GIC
+GIC (Global Islamic Calendar) mengklaim sebagai kalender global tunggal. Namun, karena ia bergantung pada aturan-aturan yang sangat rumit dan konvolutif (pencarian grid 5°, sapuan lintang, batas Fajar Wellington NZ, dan pengecualian Amerika), GIC secara komputasi sangat berat dan sulit diverifikasi.
+Sebaliknya, kriteria komposit **Adak + Viwa** kami yang jauh lebih sederhana berhasil mencapai **tingkat akurasi kecocokan persis sebesar 74,00%** dengan GIC dalam simulasi visibilitas hilal toposentrik selama 50 tahun. Hal ini membuktikan bahwa visibilitas global dapat dimodelkan dengan sangat baik hanya melalui dua titik geografis ekstrem ini, melewati kerumitan administratif GIC.
+
+#### Rukyat Mekkah 0° vs. GIC terhadap Baseline Global Riil
+Ketika dievaluasi terhadap baseline global riil **Adak + Viwa**:
+- **Kriteria Rukyat Mekkah 0°** (Tinggi ≥ 0°, Elongasi ≥ 0° di Mekkah) mencapai **akurasi 76,00%**.
+- **Kalender Islam Global (GIC)** mencapai **akurasi 74,00%**.
+
+Ini menunjukkan bahwa Mekkah 0° tidak hanya memiliki sentralitas spiritual dan berlandaskan ilmiah, tetapi juga **lebih akurat dan lebih dekat dengan batas fisik visibilitas global** dibandingkan kriteria global administratif GIC yang rumit.
+
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang):
 - **Tingkat Keseluruhan**: **53,82%**

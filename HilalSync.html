@@ -228,32 +228,32 @@
 					<option value="dark">Dark</option>
 				</select>
 			</div>
-			<h1 id="appTitle">HilalSync</h1>
+			<h1 id="appTitle"></h1>
 			<div class="controls">
-				<button id="prevBtn" class="nav-btn">&laquo;Prev</button>
-				<input type="number" id="hYearInput" placeholder="Year" style="width: 80px;">
+				<button id="prevBtn" class="nav-btn"></button>
+				<input type="number" id="hYearInput" style="width: 80px;">
 				<select id="hMonthInput">
-					<option value="1">Muharram</option>
-					<option value="2">Safar</option>
-					<option value="3">Rabi' al-awwal</option>
-					<option value="4">Rabi' al-thani</option>
-					<option value="5">Jumada al-ula</option>
-					<option value="6">Jumada al-akhira</option>
-					<option value="7">Rajab</option>
-					<option value="8">Sha'ban</option>
-					<option value="9">Ramadan</option>
-					<option value="10">Shawwal</option>
-					<option value="11">Dhu al-Qi'dah</option>
-					<option value="12">Dhu al-Hijjah</option>
+					<option value="1"></option>
+					<option value="2"></option>
+					<option value="3"></option>
+					<option value="4"></option>
+					<option value="5"></option>
+					<option value="6"></option>
+					<option value="7"></option>
+					<option value="8"></option>
+					<option value="9"></option>
+					<option value="10"></option>
+					<option value="11"></option>
+					<option value="12"></option>
 				</select>
 				<select id="dhuDayInput" class="hidden">
 					<option value="0"></option>
 					<option value="8"></option>
 					<option value="9"></option>
 				</select>
-				<button id="goBtn" class="primary">Go</button>
-				<button id="todayBtn">Today</button>
-				<button id="nextBtn" class="nav-btn">Next &raquo;</button>
+				<button id="goBtn" class="primary"></button>
+				<button id="todayBtn"></button>
+				<button id="nextBtn" class="nav-btn"></button>
 			</div>
 			<div id="verdict" class="verdict-box"></div>
 			<div class="panels">
@@ -289,6 +289,10 @@
 					alt: "Alt",
 					elong: "Elong",
 					today: "Today",
+					prevBtn: "«Prev",
+					nextBtn: "Next»",
+					goBtn: "Go",
+					year: "Year",
 					dhuStart: "1st Dhu al-Hijjah",
 					dhuArafat: "Day of Arafat",
 					dhuEid: "Eid al-Adha",
@@ -306,6 +310,10 @@
 					alt: "Tinggi",
 					elong: "Elongasi",
 					today: "Hari Ini",
+					prevBtn: "«Sblm",
+					nextBtn: "Lanjut»",
+					goBtn: "Cari",
+					year: "Tahun",
 					dhuStart: "1 Zulhijah",
 					dhuArafat: "Hari Arafah",
 					dhuEid: "Iduladha",
@@ -474,6 +482,10 @@
 				elements.methodology.innerHTML = strings.methodology;
 				elements.appTitle.textContent = strings.appTitle;
 				elements.todayBtn.textContent = strings.today;
+				elements.prevBtn.textContent = strings.prevBtn;
+				elements.nextBtn.textContent = strings.nextBtn;
+				elements.goBtn.textContent = strings.goBtn;
+				elements.hYearInput.placeholder = strings.year;
 				for (let i = 0; i < 12; i++)
 					elements.hMonthInput.options[i].textContent = strings.monthNames[i];
 

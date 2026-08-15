@@ -783,12 +783,12 @@ self.onmessage = e => {
 				this.language = elements.language.value = document.documentElement.lang = language;
 				this.saveState();
 				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.string(key); });
-				elements['zoom-in'].title = this.string("zoomIn");
-				elements['zoom-in'].setAttribute('aria-label', this.string("zoomIn"));
-				elements['zoom-out'].title = this.string("zoomOut");
-				elements['zoom-out'].setAttribute('aria-label', this.string("zoomOut"));
-				elements['zoom-reset'].title = this.string("zoomReset");
-				elements['zoom-reset'].setAttribute('aria-label', this.string("zoomReset"));
+				['In', 'Out', 'Reset'].forEach(k => {
+					const s = this.string("zoom" + k);
+					const el = elements["zoom-" + k.toLowerCase()];
+					el.title = s;
+					el.setAttribute("aria-label", s);
+				});
 				[...elements.theme.options].forEach(option=>option.textContent = this.string(option.value + "Theme"));
 				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.string("utcPlaceholder");
 				if (elements.calcLat) elements.calcLat.placeholder = this.string("placeholderLat");

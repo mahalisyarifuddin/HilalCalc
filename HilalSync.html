@@ -5,82 +5,715 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<title>HilalSync - Hijri Simultaneity Tracker</title>
 		<style>
-			:root {
-				--primary: #005dac;
-				--on-primary: #ffffff;
-				--hover: #00539a;
-				--background: #f9f9ff;
-				--surface: #ffffff;
-				--text: #181c21;
-				--border: #c1c6d4;
-				--muted: #f2f3fc;
-				--success: #0b6b1d;
-				--on-success: #ffffff;
-				--danger: #ba1a1a;
-				--error: #ba1a1a;
-				--on-danger: #ffffff;
-				--highlight-bg: #d4e3ff;
-			}
+		/* ---------- Design tokens: light (default) ---------- */
+		:root {
+			/* brand */
+			--primary: #005dac;
+			--on-primary: #ffffff;
+			--hover: #00539a;
+			--primary-container: #d4e3ff;
+			--on-primary-container: #001c3a;
 
-			@media (prefers-color-scheme: dark) {
-				:root:not(.light) {
-					--primary: #a5c8ff;
-					--on-primary: #00315f;
-					--hover: #72adff;
-					--background: #101319;
-					--surface: #0b0e14;
-					--text: #e0e2ea;
-					--border: #414752;
-					--muted: #181c21;
-					--success: #82db7e;
-					--on-success: #00390a;
-					--danger: #ffb4ab;
-					--error: #ffb4ab;
-					--on-danger: #93000a;
-					--highlight-bg: #001c3a;
-				}
-			}
+			/* surfaces */
+			--background: #f9f9ff;
+			--surface: #ffffff;
+			--surface-variant: #f2f3fc;
+			--muted: #f2f3fc;
 
-			:root.dark {
+			/* text */
+			--text: #181c21;
+			--text-muted: #5a6069;
+			--text-secondary: #5a6069;
+
+			/* lines */
+			--border: #c1c6d4;
+			--border-strong: #8f95a3;
+
+			/* status */
+			--success: #0b6b1d;
+			--on-success: #ffffff;
+			--success-bg: #d7f5d8;
+			--danger: #ba1a1a;
+			--error: #ba1a1a;
+			--on-danger: #ffffff;
+			--danger-bg: #ffdad6;
+			--warning: #8a5000;
+			--on-warning: #ffffff;
+			--warning-bg: #ffedd5;
+			--accent: #f57c00;
+			--accent-bg: #fff8f0;
+			--highlight-bg: #d4e3ff;
+
+			/* shape */
+			--radius-sm: 4px;
+			--radius: 8px;
+			--radius-lg: 12px;
+			--radius-pill: 999px;
+
+			/* spacing scale */
+			--sp-1: .25rem;
+			--sp-2: .5rem;
+			--sp-3: .75rem;
+			--sp-4: 1rem;
+			--sp-5: 1.5rem;
+			--sp-6: 2rem;
+
+			/* elevation */
+			--shadow-1: 0 1px 2px rgba(16, 19, 25, .08), 0 1px 3px rgba(16, 19, 25, .06);
+			--shadow-2: 0 4px 12px rgba(16, 19, 25, .10), 0 2px 4px rgba(16, 19, 25, .06);
+
+			/* type */
+			--font-sans: sans-serif;
+			--font-mono: monospace;
+
+			/* layout: each app overrides --content-max to fit its column count */
+			--content-max: 1200px;
+		}
+
+		/* ---------- Design tokens: dark ---------- */
+		@media (prefers-color-scheme: dark) {
+			:root:not(.light) {
 				--primary: #a5c8ff;
 				--on-primary: #00315f;
 				--hover: #72adff;
+				--primary-container: #00447b;
+				--on-primary-container: #d4e3ff;
+
 				--background: #101319;
 				--surface: #0b0e14;
-				--text: #e0e2ea;
-				--border: #414752;
+				--surface-variant: #181c21;
 				--muted: #181c21;
+
+				--text: #e0e2ea;
+				--text-muted: #a8adb8;
+				--text-secondary: #a8adb8;
+
+				--border: #414752;
+				--border-strong: #6b7280;
+
 				--success: #82db7e;
 				--on-success: #00390a;
+				--success-bg: #0b2610;
 				--danger: #ffb4ab;
 				--error: #ffb4ab;
 				--on-danger: #93000a;
+				--danger-bg: #3b0908;
+				--warning: #ffb95c;
+				--on-warning: #452b00;
+				--warning-bg: #2b1c05;
+				--accent: #ffb95c;
+				--accent-bg: #1f1600;
 				--highlight-bg: #001c3a;
-			}
 
-			* {
-				box-sizing: border-box;
-				margin: 0;
-				padding: 0;
-				outline-offset: 2px;
+				--shadow-1: 0 1px 2px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4);
+				--shadow-2: 0 4px 12px rgba(0, 0, 0, .55), 0 2px 4px rgba(0, 0, 0, .4);
 			}
+		}
 
+		:root.dark {
+			--primary: #a5c8ff;
+			--on-primary: #00315f;
+			--hover: #72adff;
+			--primary-container: #00447b;
+			--on-primary-container: #d4e3ff;
+
+			--background: #101319;
+			--surface: #0b0e14;
+			--surface-variant: #181c21;
+			--muted: #181c21;
+
+			--text: #e0e2ea;
+			--text-muted: #a8adb8;
+			--text-secondary: #a8adb8;
+
+			--border: #414752;
+			--border-strong: #6b7280;
+
+			--success: #82db7e;
+			--on-success: #00390a;
+			--success-bg: #0b2610;
+			--danger: #ffb4ab;
+			--error: #ffb4ab;
+			--on-danger: #93000a;
+			--danger-bg: #3b0908;
+			--warning: #ffb95c;
+			--on-warning: #452b00;
+			--warning-bg: #2b1c05;
+			--accent: #ffb95c;
+			--accent-bg: #1f1600;
+			--highlight-bg: #001c3a;
+
+			--shadow-1: 0 1px 2px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4);
+			--shadow-2: 0 4px 12px rgba(0, 0, 0, .55), 0 2px 4px rgba(0, 0, 0, .4);
+		}
+
+		/* ---------- Reset ---------- */
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		*:focus-visible {
+			outline: 2px solid var(--primary);
+			outline-offset: 2px;
+		}
+
+		html {
+			-webkit-text-size-adjust: 100%;
+		}
+
+		body {
+			background: var(--background);
+			color: var(--text);
+			font-family: var(--font-sans);
+			font-size: 1rem;
+			line-height: 1.5;
+			min-height: 100vh;
+			padding: var(--sp-5) var(--sp-4);
+			display: flex;
+			flex-direction: column;
+			gap: var(--sp-5);
+		}
+
+		/* ---------- App shell ----------
+		   .app-header / .app-main / .app-footer are all centred on --content-max,
+		   so narrow apps read as a centred card and wide apps fill the viewport. */
+		.app-header,
+		.app-main,
+		.app-footer {
+			width: 100%;
+			max-width: var(--content-max);
+			margin-inline: auto;
+		}
+
+		.app-header {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: var(--sp-4);
+			flex-wrap: wrap;
+		}
+
+		.app-title-group {
+			min-width: 0;
+		}
+
+		.app-title-group h1 {
+			font-size: 1.75rem;
+			font-weight: 600;
+			line-height: 1.2;
+			margin: 0;
+		}
+
+		.app-subtitle {
+			color: var(--text-muted);
+			font-size: .9rem;
+			margin-top: var(--sp-1);
+		}
+
+		.app-controls {
+			display: flex;
+			align-items: center;
+			gap: var(--sp-2);
+			flex-wrap: wrap;
+		}
+
+		.app-controls select,
+		.app-controls button {
+			width: auto;
+			font-size: .875rem;
+			padding: var(--sp-1) var(--sp-2);
+			margin: 0;
+		}
+
+		.app-main {
+			flex: 1;
+		}
+
+		.app-footer {
+			border-top: 1px solid var(--border);
+			padding-top: var(--sp-4);
+			color: var(--text-muted);
+			font-size: .8125rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: var(--sp-3);
+			flex-wrap: wrap;
+		}
+
+		.app-footer a,
+		.footer-link {
+			color: var(--primary);
+			background: none;
+			border: 0;
+			padding: 0;
+			width: auto;
+			font: inherit;
+			cursor: pointer;
+			text-decoration: none;
+		}
+
+		.app-footer a:hover,
+		.footer-link:hover {
+			text-decoration: underline;
+			background: none;
+		}
+
+		/* ---------- Surfaces ---------- */
+		.container,
+		.card,
+		.panel,
+		.app-main > section {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: var(--sp-5);
+			min-width: 0;
+		}
+
+		/* Nested blocks inside a surface step down to the page background */
+		.group,
+		.subcard {
+			background: var(--background);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-sm);
+			padding: var(--sp-4);
+			margin-bottom: var(--sp-4);
+			min-width: 0;
+		}
+
+		/* ---------- Typography ---------- */
+		h1 {
+			font-size: 1.75rem;
+			font-weight: 600;
+			line-height: 1.2;
+		}
+
+		h2 {
+			font-size: 1.2rem;
+			font-weight: 600;
+			margin: 0 0 var(--sp-4);
+			padding-bottom: var(--sp-3);
+			border-bottom: 1px solid var(--border);
+		}
+
+		h3 {
+			font-size: 1rem;
+			font-weight: 600;
+			margin: var(--sp-4) 0 var(--sp-2);
+		}
+
+		p {
+			margin: 0 0 var(--sp-3);
+		}
+
+		p:last-child {
+			margin-bottom: 0;
+		}
+
+		a {
+			color: var(--primary);
+		}
+
+		code,
+		kbd,
+		pre,
+		samp {
+			font-family: var(--font-mono);
+			font-size: .875em;
+		}
+
+		small,
+		.text-sm {
+			font-size: .875rem;
+		}
+
+		.text-muted {
+			color: var(--text-muted);
+		}
+
+		.info {
+			font-size: .875rem;
+			color: var(--text-muted);
+			line-height: 1.6;
+		}
+
+		/* ---------- Forms ---------- */
+		label {
+			display: block;
+			font-weight: 500;
+			font-size: .875rem;
+			margin-bottom: var(--sp-1);
+		}
+
+		input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),
+		select,
+		textarea {
+			width: 100%;
+			padding: var(--sp-2) var(--sp-3);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-sm);
+			background: var(--surface);
+			color: var(--text);
+			font-family: inherit;
+			font-size: .9375rem;
+			line-height: 1.4;
+		}
+
+		input:hover:not(:disabled),
+		select:hover:not(:disabled),
+		textarea:hover:not(:disabled) {
+			border-color: var(--border-strong);
+		}
+
+		input:disabled,
+		select:disabled,
+		textarea:disabled {
+			opacity: .6;
+			cursor: not-allowed;
+		}
+
+		input[type=number] {
+			text-align: right;
+		}
+
+		input[type=range] {
+			width: 100%;
+			accent-color: var(--primary);
+		}
+
+		input[type=checkbox],
+		input[type=radio] {
+			accent-color: var(--primary);
+			width: auto;
+		}
+
+		textarea {
+			resize: vertical;
+		}
+
+		fieldset {
+			border: 1px solid var(--border);
+			border-radius: var(--radius-sm);
+			padding: var(--sp-3);
+		}
+
+		legend {
+			padding: 0 var(--sp-1);
+			font-weight: 600;
+			font-size: .875rem;
+		}
+
+		/* ---------- Buttons ---------- */
+		button {
+			background: var(--surface);
+			color: var(--text);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-sm);
+			padding: var(--sp-2) var(--sp-4);
+			font-family: inherit;
+			font-size: .9375rem;
+			font-weight: 500;
+			line-height: 1.4;
+			cursor: pointer;
+		}
+
+		button:hover:not(:disabled) {
+			background: var(--muted);
+			border-color: var(--border-strong);
+		}
+
+		button.primary,
+		.btn-primary {
+			background: var(--primary);
+			color: var(--on-primary);
+			border-color: var(--primary);
+		}
+
+		button.primary:hover:not(:disabled),
+		.btn-primary:hover:not(:disabled) {
+			background: var(--hover);
+			border-color: var(--hover);
+		}
+
+		button.secondary,
+		.btn-secondary {
+			background: var(--surface);
+			color: var(--text);
+			border-color: var(--border);
+		}
+
+		button.secondary:hover:not(:disabled),
+		.btn-secondary:hover:not(:disabled) {
+			background: var(--muted);
+		}
+
+		button.success {
+			background: var(--success);
+			color: var(--on-success);
+			border-color: var(--success);
+		}
+
+		button.danger {
+			background: var(--danger);
+			color: var(--on-danger);
+			border-color: var(--danger);
+		}
+
+		button.success:hover:not(:disabled),
+		button.danger:hover:not(:disabled) {
+			filter: brightness(.92);
+		}
+
+		button.ghost,
+		.icon-button {
+			background: transparent;
+			border-color: transparent;
+			color: var(--text);
+		}
+
+		button.ghost:hover:not(:disabled),
+		.icon-button:hover:not(:disabled) {
+			background: var(--muted);
+			border-color: transparent;
+		}
+
+		/* Disabled last so it wins over every variant above and stays readable */
+		button:disabled,
+		button.primary:disabled,
+		button.success:disabled,
+		button.danger:disabled {
+			background: var(--muted);
+			color: var(--text-muted);
+			border-color: var(--border);
+			opacity: .7;
+			cursor: not-allowed;
+			filter: none;
+		}
+
+		/* ---------- Tables ---------- */
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			font-size: .9375rem;
+			font-variant-numeric: tabular-nums;
+		}
+
+		th,
+		td {
+			border: 1px solid var(--border);
+			padding: var(--sp-2) var(--sp-3);
+			text-align: left;
+		}
+
+		th {
+			background: var(--primary);
+			color: var(--on-primary);
+			font-weight: 600;
+		}
+
+		tbody tr:nth-child(even) {
+			background: var(--surface-variant);
+		}
+
+		.table-scroll {
+			overflow-x: auto;
+		}
+
+		/* ---------- Status / feedback ---------- */
+		.error,
+		.error-text {
+			color: var(--danger);
+			font-size: .875rem;
+			font-weight: 500;
+		}
+
+		.positive {
+			color: var(--success);
+			font-weight: 600;
+		}
+
+		.negative {
+			color: var(--danger);
+			font-weight: 600;
+		}
+
+		.highlight {
+			background: var(--highlight-bg);
+			font-weight: 600;
+		}
+
+		.badge {
+			display: inline-block;
+			padding: 2px var(--sp-2);
+			border-radius: var(--radius-pill);
+			background: var(--muted);
+			border: 1px solid var(--border);
+			font-size: .75rem;
+			font-weight: 600;
+		}
+
+		/* ---------- Dialogs ---------- */
+		dialog {
+			background: var(--surface);
+			color: var(--text);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			box-shadow: var(--shadow-2);
+			padding: var(--sp-5);
+			max-width: 800px;
+			max-height: 90vh;
+			width: calc(100% - 2rem);
+			margin: auto;
+			overflow-y: auto;
+		}
+
+		dialog::backdrop {
+			background: rgba(0, 0, 0, .5);
+		}
+
+		.dialog-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: var(--sp-4);
+			margin-bottom: var(--sp-4);
+		}
+
+		.dialog-header h2 {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 1.25rem;
+		}
+
+		.close-button {
+			background: transparent;
+			border: 0;
+			color: var(--text);
+			font-size: 1.5rem;
+			line-height: 1;
+			padding: var(--sp-1);
+			width: auto;
+			cursor: pointer;
+		}
+
+		.close-button:hover {
+			background: var(--muted);
+		}
+
+		/* ---------- Layout helpers ---------- */
+		.row {
+			display: flex;
+			gap: var(--sp-4);
+			flex-wrap: wrap;
+		}
+
+		.row > * {
+			min-width: 0;
+		}
+
+		.actions {
+			display: flex;
+			gap: var(--sp-2);
+			flex-wrap: wrap;
+		}
+
+		.stack {
+			display: flex;
+			flex-direction: column;
+			gap: var(--sp-3);
+		}
+
+		.flex-1 {
+			flex: 1;
+		}
+
+		.w-auto {
+			width: auto;
+		}
+
+		.m-0 {
+			margin: 0;
+		}
+
+		.mt-sm {
+			margin-top: var(--sp-2);
+		}
+
+		.mt-md {
+			margin-top: var(--sp-4);
+		}
+
+		.mt-lg {
+			margin-top: var(--sp-6);
+		}
+
+		.hidden {
+			display: none !important;
+		}
+
+		.sr-only {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border: 0;
+		}
+
+		/* ---------- Scrollbars ---------- */
+		* {
+			scrollbar-color: var(--border-strong) transparent;
+		}
+
+		/* ---------- Responsive ---------- */
+		@media (max-width: 768px) {
 			body {
-				background: var(--background);
-				color: var(--text);
-				font-family: sans-serif;
-				display: flex;
-				justify-content: center;
-				min-height: 100vh;
-				padding: 1rem;
+				padding: var(--sp-4) var(--sp-3);
+				gap: var(--sp-4);
 			}
 
+			.container,
+			.card,
+			.panel,
+			.app-main > section {
+				padding: var(--sp-4);
+			}
+
+			.app-title-group h1 {
+				font-size: 1.375rem;
+			}
+
+			.app-header {
+				gap: var(--sp-2);
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*,
+			*::before,
+			*::after {
+				animation-duration: .01ms !important;
+				transition-duration: .01ms !important;
+			}
+		}
+
+		/* ============================================================
+		   APP OVERRIDES — HilalCalc
+		   ============================================================ */
+		:root {
+			--content-max: 900px;
+		}
+
+		/* ---------- app-specific ---------- */
 			.container {
-				background: var(--surface);
-				border: 1px solid var(--border);
-				border-radius: 8px;
 				max-width: 900px;
-				padding: 2rem;
 				width: 100%;
 				margin: 2rem 0;
 				display: flex;
@@ -100,19 +733,6 @@
 			.selectors select {
 				width: auto;
 				font-size: .9rem;
-			}
-
-			select, input, button {
-				background: var(--surface);
-				border: 1px solid var(--border);
-				border-radius: 4px;
-				color: var(--text);
-				font-size: 1rem;
-				padding: .5rem;
-			}
-
-			button {
-				cursor: pointer;
 			}
 
 			.primary {
@@ -148,12 +768,6 @@
 				display: grid;
 				grid-template-columns: 1fr 1fr;
 				gap: 1rem;
-			}
-
-			.panel {
-				border: 1px solid var(--border);
-				padding: 1rem;
-				border-radius: 4px;
 			}
 
 			.panel-title {
@@ -210,70 +824,234 @@
 				}
 			}
 
-			.hidden {
-				display: none !important;
+			/* ---------- date navigator ---------- */
+			.datenav {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: var(--sp-3);
+				margin-bottom: var(--sp-5);
+			}
+
+			/* the arrows, year and month read as ONE segmented control */
+			.datenav-group {
+				display: flex;
+				align-items: stretch;
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				background: var(--surface);
+				overflow: hidden;
+			}
+
+			/* The shared form rule carries four :not() pseudo-classes, so plain
+			   `.datenav-group > input` loses the cascade. :where() adds no
+			   specificity, so the weight here is raised deliberately to match. */
+			.datenav-group > :where(input, select, button, *) {
+				border: 0;
+				border-radius: 0;
+				margin: 0;
+				background: transparent;
+			}
+
+			.datenav-group > input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+			.datenav-group > select:not([multiple]):not([size]) {
+				border: 0;
+				border-radius: 0;
+				margin: 0;
+				background: transparent;
+			}
+
+			/* dividers: same specificity trick as the reset above, otherwise the
+			   shared form rule wins and the segments lose their separators */
+			.datenav-group > * + *,
+			.datenav-group > * + input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+			.datenav-group > * + select:not([multiple]):not([size]) {
+				border-left: 1px solid var(--border);
+			}
+
+			.datenav-group .nav-btn {
+				width: auto;
+				min-width: 2.75rem;
+				padding: var(--sp-2) var(--sp-3);
+				font-size: 1.5rem;
+				line-height: 1;
+				color: var(--text-muted);
+			}
+
+			.datenav-group .nav-btn:hover:not(:disabled) {
+				color: var(--text);
+			}
+
+			.datenav-group .nav-btn:hover:not(:disabled) {
+				background: var(--muted);
+			}
+
+			.datenav-group .nav-btn:disabled {
+				background: transparent;
+				opacity: .35;
+			}
+
+			/* override the shared full-width form rule that broke the row */
+			.datenav-group #hYearInput {
+				width: 5.5rem;
+				text-align: center;
+				font-variant-numeric: tabular-nums;
+				-moz-appearance: textfield;
+			}
+
+			/* the spinner arrows crowd a 5.5rem box; the ‹ › buttons do that job */
+			.datenav-group #hYearInput::-webkit-outer-spin-button,
+			.datenav-group #hYearInput::-webkit-inner-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
+
+			.datenav-group #hMonthInput {
+				width: auto;
+				min-width: 11rem;
+				font-weight: 500;
+			}
+
+			.datenav-group :focus-visible {
+				outline-offset: -2px;
+			}
+
+			#todayBtn:disabled {
+				opacity: .5;
+			}
+
+			.dhu-wrap {
+				display: flex;
+				align-items: center;
+				gap: var(--sp-2);
+				margin: 0;
+				font-size: .875rem;
+				font-weight: 500;
+				white-space: nowrap;
+			}
+
+			.dhu-wrap select {
+				width: auto;
+			}
+
+			.datenav-hint {
+				flex-basis: 100%;
+				text-align: center;
+				font-size: .8125rem;
+				color: var(--text-muted);
+			}
+
+			.datenav-hint kbd {
+				display: inline-block;
+				min-width: 1.6em;
+				border: 1px solid var(--border);
+				border-bottom-width: 2px;
+				border-radius: var(--radius-sm);
+				padding: .1em .35em;
+				font-family: var(--font-sans);
+				font-size: 1em;
+				line-height: 1.2;
+				text-align: center;
+				color: var(--text);
+			}
+
+			/* the hint is a nicety, not a control -- hide it on touch layouts
+			   where there is no physical keyboard to press */
+			@media (max-width: 560px), (hover: none) {
+				.datenav-hint {
+					display: none;
+				}
+			}
+
+			@media (max-width: 560px) {
+				.datenav-group {
+					width: 100%;
+				}
+
+				.datenav-group #hMonthInput {
+					flex: 1;
+					min-width: 0;
+				}
 			}
 		</style>
 	</head>
 	<body>
-		<div class="container">
-			<div class="selectors">
-				<select id="language" aria-label="Language">
-					<option value="en">English</option>
-					<option value="id">Bahasa Indonesia</option>
-				</select>
-				<select id="theme" aria-label="Theme">
-					<option value="auto">Auto</option>
-					<option value="light">Light</option>
-					<option value="dark">Dark</option>
-				</select>
-			</div>
+	<header class="app-header">
+		<div class="app-title-group">
 			<h1 id="appTitle"></h1>
-			<div class="controls">
-				<button id="prevBtn" class="nav-btn"></button>
-				<input type="number" id="hYearInput" style="width: 80px;">
-				<select id="hMonthInput">
-					<option value="1"></option>
-					<option value="2"></option>
-					<option value="3"></option>
-					<option value="4"></option>
-					<option value="5"></option>
-					<option value="6"></option>
-					<option value="7"></option>
-					<option value="8"></option>
-					<option value="9"></option>
-					<option value="10"></option>
-					<option value="11"></option>
-					<option value="12"></option>
-				</select>
-				<select id="dhuDayInput" class="hidden">
-					<option value="0"></option>
-					<option value="8"></option>
-					<option value="9"></option>
-				</select>
-				<button id="goBtn" class="primary"></button>
-				<button id="todayBtn"></button>
-				<button id="nextBtn" class="nav-btn"></button>
-			</div>
-			<div id="verdict" class="verdict-box"></div>
-			<div class="panels">
-				<div class="panel">
-					<div class="panel-title">MABBIMS [Archipelago]</div>
-					<div id="dateAceh" class="panel-date"></div>
-					<div id="infoAceh" class="panel-info"></div>
-				</div>
-				<div class="panel">
-					<div class="panel-title">GIC [Global]</div>
-					<div id="dateGic" class="panel-date"></div>
-					<div id="infoGic" class="panel-info"></div>
-				</div>
-			</div>
-			<div class="stats-box">
-				<div id="statsTitle" class="stats-title"></div>
-				<p id="statsContent"></p>
-			</div>
-			<div id="methodology" class="panel-info"></div>
 		</div>
+		<div class="app-controls">
+						<select id="language" aria-label="Language">
+							<option value="en">English</option>
+							<option value="id">Bahasa Indonesia</option>
+						</select>
+						<select id="theme" aria-label="Theme">
+							<option value="auto">Auto</option>
+							<option value="light">Light</option>
+							<option value="dark">Dark</option>
+						</select>
+					</div>
+	</header>
+
+	<main class="app-main">
+	<div class="container">
+	<nav class="datenav" id="datenav" aria-label="Hijri month navigation">
+		<div class="datenav-group">
+			<button id="prevBtn" class="nav-btn" type="button" aria-label="Previous month">&#8249;</button>
+			<input type="number" id="hYearInput" min="1" max="10000" step="1" inputmode="numeric" aria-label="Hijri year">
+			<select id="hMonthInput" aria-label="Hijri month">
+				<option value="1"></option>
+				<option value="2"></option>
+				<option value="3"></option>
+				<option value="4"></option>
+				<option value="5"></option>
+				<option value="6"></option>
+				<option value="7"></option>
+				<option value="8"></option>
+				<option value="9"></option>
+				<option value="10"></option>
+				<option value="11"></option>
+				<option value="12"></option>
+			</select>
+			<button id="nextBtn" class="nav-btn" type="button" aria-label="Next month">&#8250;</button>
+		</div>
+		<button id="todayBtn" type="button" class="secondary"></button>
+		<label id="dhuWrap" class="dhu-wrap hidden">
+			<span id="dhuLabel"></span>
+			<select id="dhuDayInput">
+				<option value="0"></option>
+				<option value="8"></option>
+				<option value="9"></option>
+			</select>
+		</label>
+		<span class="datenav-hint" id="navHint" aria-hidden="true"></span>
+	</nav>
+		<div id="verdict" class="verdict-box"></div>
+		<div class="panels">
+			<div class="panel">
+				<div class="panel-title">MABBIMS [Archipelago]</div>
+				<div id="dateAceh" class="panel-date"></div>
+				<div id="infoAceh" class="panel-info"></div>
+			</div>
+			<div class="panel">
+				<div class="panel-title">GIC [Global]</div>
+				<div id="dateGic" class="panel-date"></div>
+				<div id="infoGic" class="panel-info"></div>
+			</div>
+		</div>
+		<div class="stats-box">
+			<div id="statsTitle" class="stats-title"></div>
+			<p id="statsContent"></p>
+		</div>
+		<div id="methodology" class="panel-info"></div>
+	</div>
+	</main>
+
+	<footer class="app-footer">
+		<span>HilalSync</span>
+		<a href="https://github.com/mahalisyarifuddin/HilalCalc" target="_blank" rel="noopener">Source</a>
+		</footer>
 		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 		<script>
 			const text = {
@@ -289,9 +1067,10 @@
 					alt: "Alt",
 					elong: "Elong",
 					today: "Today",
-					prevBtn: "«Prev",
-					nextBtn: "Next»",
-					goBtn: "Go",
+					prevTitle: "Previous month",
+					nextTitle: "Next month",
+					dhuLabel: "Show",
+					navHint: "Use <kbd>←</kbd> and <kbd>→</kbd> to change month",
 					year: "Year",
 					dhuStart: "1st Dhu al-Hijjah",
 					dhuArafat: "Day of Arafat",
@@ -310,9 +1089,10 @@
 					alt: "Tinggi",
 					elong: "Elongasi",
 					today: "Hari Ini",
-					prevBtn: "«Sblm",
-					nextBtn: "Lanjut»",
-					goBtn: "Cari",
+					prevTitle: "Bulan sebelumnya",
+					nextTitle: "Bulan berikutnya",
+					dhuLabel: "Tampilkan",
+					navHint: "Gunakan <kbd>←</kbd> dan <kbd>→</kbd> untuk ganti bulan",
 					year: "Tahun",
 					dhuStart: "1 Zulhijah",
 					dhuArafat: "Hari Arafah",
@@ -451,8 +1231,10 @@
 				dhuDayInput: document.getElementById('dhuDayInput'),
 				prevBtn: document.getElementById('prevBtn'),
 				nextBtn: document.getElementById('nextBtn'),
-				goBtn: document.getElementById('goBtn'),
 				todayBtn: document.getElementById('todayBtn'),
+				dhuWrap: document.getElementById('dhuWrap'),
+				dhuLabel: document.getElementById('dhuLabel'),
+				navHint: document.getElementById('navHint'),
 				verdict: document.getElementById('verdict'),
 				dateAceh: document.getElementById('dateAceh'),
 				infoAceh: document.getElementById('infoAceh'),
@@ -472,7 +1254,6 @@
 				return jdToDate(ut + state.AE_OFFSET);
 			}
 
-
 			function updateLang() {
 				state.lang = elements.language.value;
 				saveState();
@@ -482,10 +1263,12 @@
 				elements.methodology.innerHTML = strings.methodology;
 				elements.appTitle.textContent = strings.appTitle;
 				elements.todayBtn.textContent = strings.today;
-				elements.prevBtn.textContent = strings.prevBtn;
-				elements.nextBtn.textContent = strings.nextBtn;
-				elements.goBtn.textContent = strings.goBtn;
+				elements.prevBtn.title = elements.prevBtn.ariaLabel = strings.prevTitle;
+				elements.nextBtn.title = elements.nextBtn.ariaLabel = strings.nextTitle;
+				elements.dhuLabel.textContent = strings.dhuLabel;
+				elements.navHint.innerHTML = strings.navHint;
 				elements.hYearInput.placeholder = strings.year;
+				elements.hYearInput.title = strings.year;
 				for (let i = 0; i < 12; i++)
 					elements.hMonthInput.options[i].textContent = strings.monthNames[i];
 
@@ -527,10 +1310,10 @@
 
 				const mabbimsLons = [95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 141];
 				const mabbimsLats = [7, 5, 0, -5, -10, -11];
-				
+
 				let jdAceh = null;
 				let detailAceh = null;
-				
+
 				const mabbimsLonsReverse = [...mabbimsLons].reverse();
 				const conjDate = utToDate(conj.ut);
 				for (let day = 0; day < 3; day++) {
@@ -596,7 +1379,7 @@
 
 				const nzObs = new Astronomy.Observer(-41.2889, 174.7772, 0);
 				const fNext = Astronomy.SearchAltitude(Astronomy.Body.Sun, nzObs, 1, conj, 1.5, -17.5);
-				
+
 				let jdGic, detailGic;
 
 				if (!fNext) {
@@ -681,13 +1464,34 @@
 				return res;
 			}
 
+			/* Hijri year/month of the current date -- used by goToday() and to
+			   disable "Today" when it would do nothing. */
+			function todayYM() {
+				const jd = Date.now() / 86400000 + 2440587.5;
+				const linMonthStartJD = idx => 1948440 + Math.floor(29.53057017233 * (idx - 12) + 0.0068);
+				let index = Math.floor((jd - 1948440) / 29.530555) + 12;
+				if (linMonthStartJD(index + 1) <= jd) index++;
+				if (linMonthStartJD(index) > jd) index--;
+				let m = index % 12;
+				if (m < 0) m += 12;
+				return { year: Math.floor(index / 12), month: m + 1 };
+			}
+
+			function updateNavState() {
+				const t = todayYM();
+				elements.todayBtn.disabled = (state.year === t.year && state.month === t.month);
+				elements.prevBtn.disabled = (state.year <= 1 && state.month <= 1);
+				elements.nextBtn.disabled = (state.year >= 10000 && state.month >= 12);
+			}
+
 			function calculate() {
-				state.year = parseInt(elements.hYearInput.value) || 1;
+				state.year = Math.min(10000, Math.max(1, parseInt(elements.hYearInput.value) || 1));
+				if (String(state.year) !== elements.hYearInput.value) elements.hYearInput.value = state.year;
 				state.month = parseInt(elements.hMonthInput.value);
 				let res = getStartJD(state.year, state.month);
 
 				const isDhu = state.month === 12;
-				elements.dhuDayInput.classList.toggle('hidden', !isDhu);
+				elements.dhuWrap.classList.toggle('hidden', !isDhu);
 				const offset = isDhu ? parseInt(elements.dhuDayInput.value) : 0;
 
 				const strings = text[state.lang];
@@ -703,12 +1507,18 @@
 				const sim = Math.abs((res.jdAceh + offset) - (res.jdGic + offset)) < 0.1;
 				elements.verdict.textContent = strings[sim ? 'simultaneous' : 'divergent'];
 				elements.verdict.className = "verdict-box verdict-" + (sim ? "simultaneous" : "divergent");
+				updateNavState();
 			}
 
 			elements.language.onchange = updateLang;
 			elements.theme.onchange = updateTheme;
 			elements.hMonthInput.onchange = calculate;
 			elements.dhuDayInput.onchange = calculate;
+			/* the year box applies on change/Enter, which is why there is no "Go" */
+			elements.hYearInput.onchange = calculate;
+			elements.hYearInput.onkeydown = e => {
+				if (e.key === 'Enter') { e.preventDefault(); calculate(); elements.hYearInput.blur(); }
+			};
 
 			function navMonth(delta) {
 				const x = state.month - 1 + delta;
@@ -721,30 +1531,18 @@
 			elements.prevBtn.onclick = () => navMonth(-1);
 			elements.nextBtn.onclick = () => navMonth(1);
 
-			elements.goBtn.onclick = calculate;
-
 			window.addEventListener('keydown', e => {
-				if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+				const tag = document.activeElement.tagName;
+				if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+				if (e.metaKey || e.ctrlKey || e.altKey) return;
 				if (e.key === 'ArrowLeft') navMonth(-1);
 				if (e.key === 'ArrowRight') navMonth(1);
 			});
 
 			function goToday(runCalc = true) {
-				const now = new Date();
-				const jd = now.getTime() / 86400000 + 2440587.5;
-
-				const linMonthStartJD = idx => {
-					const off = idx - 12;
-					return 1948440 + Math.floor(29.53057017233 * off + 0.0068);
-				};
-				let index = Math.floor((jd - 1948440) / 29.530555) + 12;
-				if (linMonthStartJD(index + 1) <= jd) index++;
-				if (linMonthStartJD(index) > jd) index--;
-
-				state.year = Math.floor(index / 12);
-				let m = (index % 12);
-				if (m < 0) m += 12;
-				state.month = m + 1;
+				const t = todayYM();
+				state.year = t.year;
+				state.month = t.month;
 				elements.hYearInput.value = state.year;
 				elements.hMonthInput.value = state.month;
 				if (runCalc) calculate();
@@ -762,5 +1560,5 @@
 			updateTheme();
 			loadLandData();
 		</script>
-	</body>
+	<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2c59ac88ef96ba5',t:'MTc4NjkzNzQ3Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

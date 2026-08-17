@@ -5,7 +5,18 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<title>HilalSync - Hijri Simultaneity Tracker</title>
 		<style>
-		/* ---------- Design tokens: light (default) ---------- */
+		/* =====================================================================
+		   SHARED DESIGN CORE — identical in every app. Do not edit in place.
+		   Edit /core.css, then run sync_core.py to push it to all apps.
+
+		   Order: 1) tokens  2) reset/base  3) app shell  4) components.
+		   App-specific rules go in the APP-SPECIFIC block below this one, so
+		   they win on equal specificity without needing !important.
+		   ===================================================================== */
+
+		/* ---------- 1. Tokens: light (default) ----------
+		   Style against these, never raw hex: every token has a dark twin, so
+		   anything built from them themes itself for free. */
 		:root {
 			/* brand */
 			--primary: #005dac;
@@ -40,9 +51,15 @@
 			--warning: #8a5000;
 			--on-warning: #ffffff;
 			--warning-bg: #ffedd5;
+			--warning-text: #9a3412;
 			--accent: #f57c00;
 			--accent-bg: #fff8f0;
 			--highlight-bg: #d4e3ff;
+
+			/* elevation */
+			--shadow-1: 0 1px 2px rgba(0, 0, 0, .06), 0 1px 3px rgba(0, 0, 0, .08);
+			--shadow-2: 0 4px 12px rgba(0, 0, 0, .12);
+			--scrim: rgba(0, 0, 0, .38);
 
 			/* shape */
 			--radius-sm: 4px;
@@ -58,25 +75,27 @@
 			--sp-5: 1.5rem;
 			--sp-6: 2rem;
 
-			/* elevation */
-			--shadow-1: 0 1px 2px rgba(16, 19, 25, .08), 0 1px 3px rgba(16, 19, 25, .06);
-			--shadow-2: 0 4px 12px rgba(16, 19, 25, .10), 0 2px 4px rgba(16, 19, 25, .06);
-
 			/* type */
-			--font-sans: sans-serif;
-			--font-mono: monospace;
+			--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			--font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 
-			/* layout: each app overrides --content-max to fit its column count */
-			--content-max: 1200px;
+			/* layout — each app overrides this with its tier:
+		   720 single-column · 960 standard · 1200 wide · 1600 dense/two-rail */
+			--content-max: 960px;
+
+			/* controls */
+			--control-h: 42px;
 		}
 
-		/* ---------- Design tokens: dark ---------- */
+		/* ---------- 1b. Tokens: dark ----------
+		   Duplicated on purpose: the media query serves "auto", the .dark class
+		   serves an explicit choice. Change a value here and in .dark together. */
 		@media (prefers-color-scheme: dark) {
 			:root:not(.light) {
 				--primary: #a5c8ff;
 				--on-primary: #00315f;
 				--hover: #72adff;
-				--primary-container: #00447b;
+				--primary-container: #00468a;
 				--on-primary-container: #d4e3ff;
 
 				--background: #101319;
@@ -85,28 +104,30 @@
 				--muted: #181c21;
 
 				--text: #e0e2ea;
-				--text-muted: #a8adb8;
-				--text-secondary: #a8adb8;
+				--text-muted: #a9b0bd;
+				--text-secondary: #a9b0bd;
 
 				--border: #414752;
 				--border-strong: #6b7280;
 
 				--success: #82db7e;
 				--on-success: #00390a;
-				--success-bg: #0b2610;
+				--success-bg: #0b2a10;
 				--danger: #ffb4ab;
 				--error: #ffb4ab;
 				--on-danger: #93000a;
-				--danger-bg: #3b0908;
+				--danger-bg: #3b0907;
 				--warning: #ffb95c;
-				--on-warning: #452b00;
-				--warning-bg: #2b1c05;
+				--on-warning: #3d2600;
+				--warning-bg: #2b1c00;
+				--warning-text: #ffd8a8;
 				--accent: #ffb95c;
 				--accent-bg: #1f1600;
 				--highlight-bg: #001c3a;
 
 				--shadow-1: 0 1px 2px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4);
-				--shadow-2: 0 4px 12px rgba(0, 0, 0, .55), 0 2px 4px rgba(0, 0, 0, .4);
+				--shadow-2: 0 4px 12px rgba(0, 0, 0, .55);
+				--scrim: rgba(0, 0, 0, .6);
 			}
 		}
 
@@ -114,7 +135,7 @@
 			--primary: #a5c8ff;
 			--on-primary: #00315f;
 			--hover: #72adff;
-			--primary-container: #00447b;
+			--primary-container: #00468a;
 			--on-primary-container: #d4e3ff;
 
 			--background: #101319;
@@ -123,40 +144,41 @@
 			--muted: #181c21;
 
 			--text: #e0e2ea;
-			--text-muted: #a8adb8;
-			--text-secondary: #a8adb8;
+			--text-muted: #a9b0bd;
+			--text-secondary: #a9b0bd;
 
 			--border: #414752;
 			--border-strong: #6b7280;
 
 			--success: #82db7e;
 			--on-success: #00390a;
-			--success-bg: #0b2610;
+			--success-bg: #0b2a10;
 			--danger: #ffb4ab;
 			--error: #ffb4ab;
 			--on-danger: #93000a;
-			--danger-bg: #3b0908;
+			--danger-bg: #3b0907;
 			--warning: #ffb95c;
-			--on-warning: #452b00;
-			--warning-bg: #2b1c05;
+			--on-warning: #3d2600;
+			--warning-bg: #2b1c00;
+			--warning-text: #ffd8a8;
 			--accent: #ffb95c;
 			--accent-bg: #1f1600;
 			--highlight-bg: #001c3a;
 
 			--shadow-1: 0 1px 2px rgba(0, 0, 0, .5), 0 1px 3px rgba(0, 0, 0, .4);
-			--shadow-2: 0 4px 12px rgba(0, 0, 0, .55), 0 2px 4px rgba(0, 0, 0, .4);
+			--shadow-2: 0 4px 12px rgba(0, 0, 0, .55);
+			--scrim: rgba(0, 0, 0, .6);
 		}
 
-		/* ---------- Reset ---------- */
-		* {
+		/* ---------- 2. Reset & base ----------
+		   Headings are wrapped in :where() so they carry zero specificity — an
+		   app can restyle h2 with a bare `h2 { }` and win. */
+		*,
+		*::before,
+		*::after {
 			box-sizing: border-box;
 			margin: 0;
 			padding: 0;
-		}
-
-		*:focus-visible {
-			outline: 2px solid var(--primary);
-			outline-offset: 2px;
 		}
 
 		html {
@@ -170,18 +192,62 @@
 			font-size: 1rem;
 			line-height: 1.5;
 			min-height: 100vh;
+			min-height: 100dvh;
 			padding: var(--sp-5) var(--sp-4);
 			display: flex;
 			flex-direction: column;
 			gap: var(--sp-5);
+			-webkit-font-smoothing: antialiased;
 		}
 
-		/* ---------- App shell ----------
-		   .app-header / .app-main / .app-footer are all centred on --content-max,
-		   so narrow apps read as a centred card and wide apps fill the viewport. */
+		:where(h1, h2, h3, h4, h5, h6) {
+			line-height: 1.25;
+			font-weight: 600;
+			text-wrap: balance;
+		}
+
+		:where(h1) { font-size: 1.5rem; }
+		:where(h2) { font-size: 1.125rem; }
+		:where(h3) { font-size: 1rem; }
+		:where(h4, h5, h6) { font-size: .9375rem; }
+
+		a {
+			color: var(--primary);
+			text-decoration-thickness: 1px;
+			text-underline-offset: 2px;
+		}
+
+		:focus-visible {
+			outline: 2px solid var(--primary);
+			outline-offset: 2px;
+			border-radius: var(--radius-sm);
+		}
+
+		::selection {
+			background: var(--primary-container);
+			color: var(--on-primary-container);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*,
+			*::before,
+			*::after {
+				animation-duration: .01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: .01ms !important;
+				scroll-behavior: auto !important;
+			}
+		}
+
+		/* ---------- 3. App shell ----------
+		   Header and main share --content-max, so every app lines up on the same
+		   optical column whatever its width tier.
+
+		   No page footer exists here, on purpose. Decorative footers (app name,
+		   source link, "runs in your browser") are omitted; anything genuinely
+		   useful goes in a .disclosure at the end of .app-main. */
 		.app-header,
-		.app-main,
-		.app-footer {
+		.app-main {
 			width: 100%;
 			max-width: var(--content-max);
 			margin-inline: auto;
@@ -196,806 +262,797 @@
 		}
 
 		.app-title-group {
+			flex: 1 1 16rem;
+			display: flex;
+			flex-direction: column;
+			gap: var(--sp-1);
 			min-width: 0;
 		}
 
 		.app-title-group h1 {
-			font-size: 1.75rem;
-			font-weight: 600;
-			line-height: 1.2;
-			margin: 0;
+			font-size: 1.5rem;
+			letter-spacing: -.01em;
 		}
 
 		.app-subtitle {
 			color: var(--text-muted);
-			font-size: .9rem;
-			margin-top: var(--sp-1);
+			font-size: .9375rem;
+			max-width: 68ch;
 		}
 
 		.app-controls {
 			display: flex;
 			align-items: center;
 			gap: var(--sp-2);
-			flex-wrap: wrap;
-		}
-
-		.app-controls select,
-		.app-controls button {
-			width: auto;
-			font-size: .875rem;
-			padding: var(--sp-1) var(--sp-2);
-			margin: 0;
+			flex-shrink: 0;
 		}
 
 		.app-main {
+			display: flex;
+			flex-direction: column;
+			gap: var(--sp-5);
 			flex: 1;
 		}
 
-		.app-footer {
-			border-top: 1px solid var(--border);
-			padding-top: var(--sp-4);
-			color: var(--text-muted);
-			font-size: .8125rem;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			gap: var(--sp-3);
-			flex-wrap: wrap;
-		}
+		/* ---------- 4. Components ---------- */
 
-		.app-footer a,
-		.footer-link {
-			color: var(--primary);
-			background: none;
-			border: 0;
-			padding: 0;
-			width: auto;
-			font: inherit;
-			cursor: pointer;
-			text-decoration: none;
-		}
-
-		.app-footer a:hover,
-		.footer-link:hover {
-			text-decoration: underline;
-			background: none;
-		}
-
-		/* ---------- Surfaces ---------- */
-		.container,
-		.card,
-		.panel,
-		.app-main > section {
+		/* The one surface primitive: every panel is a .card. Add .card-subtle
+		   for a nested block that must read as *inside* another card. */
+		.card {
 			background: var(--surface);
 			border: 1px solid var(--border);
-			border-radius: var(--radius);
+			border-radius: var(--radius-lg);
 			padding: var(--sp-5);
 			min-width: 0;
 		}
 
-		/* Nested blocks inside a surface step down to the page background */
-		.group,
-		.subcard {
-			background: var(--background);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-sm);
-			padding: var(--sp-4);
+		.card > h2,
+		.card-title {
+			font-size: 1.125rem;
 			margin-bottom: var(--sp-4);
-			min-width: 0;
 		}
 
-		/* ---------- Typography ---------- */
-		h1 {
-			font-size: 1.75rem;
-			font-weight: 600;
+		.card-subtle {
+			background: var(--surface-variant);
+		}
+
+		/* Buttons. The bare <button> element is the primary action, so most
+		   markup needs no class. Add .secondary (outline), .danger, .ghost, or
+		   .btn-icon (square, icon-only). Keep one primary per view. */
+		button,
+		.btn {
+			font: inherit;
+			font-weight: 500;
 			line-height: 1.2;
+			background: var(--primary);
+			color: var(--on-primary);
+			border: 1px solid transparent;
+			border-radius: var(--radius);
+			padding: 0 var(--sp-4);
+			min-height: var(--control-h);
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: var(--sp-2);
+			cursor: pointer;
+			transition: background-color .15s, border-color .15s, color .15s;
 		}
 
-		h2 {
-			font-size: 1.2rem;
-			font-weight: 600;
-			margin: 0 0 var(--sp-4);
-			padding-bottom: var(--sp-3);
-			border-bottom: 1px solid var(--border);
+		button:hover,
+		.btn:hover {
+			background: var(--hover);
 		}
 
-		h3 {
-			font-size: 1rem;
-			font-weight: 600;
-			margin: var(--sp-4) 0 var(--sp-2);
+		button:disabled,
+		.btn:disabled {
+			opacity: .5;
+			cursor: not-allowed;
 		}
 
-		p {
-			margin: 0 0 var(--sp-3);
-		}
-
-		p:last-child {
-			margin-bottom: 0;
-		}
-
-		a {
+		button.secondary,
+		.btn-secondary {
+			background: transparent;
 			color: var(--primary);
+			border-color: var(--border);
 		}
 
-		code,
-		kbd,
-		pre,
-		samp {
-			font-family: var(--font-mono);
-			font-size: .875em;
+		button.secondary:hover,
+		.btn-secondary:hover {
+			background: var(--surface-variant);
 		}
 
-		small,
-		.text-sm {
-			font-size: .875rem;
+		button.danger,
+		.btn-danger {
+			background: var(--danger);
+			color: var(--on-danger);
 		}
 
-		.text-muted {
-			color: var(--text-muted);
+		button.danger:hover,
+		.btn-danger:hover {
+			filter: brightness(.92);
+			background: var(--danger);
 		}
 
-		.info {
-			font-size: .875rem;
-			color: var(--text-muted);
-			line-height: 1.6;
+		button.ghost,
+		.btn-ghost {
+			background: transparent;
+			color: var(--text);
+			border-color: transparent;
 		}
 
-		/* ---------- Forms ---------- */
+		button.ghost:hover,
+		.btn-ghost:hover {
+			background: var(--surface-variant);
+		}
+
+		/* Square icon-only button — the Settings trigger and every dialog close.
+		   Apps that make buttons full width must exclude it; see the
+		   :not(:where(.btn-icon)) pattern in generator / OpenDensityTool. */
+		.btn-icon {
+			background: transparent;
+			color: var(--text);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			width: var(--control-h);
+			min-height: var(--control-h);
+			padding: 0;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.btn-icon:hover {
+			background: var(--surface-variant);
+			color: var(--text);
+		}
+
+		.btn-icon svg {
+			width: 20px;
+			height: 20px;
+			display: block;
+		}
+
+		/* Form controls. Inputs, selects and textareas are full width by design:
+		   width is controlled by the .field / .row wrapper, not the control. */
 		label {
 			display: block;
-			font-weight: 500;
 			font-size: .875rem;
+			font-weight: 500;
+			color: var(--text);
 			margin-bottom: var(--sp-1);
 		}
 
-		input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),
+		input,
 		select,
 		textarea {
-			width: 100%;
-			padding: var(--sp-2) var(--sp-3);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-sm);
-			background: var(--surface);
+			font: inherit;
 			color: var(--text);
-			font-family: inherit;
-			font-size: .9375rem;
-			line-height: 1.4;
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: var(--sp-2) var(--sp-3);
+			min-height: var(--control-h);
+			width: 100%;
+			max-width: 100%;
 		}
 
-		input:hover:not(:disabled),
-		select:hover:not(:disabled),
-		textarea:hover:not(:disabled) {
+		select {
+			cursor: pointer;
+			appearance: none;
+			padding-right: 2rem;
+			background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+				linear-gradient(135deg, currentColor 50%, transparent 50%);
+			background-position: right 1.05rem center, right .8rem center;
+			background-size: .3rem .3rem, .3rem .3rem;
+			background-repeat: no-repeat;
+		}
+
+		textarea {
+			min-height: 7rem;
+			resize: vertical;
+			line-height: 1.5;
+		}
+
+		input:hover,
+		select:hover,
+		textarea:hover {
 			border-color: var(--border-strong);
+		}
+
+		input:focus,
+		select:focus,
+		textarea:focus {
+			border-color: var(--primary);
+		}
+
+		input[type="checkbox"],
+		input[type="radio"] {
+			width: 1.125rem;
+			height: 1.125rem;
+			min-height: 0;
+			accent-color: var(--primary);
+			cursor: pointer;
+			flex-shrink: 0;
+		}
+
+		input[type="range"] {
+			padding: 0;
+			min-height: 0;
+			border: 0;
+			background: transparent;
+			accent-color: var(--primary);
+		}
+
+		input[type="color"] {
+			padding: var(--sp-1);
+			cursor: pointer;
+		}
+
+		input[type="file"] {
+			padding: var(--sp-2);
 		}
 
 		input:disabled,
 		select:disabled,
 		textarea:disabled {
-			opacity: .6;
+			background: var(--surface-variant);
+			color: var(--text-muted);
 			cursor: not-allowed;
 		}
 
-		input[type=number] {
-			text-align: right;
+		/* Form layout. .field stacks one label + control; .row places fields side
+		   by side. Set the column count on the row itself — style="--cols:3" —
+		   and the responsive rules at the bottom handle the collapse. */
+		.field {
+			display: flex;
+			flex-direction: column;
+			min-width: 0;
+			flex: 1;
 		}
 
-		input[type=range] {
-			width: 100%;
-			accent-color: var(--primary);
+		.row {
+			display: grid;
+			grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+			gap: var(--sp-4);
+			align-items: start;
 		}
 
-		input[type=checkbox],
-		input[type=radio] {
-			accent-color: var(--primary);
-			width: auto;
+		.row-flex {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--sp-3);
+			align-items: center;
 		}
 
-		textarea {
-			resize: vertical;
-		}
-
-		fieldset {
-			border: 1px solid var(--border);
-			border-radius: var(--radius-sm);
-			padding: var(--sp-3);
-		}
-
-		legend {
-			padding: 0 var(--sp-1);
-			font-weight: 600;
-			font-size: .875rem;
-		}
-
-		/* ---------- Buttons ---------- */
-		button {
-			background: var(--surface);
-			color: var(--text);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-sm);
-			padding: var(--sp-2) var(--sp-4);
-			font-family: inherit;
-			font-size: .9375rem;
-			font-weight: 500;
-			line-height: 1.4;
+		.check {
+			display: flex;
+			align-items: center;
+			gap: var(--sp-2);
+			font-weight: 400;
+			margin-bottom: 0;
 			cursor: pointer;
 		}
 
-		button:hover:not(:disabled) {
-			background: var(--muted);
-			border-color: var(--border-strong);
-		}
-
-		button.primary,
-		.btn-primary {
-			background: var(--primary);
-			color: var(--on-primary);
-			border-color: var(--primary);
-		}
-
-		button.primary:hover:not(:disabled),
-		.btn-primary:hover:not(:disabled) {
-			background: var(--hover);
-			border-color: var(--hover);
-		}
-
-		button.secondary,
-		.btn-secondary {
-			background: var(--surface);
-			color: var(--text);
-			border-color: var(--border);
-		}
-
-		button.secondary:hover:not(:disabled),
-		.btn-secondary:hover:not(:disabled) {
-			background: var(--muted);
-		}
-
-		button.success {
-			background: var(--success);
-			color: var(--on-success);
-			border-color: var(--success);
-		}
-
-		button.danger {
-			background: var(--danger);
-			color: var(--on-danger);
-			border-color: var(--danger);
-		}
-
-		button.success:hover:not(:disabled),
-		button.danger:hover:not(:disabled) {
-			filter: brightness(.92);
-		}
-
-		button.ghost,
-		.icon-button {
-			background: transparent;
-			border-color: transparent;
-			color: var(--text);
-		}
-
-		button.ghost:hover:not(:disabled),
-		.icon-button:hover:not(:disabled) {
-			background: var(--muted);
-			border-color: transparent;
-		}
-
-		/* Disabled last so it wins over every variant above and stays readable */
-		button:disabled,
-		button.primary:disabled,
-		button.success:disabled,
-		button.danger:disabled {
-			background: var(--muted);
+		.hint {
 			color: var(--text-muted);
-			border-color: var(--border);
-			opacity: .7;
-			cursor: not-allowed;
-			filter: none;
+			font-size: .8125rem;
+			margin-top: var(--sp-1);
 		}
 
-		/* ---------- Tables ---------- */
+		/* Tabs. Mark the active one with .active AND aria-selected="true" so
+		   assistive tech and the styling never disagree. */
+		.tabs {
+			display: flex;
+			gap: var(--sp-1);
+			border-bottom: 1px solid var(--border);
+			overflow-x: auto;
+			scrollbar-width: none;
+		}
+
+		.tabs::-webkit-scrollbar {
+			display: none;
+		}
+
+		.tab {
+			background: transparent;
+			color: var(--text-muted);
+			border: 0;
+			border-bottom: 2px solid transparent;
+			border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+			padding: 0 var(--sp-4);
+			white-space: nowrap;
+		}
+
+		.tab:hover {
+			background: var(--surface-variant);
+			color: var(--text);
+		}
+
+		.tab.active {
+			color: var(--primary);
+			border-bottom-color: var(--primary);
+			background: transparent;
+		}
+
+		/* Tables. Cells never wrap; wrap the table in .table-wrap so wide data
+		   scrolls sideways instead of bursting the card. */
+		.table-wrap {
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+
 		table {
-			border-collapse: collapse;
 			width: 100%;
-			font-size: .9375rem;
+			border-collapse: collapse;
 			font-variant-numeric: tabular-nums;
 		}
 
 		th,
 		td {
-			border: 1px solid var(--border);
-			padding: var(--sp-2) var(--sp-3);
 			text-align: left;
+			padding: var(--sp-2) var(--sp-3);
+			border-bottom: 1px solid var(--border);
+			white-space: nowrap;
 		}
 
 		th {
-			background: var(--primary);
-			color: var(--on-primary);
+			font-size: .8125rem;
 			font-weight: 600;
-		}
-
-		tbody tr:nth-child(even) {
+			color: var(--text-muted);
 			background: var(--surface-variant);
+			position: sticky;
+			top: 0;
 		}
 
-		.table-scroll {
+		tbody tr:last-child td {
+			border-bottom: 0;
+		}
+
+		/* Small status pills. Use the semantic variant, not a colour name, so
+		   meaning survives a palette change. */
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--sp-1);
+			font-size: .75rem;
+			font-weight: 600;
+			padding: var(--sp-1) var(--sp-2);
+			border-radius: var(--radius-pill);
+			background: var(--surface-variant);
+			color: var(--text-muted);
+			white-space: nowrap;
+		}
+
+		.badge-success { background: var(--success-bg); color: var(--success); }
+		.badge-danger  { background: var(--danger-bg);  color: var(--danger); }
+		.badge-warning { background: var(--warning-bg); color: var(--warning-text); }
+
+		/* Block-level callouts for explanation or warning. For secondary detail
+		   nobody needs up front, prefer .disclosure below. */
+		.notice {
+			border: 1px solid var(--border);
+			border-left: 3px solid var(--primary);
+			background: var(--surface-variant);
+			border-radius: var(--radius);
+			padding: var(--sp-3) var(--sp-4);
+			font-size: .875rem;
+		}
+
+		.notice-warning { border-left-color: var(--accent); background: var(--warning-bg); color: var(--warning-text); }
+		.notice-danger  { border-left-color: var(--danger); background: var(--danger-bg);  color: var(--danger); }
+
+		/* ---------- Disclosure ----------
+		   Where methodology, references and shortcuts live. Collapsed by default
+		   so it never competes with the tool. This replaces the page footer —
+		   if there is nothing worth reading, omit the block entirely. */
+		.disclosure {
+			background: var(--surface-variant);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: var(--sp-3) var(--sp-4);
+		}
+
+		.disclosure > summary {
+			cursor: pointer;
+			font-size: .875rem;
+			font-weight: 600;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			gap: var(--sp-2);
+			list-style: none;
+			user-select: none;
+		}
+
+		.disclosure > summary::-webkit-details-marker { display: none; }
+
+		.disclosure > summary::before {
+			content: "";
+			width: 0;
+			height: 0;
+			border-left: 5px solid currentColor;
+			border-top: 4px solid transparent;
+			border-bottom: 4px solid transparent;
+			transition: transform .2s;
+			flex-shrink: 0;
+		}
+
+		.disclosure[open] > summary::before { transform: rotate(90deg); }
+		.disclosure > summary:hover { color: var(--primary); }
+		.disclosure[open] > summary { margin-bottom: var(--sp-3); }
+
+		.disclosure-body {
+			font-size: .875rem;
+			line-height: 1.7;
+			color: var(--text-muted);
+		}
+
+		.disclosure-body > * + * { margin-top: var(--sp-3); }
+
+		.disclosure-body ul,
+		.disclosure-body ol { padding-left: 1.25rem; }
+
+		.disclosure-body li + li { margin-top: var(--sp-1); }
+
+		.disclosure-body pre,
+		.disclosure-body code {
+			font-family: var(--font-mono);
+			font-size: .8125rem;
+		}
+
+		.disclosure-body pre {
+			background: var(--surface);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-sm);
+			padding: var(--sp-3);
+			white-space: pre-wrap;
 			overflow-x: auto;
 		}
 
-		/* ---------- Status / feedback ---------- */
-		.error,
-		.error-text {
-			color: var(--danger);
-			font-size: .875rem;
-			font-weight: 500;
-		}
-
-		.positive {
-			color: var(--success);
-			font-weight: 600;
-		}
-
-		.negative {
-			color: var(--danger);
-			font-weight: 600;
-		}
-
-		.highlight {
-			background: var(--highlight-bg);
-			font-weight: 600;
-		}
-
-		.badge {
-			display: inline-block;
-			padding: 2px var(--sp-2);
-			border-radius: var(--radius-pill);
-			background: var(--muted);
+		/* ---------- Settings dialog ----------
+		   Every app has one, opened by the header's .btn-icon. Structure is
+		   .sheet-header / .sheet-body / .sheet-footer; only the body scrolls.
+		   Open and close it via AppSettings.wireSheet, never showModal directly,
+		   or the no-<dialog> fallback below is bypassed. */
+		dialog.sheet {
 			border: 1px solid var(--border);
-			font-size: .75rem;
-			font-weight: 600;
-		}
-
-		/* ---------- Dialogs ---------- */
-		dialog {
+			border-radius: var(--radius-lg);
 			background: var(--surface);
 			color: var(--text);
-			border: 1px solid var(--border);
-			border-radius: var(--radius);
-			box-shadow: var(--shadow-2);
-			padding: var(--sp-5);
-			max-width: 800px;
-			max-height: 90vh;
-			width: calc(100% - 2rem);
-			margin: auto;
-			overflow-y: auto;
-		}
-
-		dialog::backdrop {
-			background: rgba(0, 0, 0, .5);
-		}
-
-		.dialog-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			gap: var(--sp-4);
-			margin-bottom: var(--sp-4);
-		}
-
-		.dialog-header h2 {
-			margin: 0;
 			padding: 0;
-			border: 0;
-			font-size: 1.25rem;
+			width: min(420px, calc(100vw - 2rem));
+			box-shadow: var(--shadow-2);
+			margin: auto;
+			/* The sheet itself never scrolls; .sheet-body is the only scroller,
+			   otherwise the UA default max-height produces a second scrollbar. */
+			max-height: calc(100vh - 2rem);
+			max-height: calc(100dvh - 2rem);
+			overflow: hidden;
 		}
 
-		.close-button {
-			background: transparent;
-			border: 0;
-			color: var(--text);
-			font-size: 1.5rem;
-			line-height: 1;
-			padding: var(--sp-1);
-			width: auto;
-			cursor: pointer;
-		}
-
-		.close-button:hover {
-			background: var(--muted);
-		}
-
-		/* ---------- Layout helpers ---------- */
-		.row {
-			display: flex;
-			gap: var(--sp-4);
-			flex-wrap: wrap;
-		}
-
-		.row > * {
-			min-width: 0;
-		}
-
-		.actions {
-			display: flex;
-			gap: var(--sp-2);
-			flex-wrap: wrap;
-		}
-
-		.stack {
+		dialog.sheet[open] {
 			display: flex;
 			flex-direction: column;
-			gap: var(--sp-3);
 		}
 
-		.flex-1 {
-			flex: 1;
+		/* Works whether the sections are wrapped in a <form method="dialog">
+		   or sit directly inside the dialog. */
+		dialog.sheet > form {
+			display: flex;
+			flex-direction: column;
+			flex: 1 1 auto;
+			min-height: 0;
 		}
 
-		.w-auto {
-			width: auto;
+		/* Literal colours, never var(): ::backdrop did not inherit from its
+		   dialog before Chrome 122, so a custom property resolves to nothing,
+		   the declaration is invalid, and the backdrop falls back to
+		   transparent. That is the classic "dialog does not dim" bug. */
+		dialog.sheet::backdrop {
+			background: rgba(0, 0, 0, .38);
 		}
 
-		.m-0 {
-			margin: 0;
+		@media (prefers-color-scheme: dark) {
+			:root:not(.light) dialog.sheet::backdrop {
+				background: rgba(0, 0, 0, .6);
+			}
 		}
 
-		.mt-sm {
-			margin-top: var(--sp-2);
+		:root.dark dialog.sheet::backdrop {
+			background: rgba(0, 0, 0, .6);
 		}
 
-		.mt-md {
-			margin-top: var(--sp-4);
+		/* Dimming. Two paths only:
+		   1. ::backdrop — every browser that has modal <dialog>.
+		   2. .sheet-scrim — a real element the script inserts when showModal()
+		      is missing (pre-2022 Safari/Firefox).
+
+		   Everything in path 2 must stay old-CSS-safe: no inset, no :where,
+		   no @supports selector(). Those all postdate the browsers it serves,
+		   which is exactly how the previous version silently did nothing. */
+
+		/* No <dialog> support means no UA rule hiding a closed dialog, so the
+		   sheet would sit inline in the page. Spell it out. */
+		dialog.sheet:not([open]) {
+			display: none;
 		}
 
-		.mt-lg {
-			margin-top: var(--sp-6);
+		html.has-open-sheet {
+			overflow: hidden;
 		}
 
-		.hidden {
-			display: none !important;
+		.sheet-scrim {
+			position: fixed;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			background: var(--scrim);
+			z-index: 998;
 		}
 
+		dialog.sheet-fallback {
+			display: flex;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			right: auto;
+			bottom: auto;
+			-webkit-transform: translate(-50%, -50%);
+			transform: translate(-50%, -50%);
+			z-index: 999;
+		}
+
+		.sheet-header {
+			flex: 0 0 auto;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: var(--sp-4);
+			padding: var(--sp-4) var(--sp-5);
+			border-bottom: 1px solid var(--border);
+		}
+
+		.sheet-header h2 {
+			font-size: 1.0625rem;
+		}
+
+		.sheet-body {
+			padding: var(--sp-5);
+			display: flex;
+			flex-direction: column;
+			gap: var(--sp-4);
+			flex: 1 1 auto;
+			min-height: 0;
+			overflow-y: auto;
+			overscroll-behavior: contain;
+		}
+
+		.sheet-footer {
+			flex: 0 0 auto;
+			padding: var(--sp-4) var(--sp-5);
+			border-top: 1px solid var(--border);
+			display: flex;
+			justify-content: flex-end;
+			gap: var(--sp-2);
+		}
+
+		/* ---------- Utilities ----------
+		   Deliberately few. If you reach for a stack of these on one element,
+		   the component is missing a class instead. */
+		.hidden { display: none !important; }
 		.sr-only {
 			position: absolute;
 			width: 1px;
 			height: 1px;
 			padding: 0;
-			margin: -1px;
 			overflow: hidden;
-			clip: rect(0, 0, 0, 0);
+			clip: rect(0 0 0 0);
 			white-space: nowrap;
 			border: 0;
 		}
+		.mono { font-family: var(--font-mono); }
+		.muted { color: var(--text-muted); }
+		.nums { font-variant-numeric: tabular-nums; }
+		.stack { display: flex; flex-direction: column; gap: var(--sp-4); }
+		.grow { flex: 1; }
 
-		/* ---------- Scrollbars ---------- */
-		* {
-			scrollbar-color: var(--border-strong) transparent;
+		/* ---------- Responsive ----------
+		   Column counts are preserved on desktop and collapse predictably:
+		   >=4 cols -> 2 cols on tablet -> 1 col on phone. */
+		@media (max-width: 900px) {
+			.row {
+				grid-template-columns: repeat(min(var(--cols, 2), 2), minmax(0, 1fr));
+			}
 		}
 
-		/* ---------- Responsive ---------- */
-		@media (max-width: 768px) {
+		@media (max-width: 600px) {
 			body {
 				padding: var(--sp-4) var(--sp-3);
 				gap: var(--sp-4);
 			}
 
-			.container,
-			.card,
-			.panel,
-			.app-main > section {
+			.card {
 				padding: var(--sp-4);
 			}
 
-			.app-title-group h1 {
-				font-size: 1.375rem;
-			}
-
 			.app-header {
-				gap: var(--sp-2);
-			}
-		}
-
-		@media (prefers-reduced-motion: reduce) {
-			*,
-			*::before,
-			*::after {
-				animation-duration: .01ms !important;
-				transition-duration: .01ms !important;
-			}
-		}
-
-		/* ============================================================
-		   APP OVERRIDES — HilalCalc
-		   ============================================================ */
-		:root {
-			--content-max: 900px;
-		}
-
-		/* ---------- app-specific ---------- */
-			.container {
-				max-width: 900px;
-				width: 100%;
-				margin: 2rem 0;
-				display: flex;
-				flex-direction: column;
-				gap: 1.5rem;
-				position: relative;
-			}
-
-			.selectors {
-				position: absolute;
-				right: 2rem;
-				top: 1rem;
-				display: flex;
-				gap: 8px;
-			}
-
-			.selectors select {
-				width: auto;
-				font-size: .9rem;
-			}
-
-			.primary {
-				background: var(--primary);
-				color: var(--on-primary);
-				border: 0;
-			}
-
-			.primary:hover {
-				background: var(--hover);
-			}
-
-			.verdict-box {
-				padding: 1.5rem;
-				border-radius: 8px;
-				text-align: center;
-				font-size: 1.5rem;
-				font-weight: bold;
-				border: 2px solid transparent;
-			}
-
-			.verdict-simultaneous {
-				background: var(--success);
-				color: var(--on-success);
-			}
-
-			.verdict-divergent {
-				background: var(--danger);
-				color: var(--on-danger);
-			}
-
-			.panels {
-				display: grid;
-				grid-template-columns: 1fr 1fr;
-				gap: 1rem;
-			}
-
-			.panel-title {
-				font-weight: bold;
-				margin-bottom: 0.5rem;
-				border-bottom: 1px solid var(--border);
-				padding-bottom: 0.25rem;
-			}
-
-			.panel-date {
-				font-size: 1.2rem;
-				margin-bottom: 0.5rem;
-			}
-
-			.panel-info {
-				font-size: 0.9rem;
-				opacity: 0.8;
-				line-height: 1.4;
-			}
-
-			.controls {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
-				flex-wrap: wrap;
-				justify-content: center;
-			}
-
-			.nav-btn {
-				min-width: 80px;
-			}
-
-			.stats-box {
-				background: var(--muted);
-				padding: 1rem;
-				border-radius: 4px;
-				font-size: 0.9rem;
-			}
-
-			.stats-title {
-				font-weight: bold;
-				margin-bottom: 0.5rem;
-			}
-
-			@media(max-width: 600px) {
-				.panels {
-					grid-template-columns: 1fr;
-				}
-
-				.selectors {
-					position: static;
-					justify-content: flex-end;
-					margin-bottom: .5rem;
-				}
-			}
-
-			/* ---------- date navigator ---------- */
-			.datenav {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				flex-wrap: wrap;
 				gap: var(--sp-3);
-				margin-bottom: var(--sp-5);
-			}
-
-			/* the arrows, year and month read as ONE segmented control */
-			.datenav-group {
-				display: flex;
-				align-items: stretch;
-				border: 1px solid var(--border);
-				border-radius: var(--radius);
-				background: var(--surface);
-				overflow: hidden;
-			}
-
-			/* The shared form rule carries four :not() pseudo-classes, so plain
-			   `.datenav-group > input` loses the cascade. :where() adds no
-			   specificity, so the weight here is raised deliberately to match. */
-			.datenav-group > :where(input, select, button, *) {
-				border: 0;
-				border-radius: 0;
-				margin: 0;
-				background: transparent;
-			}
-
-			.datenav-group > input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-			.datenav-group > select:not([multiple]):not([size]) {
-				border: 0;
-				border-radius: 0;
-				margin: 0;
-				background: transparent;
-			}
-
-			/* dividers: same specificity trick as the reset above, otherwise the
-			   shared form rule wins and the segments lose their separators */
-			.datenav-group > * + *,
-			.datenav-group > * + input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-			.datenav-group > * + select:not([multiple]):not([size]) {
-				border-left: 1px solid var(--border);
-			}
-
-			.datenav-group .nav-btn {
-				width: auto;
-				min-width: 2.75rem;
-				padding: var(--sp-2) var(--sp-3);
-				font-size: 1.5rem;
-				line-height: 1;
-				color: var(--text-muted);
-			}
-
-			.datenav-group .nav-btn:hover:not(:disabled) {
-				color: var(--text);
-			}
-
-			.datenav-group .nav-btn:hover:not(:disabled) {
-				background: var(--muted);
-			}
-
-			.datenav-group .nav-btn:disabled {
-				background: transparent;
-				opacity: .35;
-			}
-
-			/* override the shared full-width form rule that broke the row */
-			.datenav-group #hYearInput {
-				width: 5.5rem;
-				text-align: center;
-				font-variant-numeric: tabular-nums;
-				-moz-appearance: textfield;
-			}
-
-			/* the spinner arrows crowd a 5.5rem box; the ‹ › buttons do that job */
-			.datenav-group #hYearInput::-webkit-outer-spin-button,
-			.datenav-group #hYearInput::-webkit-inner-spin-button {
-				-webkit-appearance: none;
-				margin: 0;
-			}
-
-			.datenav-group #hMonthInput {
-				width: auto;
-				min-width: 11rem;
-				font-weight: 500;
-			}
-
-			.datenav-group :focus-visible {
-				outline-offset: -2px;
-			}
-
-			#todayBtn:disabled {
-				opacity: .5;
-			}
-
-			.dhu-wrap {
-				display: flex;
 				align-items: center;
-				gap: var(--sp-2);
-				margin: 0;
-				font-size: .875rem;
-				font-weight: 500;
-				white-space: nowrap;
+				flex-wrap: nowrap;
 			}
 
-			.dhu-wrap select {
-				width: auto;
-			}
-
-			.datenav-hint {
+			/* full-width action buttons stack rather than squeeze */
+			.row-flex > .grow {
 				flex-basis: 100%;
-				text-align: center;
-				font-size: .8125rem;
-				color: var(--text-muted);
 			}
 
-			.datenav-hint kbd {
-				display: inline-block;
-				min-width: 1.6em;
-				border: 1px solid var(--border);
-				border-bottom-width: 2px;
-				border-radius: var(--radius-sm);
-				padding: .1em .35em;
-				font-family: var(--font-sans);
-				font-size: 1em;
-				line-height: 1.2;
-				text-align: center;
-				color: var(--text);
+			.app-title-group h1 {
+				font-size: 1.25rem;
 			}
 
-			/* the hint is a nicety, not a control -- hide it on touch layouts
-			   where there is no physical keyboard to press */
-			@media (max-width: 560px), (hover: none) {
-				.datenav-hint {
-					display: none;
-				}
+			.row {
+				grid-template-columns: 1fr;
 			}
 
-			@media (max-width: 560px) {
-				.datenav-group {
-					width: 100%;
-				}
-
-				.datenav-group #hMonthInput {
-					flex: 1;
-					min-width: 0;
-				}
+			/* let tabs bleed to the card edge, but only inside a card */
+			.card > .tabs,
+			.card > * > .tabs {
+				margin-inline: calc(var(--sp-4) * -1);
+				padding-inline: var(--sp-4);
 			}
-		</style>
+		}
+
+		/* =====================================================================
+		   APP-SPECIFIC STYLES — HilalSync
+		   960px: two comparison panels plus a verdict banner. Panels stack at 600px.
+		   ===================================================================== */
+		:root {
+			--content-max: 960px;
+		}
+
+		.verdict-box {
+			padding: var(--sp-5);
+			border-radius: var(--radius-lg);
+			text-align: center;
+			font-size: 1.125rem;
+			font-weight: 600;
+		}
+		.verdict-simultaneous { background: var(--success); color: var(--on-success); }
+		.verdict-divergent { background: var(--danger); color: var(--on-danger); }
+
+		/* Two comparison panels; single column on phones */
+		.panels {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: var(--sp-4);
+		}
+		.panel {
+			background: var(--surface-variant);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: var(--sp-4);
+			min-width: 0;
+		}
+		.panel-title {
+			font-weight: 700;
+			margin-bottom: var(--sp-2);
+			padding-bottom: var(--sp-2);
+			border-bottom: 1px solid var(--border);
+			font-size: .875rem;
+		}
+		.panel-date { font-size: 1.2rem; margin-bottom: var(--sp-2); font-weight: 600; }
+		.panel-info { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
+
+		.stats-box {
+			background: var(--surface-variant);
+			border: 1px solid var(--border);
+			padding: var(--sp-4);
+			border-radius: var(--radius);
+			font-size: .9rem;
+		}
+		.stats-title { font-weight: 700; margin-bottom: var(--sp-2); }
+
+		/* Segmented Hijri month navigator */
+		.datenav {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-wrap: wrap;
+			gap: var(--sp-3);
+		}
+		.datenav-group {
+			display: flex;
+			align-items: stretch;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			overflow: hidden;
+			background: var(--surface);
+		}
+		.datenav-group > :where(input, select, button) {
+			border: 0;
+			border-radius: 0;
+			margin: 0;
+			background: transparent;
+		}
+		.datenav-group > * + * { border-left: 1px solid var(--border); }
+		.datenav-group .nav-btn {
+			width: auto;
+			min-width: 2.75rem;
+			color: var(--text-muted);
+			font-size: 1.25rem;
+		}
+		.datenav-group .nav-btn:hover:not(:disabled) { background: var(--muted); color: var(--text); }
+		.datenav-group .nav-btn:disabled { background: transparent; opacity: .35; }
+		.datenav-group #hYearInput {
+			width: 5.5rem;
+			text-align: center;
+			font-variant-numeric: tabular-nums;
+		}
+		.datenav-group #hYearInput::-webkit-outer-spin-button,
+		.datenav-group #hYearInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+		.datenav-group #hMonthInput { width: auto; min-width: 11rem; font-weight: 500; }
+		.datenav-group :focus-visible { outline-offset: -2px; }
+		#todayBtn:disabled { opacity: .5; }
+
+		.dhu-wrap {
+			display: flex;
+			align-items: center;
+			gap: var(--sp-2);
+			margin: 0;
+			font-weight: 400;
+			font-size: .875rem;
+		}
+		.dhu-wrap select { width: auto; }
+
+		.datenav-hint {
+			flex-basis: 100%;
+			text-align: center;
+			font-size: .8125rem;
+			color: var(--text-muted);
+		}
+		.datenav-hint kbd {
+			display: inline-block;
+			min-width: 1.6em;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-sm);
+			padding: 0 4px;
+			font-family: var(--font-mono);
+			font-size: .9em;
+		}
+
+		.info { font-size: .875rem; color: var(--text-muted); line-height: 1.6; }
+
+		@media (max-width: 560px), (hover: none) {
+			.datenav-hint { display: none; }
+		}
+		@media (max-width: 600px) {
+			.panels { grid-template-columns: 1fr; }
+			.datenav-group { width: 100%; }
+			.datenav-group #hMonthInput { flex: 1; min-width: 0; }
+		}
+
+	</style>
 	</head>
 	<body>
 	<header class="app-header">
 		<div class="app-title-group">
 			<h1 id="appTitle"></h1>
+			<p class="app-subtitle">Compare MABBIMS and GIC Hijri dates month by month.</p>
 		</div>
 		<div class="app-controls">
-						<select id="language" aria-label="Language">
-							<option value="en">English</option>
-							<option value="id">Bahasa Indonesia</option>
-						</select>
-						<select id="theme" aria-label="Theme">
-							<option value="auto">Auto</option>
-							<option value="light">Light</option>
-							<option value="dark">Dark</option>
-						</select>
-					</div>
+			<button id="settingsBtn" class="btn-icon" type="button" aria-label="Settings" title="Settings">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<circle cx="12" cy="12" r="3"></circle>
+					<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+				</svg>
+			</button>
+		</div>
 	</header>
 
 	<main class="app-main">
-	<div class="container">
+		<section class="card stack">
 	<nav class="datenav" id="datenav" aria-label="Hijri month navigation">
 		<div class="datenav-group">
 			<button id="prevBtn" class="nav-btn" type="button" aria-label="Previous month">&#8249;</button>
@@ -1044,22 +1101,286 @@
 			<div id="statsTitle" class="stats-title"></div>
 			<p id="statsContent"></p>
 		</div>
-		<div id="methodology" class="panel-info"></div>
-	</div>
+		<details class="disclosure" style="margin-top:var(--sp-2)">
+			<summary id="methodologyTitle">Methodology</summary>
+			<div class="disclosure-body">
+				<div id="methodology"></div>
+				<p><a href="https://github.com/mahalisyarifuddin/HilalCalc" target="_blank" rel="noopener">Source code and data</a></p>
+			</div>
+		</details>
+		</section>
 	</main>
 
-	<footer class="app-footer">
-		<span>HilalSync</span>
-		<a href="https://github.com/mahalisyarifuddin/HilalCalc" target="_blank" rel="noopener">Source</a>
-		</footer>
+	<dialog id="settingsDialog" class="sheet" aria-labelledby="prefTitle">
+		<form method="dialog">
+			<div class="sheet-header">
+				<h2 id="prefTitle"></h2>
+				<button class="btn-icon" value="close" aria-label="Close settings">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+						<path d="M18 6 6 18M6 6l12 12"></path>
+					</svg>
+				</button>
+			</div>
+			<div class="sheet-body">
+				<div class="field">
+					<label id="langLabel" for="language"></label>
+					<select id="language" aria-label="Language"><option value="en">English</option><option value="id">Bahasa Indonesia</option></select>
+				</div>
+				<div class="field">
+					<label id="themeLabel" for="theme"></label>
+					<select id="theme" aria-label="Theme"><option value="auto"></option><option value="light"></option><option value="dark"></option></select>
+				</div>
+			</div>
+			<div class="sheet-footer">
+				<button value="close" id="settingsDoneBtn">Done</button>
+			</div>
+		</form>
+	</dialog>
+	<script>
+		/* =====================================================================
+		   SHARED SETTINGS BEHAVIOUR — identical in every app. Do not edit here.
+		   Edit /shared-settings.js, then run sync_core.py.
+
+		   Owns theme, language and the settings dialog so all apps behave the
+		   same. Runs before app code, so window.AppSettings is ready by the time
+		   an app's constructor executes.
+
+		   An app is expected to:
+		     1. set AppSettings.strings = <its translation table>
+		     2. call AppSettings.detectLang(...) once to choose a start language
+		     3. delegate its own theme()/lang() to applyTheme()/applyLang()
+		   Persistence stays with the app; this layer never touches storage.
+		   ===================================================================== */
+		(function () {
+			const root = document.documentElement;
+			const $ = id => document.getElementById(id);
+
+			/* Last-resort settings copy, used key-by-key when the app has no
+			   translation table (or is missing a key). Keeps apps without an i18n
+			   layer looking identical to those with one. */
+			const FALLBACK = {
+				en: { prefTitle: 'Settings', prefBtn: 'Settings', langLabel: 'Language',
+					themeLabel: 'Theme', themeAuto: 'Auto', themeLight: 'Light', themeDark: 'Dark' },
+				id: { prefTitle: 'Pengaturan', prefBtn: 'Pengaturan', langLabel: 'Bahasa',
+					themeLabel: 'Tema', themeAuto: 'Otomatis', themeLight: 'Terang', themeDark: 'Gelap' }
+			};
+
+			const AppSettings = {
+				/* The app's table, shaped { en: ..., id: ... }. Assign it as soon as it
+				   is defined — renderSettings reads it on the first applyLang. */
+				strings: null,
+				/* Applies a theme and returns the value actually used.
+				   'auto' clears both classes and defers to prefers-color-scheme.
+				   Idempotent; also syncs the #theme select and fires 'themechange' on
+				   <html> for canvas apps that must repaint. */
+				applyTheme(value) {
+					const v = (value === 'light' || value === 'dark') ? value : 'auto';
+					root.classList.remove('light', 'dark');
+					if (v !== 'auto') root.classList.add(v);
+					const sel = $('theme');
+					if (sel && sel.value !== v) sel.value = v;
+					root.dispatchEvent(new CustomEvent('themechange', { detail: { theme: v } }));
+					return v;
+				},
+
+				/* Switches language: updates <html lang>, the #language select and the
+				   dialog copy. Returns the value applied. Call this from the app's own
+				   lang() rather than touching <html> directly. */
+				applyLang(value) {
+					const sel = $('language');
+					const v = value || (sel && sel.value) || 'en';
+					root.lang = v;
+					if (sel && sel.value !== v) sel.value = v;
+					this.renderSettings(v);
+					return v;
+				},
+
+				/* Repaints the dialog copy: title, both field labels, the three theme
+				   option names, and the trigger's accessible name. Driven entirely by ids
+				   (#prefTitle, #langLabel, #themeLabel), so markup needs the right ids and
+				   nothing else. */
+				renderSettings(lang) {
+					const l = lang || root.lang || 'en';
+					const app = (this.strings && this.strings[l]) || {};
+					const base = FALLBACK[l] || FALLBACK.en;
+					const s = {};
+					for (const k of Object.keys(FALLBACK.en)) s[k] = app[k] || base[k] || FALLBACK.en[k];
+
+					['prefTitle', 'langLabel', 'themeLabel'].forEach(id => {
+						const e = $(id);
+						if (e) e.textContent = s[id];
+					});
+
+					const sel = $('theme');
+					if (sel) [...sel.options].forEach(o => {
+						const k = 'theme' + o.value.charAt(0).toUpperCase() + o.value.slice(1);
+						if (s[k]) o.textContent = s[k];
+					});
+
+					['settingsBtn', 'prefBtn', 'openSettings'].forEach(id => {
+						const b = $(id);
+						if (b) { b.setAttribute('aria-label', s.prefBtn); b.title = s.prefBtn; }
+					});
+					return s;
+				},
+
+				/* Best browser language the app actually ships, e.g.
+				   detectLang(Object.keys(text)). Walks navigator.languages in order and
+				   matches region subtags ('id-ID' -> 'id'); falls back to list[0]. */
+				detectLang(available) {
+					const list = (available && available.length) ? available : ['en'];
+					const tags = (navigator.languages && navigator.languages.length)
+						? navigator.languages : [navigator.language || 'en'];
+					for (const tag of tags) {
+						const t = String(tag).toLowerCase();
+						const hit = list.find(l => t === String(l).toLowerCase()
+							|| t.startsWith(String(l).toLowerCase() + '-'));
+						if (hit) return hit;
+					}
+					return list[0];
+				}
+			};
+
+			/* Modal <dialog> landed in Safari 15.4 / Firefox 98. Older engines get a
+			   non-modal open plus our own scrim, stacking and scroll lock, so the
+			   dialog still dims the page instead of appearing inline. */
+			const CAN_MODAL = typeof HTMLDialogElement !== 'undefined'
+				&& typeof HTMLDialogElement.prototype.showModal === 'function';
+
+			/* The scrim is a real node, not a root pseudo-element, so it needs no
+			   modern CSS and can take the click-to-close itself. */
+			function addScrim(dialog) {
+				var scrim = document.querySelector('.sheet-scrim');
+				if (!scrim) {
+					scrim = document.createElement('div');
+					scrim.className = 'sheet-scrim';
+					document.body.appendChild(scrim);
+				}
+				scrim.onclick = function () { AppSettings.closeSheet(dialog); };
+			}
+
+			function removeScrim() {
+				var scrim = document.querySelector('.sheet-scrim');
+				if (scrim && scrim.parentNode) scrim.parentNode.removeChild(scrim);
+			}
+
+			/* Don't assume ::backdrop painted — engines differ on whether it can be
+			   styled and whether it inherits. Measure it, and supply our own scrim
+			   when it came out transparent, whatever the reason. */
+			function backdropPaints(dialog) {
+				var bg;
+				try { bg = window.getComputedStyle(dialog, '::backdrop').backgroundColor; }
+				catch (e) { return false; }
+				if (!bg || bg === 'transparent' || bg === 'none') return false;
+				var parts = bg.replace(/\s+/g, '').match(/^rgba?\(([^)]+)\)$/);
+				if (!parts) return true;                       // named or hex: it paints
+				var channels = parts[1].split(',');
+				return channels.length < 4 || parseFloat(channels[3]) > 0;
+			}
+
+			AppSettings.openSheet = function (dialog) {
+				if (!dialog) return;
+				if (CAN_MODAL) {
+					try {
+						if (!dialog.open) dialog.showModal();
+						if (!backdropPaints(dialog)) addScrim(dialog);
+						return;
+					} catch (e) { /* wedged dialog: fall through and open it manually */ }
+				}
+				dialog.setAttribute('open', '');
+				dialog.classList.add('sheet-fallback');
+				root.classList.add('has-open-sheet');
+				addScrim(dialog);
+			};
+
+			AppSettings.closeSheet = function (dialog) {
+				if (!dialog) return;
+				if (CAN_MODAL) {
+					if (dialog.open) dialog.close();
+					return;
+				}
+				dialog.removeAttribute('open');
+				dialog.classList.remove('sheet-fallback');
+				root.classList.remove('has-open-sheet');
+				removeScrim();
+			};
+
+			/* Wires a trigger + dialog pair once: open on click, close on backdrop
+			   click, plus — on the fallback path only — Escape and form submit, which
+			   native <dialog> already handles. Use this for every dialog; calling
+			   showModal() directly skips the fallback. */
+			AppSettings.wireSheet = function (btn, dialog) {
+				if (!btn || !dialog || dialog.dataset.sheetWired) return;
+				dialog.dataset.sheetWired = '1';
+				btn.addEventListener('click', () => AppSettings.openSheet(dialog));
+				dialog.addEventListener('click', e => {
+					if (e.target === dialog) AppSettings.closeSheet(dialog);
+				});
+				dialog.addEventListener('close', () => {
+					dialog.classList.remove('sheet-fallback');
+					root.classList.remove('has-open-sheet');
+					removeScrim();
+				});
+				if (!CAN_MODAL) {
+					dialog.addEventListener('submit', e => { e.preventDefault(); AppSettings.closeSheet(dialog); });
+					document.addEventListener('keydown', e => {
+						if (e.key === 'Escape' && dialog.hasAttribute('open')) AppSettings.closeSheet(dialog);
+					});
+				}
+			};
+
+			window.AppSettings = AppSettings;
+
+			/* CSS reacts to an OS scheme change on its own; this only re-fires
+			   'themechange' so canvas apps (which bake colours into pixels) know to
+			   redraw. Silent unless the user is on 'auto'. */
+			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+				const sel = $('theme');
+				if (!sel || sel.value === 'auto') {
+					root.dispatchEvent(new CustomEvent('themechange', { detail: { theme: 'auto' } }));
+				}
+			});
+
+			document.addEventListener('DOMContentLoaded', () => {
+				/* Baseline wiring so a bare #theme / #language select works with no app
+				   code at all. Apps with their own handlers keep them — both run, and
+				   apply* are idempotent. */
+				const themeSel = $('theme');
+				if (themeSel) {
+					themeSel.addEventListener('change', e => AppSettings.applyTheme(e.target.value));
+					AppSettings.applyTheme(themeSel.value);
+				}
+				const langSel = $('language');
+				if (langSel) {
+					langSel.addEventListener('change', e => AppSettings.applyLang(e.target.value));
+					AppSettings.applyLang(langSel.value);
+				} else {
+					AppSettings.renderSettings();
+				}
+
+				/* The conventional pair. Apps using other ids (HijriCalc,
+				   OpenDensityTool) call wireSheet themselves. */
+				AppSettings.wireSheet($('settingsBtn'), $('settingsDialog'));
+			});
+		})();
+	</script>
+
 		<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 		<script>
 			const text = {
 				en: {
+					prefTitle: 'Settings',
+					prefBtn: 'Settings',
+					langLabel: 'Language',
+					themeLabel: 'Theme',
+					themeAuto: 'Auto',
+					themeLight: 'Light',
+					themeDark: 'Dark',
 					appTitle: "HilalSync",
 					simultaneous: "SIMULTANEOUS",
 					divergent: "DIVERGENT",
 					statsTitle: "Simultaneity rate (1-10,000 AH)",
+					methodologyTitle: "Methodology",
 					statsContent: "Overall: <b>53.82%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>52.67%</b>. Validated against Wellington NZ (Fajr -17.5°).",
 					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -17.5°), or Americas if Conjunction < Fajr NZ. 5° grid.",
 					acehInfo: "Sunset in Archipelago: ",
@@ -1078,10 +1399,18 @@
 					monthNames: ["Muharram", "Safar", "Rabi' al-awwal", "Rabi' al-thani", "Jumada al-ula", "Jumada al-akhira", "Rajab", "Sha'ban", "Ramadan", "Shawwal", "Dhu al-Qi'dah", "Dhu al-Hijjah"]
 				},
 				id: {
+					prefTitle: 'Pengaturan',
+					prefBtn: 'Pengaturan',
+					langLabel: 'Bahasa',
+					themeLabel: 'Tema',
+					themeAuto: 'Otomatis',
+					themeLight: 'Terang',
+					themeDark: 'Gelap',
 					appTitle: "HilalSync",
 					simultaneous: "SEREMPAK",
 					divergent: "BERBEDA",
 					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
+					methodologyTitle: "Metodologi",
 					statsContent: "Total: <b>53,82%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>52,67%</b>. Divalidasi terhadap Wellington NZ (Fajar -17.5°).",
 					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -17.5°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
 					acehInfo: "Maghrib di Kepulauan: ",
@@ -1102,7 +1431,7 @@
 			};
 
 			const state = {
-				lang: navigator.language?.startsWith('id') ? 'id' : 'en',
+				lang: AppSettings.detectLang(Object.keys(text)),
 				theme: 'auto',
 				year: 1447,
 				month: 9,
@@ -1243,6 +1572,7 @@
 				statsContent: document.getElementById('statsContent'),
 				statsTitle: document.getElementById('statsTitle'),
 				methodology: document.getElementById('methodology'),
+				methodologyTitle: document.getElementById('methodologyTitle'),
 				appTitle: document.getElementById('appTitle')
 			};
 
@@ -1255,12 +1585,13 @@
 			}
 
 			function updateLang() {
-				state.lang = elements.language.value;
+				state.lang = AppSettings.applyLang(elements.language.value);
 				saveState();
 				const strings = text[state.lang];
 				elements.statsTitle.textContent = strings.statsTitle;
 				elements.statsContent.innerHTML = strings.statsContent;
 				elements.methodology.innerHTML = strings.methodology;
+				elements.methodologyTitle.textContent = strings.methodologyTitle;
 				elements.appTitle.textContent = strings.appTitle;
 				elements.todayBtn.textContent = strings.today;
 				elements.prevBtn.title = elements.prevBtn.ariaLabel = strings.prevTitle;
@@ -1293,10 +1624,8 @@
 			}
 
 			function updateTheme() {
-				state.theme = elements.theme.value;
+				state.theme = AppSettings.applyTheme(elements.theme.value);
 				saveState();
-				const val = state.theme;
-				document.documentElement.className = val === 'auto' ? '' : val;
 			}
 
 			function getStartJD(year, month) {
@@ -1560,5 +1889,11 @@
 			updateTheme();
 			loadLandData();
 		</script>
-	<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2c59ac88ef96ba5',t:'MTc4NjkzNzQ3Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+	<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2c59ac88ef96ba5',t:'MTc4NjkzNzQ3Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>	<script>
+		/* ============ Standard settings dialog wiring ============ */
+		(function () {
+
+		})();
+	</script>
+</body>
 </html>

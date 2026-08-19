@@ -1003,10 +1003,15 @@
 		}
 		.today-btn:hover { background: var(--muted); border-color: var(--primary); }
 
-		/* 7 columns is intrinsic to a calendar — never collapsed */
+		/* 7 columns is intrinsic to a calendar — never collapsed.
+		   Gridlines are drawn with a 1px gap over a border-coloured background,
+		   so every line (header row included) is a uniform 1px with no double
+		   borders and no per-cell edge exceptions. */
 		.cal-grid {
 			display: grid;
 			grid-template-columns: repeat(7, minmax(0, 1fr));
+			gap: 1px;
+			background: var(--border);
 			border-top: 1px solid var(--border);
 		}
 		.day-hdr {
@@ -1015,7 +1020,6 @@
 			font-size: .7rem;
 			font-weight: 600;
 			color: var(--text-muted);
-			border-bottom: 1px solid var(--border);
 			background: var(--surface-variant);
 		}
 		.day-hdr.fri { color: var(--accent); }
@@ -1027,14 +1031,12 @@
 			align-items: center;
 			justify-content: center;
 			gap: 1px;
-			border-right: 1px solid var(--border);
-			border-bottom: 1px solid var(--border);
+			background: var(--surface);
 			cursor: pointer;
 			position: relative;
 			min-width: 0;
 			transition: background .12s;
 		}
-		.cell:nth-child(7n) { border-right: 0; }
 		.cell:hover { background: var(--muted); }
 		.cell.fri-cell { background: var(--accent-bg); }
 		.cell.fri-cell:hover { background: var(--muted); }

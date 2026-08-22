@@ -17,3 +17,11 @@
 **Mode:** Bolt
 **Learning:** In the web worker rendering logic (`HilalMap.html`), calculating the sun's position before determining if the moon's altitude meets visibility criteria results in many redundant, expensive calculations for coordinates where the moon is already out of view.
 **Action:** Always defer dependent calculations (e.g., calculating the sun's position to check elongation) until after prerequisite checks (like moon minimum altitude) pass, especially inside dense rendering loops.
+## 2025-02-12 - Date Side-Effect Fix in HilalMap.html
+**Mode:** Medic
+**Learning:** `Time.date` from the `astronomy-engine` library is cached. Direct mutation of the date object (like `ut.date.setMinutes()`) mutates the cached value directly, affecting subsequent evaluations that use that variable.
+**Action:** Always create a new object when mutating cached dates (like `new Date(ut.date)`) rather than mutating directly to prevent side effects.
+## 2025-02-12 - Playwright E2E Tests on Disabled elements and Dialogs
+**Mode:** Medic
+**Learning:** In Playwright E2E tests for `HilalSync.html`, UI elements within the settings dialog (like `#language`) require clicking `#settingsBtn` first to become visible. Additionally, `#todayBtn` is disabled if the active date is already today, which can cause click timeouts if not handled.
+**Action:** When writing end-to-end tests for elements within modal dialogs, explicitly script opening and closing the dialog. Anticipate UI states like disabled buttons and accommodate them.

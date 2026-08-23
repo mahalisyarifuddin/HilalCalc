@@ -1926,7 +1926,7 @@ self.onmessage = e => {
 
 				const formatTime = ut => {
 					if (!ut) return "N/A";
-					const d = ut.date;
+					const d = new Date(ut.date);
 					d.setMinutes(d.getMinutes() + offset * 60);
 					const timeString = d.toISOString().substring(11,19);
 					const sign = offset >= 0 ? "+" : "";

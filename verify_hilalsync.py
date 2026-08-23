@@ -16,7 +16,11 @@ def run_cuj(page):
     page.wait_for_timeout(500)
 
     # Change language
+    page.click("#settingsBtn")
+    page.wait_for_timeout(500)
     page.select_option("#language", "id")
+    page.wait_for_timeout(500)
+    page.click("#settingsDoneBtn")
     page.wait_for_timeout(500)
 
     # Click todayBtn

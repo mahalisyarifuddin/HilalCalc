@@ -136,6 +136,17 @@ The distribution of day-level variance between the arithmetic tabular Hijri cale
 | +3     | 0       | 0.00%        | 100.00%        |
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
+#### Tabular epoch: 1948439 vs 1948440
+Mecca 0° ground truth places **1 Muharram 1 AH at JD 1948439** (not 1948440). Over 1–10 000 AH and 1–20 000 AH (astronomy-engine) and over a **stable 1–100 000 AH** mean-conjunction series (1 200 000 months; astronomy-engine’s lunar theory breaks down after ~30 k AH), the arithmetic 30-year calendar is still **more accurate when anchored at 1948440**:
+
+| Ground truth | Best scheme | Exact @ 1948439 | Exact @ 1948440 |
+| :--- | :--- | ---: | ---: |
+| AE Mecca 0°, 1–10 000 AH | modular k=29 | 26.38% | **45.11%** |
+| AE Mecca 0°, 1–20 000 AH | modular k=29 | 26.03% | **40.33%** |
+| Stable synodic, 1–100 000 AH | modular k=29 | 1.65% | **2.50%** |
+
+The 30-year cycle (10 631 / 360 = 29.530555… d) is ~0.000033 d/month short of the mean lunation, so a +1 day epoch offset compensates on average. Beyond ~20 k AH neither epoch stays useful: tabular drift grows to tens of days and a linear formula is required.
+
 ### 4. Knee Point Analysis (Cycle Efficiency)
 Analysis of cycle lengths (L=10 to 1000) identifies **L=30** as the primary knee point. Its leap year ratio (11/30 ≈ 0.3667) perfectly balances simplicity with the astronomical mean lunar year (drift of only ~4 days over 10,000 years).
 
@@ -150,7 +161,7 @@ The `scripts/` directory contains the Python tools used for data generation and 
 -   `analyze_serempak.py`: Computes 10,000-year simultaneity rates.
 -   `verify_all_modes.py`: playwrigth-based UI verification.
 
-Dependencies: `pip install astronomy-engine numpy playwright`.
+Dependencies: `pip install astronomy-engine numpy numba playwright`.
 
 ## Historical Context
 -   **Gregorian Reform**: "Historical" mode handles the October 1582 jump and Julian labeling.

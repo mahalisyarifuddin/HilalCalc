@@ -1,7 +1,7 @@
 import csv
 import os
 
-def get_tabular_jd(Index, k):
+def get_tabular_jd(Index, k, epoch=1948440):
     # k can be int (modular constant) or list of leap years (1-30)
     off = Index - 12
     cyc = off // 360
@@ -12,16 +12,16 @@ def get_tabular_jd(Index, k):
         leaps = (11 * yc + k) // 30
     else:
         leaps = sum(1 for y in k if y <= yc)
-    return 1948440 + cyc * 10631 + yc * 354 + leaps + (mc * 29.5 + 0.5).__floor__()
+    return epoch + cyc * 10631 + yc * 354 + leaps + (mc * 29.5 + 0.5).__floor__()
 
-def evaluate(k, data, is_oblig):
+def evaluate(k, data, is_oblig, epoch=1948440):
     matches = 0
     oblig_matches = 0
     total_oblig = sum(is_oblig)
     diffs = []
 
     for i, (idx, target_jd) in enumerate(data):
-        pred_jd = get_tabular_jd(idx, k)
+        pred_jd = get_tabular_jd(idx, k, epoch)
         diff = target_jd - pred_jd
         diffs.append(diff)
         if diff == 0:
@@ -31,20 +31,20 @@ def evaluate(k, data, is_oblig):
 
     return matches, (matches / len(data)) * 100, oblig_matches, (oblig_matches / total_oblig) * 100, diffs
 
-def find_best_k(data, is_oblig):
-    print("Searching for best k in (11y + k) % 30 < 11...")
+def find_best_k(data, is_oblig, epoch=1948440):
+    print(f"Searching for best k (epoch={epoch}) in (11y + k) % 30 < 11...")
     best_k = -1
     best_score = -1
 
     for k in range(30):
-        matches, pct, o_matches, o_pct, _ = evaluate(k, data, is_oblig)
+        matches, pct, o_matches, o_pct, _ = evaluate(k, data, is_oblig, epoch)
         if matches > best_score:
             best_score = matches
             best_k = k
         print(f"k={k:2d}: {matches:5d} ({pct:5.2f}%)")
 
     print(f"Best k: {best_k}")
-    matches, pct, o_matches, o_pct, diffs = evaluate(best_k, data, is_oblig)
+    matches, pct, o_matches, o_pct, diffs = evaluate(best_k, data, is_oblig, epoch)
     print("\nOffset Distribution for best k:")
     for d in range(-5, 6):
         count = sum(1 for x in diffs if x == d)
@@ -78,8 +78,12 @@ def main():
     oblig_indices = {8, 9, 11}
     is_oblig = [(idx % 12) in oblig_indices for idx, _ in data]
 
-    find_best_k(data, is_oblig)
-    find_best_fixed_cycle(data, is_oblig)
+    # Restrict to 1 AH onward when present.
+    data1 = [(i, j) for i, j in data if i >= 12]
+    is_oblig1 = [(idx % 12) in oblig_indices for idx, _ in data1]
+    for epoch in (1948439, 1948440):
+        find_best_k(data1, is_oblig1, epoch)
+        find_best_fixed_cycle(data1, is_oblig1)
 
 if __name__ == "__main__":
     main()

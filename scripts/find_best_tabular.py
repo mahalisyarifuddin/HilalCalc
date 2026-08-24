@@ -62,7 +62,7 @@ def find_best_fixed_cycle(data, is_oblig):
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_file = os.path.join(script_dir, '..', 'gt_1_10000.csv')
+    csv_file = os.path.join(script_dir, '..', 'gt_1_20000.csv')
 
     data = []
     try:

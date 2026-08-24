@@ -53,8 +53,8 @@ Kriteria ini digunakan untuk koordinasi keagamaan regional dan global.
   - **Ambang Batas**: Tinggi (Toposentrik) ≥ 5°, Elongasi (Geosentrik) ≥ 8°.
   - **Timeline**: Visibilitas harus tercapai di mana pun secara global (sapuan lintang) sebelum Fajar di Wellington, Selandia Baru (-41,29°LS, 174,78°BT, -18°).
 
-### 2. Kriteria Analitis Kustom (0-10.000 H)
-Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Skenario Komposit Global** yang secara gamblang mempertimbangkan belahan bumi barat dan timur.
+### 2. Kriteria Analitis Kustom (1-20.000 H)
+Untuk memodelkan tren historis jangka panjang dan mengoptimalkan aproksimasi global, kami menggunakan **Skenario Komposit Global** yang secara gamblang mempertimbangkan belahan bumi barat dan timur. Seri ground truth toposentrik Mekkah 0° yang digunakan untuk eksperimen multi-tahun di bawah mencakup 1–20.000 H (240.000 bulan).
 
 **Kriteria Global (Mekkah 0°):**
 Bulan dimulai jika bulan memenuhi visibilitas di **Mekkah** (Tinggi ≥ 0°, Elongasi ≥ 0°).
@@ -83,11 +83,14 @@ Ketika dievaluasi terhadap baseline global riil **Adak + Viwa**:
 Ini menunjukkan bahwa Mekkah 0° tidak hanya memiliki sentralitas spiritual dan berlandaskan ilmiah, tetapi juga **lebih akurat dan lebih dekat dengan batas fisik visibilitas global** dibandingkan kriteria global administratif GIC yang rumit.
 
 ## Analisis Statistik: Tingkat Keserempakan
-Disimulasikan selama 120.000 bulan (0-10.000 H) membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang):
-- **Tingkat Keseluruhan**: **53,82%**
-- **Bulan Ritual**: **52,67%** (Ramadan, Syawal, Zulhijah)
+Disimulasikan dengan membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang).
 
-Hasil ini menunjukkan bahwa perbedaan dalam penjangkaran geografis dan definisi visibilitas menyebabkan perbedaan awal bulan pada hampir 60% bulan.
+| Rentang | Bulan | Tingkat Keseluruhan | Bulan Ritual |
+| :--- | :--- | ---: | ---: |
+| 0–10.000 H (baseline astronomy-engine) | 120.000 | **53,82%** | **52,67%** |
+| 1–20.000 H (mesin numba cepat, 240.000 bulan) | 240.000 | **39,48%** | **39,49%** |
+
+Tingkat 20.000 tahun dihitung dengan mesin numba teroptimasi (`scripts/fast_global.py`, ≈36× lebih cepat daripada perulangan astronomy-engine) yang mereproduksi keputusan awal-bulan MABBIMS/GIC astronomy pada ≈93–95% bulan dan membaca ≈6 poin persen lebih rendah daripada baseline astronomy pada 10.000 tahun. Tingkat keserempakan (serempak) karena itu turun dari ≈53–54% selama 10.000 tahun pertama menjadi kira-kira **39–45%** untuk 1–20.000 H: semakin panjang rentang pengamatan, semakin besar perbedaan antara kedua kriteria global. Simulasi visibilitas MABBIMS/KHGT penuh sangat berat (≈7 jam pada 2 inti untuk 240.000 bulan), sehingga angka 20k adalah aproksimasi teroptimasi, bukan pengulangan yang persis.
 
 ### Paradoks Kalender Global (GIC) vs. Rukyat Lokal Mekkah 0°
 Kalender Hijriyah Global Tunggal (KHGT/GIC) bertujuan untuk menyatukan tanggal Hijriyah global. Namun, karena GIC mempertimbangkan visibilitas di mana pun secara global sebelum Fajar di Wellington, Selandia Baru—dan mencakup Pengecualian Amerika—kalender ini sering kali mendahului rukyat fisik lokal di Mekkah.
@@ -113,44 +116,54 @@ Rumus linear untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk kr
 *(Indeks = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
 ### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
-Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (0-10.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria berbasis rukyat.
+Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (1-20.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria berbasis rukyat selama 240.000 bulan.
 
-| Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=120rb) |
+| Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=240rb) |
 | :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
-| 1.   | **Rumus Linear Teroptimasi** | **67.16%**   | **10.75%**     | **80.593**       |
-| 2.   | Tabular Modular (k=29)        | 45.11%       | 46.06%         | 54.132           |
-| 3.        | Tradisional (Kuwaiti)        | 23.46%      | 22.51%     | 28.150              |
+| 1.   | **Rumus Linear Teroptimasi** | **42,06%**   | **42,12%**     | **100.950**       |
+| 2.   | Tabular Modular (k=29)        | 40,33%       | 41,09%         | 96.791           |
+| 3.        | Tradisional (Kuwaiti)        | 35,26%      | 34,84%     | 84.613              |
 
 - **k=29**: Konstanta modular untuk `(((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.
+- Untuk 1–10.000 H, perbandingan yang sama menghasilkan **Linear Teroptimasi 67,16%**, **Modular k=29 45,11%**, **Kuwaiti 23,46%**; jarak antar metode menyempit tajam ketika rentang pengamatan diperpanjang karena pergeseran lunar jangka panjang (yang dimodelkan rumus linear, tetapi tidak dapat dimodelkan siklus 30 tahun tetap) terakumulasi hingga puluhan hari.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
-Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=29) dan ground truth Mekkah 0° (0-10.000 H).
+Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=29, epoch 1948440) dan ground truth Mekkah 0° (1-20.000 H).
 
 | Ofset | Cocok   | Akurasi (%) | Kumulatif (%)  |
 | :----- | :------ | :---------- | :------------- |
-| -2     | 8.613   | 7,18%        | 7,18%          |
-| -1     | 31.655  | 26,38%       | 33,56%         |
-| **0**  | 54.132  | 45,20%      | 81,25%         |
-| +1     | 24.507  | 20,42%       | 99,09%         |
-| +2     | 771     | 0,64%        | 99,73%         |
-| +3     | 0       | 0,00%       | 100,00%        |
-- **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi yang signifikan dibandingkan siklus tabular tetap.
+| -5     | 35      | 0,01%        | 0,01%          |
+| -4     | 1.274   | 0,53%        | 0,55%          |
+| -3     | 9.185   | 3,83%        | 4,37%          |
+| -2     | 28.597  | 11,92%       | 16,29%         |
+| -1     | 62.483  | 26,03%       | 42,32%         |
+| **0**  | 96.791  | 40,33%       | 82,65%         |
+| +1     | 40.456  | 16,86%       | 99,51%         |
+| +2     | 1.179   | 0,49%        | 100,00%        |
+- **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi dibandingkan siklus tabular tetap. Jendela penerimaan ±1 hari mencakup 83,22% bulan pada 20.000 H.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)
-Analisis panjang siklus (L=10 hingga 1000) mengidentifikasi **L=30** sebagai knee point utama. Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran hanya ~4 hari selama 10.000 tahun).
+Analisis panjang siklus (L=10 hingga 1000) pada **seri 1–20.000 H** mengidentifikasi **L=30** sebagai knee point utama (kecocokan 40,33%). Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran hanya ~4 hari selama 10.000 tahun, ~8 hari selama 20.000 tahun).
 
 ## Cara Kerja Tahun Kabisat Hijriyah
 Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat (1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28), satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**. 1 H setara dengan Tahun 1 dalam siklus.
 
 ## Skrip Teknis
 Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:
--   `generate_gt.py`: Menghasilkan Ground Truth toposentrik.
+-   `generate_gt.py`: Menghasilkan Ground Truth toposentrik (astronomy-engine), rentang default 1–20.000 H.
+-   `generate_gt_stable.py`: Menghasilkan seri 1–20.000 H mean-konjungsi yang stabil untuk epoch jauh.
+-   `compare_tabular_epochs.py`: Membandingkan epoch tabular 1948439 vs 1948440 pada seluruh seri.
+-   `optimize_leap_interval.py` / `optimize_leap_interval_and_R.py` / `optimize_natural_leap.py`: Pencarian grid interval kabisat (lihat LEAP_INTERVAL_EXPERIMENT.md).
 -   `find_best_fit.py`: Menurunkan konstanta Rumus Linear yang optimal.
 -   `find_best_tabular.py`: Menganalisis skema tabular dan konstanta modular.
--   `analyze_serempak.py`: Menghitung tingkat keserempakan 10.000 tahun.
+-   `knee_analysis.py`: Analisis knee point panjang siklus.
+-   `fast_global.py` + `fast_serempak.py`: Mesin numba teroptimasi untuk mengulang analisis keserempakan MABBIMS/KHGT dan GIC (≈36× lebih cepat).
+-   `analyze_serempak.py`: Analisis keserempakan astronomy-engine asli.
 -   `verify_all_modes.py`: Verifikasi UI berbasis Playwright.
 
-Dependensi: `pip install astronomy-engine numpy playwright`.
+Dependensi: `pip install astronomy-engine numpy numba playwright`.
+
+Seri besar yang dihasilkan (`gt_1_20000.csv`, `gt_stable_1_20000.csv`, `serempak_1_20000.csv`) diabaikan oleh git; bangkitkan ulang dengan `generate_gt.py`, `generate_gt_stable.py`, dan `fast_serempak.py`.
 
 ## Konteks Sejarah
 -   **Reformasi Masehi**: Mode "Sejarah" menangani lompatan Oktober 1582 dan pelabelan Julian.

@@ -1,7 +1,7 @@
 venv/
 .venv/
-gt_1_100000.csv
-gt_stable_1_100000.csv
+gt_1_20000.csv
+gt_stable_1_20000.csv
 __pycache__/
 *.pyc
 *.pyo

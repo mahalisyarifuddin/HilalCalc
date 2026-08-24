@@ -139,7 +139,7 @@ def optimize_for_func(func_type, indices, targets, is_oblig, slope_lr, phase_lr,
 def optimize():
 	data = []
 	script_dir = os.path.dirname(os.path.abspath(__file__))
-	csv_file = os.path.join(script_dir, '..', 'gt_1_10000.csv')
+	csv_file = os.path.join(script_dir, '..', 'gt_1_20000.csv')
 	try:
 		with open(csv_file, 'r') as f:
 			reader = csv.reader(f)

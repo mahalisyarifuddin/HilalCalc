@@ -4,7 +4,7 @@ import numpy as np
 
 def load_gt():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(script_dir, '..', 'gt_1_10000.csv')
+    csv_path = os.path.join(script_dir, '..', 'gt_1_20000.csv')
     gt = []
     with open(csv_path, 'r') as f:
         reader = csv.reader(f); next(reader)

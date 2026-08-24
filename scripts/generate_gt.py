@@ -1,6 +1,6 @@
 """Generate Mecca 0°/0° ground-truth month-start JDs.
 
-Default span: Hijri years 0 .. 100000 (1_200_012 months).
+Default span: Hijri years 0 .. 20000 (240_012 months).
 Resumes from an existing CSV so a previous 0–10_000 AH file can be extended.
 """
 import csv
@@ -15,8 +15,8 @@ MECCA_LAT = 21.354813
 MECCA_LON = 39.984063
 AE_OFFSET = 2451545.0
 INITIAL_JD = 1948085  # 1 Muharram 0 AH (noon JD)
-# years 0 .. N inclusive of year 0 → (N+1)*12 months. User asked 1–100k ⇒ N=100000.
-HIJRI_YEARS_INCLUSIVE = 100000
+# years 0 .. N inclusive of year 0 → (N+1)*12 months. User asked 1–20k ⇒ N=20000.
+HIJRI_YEARS_INCLUSIVE = 20000
 TOTAL_MONTHS = (HIJRI_YEARS_INCLUSIVE + 1) * 12
 
 
@@ -25,7 +25,7 @@ def generate():
     mecca_obs = astronomy.Observer(MECCA_LAT, MECCA_LON, 0)
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_file = os.path.join(script_dir, "..", "gt_1_100000.csv")
+    output_file = os.path.join(script_dir, "..", "gt_1_20000.csv")
     legacy = os.path.join(script_dir, "..", "gt_1_10000.csv")
 
     rows = []

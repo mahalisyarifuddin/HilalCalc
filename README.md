@@ -137,13 +137,13 @@ The distribution of day-level variance between the arithmetic tabular Hijri cale
 - **Note**: The linear approach models long-term lunar drift, providing a significant accuracy gain over fixed tabular cycles.
 
 #### Tabular epoch: 1948439 vs 1948440
-Mecca 0° ground truth places **1 Muharram 1 AH at JD 1948439** (not 1948440). Over 1–10 000 AH and 1–20 000 AH (astronomy-engine) and over a **stable 1–100 000 AH** mean-conjunction series (1 200 000 months; astronomy-engine’s lunar theory breaks down after ~30 k AH), the arithmetic 30-year calendar is still **more accurate when anchored at 1948440**:
+Mecca 0° ground truth places **1 Muharram 1 AH at JD 1948439** (not 1948440). Over 1–10 000 AH and 1–20 000 AH (astronomy-engine) and over a **stable 1–20 000 AH** mean-conjunction series (240 000 months; astronomy-engine’s lunar theory breaks down after ~20–30 k AH), the arithmetic 30-year calendar is still **more accurate when anchored at 1948440**:
 
 | Ground truth | Best scheme | Exact @ 1948439 | Exact @ 1948440 |
 | :--- | :--- | ---: | ---: |
 | AE Mecca 0°, 1–10 000 AH | modular k=29 | 26.38% | **45.11%** |
 | AE Mecca 0°, 1–20 000 AH | modular k=29 | 26.03% | **40.33%** |
-| Stable synodic, 1–100 000 AH | modular k=29 | 1.65% | **2.50%** |
+| Stable synodic, 1–20 000 AH | modular k=29 | 8.26% | **12.49%** |
 
 The 30-year cycle (10 631 / 360 = 29.530555… d) is ~0.000033 d/month short of the mean lunation, so a +1 day epoch offset compensates on average. Beyond ~20 k AH neither epoch stays useful: tabular drift grows to tens of days and a linear formula is required.
 

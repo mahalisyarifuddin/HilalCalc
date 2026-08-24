@@ -1,10 +1,10 @@
-"""Stable 100k-year Mecca-style GT using mean conjunctions.
+"""Stable 20k-year Mecca-style GT using mean conjunctions.
 
 astronomy-engine (and raw Meeus T^3/T^4 polynomials) lose a physical synodic
 month beyond ~20–30k AH. This generator keeps the *same decision rule* as
 generate_gt.py — 29 days iff the day-28 Mecca sunset is after conjunction plus
 a small lag (crescent above the horizon proxy) — but uses a constant mean
-synodic month so the series stays meaningful out to 100000 AH.
+synodic month so the series stays meaningful out to 20000 AH.
 
 The lag is fit so years 1–10000 match gt_1_10000.csv as closely as possible.
 """
@@ -21,7 +21,7 @@ from numba import njit
 NM0 = 2451550.09765
 SYN = 29.530588853
 INITIAL_JD = 1948085
-TOTAL_MONTHS = 100001 * 12
+TOTAL_MONTHS = 20001 * 12
 
 # Mecca sunset ≈ 15.27h UT ≈ +0.136 after noon UT, weakly seasonal.
 SUNSET_AFTER_NOON = 0.136
@@ -74,7 +74,7 @@ def main():
         f"Generated {TOTAL_MONTHS} months in {time.time()-t1:.2f}s  "
         f"mean={np.diff(jds).mean():.9f}  1AH={int(jds[12])}  last={int(jds[-1])}"
     )
-    out = os.path.join(script_dir, "..", "gt_stable_1_100000.csv")
+    out = os.path.join(script_dir, "..", "gt_stable_1_20000.csv")
     with open(out, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Index", "JD"])

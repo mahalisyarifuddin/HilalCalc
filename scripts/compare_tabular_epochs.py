@@ -1,6 +1,6 @@
 """Compare tabular Hijri epochs 1948439 vs 1948440 against Mecca 0° GT.
 
-Vectorized over the full 0–100000 AH ground-truth series.
+Vectorized over the full 0–20000 AH ground-truth series.
 """
 from __future__ import annotations
 
@@ -87,7 +87,8 @@ def decade_drift(pred, tgt, indices):
     year = (indices - 12) // 12 + 1
     mask = indices >= 12
     year, d = year[mask], (tgt - pred)[mask]
-    bins = np.arange(1, 100001, 10000)
+    last_year = int(year.max()) if year.size > 0 else 1
+    bins = np.arange(1, last_year + 1, 10000)
     print("  10k-year mean offset (GT − tabular):")
     for a, b in zip(bins, bins + 9999):
         m = (year >= a) & (year <= b)
@@ -161,9 +162,9 @@ def run_one(path: str, max_year: int | None = None):
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     pairs = [
-        (os.path.join(script_dir, "..", "gt_stable_1_100000.csv"), None, "stable mean-conjunction 1–100000 AH"),
+        (os.path.join(script_dir, "..", "gt_stable_1_20000.csv"), None, "stable mean-conjunction 1–20000 AH"),
         (os.path.join(script_dir, "..", "gt_1_10000.csv"), None, "astronomy-engine Mecca 0° 0–10000 AH"),
-        (os.path.join(script_dir, "..", "gt_1_100000.csv"), 20000, "astronomy-engine Mecca 0° 1–20000 AH (pre-breakdown)"),
+        (os.path.join(script_dir, "..", "gt_1_20000.csv"), None, "astronomy-engine Mecca 0° 1–20000 AH"),
     ]
     for path, max_year, label in pairs:
         if not os.path.exists(path):

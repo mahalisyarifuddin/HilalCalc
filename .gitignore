@@ -9,3 +9,5 @@ __pycache__/
 *.pyd
 *.png
 gt_1_10000.csv
+conjs_1_20000.csv
+baseline_1_20000.csv

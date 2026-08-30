@@ -88,14 +88,17 @@ Simulated comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid wit
 | Window | Months | Overall Rate | Ritual Months |
 | :--- | :--- | ---: | ---: |
 | 0–10,000 AH (astronomy-engine baseline) | 120,000 | **53.82%** | **52.67%** |
+| 1–10,000 AH (fast numba engine rerun) | 120,000 | 47.88% | 47.90% |
 | 1–20,000 AH (fast numba engine, 240,000 months) | 240,000 | **39.48%** | **39.49%** |
 
-The 20,000-year rate was computed with an optimized numba engine (`scripts/fast_global.py`, ≈36× faster than the astronomy-engine loop) that reproduces the astronomy MABBIMS/GIC month-start decisions on ≈93–95% of months and reads ≈6 pp low vs. the astronomy baseline at 10,000 years. The simultaneity (serempak) rate therefore falls from ≈53–54% over the first 10,000 years to roughly **39–45%** over 1–20,000 AH: the longer the window, the more the two global criteria diverge. Full MABBIMS/KHGT visibility is an extremely heavy simulation (≈7 hours on 2 cores for 240,000 months), so the 20k figure is an optimized approximation rather than an exact re-run.
+The 20,000-year rate was computed with an optimized numba engine (`scripts/fast_global.py`, ≈36× faster than the astronomy-engine loop) that reproduces the astronomy MABBIMS/GIC month-start decisions on ≈93–95% of months and reads ≈6 pp low vs. the astronomy baseline at 10,000 years. A fresh 2026-08-30 rerun of the fast engine on the **same 10k and 20k windows** gives **47.88% / 47.90%** over 10,000 AH and **39.48% / 39.49%** over 20,000 AH. The simultaneity (serempak) rate therefore falls from ≈48–54% over the first 10,000 years to roughly **39–45%** over 1–20,000 AH: the longer the window, the more the two global criteria diverge. Full MABBIMS/KHGT visibility is an extremely heavy simulation (≈7 hours on 2 cores for 240,000 months), so both 20k figures are optimized approximations rather than exact re-runs. See `MULTIYEAR_EXPERIMENTS_RERUN.md` for the complete rerun log.
 
 ### Global Calendar (GIC) vs. Local Mecca 0° Sighting Paradox
 The Global Islamic Calendar (GIC/KHGT) seeks to unify global Hijri dates. However, because GIC considers visibility anywhere globally before Wellington NZ Fajr—and includes the Americas Exception—it frequently runs ahead of the local physical sighting in Mecca.
 
-Over a **10,000-year topocentric crescent visibility simulation (120,000 months)** comparing GIC against the Mecca 0° ground truth, we find the following start-day offset distribution (GIC - Mecca 0°):
+Two sets of results are reported: the **earlier short-window** distribution previously published, and the **full-window fast-engine rerun** from 2026-08-30 (`scripts/gic_vs_mecca.py`).
+
+#### Previously published short-window result (10k, smaller simulation)
 
 | Sighting Date Offset (GIC - Mecca 0°) | Case Category | Overall Rate (120,000 months) | Ritual Months (30,000 months) |
 | :--- | :--- | :--- | :--- |
@@ -104,28 +107,60 @@ Over a **10,000-year topocentric crescent visibility simulation (120,000 months)
 | **+0 days** | Simultaneous Start | 8.62% | 12.33% |
 | **>= +1 day** | GIC starts *later* than Mecca | **0.00%** | **0.00%** |
 
-#### Theological and Astronomical Implications
-- **GIC Throwing Mecca Under the Bus (91.38%)**: Despite its claim to accommodate both the East and the West, GIC's convoluted rules end up **ignoring whether the new moon is physically possible to be sighted in Mecca**. In **91.38%** of all months (and **87.67%** of ritual months), GIC starts the global Hijri month **1 or 2 days before the crescent is even physically visible/possible to be sighted in Mecca**. In doing so, GIC effectively "throws Mecca under the bus" over 91% of the time, disregarding the spiritual centrality of the Qibla in favor of far-western extreme sightability.
-- **The Day of Arafat Paradox**: Because GIC runs ahead of Mecca's actual physical timeline in **91.38%** of cases, GIC followers globally observe the **9th of Dhu al-Hijjah (Day of Arafat) before the physical event of Wuquf actually takes place on the ground in Mecca**. In years such as 1448 AH (2027 CE), 1454 AH (2033 CE), and 1456 AH (2035 CE), GIC precedes Mecca's local sighting by 1 day, while in years like 1467 AH (2045 CE), 1470 AH (2048 CE), and 1476 AH (2054 CE), GIC precedes Mecca by 2 full days.
+#### Full-window fast-engine rerun: 1–10,000 AH (120,000 months)
+
+| Offset | Overall | Ritual |
+| :--- | ---: | ---: |
+| **-2 days** | 1.38% (1,650) | 1.46% (437) |
+| **-1 day** | 53.13% (63,762) | 53.15% (15,946) |
+| **+0 days** | 44.71% (53,648) | 44.61% (13,383) |
+| **+1 day** | 0.78% (940) | 0.78% (234) |
+
+#### Full-window fast-engine rerun: 1–20,000 AH (240,000 months)
+
+| Offset | Overall | Ritual |
+| :--- | ---: | ---: |
+| **-2 days** | 0.69% (1,650) | 0.73% (437) |
+| **-1 day** | 34.67% (83,198) | 34.71% (20,826) |
+| **+0 days** | 61.59% (147,821) | 61.55% (36,931) |
+| **+1 day** | 3.05% (7,326) | 3.01% (1,804) |
+| **+2 days** | 0.00% (5) | 0.00% (2) |
+
+#### Theological and Astronomical Implications (full-window rerun)
+- **GIC runs ahead of Mecca in the early window, then converges**: over the full 1–20,000 AH rerun, GIC starts the month **1–2 days earlier** than the Mecca 0° physical sighting in **35.36%** of all months (and **35.44%** of ritual months), is **simultaneous** in **61.59%** (61.55% ritual), and starts **later** in **3.05%** (3.01% ritual). Over 1–10,000 AH the "earlier" rate is **54.51%** (54.61% ritual) and the simultaneous rate is **44.71%** (44.61% ritual).
+- **The earlier 91.38% "throws Mecca under the bus" claim is a short-window / smaller-simulation result.** It is not supported by the full 240,000-month fast-engine rerun, where GIC and the Mecca 0° physical timeline agree on the majority of months at the 20k horizon.
+- **The Day of Arafat Paradox remains real in the months where GIC precedes Mecca**, but the full-window magnitude is much smaller than the prior 91.38% figure. Years such as 1448 AH (2027 CE), 1454 AH (2033 CE), and 1456 AH (2035 CE) still illustrate GIC running 1 day ahead of the local Mecca timeline, while 1467 AH (2045 CE), 1470 AH (2048 CE), and 1476 AH (2054 CE) remain 2-day examples.
 
 ## Optimized Results & Benchmarks
 
 ### 1. Optimized Global Formula
-The derived linear formula for the Julian Date (JD) of a Hijri date (optimized for the Mecca 0° criteria) is:
+The browser optimizer's existing linear formula (still used in `HijriCalc.html`) is:
 `JD = 1948440 + floor(29.53057017233 * Index + 0.0068) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
+
+The 2026-08-30 rerun of `scripts/find_best_fit.py` over the regenerated ground truth also finds fresh exact-match optimum constants:
+
+| Window | Slope | Phase (floor) | Exact | Obligatory |
+| :--- | ---: | ---: | ---: | ---: |
+| 1–10,000 AH | 29.5305741456 | −0.2343920 | **67.83%** | 67.95% |
+| 1–20,000 AH | 29.5305515026 | 1.5594240 | **42.13%** | 42.18% |
+
+The rerun constants maximize exact month-start matches over each window; the browser keeps the
+legacy constants (which score 67.16% over 1–10k and 39.55% over 1–20k). See
+`MULTIYEAR_EXPERIMENTS_RERUN.md` for the full rerun table.
 
 ### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
 Comparison of approximation methods against the Mecca 0° Ground Truth (1-20,000 AH). These percentages reflect how well each optimization predicts the sighting-based criteria over 240,000 months.
 
 | Rank | Method                       | Accuracy (%) | Obligatory (%) | Matches (n=240k) |
 | :--- | :--------------------------- | :----------- | :------------- | :--------------- |
-| 1.   | **Optimized Linear Formula** | **42.06%**   | **42.12%**     | **100,950**      |
+| 1.   | **Optimized Linear (rerun best fit)** | **42.13%**   | **42.18%**     | **101,118**      |
 | 2.   | Modular Tabular (k=29)        | 40.33%       | 41.09%         | 96,791           |
-| 3.   | Traditional (Kuwaiti)        | 35.26%       | 34.84%         | 84,613           |
+| 3.   | Browser Linear (legacy constants) | 39.55%  | 39.55%         | 94,912           |
+| 4.   | Traditional (Kuwaiti)        | 35.26%       | 34.84%         | 84,613           |
 
 - **k=29**: Modular constant for `(((11y + k) mod 30) < 11`, using 1 AH as the reference year.
-- Over 1–10,000 AH the same comparison yields **Optimized Linear 67.16%**, **Modular k=29 45.11%**, **Kuwaiti 23.46%**; the gap between the methods narrows sharply as the observation window lengthens because long-term lunar drift (which the linear formula models, but the fixed 30-year cycle cannot) accumulates to tens of days.
+- Over 1–10,000 AH the same comparison yields **best-fit Optimized Linear 67.83%** (browser legacy linear 67.16%), **Modular k=29 45.11%**, **Kuwaiti 37.86%**; the gap between the methods narrows sharply as the observation window lengthens because long-term lunar drift (which the linear formula models, but the fixed 30-year cycle cannot) accumulates to tens of days.
 
 #### Tabular Correction Distribution (+/- 5 Days)
 The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29, epoch 1948440) and the Mecca 0° ground truth (1-20,000 AH).
@@ -165,8 +200,9 @@ The `scripts/` directory contains the Python tools used for data generation and 
 -   `generate_gt_stable.py`: Generates a stable mean-conjunction 1–20,000 AH series for far-future epochs.
 -   `compare_tabular_epochs.py`: Compares tabular epochs 1948439 vs 1948440 across the series.
 -   `optimize_leap_interval.py` / `optimize_leap_interval_and_R.py` / `optimize_natural_leap.py`: Leap-interval grid searches (see LEAP_INTERVAL_EXPERIMENT.md).
--   `find_best_fit.py`: Derives the optimal Linear Formula constants.
+-   `find_best_fit.py`: Derives the optimal Linear Formula constants (optional GT path argument).
 -   `find_best_tabular.py`: Analyzes tabular schemes and modular constants.
+-   `gic_vs_mecca.py`: Computes the GIC vs Mecca 0° month-start offset distribution.
 -   `knee_analysis.py`: Cycle-length knee-point analysis.
 -   `fast_global.py` + `fast_serempak.py`: Optimized numba engines that redo the heavy MABBIMS/KHGT simultaneity and GIC analyses (≈36× faster than the astronomy-engine loop).
 -   `analyze_serempak.py`: Original astronomy-engine simultaneity analysis.

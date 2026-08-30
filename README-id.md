@@ -88,14 +88,17 @@ Disimulasikan dengan membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid G
 | Rentang | Bulan | Tingkat Keseluruhan | Bulan Ritual |
 | :--- | :--- | ---: | ---: |
 | 0–10.000 H (baseline astronomy-engine) | 120.000 | **53,82%** | **52,67%** |
+| 1–10.000 H (pengulangan mesin numba cepat) | 120.000 | 47,88% | 47,90% |
 | 1–20.000 H (mesin numba cepat, 240.000 bulan) | 240.000 | **39,48%** | **39,49%** |
 
-Tingkat 20.000 tahun dihitung dengan mesin numba teroptimasi (`scripts/fast_global.py`, ≈36× lebih cepat daripada perulangan astronomy-engine) yang mereproduksi keputusan awal-bulan MABBIMS/GIC astronomy pada ≈93–95% bulan dan membaca ≈6 poin persen lebih rendah daripada baseline astronomy pada 10.000 tahun. Tingkat keserempakan (serempak) karena itu turun dari ≈53–54% selama 10.000 tahun pertama menjadi kira-kira **39–45%** untuk 1–20.000 H: semakin panjang rentang pengamatan, semakin besar perbedaan antara kedua kriteria global. Simulasi visibilitas MABBIMS/KHGT penuh sangat berat (≈7 jam pada 2 inti untuk 240.000 bulan), sehingga angka 20k adalah aproksimasi teroptimasi, bukan pengulangan yang persis.
+Tingkat 20.000 tahun dihitung dengan mesin numba teroptimasi (`scripts/fast_global.py`, ≈36× lebih cepat daripada perulangan astronomy-engine) yang mereproduksi keputusan awal-bulan MABBIMS/GIC astronomy pada ≈93–95% bulan dan membaca ≈6 poin persen lebih rendah daripada baseline astronomy pada 10.000 tahun. Pengulangan 2026-08-30 mesin cepat pada **rentang 10.000 H dan 20.000 H yang sama** menghasilkan **47,88% / 47,90%** untuk 10.000 H dan **39,48% / 39,49%** untuk 20.000 H. Tingkat keserempakan (serempak) karena itu turun dari ≈48–54% selama 10.000 tahun pertama menjadi kira-kira **39–45%** untuk 1–20.000 H: semakin panjang rentang pengamatan, semakin besar perbedaan antara kedua kriteria global. Simulasi visibilitas MABBIMS/KHGT penuh sangat berat (≈7 jam pada 2 inti untuk 240.000 bulan), sehingga kedua angka 20k adalah aproksimasi teroptimasi, bukan pengulangan yang persis. Lihat `MULTIYEAR_EXPERIMENTS_RERUN.md` untuk catatan lengkap.
 
 ### Paradoks Kalender Global (GIC) vs. Rukyat Lokal Mekkah 0°
 Kalender Hijriyah Global Tunggal (KHGT/GIC) bertujuan untuk menyatukan tanggal Hijriyah global. Namun, karena GIC mempertimbangkan visibilitas di mana pun secara global sebelum Fajar di Wellington, Selandia Baru—dan mencakup Pengecualian Amerika—kalender ini sering kali mendahului rukyat fisik lokal di Mekkah.
 
-Melalui **simulasi visibilitas hilal toposentrik selama 10.000 tahun (120.000 bulan)** yang membandingkan GIC dengan ground truth Mekkah 0°, ditemukan distribusi selisih hari awal bulan (GIC - Mekkah 0°) sebagai berikut:
+Dua set hasil dilaporkan: **hasil jendela pendek** yang sebelumnya diterbitkan, dan **pengulangan cepat jendela penuh** tanggal 2026-08-30 (`scripts/gic_vs_mecca.py`).
+
+#### Hasil jendela pendek yang sebelumnya diterbitkan (10k, simulasi lebih kecil)
 
 | Selisih Hari (GIC - Mekkah 0°) | Kategori Kasus | Tingkat Keseluruhan (120.000 bulan) | Bulan Ritual (30.000 bulan) |
 | :--- | :--- | :--- | :--- |
@@ -104,28 +107,60 @@ Melalui **simulasi visibilitas hilal toposentrik selama 10.000 tahun (120.000 bu
 | **+0 hari** | Mulai Serempak | 8,62% | 12,33% |
 | **>= +1 hari** | GIC mulai *lebih lambat* dari Mekkah | **0,00%** | **0,00%** |
 
-#### Implikasi Teologis dan Astronomis
-- **GIC Mengabaikan Eksistensi Hilal di Mekkah / "Throwing Mecca Under the Bus" (91,38%)**: Di balik klaimnya untuk mengakomodasi wilayah Barat dan Timur, aturan-aturan rumit GIC pada kenyataannya **mengabaikan sama sekali apakah hilal baru tersebut secara fisik sudah mungkin dirukyat di Mekkah atau belum**. Dalam **91,38%** dari seluruh bulan (dan **87,67%** pada bulan-bulan ritual), GIC memulai bulan Hijriyah global **1 atau 2 hari sebelum hilal secara fisik mungkin untuk terlihat/dirukyat di Mekkah**. Dengan demikian, GIC "mengorbankan" Mekkah (mengabaikan sentralitas spiritual kiblat umat) dalam lebih dari 91% kasus demi mengakomodasi kebergantungan penuh pada visibilitas ekstrem belahan barat.
-- **Paradoks Hari Arafah**: Karena GIC mendahului garis waktu fisik aktual di Mekkah dalam **91,38%** kasus, umat Muslim di seluruh dunia yang mengikuti GIC akan merayakan **Hari Arafah (9 Zulhijah) sebelum peristiwa fisik wukuf di Arafah benar-benar berlangsung di Mekkah**. Pada tahun-tahun seperti 1448 H (2027 M), 1454 H (2033 M), dan 1456 H (2035 M), GIC mendahului rukyat lokal Mekkah selama 1 hari, sementara pada tahun seperti 1467 H (2045 M), 1470 H (2048 M), dan 1476 H (2054 M), GIC mendahului Mekkah selama 2 hari penuh.
+#### Pengulangan jendela penuh: 1–10.000 H (120.000 bulan)
+
+| Selisih | Keseluruhan | Ritual |
+| :--- | ---: | ---: |
+| **-2 hari** | 1,38% (1.650) | 1,46% (437) |
+| **-1 hari** | 53,13% (63.762) | 53,15% (15.946) |
+| **+0 hari** | 44,71% (53.648) | 44,61% (13.383) |
+| **+1 hari** | 0,78% (940) | 0,78% (234) |
+
+#### Pengulangan jendela penuh: 1–20.000 H (240.000 bulan)
+
+| Selisih | Keseluruhan | Ritual |
+| :--- | ---: | ---: |
+| **-2 hari** | 0,69% (1.650) | 0,73% (437) |
+| **-1 hari** | 34,67% (83.198) | 34,71% (20.826) |
+| **+0 hari** | 61,59% (147.821) | 61,55% (36.931) |
+| **+1 hari** | 3,05% (7.326) | 3,01% (1.804) |
+| **+2 hari** | 0,00% (5) | 0,00% (2) |
+
+#### Implikasi Teologis dan Astronomis (pengulangan jendela penuh)
+- **GIC mendahului Mekkah pada jendela awal, lalu menyatu**: pada pengulangan penuh 1–20.000 H, GIC memulai bulan **1–2 hari lebih awal** daripada rukyat fisik Mekkah 0° dalam **35,36%** dari seluruh bulan (dan **35,44%** bulan ritual), **serempak** dalam **61,59%** (61,55% ritual), dan **lebih lambat** dalam **3,05%** (3,01% ritual). Selama 1–10.000 H tingkat "lebih awal" adalah **54,51%** (54,61% ritual) dan tingkat serempak **44,71%** (44,61% ritual).
+- **Klaim awal 91,38% "mengorbankan Mekkah" adalah hasil jendela pendek / simulasi lebih kecil.** Ia tidak didukung oleh pengulangan cepat 240.000 bulan, di mana GIC dan garis waktu fisik Mekkah 0° sepakat pada mayoritas bulan pada cakrawala 20.000 H.
+- **Paradoks Hari Arafah tetap nyata pada bulan-bulan ketika GIC mendahului Mekkah**, tetapi besaran jendela penuh jauh lebih kecil daripada angka 91,38% sebelumnya. Tahun-tahun seperti 1448 H (2027 M), 1454 H (2033 M), dan 1456 H (2035 M) masih menunjukkan GIC 1 hari lebih awal dari garis waktu lokal Mekkah, sementara 1467 H (2045 M), 1470 H (2048 M), dan 1476 H (2054 M) tetap contoh 2 hari lebih awal.
 
 ## Hasil Optimasi & Tolok Ukur
 
 ### 1. Rumus Global Teroptimasi
-Rumus linear untuk Julian Date (JD) dari tanggal Hijriyah (dioptimalkan untuk kriteria Mekkah 0°) adalah:
-`JD = 1948440 + floor(29.53057017233 * Indeks + 0.0068) + Hari - 1`
+Rumus linear browser yang masih dipakai di `HijriCalc.html` adalah:
+`JD = 1948440 + floor(29.53057017233 * Indeks + 0,0068) + Hari - 1`
 *(Indeks = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
+
+Pengulangan 2026-08-30 `scripts/find_best_fit.py` pada ground truth yang baru dibuat juga menemukan konstanta optimal jendela baru:
+
+| Rentang | Slope | Phase (floor) | Tepat | Wajib |
+| :--- | ---: | ---: | ---: | ---: |
+| 1–10.000 H | 29,5305741456 | −0,2343920 | **67,83%** | 67,95% |
+| 1–20.000 H | 29,5305515026 | 1,5594240 | **42,13%** | 42,18% |
+
+Konstanta pengulangan memaksimalkan kecocokan awal bulan di setiap rentang; browser tetap memakai
+konstanta lama (yang mencetak 67,16% pada 1–10rb dan 39,55% pada 1–20rb). Lihat
+`MULTIYEAR_EXPERIMENTS_RERUN.md`.
 
 ### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
 Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (1-20.000 H). Persentase ini mencerminkan seberapa baik setiap optimasi memprediksi kriteria berbasis rukyat selama 240.000 bulan.
 
 | Peringkat | Metode                       | Akurasi (%) | Wajib (%)  | Cocok (n=240rb) |
 | :-------- | :--------------------------- | :---------- | :--------- | :------------------ |
-| 1.   | **Rumus Linear Teroptimasi** | **42,06%**   | **42,12%**     | **100.950**       |
+| 1.   | **Rumus Linear Optimal (pengulangan)** | **42,13%** | **42,18%** | **101.118** |
 | 2.   | Tabular Modular (k=29)        | 40,33%       | 41,09%         | 96.791           |
-| 3.        | Tradisional (Kuwaiti)        | 35,26%      | 34,84%     | 84.613              |
+| 3.   | Linear Browser (konstanta lama) | 39,55%  | 39,55%         | 94.912           |
+| 4.   | Tradisional (Kuwaiti)        | 35,26%      | 34,84%     | 84.613              |
 
 - **k=29**: Konstanta modular untuk `(((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.
-- Untuk 1–10.000 H, perbandingan yang sama menghasilkan **Linear Teroptimasi 67,16%**, **Modular k=29 45,11%**, **Kuwaiti 23,46%**; jarak antar metode menyempit tajam ketika rentang pengamatan diperpanjang karena pergeseran lunar jangka panjang (yang dimodelkan rumus linear, tetapi tidak dapat dimodelkan siklus 30 tahun tetap) terakumulasi hingga puluhan hari.
+- Untuk 1–10.000 H, perbandingan yang sama menghasilkan **Linear Optimal 67,83%** (linear browser lama 67,16%), **Modular k=29 45,11%**, **Kuwaiti 37,86%**; jarak antar metode menyempit tajam ketika rentang pengamatan diperpanjang karena pergeseran lunar jangka panjang (yang dimodelkan rumus linear, tetapi tidak dapat dimodelkan siklus 30 tahun tetap) terakumulasi hingga puluhan hari.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
 Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=29, epoch 1948440) dan ground truth Mekkah 0° (1-20.000 H).
@@ -154,8 +189,9 @@ Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan 
 -   `generate_gt_stable.py`: Menghasilkan seri 1–20.000 H mean-konjungsi yang stabil untuk epoch jauh.
 -   `compare_tabular_epochs.py`: Membandingkan epoch tabular 1948439 vs 1948440 pada seluruh seri.
 -   `optimize_leap_interval.py` / `optimize_leap_interval_and_R.py` / `optimize_natural_leap.py`: Pencarian grid interval kabisat (lihat LEAP_INTERVAL_EXPERIMENT.md).
--   `find_best_fit.py`: Menurunkan konstanta Rumus Linear yang optimal.
+-   `find_best_fit.py`: Menurunkan konstanta Rumus Linear yang optimal (argumen jalur GT opsional).
 -   `find_best_tabular.py`: Menganalisis skema tabular dan konstanta modular.
+-   `gic_vs_mecca.py`: Menghitung distribusi selisih awal-bulan GIC vs Mekkah 0°.
 -   `knee_analysis.py`: Analisis knee point panjang siklus.
 -   `fast_global.py` + `fast_serempak.py`: Mesin numba teroptimasi untuk mengulang analisis keserempakan MABBIMS/KHGT dan GIC (≈36× lebih cepat).
 -   `analyze_serempak.py`: Analisis keserempakan astronomy-engine asli.

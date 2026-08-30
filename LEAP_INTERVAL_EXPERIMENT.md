@@ -115,3 +115,31 @@ The results of our comparative experiments are detailed below:
     # Leap year density R = 1 / L
     is_leap = (((year - 1 + S) / L) % 1.0) < (1.0 / L)
     ```
+
+---
+
+## 8. Rerun (2026-08-30)
+
+On 2026-08-30 the Mecca 0° ground-truth series was regenerated from
+`gt_1_10000.csv` into `gt_1_20000.csv` (240,012 rows) with
+`scripts/generate_gt.py` and verified with `scripts/verify_gt_consistency.py`.
+All three grid searches were rerun against the regenerated series and reproduced the
+experiment C / experiment D results above exactly.
+
+The companion search `scripts/optimize_leap_interval.py` (free `L` and `S`, no
+`R` constraint) reported:
+
+| Epoch | Best L | Best S | Exact | MAE |
+| :--- | ---: | ---: | ---: | ---: |
+| 1948439 | 2.726200 | 2.285320 | 38.5925% | 1.1288 |
+| 1948440 | 2.727000 | 1.742280 | 40.5767% | 0.8521 |
+
+The independently-optimized-R experiment B (`optimize_leap_interval_and_R.py`)
+reported:
+
+| Epoch | Best L | Best S | Best R | Exact | MAE |
+| :--- | ---: | ---: | ---: | ---: | ---: |
+| 1948439 | 2.726000 | 0.519238 | 0.367000 | 37.8167% | 1.2754 |
+| 1948440 | 2.727000 | 0.129857 | 0.367000 | 40.5442% | 0.8622 |
+
+See `MULTIYEAR_EXPERIMENTS_RERUN.md` for the full multiyear rerun report.

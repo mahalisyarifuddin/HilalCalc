@@ -197,7 +197,7 @@ def process_month(args):
     h_month = (i % 12) + 1
     return sim, h_month in [9, 10, 12]
 
-def analyze(total_years=10000):
+def analyze(total_years=20000):
     start_time = time.time()
     current_time_ut = -503459.0
     month_conjs = []
@@ -219,5 +219,5 @@ def analyze(total_years=10000):
     print(f"Time: {time.time() - start_time:.2f}s")
 
 if __name__ == "__main__":
-    y = int(sys.argv[1]) if len(sys.argv) > 1 else 10000
+    y = int(sys.argv[1]) if len(sys.argv) > 1 else 20000
     analyze(y)

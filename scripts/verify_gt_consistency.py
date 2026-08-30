@@ -11,8 +11,6 @@ def verify_gt():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     csv_file = os.path.join(script_dir, '..', 'gt_1_20000.csv')
-    if not os.path.exists(csv_file):
-        csv_file = os.path.join(script_dir, '..', 'gt_1_10000.csv')
 
     with open(csv_file, 'r') as f:
         reader = csv.reader(f)
@@ -51,7 +49,7 @@ def verify_gt():
                 print(f"Error: JD mismatch at Index {expected_index}. Expected {current_jd}, got {row[1]}")
                 return
 
-            if expected_index % 10000 == 0:
+            if expected_index % 20000 == 0:
                 print(f"Verified up to Index {expected_index}...")
 
     print("Ground Truth verified successfully against Mecca 0,0!")

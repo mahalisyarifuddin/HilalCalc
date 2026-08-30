@@ -1,7 +1,7 @@
 """Fast Mecca 0° month-length engine (Meeus + topocentric moon).
 
 Used to generate multi-millennial ground truth far faster than astronomy-engine.
-Validated against gt_1_10000.csv (astronomy-engine Mecca 0,0).
+Validated against gt_1_20000.csv (astronomy-engine Mecca 0,0).
 """
 from __future__ import annotations
 

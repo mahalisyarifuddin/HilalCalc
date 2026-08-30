@@ -1,6 +1,11 @@
 """Run fast-engine GIC/MABBIMS simultaneity over N years and report rates.
 
 Usage:  python scripts/fast_serempak.py [YEARS] [OUT_CSV]
+
+The fast engine is calibrated to the astronomy-engine baseline via the el/alt
+biases in scripts/fast_global.py (MABBIMS 0.225/0.375, GIC 0.00/0.15), which
+reproduce the astronomy month-start decisions at ~99.25% MABBIMS / ~98.79% GIC
+on the 200-year (2400-conjunction) baseline sample.
 """
 import os
 import sys
@@ -14,7 +19,7 @@ import astronomy
 import scripts.analyze_serempak as A
 import scripts.fast_global as F
 
-YEARS = int(sys.argv[1]) if len(sys.argv) > 1 else 10000
+YEARS = int(sys.argv[1]) if len(sys.argv) > 1 else 20000
 OUT = sys.argv[2] if len(sys.argv) > 2 else None
 
 # land mask for MABBIMS grid (buffer 2.0)
@@ -28,6 +33,12 @@ for i, lon in enumerate(F.MABBIMS_LONS):
 F.build_test_lats(-503459.0)
 F.mabbims_start_jd(1948085.0, land_mask)
 F.gic_start_jd(1948085.0, np.array([0.0], dtype=np.float64), 1, np.zeros((1, 1), dtype=np.int64))
+print(
+    "calibration: MABBIMS el/alt = "
+    f"{F.MABBIMS_EL_BIAS:.3f}/{F.MABBIMS_ALT_BIAS:.3f}, "
+    f"GIC el/alt = {F.GIC_EL_BIAS:.3f}/{F.GIC_ALT_BIAS:.3f}",
+    flush=True,
+)
 
 t0 = time.time()
 cur = -503459.0

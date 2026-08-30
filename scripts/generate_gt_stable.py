@@ -6,7 +6,7 @@ generate_gt.py — 29 days iff the day-28 Mecca sunset is after conjunction plus
 a small lag (crescent above the horizon proxy) — but uses a constant mean
 synodic month so the series stays meaningful out to 20000 AH.
 
-The lag is fit so years 1–10000 match gt_1_10000.csv as closely as possible.
+The lag is fit so years 1–20000 match gt_1_20000.csv as closely as possible.
 """
 from __future__ import annotations
 
@@ -61,12 +61,12 @@ def fit_lag(ae_jd: np.ndarray) -> float:
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    ae_path = os.path.join(script_dir, "..", "gt_1_10000.csv")
+    ae_path = os.path.join(script_dir, "..", "gt_1_20000.csv")
     ae = np.loadtxt(ae_path, delimiter=",", skiprows=1, dtype=np.int64)[:, 1]
     generate(8, 0.75)  # warmup
     t0 = time.time()
     lag, exact, mae = fit_lag(ae)
-    print(f"Best lag={lag:.4f}d  AE-10k exact={exact*100:.2f}%  MAE={mae:.3f}  ({time.time()-t0:.1f}s)")
+    print(f"Best lag={lag:.4f}d  AE-20k exact={exact*100:.2f}%  MAE={mae:.3f}  ({time.time()-t0:.1f}s)")
 
     t1 = time.time()
     jds = generate(TOTAL_MONTHS, lag)

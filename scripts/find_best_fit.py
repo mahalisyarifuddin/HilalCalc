@@ -3,6 +3,7 @@ import math
 import numpy as np
 import time
 import os
+import sys
 
 def get_score_numpy(slope, phase, idxs, tgts, obligs, func_type):
 	vals = slope * idxs + phase
@@ -139,7 +140,7 @@ def optimize_for_func(func_type, indices, targets, is_oblig, slope_lr, phase_lr,
 def optimize():
 	data = []
 	script_dir = os.path.dirname(os.path.abspath(__file__))
-	csv_file = os.path.join(script_dir, '..', 'gt_1_20000.csv')
+	csv_file = sys.argv[1] if len(sys.argv) > 1 else os.path.join(script_dir, '..', 'gt_1_20000.csv')
 	try:
 		with open(csv_file, 'r') as f:
 			reader = csv.reader(f)
@@ -150,8 +151,11 @@ def optimize():
 		print(f"{csv_file} not found.")
 		return
 
+    # Restrict to 1 AH onward (index >= 12) so the count matches the 240,000
+    # months used by the other experiment scripts.
+	data = [(i, j) for i, j in data if i >= 12]
 	count = len(data)
-	print(f"Loaded {count} records from {csv_file}.")
+	print(f"Loaded {count} records from {csv_file} (years 1+).")
 
 	oblig_indices = {8, 9, 11}
 	indices = [d[0] for d in data]

@@ -39,6 +39,21 @@ HORIZON_REFRACT_DEG = 0.5667
 MABBIMS_LONS = np.array([95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 141], dtype=np.int64)
 MABBIMS_LATS = np.array([7, 5, 0, -5, -10, -11], dtype=np.int64)
 
+# Calibration biases that correct the fast Meeus engine toward the real
+# astronomy-engine visibility thresholds used by analyze_serempak.py.
+# These were fitted on a 100-year baseline and cross-checked on a 200-year
+# (2400-conjunction) astronomy-engine baseline:
+#   MABBIMS 0.225/0.375 -> 99.25% (100yr) and 99.25% (200yr)
+#   GIC 0.0/0.15        -> 98.75% (100yr) and 98.79% (200yr)
+#   combined (200yr)    -> MABBIMS 99.25% / GIC 98.79% / both 98.04%
+# GIC altitude 0.30 reached 98.83% on the 100-year sample but only 98.46% on
+# the larger 200-year sample; 0.15 is the better long-sample compromise.  The
+# remaining boundary flips are threshold-crossing cases, not systematic.
+MABBIMS_EL_BIAS = 0.225
+MABBIMS_ALT_BIAS = 0.375
+GIC_EL_BIAS = 0.0
+GIC_ALT_BIAS = 0.15
+
 
 @njit(cache=True)
 def sun_alt_g(ra, dec, jd, lat_rad, lon_deg):
@@ -112,16 +127,27 @@ def sunset_g(jd_guess, lat_rad, lon_deg):
 
 @njit(cache=True)
 def fajr_nz(jd_guess, target=-17.5):
-    """Next rising crossing of `target` altitude for the Sun at Wellington."""
+    """Next rising crossing of `target` altitude for the Sun at Wellington.
+
+    astronomy-engine's SearchAltitude(Direction.Rise, -17.5) measures the
+    *airless* (geometric) altitude, so use sun_alt_g directly rather than the
+    refracted altitude.
+    """
     prev_t = jd_guess
-    prev_a = _sun_alt_refr(prev_t, NZ_LAT_R, NZ_LON)
-    for i in range(1, 9):
-        t = jd_guess + i * 0.25
-        a = _sun_alt_refr(t, NZ_LAT_R, NZ_LON)
+    sra, sdec, _ = sun_ra_dec_r(prev_t)
+    prev_a = sun_alt_g(sra, sdec, prev_t, NZ_LAT_R, NZ_LON)
+    # Step at ~45 min in JD (1/32 d).  A coarser 6-hour step can jump over
+    # short dips below the fajr target and miss the true rising crossing that
+    # astronomy-engine returns.
+    for i in range(1, 65):
+        t = jd_guess + i * 0.03125
+        sra, sdec, _ = sun_ra_dec_r(t)
+        a = sun_alt_g(sra, sdec, t, NZ_LAT_R, NZ_LON)
         if prev_a < target and a >= target:
             for _ in range(26):
                 mid = 0.5 * (prev_t + t)
-                am = _sun_alt_refr(mid, NZ_LAT_R, NZ_LON)
+                sra, sdec, _ = sun_ra_dec_r(mid)
+                am = sun_alt_g(sra, sdec, mid, NZ_LAT_R, NZ_LON)
                 if am < target:
                     prev_t = mid
                 else:
@@ -369,13 +395,17 @@ def is_americas(lat, lon):
 # --------------------------------------------------------------------------
 
 @njit(cache=True)
-def gic_visible(conj_jd, fajr_day, jd_search, test_lats, n_test, americas_mask):
+def gic_visible(conj_jd, fajr_day, jd_search, test_lats, n_test, americas_mask,
+                el_bias=0.0, alt_bias=0.0):
     """Reproduce analyze_serempak.check_vis using the fast engine.
 
     jd_search : start-of-day JD (absolute).
     fajr_day  : Wellington -17.5° fajr UT (absolute JD) on that day.
     test_lats : sorted array of test latitudes (deg).
     americas_mask : precomputed is_americas for each (lon, lat) in the sweep.
+    el_bias / alt_bias : calibration biases added to the fast engine's computed
+        elongation / topocentric altitude so its threshold decisions match the
+        real astronomy-engine baseline used by analyze_serempak.py.
     """
     # quick check at lon=-180
     quick = False
@@ -387,10 +417,10 @@ def gic_visible(conj_jd, fajr_day, jd_search, test_lats, n_test, americas_mask):
         if ss > conj_jd:
             sra, sdec, _ = sun_ra_dec_r(ss)
             mra, mdec, dist = moon_state(ss)
-            if elong_g(mra, mdec, sra, sdec) >= 8.0:
+            if elong_g(mra, mdec, sra, sdec) + el_bias >= 8.0:
                 a = topo_alt_g(mra, mdec, dist, ss, lat_rad, -180.0)
                 a = a + refr(a)
-                if a >= 5.0:
+                if a + alt_bias >= 5.0:
                     quick = True
                     break
     if not quick:
@@ -406,11 +436,11 @@ def gic_visible(conj_jd, fajr_day, jd_search, test_lats, n_test, americas_mask):
             if ss > conj_jd:
                 sra, sdec, _ = sun_ra_dec_r(ss)
                 mra, mdec, _ = moon_state(ss)
-                if elong_g(mra, mdec, sra, sdec) >= 8.0:
+                if elong_g(mra, mdec, sra, sdec) + el_bias >= 8.0:
                     dist = 385000.0
                     a = topo_alt_g(mra, mdec, dist, ss, lat_rad, float(l))
                     a = a + refr(a)
-                    if a >= 5.0:
+                    if a + alt_bias >= 5.0:
                         if ss <= fajr_day or (americas_mask[lon_idx, j] == 1):
                             return True
         lon_idx += 1
@@ -418,12 +448,13 @@ def gic_visible(conj_jd, fajr_day, jd_search, test_lats, n_test, americas_mask):
 
 
 @njit(cache=True)
-def gic_start_jd(conj_jd, test_lats, n_test, americas_mask):
+def gic_start_jd(conj_jd, test_lats, n_test, americas_mask, el_bias=GIC_EL_BIAS, alt_bias=GIC_ALT_BIAS):
     """Return GIC month-start JD (0.5 or 1.5 relative to local day start)."""
     f_nz_next = fajr_nz(conj_jd)
     jd_search = math.floor(f_nz_next + 0.5)
     fajr_day = fajr_nz(jd_search - 0.5)
-    if gic_visible(conj_jd, fajr_day, jd_search, test_lats, n_test, americas_mask):
+    if gic_visible(conj_jd, fajr_day, jd_search, test_lats, n_test, americas_mask,
+                   el_bias, alt_bias):
         return jd_search + 0.5
     return jd_search + 1.5
 
@@ -433,10 +464,14 @@ def gic_start_jd(conj_jd, test_lats, n_test, americas_mask):
 # --------------------------------------------------------------------------
 
 @njit(cache=True)
-def mabbims_sunset_jd(conj_jd, day_jd_start, land_mask):
+def mabbims_sunset_jd(conj_jd, day_jd_start, land_mask, el_bias=0.0, alt_bias=0.0):
     """Absolute JD of the first visible archipelago sunset on the civil day whose
     local noon is `day_jd_start` (JD), or -1.0 if not visible."""
-    for lon_i in range(MABBIMS_LONS.size):
+    # analyze_serempak.get_start_jd_mabbims iterates east -> west (reversed
+    # MABBIMS_LONS) and returns the first visible sunset, which is tied to a UTC
+    # civil-date rounding (floor(ss+0.5)+0.5).  Matching that order preserves the
+    # same month-start choice on days when multiple grid points are visible.
+    for lon_i in range(MABBIMS_LONS.size - 1, -1, -1):
         lon = MABBIMS_LONS[lon_i]
         for lat_i in range(MABBIMS_LATS.size):
             lat = MABBIMS_LATS[lat_i]
@@ -447,16 +482,16 @@ def mabbims_sunset_jd(conj_jd, day_jd_start, land_mask):
             if ss > conj_jd:
                 sra, sdec, _ = sun_ra_dec_r(ss)
                 mra, mdec, dist = moon_state(ss)
-                if elong_g(mra, mdec, sra, sdec) >= 6.4:
+                if elong_g(mra, mdec, sra, sdec) + el_bias >= 6.4:
                     a = topo_alt_g(mra, mdec, dist, ss, lat_rad, float(lon))
                     a = a + refr(a)
-                    if a >= 3.0:
+                    if a + alt_bias >= 3.0:
                         return ss
     return -1.0
 
 
 @njit(cache=True)
-def mabbims_start_jd(conj_jd, land_mask):
+def mabbims_start_jd(conj_jd, land_mask, el_bias=MABBIMS_EL_BIAS, alt_bias=MABBIMS_ALT_BIAS):
     """MABBIMS month-start: first of 3 days after conj with a visible crescent.
 
     Matches analyze_serempak.get_start_jd_mabbims: floor(sunset_JD + 0.5) + 0.5.
@@ -464,7 +499,7 @@ def mabbims_start_jd(conj_jd, land_mask):
     conj_mid = math.floor(conj_jd - 0.5) + 0.5  # UTC midnight of the conj civil date
     for d in range(3):
         mid = conj_mid + d  # UTC midnight of the candidate day
-        ss = mabbims_sunset_jd(conj_jd, mid, land_mask)
+        ss = mabbims_sunset_jd(conj_jd, mid, land_mask, el_bias, alt_bias)
         if ss > 0.0:
             return math.floor(ss + 0.5) + 0.5
     # fallback: standard 30-day-ish start, mirroring get_start_jd_mabbims fallback
@@ -492,8 +527,14 @@ def build_americas_mask():
     pass
 
 
-def month_starts(conj_ut, land_mask):
-    """Return (mabbims_start, gic_start) absolute JDs for a conjunction."""
+def month_starts(conj_ut, land_mask, m_el_bias=MABBIMS_EL_BIAS, m_alt_bias=MABBIMS_ALT_BIAS,
+                 g_el_bias=GIC_EL_BIAS, g_alt_bias=GIC_ALT_BIAS):
+    """Return (mabbims_start, gic_start) absolute JDs for a conjunction.
+
+    The bias arguments are the parity-calibration offsets that make the fast
+    engine match the astronomy-engine month-start decisions.  They default to
+    the fitted constants (MABBIMS 0.225/0.375, GIC 0.0/0.15).
+    """
     jd = conj_ut + AE
     test_lats, _ = build_test_lats(conj_ut)
     n_test = test_lats.size
@@ -503,4 +544,7 @@ def month_starts(conj_ut, land_mask):
         for j in range(n_test):
             if is_americas(test_lats[j], float(lons[i])):
                 americas[i, j] = 1
-    return mabbims_start_jd(jd, land_mask), gic_start_jd(jd, test_lats, n_test, americas)
+    return (
+        mabbims_start_jd(jd, land_mask, m_el_bias, m_alt_bias),
+        gic_start_jd(jd, test_lats, n_test, americas, g_el_bias, g_alt_bias),
+    )

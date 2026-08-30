@@ -46,13 +46,13 @@ ADAK_LAT_R = math.radians(ADAK_LAT)
 VIWA_LAT_R = math.radians(VIWA_LAT)
 
 # Parity biases fitted against the astronomy-engine baseline in
-# scripts/calibrate_baseline.py (same convention as fast_global: the bias is
-# added to the fast engine's elongation / topocentric altitude before the
-# threshold tests; it applies to both the Adak >= 6.4/>= 3.0 visibility test
-# and the same-instant Viwa >= 0/>= 0 physical-possibility test).
-#   300-month fit   0.450/0.300 -> 99.67% (299/300)
-#   1200-month refit 0.300/0.300 -> 99.25% (1191/1200)
-#   2400-month confirm 0.300/0.300 -> 99.46% (2387/2400)
+# scripts/calibrate_baseline.py: single-stage fit on the 200-year
+# (2,400-conjunction) astronomy-engine baseline, the same sample the
+# fast_global.py calibration was finalized on (MULTIYEAR_EXPERIMENTS_RERUN.md
+# section 0). The bias is added to the fast engine's elongation / topocentric
+# altitude before the threshold tests; it applies to both the Adak >= 6.4/>= 3.0
+# visibility test and the same-instant Viwa >= 0/>= 0 physical-possibility test.
+#   200-year (2400-month) grid fit: 0.300/0.300 -> 99.46% (2387/2400)
 BASELINE_EL_BIAS = 0.3
 BASELINE_ALT_BIAS = 0.3
 

@@ -262,17 +262,20 @@ than a check at Viwa's own sunset.
 
 ### 10.1 Baseline engine→astronomy-engine parity calibration
 
-Same procedure as section 0, against an astronomy-engine reference implementing the exact
-same-instant rule. The best biases are hard-coded in `scripts/fast_baseline.py`:
+Single-stage fit on a **200-year (2,400-conjunction) astronomy-engine baseline**
+(`scripts/calibrate_baseline.py`), the same sample the fast_global.py calibration
+was finalized on (section 0), against an astronomy-engine reference implementing
+the exact same-instant rule. The best biases are hard-coded in
+`scripts/fast_baseline.py`:
 
 | Sample | Best el/alt | Adak+Viwa parity | GIC parity (0.000/0.150) |
 | :--- | :--- | ---: | ---: |
-| 300-month fit | 0.450/0.300 | 99.67% (299/300) | 99.33% (298/300) |
-| 1,200-month refit | 0.300/0.300 | 99.25% (1191/1200) | — |
-| **2,400-month confirm** | **0.300/0.300** | **99.46% (2387/2400)** | — |
+| **200-year fit (2,400 months)** | **0.300/0.300** | **99.46% (2387/2400)** | 98.79% (2371/2400) |
 
-Both optima are interior to the fit grid (0.075–0.45); the remaining ~0.5% differences are
-boundary threshold flips near the 3°/6.4° and 0° cutoffs, as in section 0.
+The optimum is interior to the fit grid (0.075–0.45; neighbors 0.300/0.225 and
+0.300/0.375 score 99.42%); the remaining ~0.5% differences are boundary threshold
+flips near the 3°/6.4° and 0° cutoffs, as in section 0. The GIC recheck on the
+same 200-year sample reproduces the section 0 parity (98.79%) exactly.
 
 ### 10.2 Full-window results (240,000 months)
 

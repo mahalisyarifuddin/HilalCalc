@@ -1,14 +1,16 @@
 """Calibrate the fast Adak+Viwa baseline engine against the real astronomy engine.
 
 Usage:
-    python scripts/calibrate_baseline.py [FIT=300] [REFIT=1200] [CONFIRM=2400]
+    python scripts/calibrate_baseline.py [N_MONTHS=2400]
 
-Fits the el/alt parity biases of scripts/fast_baseline.py so its Adak+Viwa
-month-start decisions match the real astronomy-engine reference, the same way
-scripts/fast_global.py was calibrated for MABBIMS/GIC (see
-MULTIYEAR_EXPERIMENTS_RERUN.md section 0).  Also re-checks the documented GIC
-fast-engine biases (0.00/0.15) against analyze_serempak.get_start_jd_gic on the
-fit sample so the whole Mecca-vs-GIC-vs-baseline pipeline stays tied to the
+Single-stage fit on a **200-year (2,400-conjunction)** astronomy-engine
+baseline by default — the same sample the fast_global.py calibration was
+finalized on (MULTIYEAR_EXPERIMENTS_RERUN.md section 0).  Fits the el/alt
+parity biases of scripts/fast_baseline.py so its Adak+Viwa month-start
+decisions match the real astronomy-engine reference implementing the
+same-instant composite rule.  Also re-checks the documented GIC fast-engine
+biases (0.00/0.15) against analyze_serempak.get_start_jd_gic on the same
+sample so the whole Mecca-vs-GIC-vs-baseline pipeline stays tied to the
 astronomy-engine baseline.
 """
 from __future__ import annotations
@@ -122,60 +124,36 @@ def grid_fit(conjs, ae_jds, combos=None):
 
 
 def main() -> None:
-    fit_n = int(sys.argv[1]) if len(sys.argv) > 1 else 300
-    refit_n = int(sys.argv[2]) if len(sys.argv) > 2 else 1200
-    confirm_n = int(sys.argv[3]) if len(sys.argv) > 3 else 2400
+    n_fit = int(sys.argv[1]) if len(sys.argv) > 1 else 2400  # 200 years
 
-    conjs = C.load_or_build(confirm_n)
+    conjs = C.load_or_build(n_fit)
 
-    # astronomy-engine reference month starts (basline + GIC on the fit sample)
+    # astronomy-engine baseline reference month starts (Adak+Viwa composite)
     t0 = time.time()
     with Pool(2) as p:
-        ae_fit = p.map(_ae_month, [cu for _, cu in conjs[:fit_n]], chunksize=8)
-        if refit_n > fit_n:
-            ae_refit = ae_fit + p.map(
-                _ae_month, [cu for _, cu in conjs[fit_n:refit_n]], chunksize=8
-            )
-        else:
-            ae_refit = ae_fit
-        ae_confirm = (
-            ae_refit
-            + p.map(_ae_month, [cu for _, cu in conjs[refit_n:confirm_n]], chunksize=8)
-            if confirm_n > refit_n
-            else ae_refit
-        )
-    print(f"astronomy baseline: {confirm_n} months in {time.time() - t0:.1f}s", flush=True)
+        ae = p.map(_ae_month, [cu for _, cu in conjs], chunksize=8)
+    print(f"astronomy baseline: {n_fit} months in {time.time() - t0:.1f}s", flush=True)
 
     # warm numba
     B.baseline_start_jd(conjs[0][1] + F.AE, 0.0, 0.0)
 
-    print(f"\n== {fit_n}-month fit (grid over el/alt biases) ==")
-    fit_rows = grid_fit(conjs[:fit_n], ae_fit)
-    for el, alt, m, n, pct in fit_rows[:5]:
+    print(f"\n== {n_fit}-month ({n_fit // 12}-year) fit: grid over el/alt biases ==")
+    rows = grid_fit(conjs, ae)
+    for el, alt, m, n, pct in rows[:5]:
         print(f"  el/alt {el:.3f}/{alt:.3f}: {pct:.2f}% ({m}/{n})")
+    best_el, best_alt = rows[0][0], rows[0][1]
+    print(
+        f"best: el/alt {best_el:.3f}/{best_alt:.3f} -> "
+        f"{rows[0][4]:.2f}% ({rows[0][2]}/{rows[0][3]})",
+        flush=True,
+    )
 
-    print(f"\n== {refit_n}-month refit (grid) ==")
-    refit_rows = grid_fit(conjs[:refit_n], ae_refit)
-    for el, alt, m, n, pct in refit_rows[:5]:
-        print(f"  el/alt {el:.3f}/{alt:.3f}: {pct:.2f}% ({m}/{n})")
-    best_el, best_alt = refit_rows[0][0], refit_rows[0][1]
-
-    print(f"\n== {confirm_n}-month confirm (refit choice {best_el:.3f}/{best_alt:.3f}) ==")
-    conf = [B.baseline_start_jd(cu + F.AE, best_el, best_alt) for _, cu in conjs[:confirm_n]]
-    m, n, pct = parity(conf, ae_confirm)
-    print(f"  baseline parity: {pct:.2f}% ({m}/{n})")
-    # top-3 confirmation for stability
-    for el, alt, _, _, _ in refit_rows[1:3]:
-        fast = [B.baseline_start_jd(cu + F.AE, el, alt) for _, cu in conjs[:confirm_n]]
-        m2, n2, pct2 = parity(fast, ae_confirm)
-        print(f"  cross-check el/alt {el:.3f}/{alt:.3f}: {pct2:.2f}% ({m2}/{n2})")
-
-    # GIC parity on the fit sample with the documented biases
+    # GIC parity on the same sample with the documented biases
     t1 = time.time()
     with Pool(2) as p:
-        gic_ae = p.map(_ae_gic, [cu for _, cu in conjs[:fit_n]], chunksize=4)
-    print(f"\n== GIC parity on {fit_n}-month sample (fast biases 0.000/0.150) ==")
-    gic_fast = [make_gic_jd(cu, F.GIC_EL_BIAS, F.GIC_ALT_BIAS) for _, cu in conjs[:fit_n]]
+        gic_ae = p.map(_ae_gic, [cu for _, cu in conjs], chunksize=4)
+    print(f"\n== GIC parity on the {n_fit}-month sample (fast biases 0.000/0.150) ==")
+    gic_fast = [make_gic_jd(cu, F.GIC_EL_BIAS, F.GIC_ALT_BIAS) for _, cu in conjs]
     m, n, pct = parity(gic_fast, gic_ae)
     print(f"  GIC parity: {pct:.2f}% ({m}/{n})  [astronomy side: {time.time() - t1:.1f}s]")
 

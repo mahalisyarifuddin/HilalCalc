@@ -31,14 +31,14 @@ Alat yang dibuat khusus untuk masyarakat Indonesia untuk melacak apakah tanggal 
 **Fitur Utama:**
 -   **Verdict Per Bulan**: Indikasi jelas apakah awal bulan serempak atau berbeda.
 -   **Timeline Ganda**: Bandingkan tanggal Masehi untuk hilal baru menurut kedua kriteria.
--   **Data Historis**: Hasil simulasi keserempakan selama 10.000 tahun.
+-   **Data Historis**: Hasil simulasi keserempakan selama 20.000 tahun.
 
 ### 3. HijriCalc (Kalender & Konverter)
 Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik dan konteks sejarah Anda.
 
 **Fitur Utama:**
 -   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal toposentrik ("Rukyat Lokal").
--   **Rumus Global**: Menggunakan rumus linear yang sangat akurat untuk konversi antara tanggal Hijriyah dan Masehi selama 10.000 tahun, dioptimalkan untuk Kriteria Komposit (Mekkah + Pulau Viwa).
+-   **Rumus Global**: Menggunakan rumus linear yang sangat akurat untuk konversi antara tanggal Hijriyah dan Masehi selama 20.000 tahun, dioptimalkan untuk Kriteria Komposit (Mekkah + Pulau Viwa).
 -   **Transisi Sejarah**: Mendukung penuh reformasi kalender Masehi tahun 1582. Tanggal sebelum reformasi diberi label sebagai Julian.
 -   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, Kalender Utama, dan Mode Masehi.
 
@@ -87,48 +87,40 @@ Disimulasikan dengan membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid G
 
 | Rentang | Bulan | Tingkat Keseluruhan | Bulan Ritual |
 | :--- | :--- | ---: | ---: |
-| 0–10.000 H (baseline astronomy-engine) | 120.000 | **53,82%** | **52,67%** |
-| 1–10.000 H (pengulangan mesin numba cepat) | 120.000 | 47,88% | 47,90% |
-| 1–20.000 H (mesin numba cepat, 240.000 bulan) | 240.000 | **39,48%** | **39,49%** |
+| 1–20.000 H (mesin numba cepat terkalibrasi, 240.000 bulan) | 240.000 | **39,17%** | **39,23%** |
 
-Tingkat 20.000 tahun dihitung dengan mesin numba teroptimasi (`scripts/fast_global.py`, ≈36× lebih cepat daripada perulangan astronomy-engine) yang mereproduksi keputusan awal-bulan MABBIMS/GIC astronomy pada ≈93–95% bulan dan membaca ≈6 poin persen lebih rendah daripada baseline astronomy pada 10.000 tahun. Pengulangan 2026-08-30 mesin cepat pada **rentang 10.000 H dan 20.000 H yang sama** menghasilkan **47,88% / 47,90%** untuk 10.000 H dan **39,48% / 39,49%** untuk 20.000 H. Tingkat keserempakan (serempak) karena itu turun dari ≈48–54% selama 10.000 tahun pertama menjadi kira-kira **39–45%** untuk 1–20.000 H: semakin panjang rentang pengamatan, semakin besar perbedaan antara kedua kriteria global. Simulasi visibilitas MABBIMS/KHGT penuh sangat berat (≈7 jam pada 2 inti untuk 240.000 bulan), sehingga kedua angka 20k adalah aproksimasi teroptimasi, bukan pengulangan yang persis. Lihat `MULTIYEAR_EXPERIMENTS_RERUN.md` untuk catatan lengkap.
+Tingkat 20.000 tahun dihitung dengan mesin numba yang dikalibrasi ke astronomy-engine
+(`scripts/fast_global.py`). Solver ini mereproduksi keputusan awal-bulan MABBIMS/GIC
+astronomy pada baseline 200 tahun (2400 ijtimak) astronomy-engine sebesar **99,25%
+MABBIMS / 98,79% GIC / 98,04% keduanya** (dibandingkan ≈93–95% untuk mesin tanpa
+kalibrasi). Pengulangan terkalibrasi `scripts/fast_serempak.py` untuk 1–20.000 H
+menghasilkan **39,17% / 39,23%** (menggantikan 39,52% / 39,50% dan 39,05% / 39,10% dari
+fit yang lebih kecil). Simulasi visibilitas MABBIMS/KHGT penuh masih sangat
+berat (≈7 jam pada 2 inti untuk 240.000 bulan), sehingga angka 20k ini adalah aproksimasi
+terkalibrasi, bukan pengulangan astronomy-engine yang persis. Lihat
+`MULTIYEAR_EXPERIMENTS_RERUN.md`.
 
 ### Paradoks Kalender Global (GIC) vs. Rukyat Lokal Mekkah 0°
 Kalender Hijriyah Global Tunggal (KHGT/GIC) bertujuan untuk menyatukan tanggal Hijriyah global. Namun, karena GIC mempertimbangkan visibilitas di mana pun secara global sebelum Fajar di Wellington, Selandia Baru—dan mencakup Pengecualian Amerika—kalender ini sering kali mendahului rukyat fisik lokal di Mekkah.
 
-Dua set hasil dilaporkan: **hasil jendela pendek** yang sebelumnya diterbitkan, dan **pengulangan cepat jendela penuh** tanggal 2026-08-30 (`scripts/gic_vs_mecca.py`).
-
-#### Hasil jendela pendek yang sebelumnya diterbitkan (10k, simulasi lebih kecil)
-
-| Selisih Hari (GIC - Mekkah 0°) | Kategori Kasus | Tingkat Keseluruhan (120.000 bulan) | Bulan Ritual (30.000 bulan) |
-| :--- | :--- | :--- | :--- |
-| **-2 hari** | GIC mulai 2 hari lebih awal | 3,71% | 4,00% |
-| **-1 hari** | GIC mulai 1 hari lebih awal | 87,67% | 83,67% |
-| **+0 hari** | Mulai Serempak | 8,62% | 12,33% |
-| **>= +1 hari** | GIC mulai *lebih lambat* dari Mekkah | **0,00%** | **0,00%** |
-
-#### Pengulangan jendela penuh: 1–10.000 H (120.000 bulan)
+Pengulangan 2026-08-30 (`scripts/gic_vs_mecca.py`) pada **seri penuh 1–20.000 H**
+(240.000 bulan) melaporkan distribusi selisih hari awal bulan berikut
+(JD awal-bulan GIC − JD awal-bulan Mekkah 0° berikutnya, dibulatkan ke hari sipil).
+Awal bulan GIC memakai mesin numba cepat terkalibrasi (98,79% paritas astronomy-engine
+pada sampel validasi 200 tahun); sisi Mekkah 0° memakai seri ground truth asli
+astronomy-engine:
 
 | Selisih | Keseluruhan | Ritual |
 | :--- | ---: | ---: |
-| **-2 hari** | 1,38% (1.650) | 1,46% (437) |
-| **-1 hari** | 53,13% (63.762) | 53,15% (15.946) |
-| **+0 hari** | 44,71% (53.648) | 44,61% (13.383) |
-| **+1 hari** | 0,78% (940) | 0,78% (234) |
-
-#### Pengulangan jendela penuh: 1–20.000 H (240.000 bulan)
-
-| Selisih | Keseluruhan | Ritual |
-| :--- | ---: | ---: |
-| **-2 hari** | 0,69% (1.650) | 0,73% (437) |
-| **-1 hari** | 34,67% (83.198) | 34,71% (20.826) |
-| **+0 hari** | 61,59% (147.821) | 61,55% (36.931) |
-| **+1 hari** | 3,05% (7.326) | 3,01% (1.804) |
-| **+2 hari** | 0,00% (5) | 0,00% (2) |
+| **-2 hari** | 0,71% (1.713) | 0,76% (454) |
+| **-1 hari** | 35,03% (84.074) | 35,11% (21.065) |
+| **+0 hari** | 62,09% (149.014) | 62,00% (37.198) |
+| **+1 hari** | 2,17% (5.198) | 2,14% (1.282) |
+| **+2 hari** | 0,00% (1) | 0,00% (1) |
 
 #### Implikasi Teologis dan Astronomis (pengulangan jendela penuh)
-- **GIC mendahului Mekkah pada jendela awal, lalu menyatu**: pada pengulangan penuh 1–20.000 H, GIC memulai bulan **1–2 hari lebih awal** daripada rukyat fisik Mekkah 0° dalam **35,36%** dari seluruh bulan (dan **35,44%** bulan ritual), **serempak** dalam **61,59%** (61,55% ritual), dan **lebih lambat** dalam **3,05%** (3,01% ritual). Selama 1–10.000 H tingkat "lebih awal" adalah **54,51%** (54,61% ritual) dan tingkat serempak **44,71%** (44,61% ritual).
-- **Klaim awal 91,38% "mengorbankan Mekkah" adalah hasil jendela pendek / simulasi lebih kecil.** Ia tidak didukung oleh pengulangan cepat 240.000 bulan, di mana GIC dan garis waktu fisik Mekkah 0° sepakat pada mayoritas bulan pada cakrawala 20.000 H.
+- **GIC mendahului Mekkah pada sebagian bulan, lalu menyatu pada jendela panjang**: pada pengulangan penuh 1–20.000 H, GIC memulai bulan **1–2 hari lebih awal** daripada rukyat fisik Mekkah 0° dalam **35,74%** dari seluruh bulan (dan **35,87%** bulan ritual), **serempak** dalam **62,09%** (62,00% ritual), dan **lebih lambat** dalam **2,17%** (2,14% ritual).
+- **Klaim awal 91,38% "mengorbankan Mekkah" adalah hasil jendela pendek / simulasi lebih kecil.** Ia **tidak** didukung oleh pengulangan cepat 240.000 bulan, di mana GIC dan garis waktu fisik Mekkah 0° sepakat pada mayoritas bulan pada cakrawala 20.000 H.
 - **Paradoks Hari Arafah tetap nyata pada bulan-bulan ketika GIC mendahului Mekkah**, tetapi besaran jendela penuh jauh lebih kecil daripada angka 91,38% sebelumnya. Tahun-tahun seperti 1448 H (2027 M), 1454 H (2033 M), dan 1456 H (2035 M) masih menunjukkan GIC 1 hari lebih awal dari garis waktu lokal Mekkah, sementara 1467 H (2045 M), 1470 H (2048 M), dan 1476 H (2054 M) tetap contoh 2 hari lebih awal.
 
 ## Hasil Optimasi & Tolok Ukur
@@ -138,15 +130,14 @@ Rumus linear browser yang masih dipakai di `HijriCalc.html` adalah:
 `JD = 1948440 + floor(29.53057017233 * Indeks + 0,0068) + Hari - 1`
 *(Indeks = (TahunHijriyah - 1) * 12 + (BulanHijriyah - 1))*
 
-Pengulangan 2026-08-30 `scripts/find_best_fit.py` pada ground truth yang baru dibuat juga menemukan konstanta optimal jendela baru:
+Pengulangan 2026-08-30 `scripts/find_best_fit.py` pada ground truth **1–20.000 H** yang baru dibuat juga menemukan konstanta optimal jendela:
 
 | Rentang | Slope | Phase (floor) | Tepat | Wajib |
 | :--- | ---: | ---: | ---: | ---: |
-| 1–10.000 H | 29,5305741456 | −0,2343920 | **67,83%** | 67,95% |
 | 1–20.000 H | 29,5305515026 | 1,5594240 | **42,13%** | 42,18% |
 
-Konstanta pengulangan memaksimalkan kecocokan awal bulan di setiap rentang; browser tetap memakai
-konstanta lama (yang mencetak 67,16% pada 1–10rb dan 39,55% pada 1–20rb). Lihat
+Konstanta pengulangan memaksimalkan kecocokan awal bulan; browser tetap memakai
+konstanta lama (yang mencetak 39,55% pada 1–20rb). Lihat
 `MULTIYEAR_EXPERIMENTS_RERUN.md`.
 
 ### 2. Akurasi Hijriyah-ke-Masehi (Linear vs. Tabular)
@@ -160,7 +151,7 @@ Perbandingan metode aproksimasi terhadap Ground Truth Mekkah 0° (1-20.000 H). P
 | 4.   | Tradisional (Kuwaiti)        | 35,26%      | 34,84%     | 84.613              |
 
 - **k=29**: Konstanta modular untuk `(((11y + k) mod 30) < 11`, menggunakan 1 H sebagai tahun referensi.
-- Untuk 1–10.000 H, perbandingan yang sama menghasilkan **Linear Optimal 67,83%** (linear browser lama 67,16%), **Modular k=29 45,11%**, **Kuwaiti 37,86%**; jarak antar metode menyempit tajam ketika rentang pengamatan diperpanjang karena pergeseran lunar jangka panjang (yang dimodelkan rumus linear, tetapi tidak dapat dimodelkan siklus 30 tahun tetap) terakumulasi hingga puluhan hari.
+- Pada jendela panjang 1–20.000 H metode-metode menjadi jauh lebih dekat daripada pada satu abad: pergeseran lunar jangka panjang (yang dimodelkan rumus linear, tetapi tidak dapat dimodelkan siklus 30 tahun tetap) terakumulasi pada seluruh jendela.
 
 #### Distribusi Koreksi Tabular (+/- 5 Hari)
 Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=29, epoch 1948440) dan ground truth Mekkah 0° (1-20.000 H).
@@ -178,7 +169,7 @@ Distribusi varians tingkat hari antara kalender Hijriyah tabular aritmetika (k=2
 - **Catatan**: Pendekatan linear memodelkan pergeseran lunar jangka panjang, memberikan keuntungan akurasi dibandingkan siklus tabular tetap. Jendela penerimaan ±1 hari mencakup 83,22% bulan pada 20.000 H.
 
 ### 4. Analisis Knee Point (Efisiensi Siklus)
-Analisis panjang siklus (L=10 hingga 1000) pada **seri 1–20.000 H** mengidentifikasi **L=30** sebagai knee point utama (kecocokan 40,33%). Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran hanya ~4 hari selama 10.000 tahun, ~8 hari selama 20.000 tahun).
+Analisis panjang siklus (L=10 hingga 1000) pada **seri 1–20.000 H** mengidentifikasi **L=30** sebagai knee point utama (kecocokan 40,33%). Rasio tahun kabisatnya (11/30 ≈ 0,3667) menyeimbangkan kesederhanaan dengan rata-rata tahun lunar astronomis (pergeseran ~8 hari selama 20.000 tahun).
 
 ## Cara Kerja Tahun Kabisat Hijriyah
 Kalender Hijriyah bersifat murni lunar. Karena rata-rata bulan lunar adalah ~29,53 hari, satu tahun 12 bulan adalah ~354,37 hari. Kalender tabular menggunakan **siklus 30 tahun** (10.631 hari) dengan 11 tahun kabisat (355 hari) dan 19 tahun basitah (354 hari). Kalender modular menggunakan rumus `(11y + k) mod 30 < 11` untuk mendistribusikan tahun kabisat ini. Pada tahun kabisat (1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28), satu hari ditambahkan ke bulan ke-12, **Dzulhijjah**. 1 H setara dengan Tahun 1 dalam siklus.

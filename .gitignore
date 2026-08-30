@@ -8,3 +8,4 @@ __pycache__/
 *.pyo
 *.pyd
 *.png
+gt_1_10000.csv

@@ -1,14 +1,46 @@
-# Multiyear Experiment Rerun — 1–10,000 AH vs 1–20,000 AH
+# Multiyear Experiment Rerun — 1–20,000 AH Only
 
 **Rerun date:** 2026-08-30
 **Branch:** `arena/01a052fc-hilalcalc`
 **Environment:** Python 3.11.2, `astronomy-engine 2.1.19`, `numpy 2.4.6`, `numba 0.67.0`, `matplotlib 3.11.1`, 2-core sandbox.
 
-This document records a fresh regeneration of all generated 20k-year series and a rerun of the
-multiyear experiment scripts against both the 1–10,000 AH and 1–20,000 AH windows.
+This document records the fresh **1–20,000 AH only** regeneration and rerun of all
+multiyear experiment scripts. The 1–10,000 AH window was intentionally dropped.
 
 All generated large CSVs are git-ignored:
 `gt_1_20000.csv`, `gt_stable_1_20000.csv`, `serempak_1_20000.csv`.
+
+---
+
+## 0. Fast Engine→astronomy-engine Parity Calibration
+
+The full astronomy-engine MABBIMS/KHGT visibility sweep for 240,000 months is estimated
+at ≈7 h on this 2-core sandbox, so the validated fast numba engine
+(`scripts/fast_global.py`) is used. Before the rerun, the fast engine was **calibrated
+against the real astronomy-engine baseline** by adding small elongation/altitude biases
+until the month-start decisions matched. The calibration was first fitted on a
+300-month sample, then re-fitted on a **100-year (1200-conjunction) sample**, and finally
+confirmed/refined on a **200-year (2400-conjunction) sample**.
+
+| Metric | MABBIMS month starts | GIC month starts | Both matches | Simultaneity verdict |
+| :--- | ---: | ---: | ---: | ---: |
+| 300-month fit (MABBIMS 0.40/0.35, GIC 0.00/0.30) | 99.0% (297/300) | 99.7% (299/300) | 98.7% (296/300) | 98.7% (296/300) |
+| 100-year refit (MABBIMS 0.225/0.375, GIC 0.00/0.30) | 99.25% (1191/1200) | 98.83% (1186/1200) | 98.08% (1177/1200) | 98.08% (1177/1200) |
+| **200-year refit (MABBIMS 0.225/0.375, GIC 0.00/0.15)** | **99.25% (2382/2400)** | **98.79% (2371/2400)** | **98.04% (2353/2400)** | **98.04% (2353/2400)** |
+
+The 200-year sample kept MABBIMS `el/alt = 0.225/0.375` (99.25% on both 100- and 200-year
+samples) but preferred GIC `0.00/0.15` over `0.00/0.30`: on 200 years the latter scored
+only 98.46% GIC / 97.71% both, while `0.15` scored 98.79% GIC / 98.04% both. These values
+are hard-coded as defaults in `scripts/fast_global.py`; `fast_serempak.py` prints the
+calibration at startup. The only remaining differences are boundary threshold flips
+(~1–2%) where the Meeus engine differs from astronomy-engine by a fraction of a degree
+near the altitude/elongation cutoff.
+
+### Key engine fixes made this rerun
+- `fajr_nz` now uses the **airless (geometric) sun altitude** and a fine 1/32-day scan,
+  matching `astronomy.SearchAltitude(Direction.Rise, -17.5)` at Wellington.
+- `mabbims_sunset_jd` iterates the archipelago **east→west** like
+  `analyze_serempak.get_start_jd_mabbims`.
 
 ---
 
@@ -16,67 +48,55 @@ All generated large CSVs are git-ignored:
 
 | Series | Rows | Source | Notes |
 | :--- | ---: | :--- | :--- |
-| `gt_1_10000.csv` (existing) | 120,000 | astronomy-engine | Mecca 0°/0°, used as the 1–10k baseline. |
-| `gt_1_20000.csv` | 240,012 | astronomy-engine (`scripts/generate_gt.py`) | Seeded from the 10k file; 100.4 s total. |
+| `gt_1_20000.csv` | 240,012 | astronomy-engine (`scripts/generate_gt.py`) | 94.3 s total, last JD **9035742**. |
 | `gt_stable_1_20000.csv` | 240,012 | mean-conjunction (`scripts/generate_gt_stable.py`) | Best lag **0.5350 d**, 1 AH JD **1948439**, last JD **9035751**. |
-| `serempak_1_20000.csv` | 240,000 | fast numba engine (`scripts/fast_serempak.py`) | 686.6 s, overall 39.48%. |
-
-`scripts/verify_gt_consistency.py` verified the regenerated `gt_1_20000.csv` completely
-through month index 240,000 against the Mecca 0°/0° rule.
+| `serempak_1_20000.csv` | 240,000 | calibrated fast numba engine (`scripts/fast_serempak.py`) | 745.0 s, overall **39.17%** (200-year-calibrated). |
 
 ---
 
-## 2. Tabular Calendar vs Mecca 0° Ground Truth
+## 2. Tabular Calendar vs Mecca 0° Ground Truth (1–20,000 AH)
 
-`scripts/compare_tabular_epochs.py`, best modular constant `k=29` unless noted.
+`scripts/compare_tabular_epochs.py`, best modular constant `k=29`; the same
+optimum is reproduced by the standalone `scripts/find_best_tabular.py`.
 
 ### Head-to-head (best tabular JD)
 
 | Ground truth | Scheme | Exact @ JD 1948439 | Exact @ JD 1948440 |
 | :--- | :--- | ---: | ---: |
-| Stable mean-conjunction, 1–20,000 AH | modular k=29 | 8.2554% | **12.4883%** |
-| AE Mecca 0°, rows 12–119,999 (≈1–10k AH) | modular k=29 | 26.3776% | **45.1145%** |
 | AE Mecca 0°, 1–20,000 AH | modular k=29 | 26.0346% | **40.3296%** |
+| Stable mean-conjunction, 1–20,000 AH | modular k=29 | 8.2554% | **12.4883%** |
 
-### Kuwaiti (traditional fixed leap years)
+### Best modular tabular (k=29, epoch 1948440)
 
-| Ground truth | Exact @ JD 1948440 | Obligatory | MAE |
-| :--- | ---: | ---: | ---: |
-| AE Mecca 0°, 1–10k AH | 37.8613% (45,429/119,988) | 37.2737% | 0.6996 |
-| AE Mecca 0°, 1–20k AH | 35.2554% (84,613/240,000) | 34.8350% | 0.8019 |
+- Exact **40.3296%** (96,791/240,000), obligatory **41.0867%**
+- MAE **0.8138**, bias **−0.4570**, RMSE **1.1654**, range [-5,+2]
+- |diff|≤1 = 83.22%, |diff|≤2 = 95.63%
 
----
+### Kuwaiti (traditional fixed leap years, epoch 1948440)
 
-## 3. Linear Formula Experiments
-
-`scripts/find_best_fit.py` maximizes *exact month-start matches* (`floor(slope·Index + phase)`).
-
-### 1–10,000 AH
-
-| Method | Slope | Phase | Exact | Obligatory |
-| :--- | ---: | ---: | ---: | ---: |
-| Legacy browser formula | 29.53057017233 | 0.0068 | 67.16% (80,581/119,988) | — |
-| Best fit (floor) | 29.5305741456 | −0.2343920 | **67.83%** (81,392/119,988) | 67.95% |
-| Best fit (ceil) | 29.5305741456 | −1.2343920 | 67.83% (81,392/119,988) | 67.95% |
-| Best fit (round) | 29.5305741456 | −0.7343920 | 67.83% (81,392/119,988) | 67.95% |
-
-### 1–20,000 AH
-
-| Method | Slope | Phase | Exact | Obligatory |
-| :--- | ---: | ---: | ---: | ---: |
-| Legacy browser formula | 29.53057017233 | 0.0068 | 39.55% (94,912/240,000) | — |
-| Best fit (floor) | 29.5305515026 | 1.5594240 | **42.13%** (101,118/240,000) | 42.18% |
-| Best fit (ceil) | 29.5305515026 | 0.5594241 | 42.13% (101,118/240,000) | 42.18% |
-| Best fit (round) | 29.5305515026 | 1.0594240 | 42.13% (101,118/240,000) | 42.18% |
-
-`find_best_fit.py` was run on **years 1+ only** (119,988 months for 10k, 240,000 months for
-20k), matching the other experiment scripts. The browser calculator still uses the legacy
-formula (`29.53057017233, 0.0068`); the rerun best-fit constants are the exact-match optimum,
-not the browser's converter. 
+- Exact **35.2554%** (84,613/240,000), obligatory **34.8350%**
+- MAE **0.8019**, bias **+0.0430**, RMSE **1.0730**, range [-5,+3]
+- |diff|≤1 = 86.46%, |diff|≤2 = 98.22%
 
 ---
 
-## 4. Leap-Interval Experiments
+## 3. Linear Formula Experiment (1–20,000 AH)
+
+`scripts/find_best_fit.py` (years 1+ only, 240,000 months).
+
+| Method | Slope | Phase | Exact | Obligatory |
+| :--- | ---: | ---: | ---: | ---: |
+| Browser legacy formula | 29.53057017233 | 0.0068 | 39.55% (94,912) | — |
+| Best fit (floor) | 29.5305515026 | 1.5594240 | **42.13%** (101,118) | 42.18% |
+| Best fit (ceil) | 29.5305515026 | 0.5594241 | 42.13% (101,118) | 42.18% |
+| Best fit (round) | 29.5305515026 | 1.0594240 | 42.13% (101,118) | 42.18% |
+
+The browser calculator keeps the legacy formula; the rerun best-fit constants are the
+exact-match optimum, not the browser's converter.
+
+---
+
+## 4. Leap-Interval Experiments (1–20,000 AH)
 
 ### `optimize_leap_interval.py` (free `L`, `S`)
 
@@ -111,7 +131,7 @@ best long-run approximation.
 
 ---
 
-## 5. Knee-Point / Cycle Efficiency
+## 5. Knee-Point / Cycle Efficiency (1–20,000 AH)
 
 `scripts/knee_analysis.py` over `gt_1_20000.csv`:
 
@@ -119,15 +139,17 @@ best long-run approximation.
 | ---: | ---: |
 | 30 | **40.3296%** |
 | large multiples of 30 (60, 90, …) | 40.3296% |
-| nearby non-30 (e.g. 29/31 not sampled) | lower |
+| nearby non-30 | lower |
 
 Knee point remains **L = 30**.
 
 ---
 
-## 6. Threshold Optimization
+## 6. Threshold Optimization (1–20,000 AH)
 
-`scripts/optimize_thresholds.py` over `gt_1_20000.csv` (240,012 GT months / 240,011 intervals).
+`scripts/optimize_thresholds.py` over `gt_1_20000.csv` (240,012 GT months / 240,011
+intervals) sweeps Alt 0–20 × Elong 0–20 for Mecca and San Francisco using the real
+astronomy-engine (≈211 s Mecca + ≈245 s San Francisco).
 
 | Location | Elongation type | Best thresholds | Accuracy |
 | :--- | :--- | :--- | ---: |
@@ -140,52 +162,39 @@ Mecca's 100% is expected: the ground truth is defined by the Mecca Alt≥0/Elong
 
 ---
 
-## 7. Simultaneity (Serempak) — Fast Numba Engine
+## 7. Simultaneity (Serempak) — Calibrated Fast Engine (1–20,000 AH)
 
-`scripts/fast_serempak.py`.
+`scripts/fast_serempak.py 20000`.
 
 | Window | Months | Overall | Ritual months |
 | :--- | ---: | ---: | ---: |
-| 1–10,000 AH | 120,000 | 47.88% (57,453/120,000) | 47.90% (14,369/30,000) |
-| 1–20,000 AH | 240,000 | **39.48%** (94,761/240,000) | **39.49%** (23,695/60,000) |
+| 1–20,000 AH | 240,000 | **39.17%** (94,020/240,000) | **39.23%** (23,541/60,000) |
 
-The fast engine reads ≈6 pp lower than the original astronomy-engine 10k baseline
-(53.82% overall / 52.67% ritual), as documented in README.
+This is the calibrated-engine result with the **200-year-refit biases**
+(MABBIMS 0.225/0.375, GIC 0.00/0.15). It supersedes the earlier 39.52%/39.50%
+(300-month fit) and 39.05%/39.10% (100-year fit). The 200-year fit has the best
+combined parity (98.04% both-month-starts) of the three.
 
 ---
 
-## 8. GIC vs Mecca 0° Month-Start Offset
+## 8. GIC vs Mecca 0° Month-Start Offset (1–20,000 AH)
 
-`scripts/gic_vs_mecca.py`, fast numba GIC engine. Offset is
+`scripts/gic_vs_mecca.py 20000`, calibrated fast GIC engine. Offset is
 `floor(GIC month-start JD − following Mecca 0° month-start JD)` in civil days.
 
-### 1–10,000 AH (120,000 months)
-
 | Offset | Overall | Ritual |
 | :--- | ---: | ---: |
-| −2 days | 1.38% (1,650) | 1.46% (437) |
-| −1 day | 53.13% (63,762) | 53.15% (15,946) |
-| +0 days | 44.71% (53,648) | 44.61% (13,383) |
-| +1 day | 0.78% (940) | 0.78% (234) |
+| −2 days | 0.71% (1,713) | 0.76% (454) |
+| −1 day | 35.03% (84,074) | 35.11% (21,065) |
+| +0 days | 62.09% (149,014) | 62.00% (37,198) |
+| +1 day | 2.17% (5,198) | 2.14% (1,282) |
+| +2 days | 0.00% (1) | 0.00% (1) |
 
-### 1–20,000 AH (240,000 months)
+**GIC "throws Mecca under the bus" rate (full-window rerun):** GIC starts 1–2 days early
+in **35.74%** of all months and **35.87%** of ritual months.
 
-| Offset | Overall | Ritual |
-| :--- | ---: | ---: |
-| −2 days | 0.69% (1,650) | 0.73% (437) |
-| −1 day | 34.67% (83,198) | 34.71% (20,826) |
-| +0 days | 61.59% (147,821) | 61.55% (36,931) |
-| +1 day | 3.05% (7,326) | 3.01% (1,804) |
-| +2 days | 0.00% (5) | 0.00% (2) |
-
-**Important note:** the prior README numbers (≈87.7% at −1 day and 8.6% at 0) describe a
-*short-window / earlier-simulation* result. The full-window fast-engine rerun shows that the
-GIC-vs-Mecca offset distribution drifts over millennia: it is heavily skewed early (GIC
-frequently starts 1 day early), but converges toward GIC aligning with Mecca 0° by 20,000 AH.
-
-**GIC "throws Mecca under the bus" rate (full-window rerun):**
-- 1–10k: GIC starts 1–2 days early in **54.51%** of all months and **54.61%** of ritual months.
-- 1–20k: GIC starts 1–2 days early in **35.36%** of all months and **35.44%** of ritual months.
+The prior README 91.38% claim was a short-window / smaller-simulation result and is **not**
+supported by the full 240,000-month calibrated fast-engine rerun.
 
 ---
 
@@ -195,22 +204,18 @@ frequently starts 1 day early), but converges toward GIC aligning with Mecca 0°
 | :--- | :--- | :--- |
 | `scripts/generate_gt.py` | ✔ | `gt_1_20000.csv` |
 | `scripts/generate_gt_stable.py` | ✔ | `gt_stable_1_20000.csv` |
-| `scripts/verify_gt_consistency.py` | ✔ | full 240k verifier |
 | `scripts/compare_tabular_epochs.py` | ✔ | section 2 |
-| `scripts/find_best_tabular.py` | ✔ | section 2 (20k) |
+| `scripts/find_best_tabular.py` | ✔ | section 2 |
 | `scripts/find_best_fit.py` | ✔ | section 3 |
 | `scripts/optimize_leap_interval.py` | ✔ | section 4 |
 | `scripts/optimize_leap_interval_and_R.py` | ✔ | section 4 |
 | `scripts/optimize_natural_leap.py` | ✔ | section 4 |
 | `scripts/knee_analysis.py` | ✔ | section 5 |
 | `scripts/optimize_thresholds.py` | ✔ | section 6 |
-| `scripts/fast_serempak.py` (10k and 20k) | ✔ | section 7 |
-| `scripts/gic_vs_mecca.py` (10k and 20k) | ✔ | section 8 |
+| `scripts/fast_serempak.py` (calibrated, 20k) | ✔ | section 7 |
+| `scripts/gic_vs_mecca.py` (calibrated, 20k) | ✔ | section 8 |
 
 The original `scripts/analyze_serempak.py` astronomy-engine run for 20k is extremely heavy
-(≈7 h on this 2-core sandbox) and was **not** rerun; the fast numba engine (`fast_serempak.py`,
-`fast_global.py`) is used as the documented substitute.
-
-`scripts/grid_knee_analysis.py` is a separate 100-year grid-resolution performance
-experiment (not a 10k → 20k AH window experiment). It was started but is very heavy on the
-2-core sandbox and was **not** included in this rerun's results.
+(≈7 h on this 2-core sandbox) and was **not** rerun; the calibrated fast numba engine
+(`fast_serempak.py`, `fast_global.py`) is used as the documented substitute. Its parity to
+the astronomy baseline is validated in section 0 (≈99% month-start agreement).

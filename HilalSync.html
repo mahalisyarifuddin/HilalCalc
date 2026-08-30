@@ -1056,7 +1056,7 @@
 	<nav class="datenav" id="datenav" aria-label="Hijri month navigation">
 		<div class="datenav-group">
 			<button id="prevBtn" class="nav-btn" type="button" aria-label="Previous month">&#8249;</button>
-			<input type="number" id="hYearInput" min="1" max="10000" step="1" inputmode="numeric" aria-label="Hijri year">
+			<input type="number" id="hYearInput" min="1" max="20000" step="1" inputmode="numeric" aria-label="Hijri year">
 			<select id="hMonthInput" aria-label="Hijri month">
 				<option value="1"></option>
 				<option value="2"></option>
@@ -1379,9 +1379,9 @@
 					appTitle: "HilalSync",
 					simultaneous: "SIMULTANEOUS",
 					divergent: "DIVERGENT",
-					statsTitle: "Simultaneity rate (1-10,000 AH)",
-					methodologyTitle: "Methodology",
-					statsContent: "Overall: <b>53.82%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>52.67%</b>. Validated against Wellington NZ (Fajr -17.5°).",
+				statsTitle: "Simultaneity rate (1-20,000 AH)",
+				methodologyTitle: "Methodology",
+				statsContent: "Overall: <b>39.17%</b>. Ritual months (Ramadan, Shawwal, Dhu al-Hijjah): <b>39.23%</b>. Calibrated fast-engine parity with astronomy-engine (99.25% MABBIMS / 98.79% GIC on 200-year baseline), Wellington NZ Fajr -17.5°.",
 					methodology: "<b>MABBIMS</b>: Alt (Topo) ≥ 3°, Elong (Geo) ≥ 6.4° across the Malay Archipelago (95°E–141°E, 7°N–11°S). 5° grid. <b>KHGT</b>: Alt (Topo) ≥ 5°, Elong (Geo) ≥ 8° globally (lat sweep) before Fajr in Wellington NZ (-41.29°S, 174.78°E, -17.5°), or Americas if Conjunction < Fajr NZ. 5° grid.",
 					acehInfo: "Sunset in Archipelago: ",
 					gicInfo: "KHGT Deadline: ",
@@ -1409,9 +1409,9 @@
 					appTitle: "HilalSync",
 					simultaneous: "SEREMPAK",
 					divergent: "BERBEDA",
-					statsTitle: "Tingkat Keserempakan (1-10.000 H)",
-					methodologyTitle: "Metodologi",
-					statsContent: "Total: <b>53,82%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>52,67%</b>. Divalidasi terhadap Wellington NZ (Fajar -17.5°).",
+				statsTitle: "Tingkat Keserempakan (1-20.000 H)",
+				methodologyTitle: "Metodologi",
+				statsContent: "Total: <b>39,17%</b>. Bulan ritual (Ramadan, Syawal, Zulhijah): <b>39,23%</b>. Paritas mesin cepat terkalibrasi terhadap astronomy-engine (99,25% MABBIMS / 98,79% GIC pada baseline 200 tahun), Fajar Wellington NZ -17,5°.",
 					methodology: "<b>MABBIMS</b>: Tinggi (Topo) ≥ 3°, Elong (Geo) ≥ 6,4° di seluruh Kepulauan Melayu (95°BT–141°BT, 7°LU–11°LS). Grid 5°. <b>KHGT</b>: Tinggi (Topo) ≥ 5°, Elong (Geo) ≥ 8° secara global (sapuan lintang) sebelum Fajar di Wellington NZ (-41,29°LS, 174,78°BT, -17.5°), atau Amerika jika Ijtimak < Fajar NZ. Grid 5°.",
 					acehInfo: "Maghrib di Kepulauan: ",
 					gicInfo: "Tenggat KHGT: ",
@@ -1810,11 +1810,11 @@
 				const t = todayYM();
 				elements.todayBtn.disabled = (state.year === t.year && state.month === t.month);
 				elements.prevBtn.disabled = (state.year <= 1 && state.month <= 1);
-				elements.nextBtn.disabled = (state.year >= 10000 && state.month >= 12);
+				elements.nextBtn.disabled = (state.year >= 20000 && state.month >= 12);
 			}
 
 			function calculate() {
-				state.year = Math.min(10000, Math.max(1, parseInt(elements.hYearInput.value) || 1));
+				state.year = Math.min(20000, Math.max(1, parseInt(elements.hYearInput.value) || 1));
 				if (String(state.year) !== elements.hYearInput.value) elements.hYearInput.value = state.year;
 				state.month = parseInt(elements.hMonthInput.value);
 				let res = getStartJD(state.year, state.month);

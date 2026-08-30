@@ -172,7 +172,7 @@ def main():
 
     plt.xlabel('Speed (1/Total Execution Time)')
     plt.ylabel('Accuracy (%) relative to 1° grid')
-    plt.title('Knee Point Analysis: Grid Increment vs Performance (10,000 Years)')
+    plt.title('Knee Point Analysis: Grid Increment vs Performance (100-year sample)')
     plt.grid(True)
 
     if len(speeds) > 2:

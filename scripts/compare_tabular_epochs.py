@@ -82,20 +82,6 @@ def print_score(title, s):
         print(f"  {k:+3d}: {c:8d} ({100.0*c/s['n']:6.2f}%)")
 
 
-def decade_drift(pred, tgt, indices):
-    """Mean (tgt-pred) by 10k-year bins from 1 AH."""
-    year = (indices - 12) // 12 + 1
-    mask = indices >= 12
-    year, d = year[mask], (tgt - pred)[mask]
-    last_year = int(year.max()) if year.size > 0 else 1
-    bins = np.arange(1, last_year + 1, 10000)
-    print("  10k-year mean offset (GT − tabular):")
-    for a, b in zip(bins, bins + 9999):
-        m = (year >= a) & (year <= b)
-        if m.any():
-            print(f"    {a:6d}–{b:6d}: mean {d[m].mean():+.3f}  exact {100*(d[m]==0).mean():.2f}%")
-
-
 def run_one(path: str, max_year: int | None = None):
     idx, jd = load_gt(path)
     if max_year is not None:
@@ -134,13 +120,11 @@ def run_one(path: str, max_year: int | None = None):
         pred = tabular_jds(idx1, best_k, epoch)
         s = score(pred, jd1, oblig)
         print_score(f"epoch={epoch} best modular k={best_k}", s)
-        decade_drift(pred, jd1, idx1)
         best.append((epoch, "mod", best_k, s))
 
         pred_kw = tabular_jds(idx1, KUWAITI, epoch)
         sk = score(pred_kw, jd1, oblig)
         print_score(f"epoch={epoch} Kuwaiti leaps {list(KUWAITI)}", sk)
-        decade_drift(pred_kw, jd1, idx1)
         best.append((epoch, "kuwaiti", None, sk))
 
     print("\n========== HEAD-TO-HEAD ==========")
@@ -163,7 +147,6 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     pairs = [
         (os.path.join(script_dir, "..", "gt_stable_1_20000.csv"), None, "stable mean-conjunction 1–20000 AH"),
-        (os.path.join(script_dir, "..", "gt_1_10000.csv"), None, "astronomy-engine Mecca 0° 0–10000 AH"),
         (os.path.join(script_dir, "..", "gt_1_20000.csv"), None, "astronomy-engine Mecca 0° 1–20000 AH"),
     ]
     for path, max_year, label in pairs:

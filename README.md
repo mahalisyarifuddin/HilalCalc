@@ -31,14 +31,14 @@ A tool tailormade for Indonesians to track whether a Hijri month start date is s
 **Key Features:**
 -   **Per-month Verdict**: Clear indication of whether the month start is simultaneous or divergent.
 -   **Dual Timeline**: Compare Gregorian dates for the new moon according to both criteria.
--   **Historical Data**: Pre-computed simultaneity rates over 10,000 years.
+-   **Historical Data**: Pre-computed simultaneity rates over 20,000 years.
 
 ### 3. HijriCalc (Calendar & Converter)
 A robust calendar tool that adapts its calculations to your specific location and historical context.
 
 **Key Features:**
 -   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical topocentric moon sighting simulation ("Local Sighting").
--   **Global Formula**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates over 10,000 years, optimized for the Composite Criteria (Mecca + Viwa Island).
+-   **Global Formula**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates over 20,000 years, optimized for the Composite Criteria (Mecca + Viwa Island).
 -   **Historical Transition**: Fully supports the 1582 Gregorian reform. Dates prior to the reform are correctly labeled as Julian.
 -   **Settings**: Customize Language, Theme, Week Start Day, Location, Main Calendar, and Gregorian Mode.
 
@@ -87,48 +87,40 @@ Simulated comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid wit
 
 | Window | Months | Overall Rate | Ritual Months |
 | :--- | :--- | ---: | ---: |
-| 0–10,000 AH (astronomy-engine baseline) | 120,000 | **53.82%** | **52.67%** |
-| 1–10,000 AH (fast numba engine rerun) | 120,000 | 47.88% | 47.90% |
-| 1–20,000 AH (fast numba engine, 240,000 months) | 240,000 | **39.48%** | **39.49%** |
+| 1–20,000 AH (calibrated fast numba engine, 240,000 months) | 240,000 | **39.17%** | **39.23%** |
 
-The 20,000-year rate was computed with an optimized numba engine (`scripts/fast_global.py`, ≈36× faster than the astronomy-engine loop) that reproduces the astronomy MABBIMS/GIC month-start decisions on ≈93–95% of months and reads ≈6 pp low vs. the astronomy baseline at 10,000 years. A fresh 2026-08-30 rerun of the fast engine on the **same 10k and 20k windows** gives **47.88% / 47.90%** over 10,000 AH and **39.48% / 39.49%** over 20,000 AH. The simultaneity (serempak) rate therefore falls from ≈48–54% over the first 10,000 years to roughly **39–45%** over 1–20,000 AH: the longer the window, the more the two global criteria diverge. Full MABBIMS/KHGT visibility is an extremely heavy simulation (≈7 hours on 2 cores for 240,000 months), so both 20k figures are optimized approximations rather than exact re-runs. See `MULTIYEAR_EXPERIMENTS_RERUN.md` for the complete rerun log.
+The 20,000-year rate was computed with the astronomy-engine-calibrated numba engine
+(`scripts/fast_global.py`). The solver reproduces the astronomy MABBIMS/GIC month-start
+decisions on a **200-year (2400-conjunction) astronomy-engine baseline** at **99.25%
+MABBIMS / 98.79% GIC / 98.04% both** (versus ≈93–95% for the uncalibrated engine). The
+calibrated rerun of `scripts/fast_serempak.py` over 1–20,000 AH gives **39.17% /
+39.23%** (this supersedes the earlier 39.52%/39.50% and 39.05%/39.10% from the smaller
+fits). Full MABBIMS/KHGT visibility is still an extremely heavy simulation (≈7 h on
+2 cores for 240,000 months), so this 20k figure is the calibrated approximation rather
+than an exact astronomy-engine re-run. See `MULTIYEAR_EXPERIMENTS_RERUN.md` for the
+complete rerun log.
 
 ### Global Calendar (GIC) vs. Local Mecca 0° Sighting Paradox
 The Global Islamic Calendar (GIC/KHGT) seeks to unify global Hijri dates. However, because GIC considers visibility anywhere globally before Wellington NZ Fajr—and includes the Americas Exception—it frequently runs ahead of the local physical sighting in Mecca.
 
-Two sets of results are reported: the **earlier short-window** distribution previously published, and the **full-window fast-engine rerun** from 2026-08-30 (`scripts/gic_vs_mecca.py`).
-
-#### Previously published short-window result (10k, smaller simulation)
-
-| Sighting Date Offset (GIC - Mecca 0°) | Case Category | Overall Rate (120,000 months) | Ritual Months (30,000 months) |
-| :--- | :--- | :--- | :--- |
-| **-2 days** | GIC starts 2 days earlier | 3.71% | 4.00% |
-| **-1 day** | GIC starts 1 day earlier | 87.67% | 83.67% |
-| **+0 days** | Simultaneous Start | 8.62% | 12.33% |
-| **>= +1 day** | GIC starts *later* than Mecca | **0.00%** | **0.00%** |
-
-#### Full-window fast-engine rerun: 1–10,000 AH (120,000 months)
+The 2026-08-30 rerun (`scripts/gic_vs_mecca.py`) over the full **1–20,000 AH** series
+(240,000 months) reports the following start-day offset distribution
+(GIC month-start JD − the following Mecca 0° month-start JD, rounded to whole
+civil days). GIC month starts use the calibrated fast numba engine (98.79%
+astronomy-engine parity on the 200-year validation sample); the Mecca 0° side is the real
+astronomy-engine ground-truth series:
 
 | Offset | Overall | Ritual |
 | :--- | ---: | ---: |
-| **-2 days** | 1.38% (1,650) | 1.46% (437) |
-| **-1 day** | 53.13% (63,762) | 53.15% (15,946) |
-| **+0 days** | 44.71% (53,648) | 44.61% (13,383) |
-| **+1 day** | 0.78% (940) | 0.78% (234) |
-
-#### Full-window fast-engine rerun: 1–20,000 AH (240,000 months)
-
-| Offset | Overall | Ritual |
-| :--- | ---: | ---: |
-| **-2 days** | 0.69% (1,650) | 0.73% (437) |
-| **-1 day** | 34.67% (83,198) | 34.71% (20,826) |
-| **+0 days** | 61.59% (147,821) | 61.55% (36,931) |
-| **+1 day** | 3.05% (7,326) | 3.01% (1,804) |
-| **+2 days** | 0.00% (5) | 0.00% (2) |
+| **-2 days** | 0.71% (1,713) | 0.76% (454) |
+| **-1 day** | 35.03% (84,074) | 35.11% (21,065) |
+| **+0 days** | 62.09% (149,014) | 62.00% (37,198) |
+| **+1 day** | 2.17% (5,198) | 2.14% (1,282) |
+| **+2 days** | 0.00% (1) | 0.00% (1) |
 
 #### Theological and Astronomical Implications (full-window rerun)
-- **GIC runs ahead of Mecca in the early window, then converges**: over the full 1–20,000 AH rerun, GIC starts the month **1–2 days earlier** than the Mecca 0° physical sighting in **35.36%** of all months (and **35.44%** of ritual months), is **simultaneous** in **61.59%** (61.55% ritual), and starts **later** in **3.05%** (3.01% ritual). Over 1–10,000 AH the "earlier" rate is **54.51%** (54.61% ritual) and the simultaneous rate is **44.71%** (44.61% ritual).
-- **The earlier 91.38% "throws Mecca under the bus" claim is a short-window / smaller-simulation result.** It is not supported by the full 240,000-month fast-engine rerun, where GIC and the Mecca 0° physical timeline agree on the majority of months at the 20k horizon.
+- **GIC runs ahead of Mecca in some months, but converges over the long window**: over the full 1–20,000 AH rerun, GIC starts the month **1–2 days earlier** than the Mecca 0° physical sighting in **35.74%** of all months (and **35.87%** of ritual months), is **simultaneous** in **62.09%** (62.00% ritual), and starts **later** in **2.17%** (2.14% ritual).
+- **The earlier 91.38% "throws Mecca under the bus" claim is a short-window / smaller-simulation result.** It is **not** supported by the full 240,000-month fast-engine rerun, where GIC and the Mecca 0° physical timeline agree on the majority of months at the 20k horizon.
 - **The Day of Arafat Paradox remains real in the months where GIC precedes Mecca**, but the full-window magnitude is much smaller than the prior 91.38% figure. Years such as 1448 AH (2027 CE), 1454 AH (2033 CE), and 1456 AH (2035 CE) still illustrate GIC running 1 day ahead of the local Mecca timeline, while 1467 AH (2045 CE), 1470 AH (2048 CE), and 1476 AH (2054 CE) remain 2-day examples.
 
 ## Optimized Results & Benchmarks
@@ -138,15 +130,15 @@ The browser optimizer's existing linear formula (still used in `HijriCalc.html`)
 `JD = 1948440 + floor(29.53057017233 * Index + 0.0068) + Day - 1`
 *(Index = (HijriYear - 1) * 12 + (HijriMonth - 1))*
 
-The 2026-08-30 rerun of `scripts/find_best_fit.py` over the regenerated ground truth also finds fresh exact-match optimum constants:
+The 2026-08-30 rerun of `scripts/find_best_fit.py` over the regenerated **1–20,000 AH**
+ground truth also finds a fresh exact-match optimum:
 
 | Window | Slope | Phase (floor) | Exact | Obligatory |
 | :--- | ---: | ---: | ---: | ---: |
-| 1–10,000 AH | 29.5305741456 | −0.2343920 | **67.83%** | 67.95% |
 | 1–20,000 AH | 29.5305515026 | 1.5594240 | **42.13%** | 42.18% |
 
-The rerun constants maximize exact month-start matches over each window; the browser keeps the
-legacy constants (which score 67.16% over 1–10k and 39.55% over 1–20k). See
+The rerun constant maximizes exact month-start matches; the browser keeps the
+legacy constant (which scores 39.55% over 1–20k). See
 `MULTIYEAR_EXPERIMENTS_RERUN.md` for the full rerun table.
 
 ### 2. Hijri-to-Gregorian Accuracy (Linear vs. Tabular)
@@ -160,7 +152,7 @@ Comparison of approximation methods against the Mecca 0° Ground Truth (1-20,000
 | 4.   | Traditional (Kuwaiti)        | 35.26%       | 34.84%         | 84,613           |
 
 - **k=29**: Modular constant for `(((11y + k) mod 30) < 11`, using 1 AH as the reference year.
-- Over 1–10,000 AH the same comparison yields **best-fit Optimized Linear 67.83%** (browser legacy linear 67.16%), **Modular k=29 45.11%**, **Kuwaiti 37.86%**; the gap between the methods narrows sharply as the observation window lengthens because long-term lunar drift (which the linear formula models, but the fixed 30-year cycle cannot) accumulates to tens of days.
+- Over the long 1–20,000 AH window the methods are much closer than over a single century: long-term lunar drift (which the linear formula models, but the fixed 30-year cycle cannot) accumulates across the full window.
 
 #### Tabular Correction Distribution (+/- 5 Days)
 The distribution of day-level variance between the arithmetic tabular Hijri calendar (k=29, epoch 1948440) and the Mecca 0° ground truth (1-20,000 AH).
@@ -178,18 +170,17 @@ The distribution of day-level variance between the arithmetic tabular Hijri cale
 - **Note**: The linear approach models long-term lunar drift, providing an accuracy gain over fixed tabular cycles. The ±1-day acceptance window covers 83.22% of months at 20,000 AH.
 
 #### Tabular epoch: 1948439 vs 1948440
-Mecca 0° ground truth places **1 Muharram 1 AH at JD 1948439** (not 1948440). Over 1–10 000 AH and 1–20 000 AH (astronomy-engine) and over a **stable 1–20 000 AH** mean-conjunction series (240 000 months; astronomy-engine’s lunar theory breaks down after ~20–30 k AH), the arithmetic 30-year calendar is still **more accurate when anchored at 1948440**:
+Mecca 0° ground truth places **1 Muharram 1 AH at JD 1948439** (not 1948440). Over **1–20 000 AH** (astronomy-engine) and over a **stable 1–20 000 AH** mean-conjunction series (240 000 months; astronomy-engine’s lunar theory breaks down after ~20–30 k AH), the arithmetic 30-year calendar is still **more accurate when anchored at 1948440**:
 
 | Ground truth | Best scheme | Exact @ 1948439 | Exact @ 1948440 |
 | :--- | :--- | ---: | ---: |
-| AE Mecca 0°, 1–10 000 AH | modular k=29 | 26.38% | **45.11%** |
 | AE Mecca 0°, 1–20 000 AH | modular k=29 | 26.03% | **40.33%** |
 | Stable synodic, 1–20 000 AH | modular k=29 | 8.26% | **12.49%** |
 
 The 30-year cycle (10 631 / 360 = 29.530555… d) is ~0.000033 d/month short of the mean lunation, so a +1 day epoch offset compensates on average. Beyond ~20 k AH neither epoch stays useful: tabular drift grows to tens of days and a linear formula is required.
 
 ### 4. Knee Point Analysis (Cycle Efficiency)
-Analysis of cycle lengths (L=10 to 1000) over the **1–20,000 AH** series identifies **L=30** as the primary knee point (40.33% exact match). Its leap year ratio (11/30 ≈ 0.3667) perfectly balances simplicity with the astronomical mean lunar year (drift of only ~4 days over 10,000 years, ~8 days over 20,000 years).
+Analysis of cycle lengths (L=10 to 1000) over the **1–20,000 AH** series identifies **L=30** as the primary knee point (40.33% exact match). Its leap year ratio (11/30 ≈ 0.3667) perfectly balances simplicity with the astronomical mean lunar year (drift of ~8 days over 20,000 years).
 
 ## How Hijri Leap Years Work
 The Hijri calendar is strictly lunar. Because the average lunar month is ~29.53 days, a standard 12-month year is ~354.37 days. Tabular calendars use a **30-year cycle** (10,631 days) with 11 leap years (355 days) and 19 common years (354 days). Modular calendars use the formula `(11y + k) mod 30 < 11` to distribute these leap years. In leap years (1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28), a single day is added to the 12th month, **Dhu al-Hijjah**. 1 AH corresponds to Year 1 of the cycle.

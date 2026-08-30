@@ -120,8 +120,8 @@ The results of our comparative experiments are detailed below:
 
 ## 8. Rerun (2026-08-30)
 
-On 2026-08-30 the Mecca 0° ground-truth series was regenerated from
-`gt_1_10000.csv` into `gt_1_20000.csv` (240,012 rows) with
+On 2026-08-30 the Mecca 0° ground-truth series was regenerated as
+`gt_1_20000.csv` (240,012 rows, Hijri years 0–20,000) with
 `scripts/generate_gt.py` and verified with `scripts/verify_gt_consistency.py`.
 All three grid searches were rerun against the regenerated series and reproduced the
 experiment C / experiment D results above exactly.

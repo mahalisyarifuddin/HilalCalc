@@ -151,8 +151,8 @@ def optimize():
 		print(f"{csv_file} not found.")
 		return
 
-	# Restrict to 1 AH onward (index >= 12) so the count matches the 240,000
-	# (or 120,000 for the 10k file) months used by the other experiment scripts.
+    # Restrict to 1 AH onward (index >= 12) so the count matches the 240,000
+    # months used by the other experiment scripts.
 	data = [(i, j) for i, j in data if i >= 12]
 	count = len(data)
 	print(f"Loaded {count} records from {csv_file} (years 1+).")

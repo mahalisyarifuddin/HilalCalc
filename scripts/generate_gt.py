@@ -1,7 +1,7 @@
 """Generate Mecca 0°/0° ground-truth month-start JDs.
 
 Default span: Hijri years 0 .. 20000 (240_012 months).
-Resumes from an existing CSV so a previous 0–10_000 AH file can be extended.
+Resumes from an existing `gt_1_20000.csv` when present.
 """
 import csv
 import os
@@ -26,7 +26,6 @@ def generate():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_file = os.path.join(script_dir, "..", "gt_1_20000.csv")
-    legacy = os.path.join(script_dir, "..", "gt_1_10000.csv")
 
     rows = []
     if os.path.exists(output_file):
@@ -36,13 +35,6 @@ def generate():
             for row in reader:
                 rows.append((int(row[0]), int(row[1])))
         print(f"Resuming {output_file} with {len(rows)} months.")
-    elif os.path.exists(legacy):
-        with open(legacy, "r") as f:
-            reader = csv.reader(f)
-            next(reader, None)
-            for row in reader:
-                rows.append((int(row[0]), int(row[1])))
-        print(f"Seeding from {legacy} ({len(rows)} months).")
 
     if rows:
         if rows[0] != (0, INITIAL_JD):

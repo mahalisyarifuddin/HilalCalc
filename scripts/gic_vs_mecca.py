@@ -3,8 +3,7 @@
 Usage:
     python scripts/gic_vs_mecca.py [YEARS] [GT_CSV]
 
-YEARS defaults to 10000.  GT_CSV defaults to gt_1_10000.csv when YEARS==10000,
-otherwise gt_1_20000.csv.
+YEARS defaults to 20000.  GT_CSV defaults to gt_1_20000.csv.
 
 For each new-moon conjunction we compute the GIC/KHGT month-start day with the
 validated fast numba engine (scripts/fast_global.py) and compare it with the
@@ -44,14 +43,11 @@ def make_gic_jd(conj_ut: float) -> float:
 
 
 def main() -> None:
-    years = int(sys.argv[1]) if len(sys.argv) > 1 else 10000
+    years = int(sys.argv[1]) if len(sys.argv) > 1 else 20000
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    gt20 = os.path.join(script_dir, "..", "gt_1_20000.csv")
-    gt10 = os.path.join(script_dir, "..", "gt_1_10000.csv")
-    # Prefer the 20k series even for the 10k window: it contains the full
-    # 120,000-month comparison set (the 10k-only file only supports 119,999).
-    default_gt = gt20 if os.path.exists(gt20) else gt10
-    gt_path = sys.argv[2] if len(sys.argv) > 2 else default_gt
+    gt_path = sys.argv[2] if len(sys.argv) > 2 else os.path.join(
+        script_dir, "..", "gt_1_20000.csv"
+    )
 
     # Load the Mecca 0° ground truth (Index, JD).
     gt = []

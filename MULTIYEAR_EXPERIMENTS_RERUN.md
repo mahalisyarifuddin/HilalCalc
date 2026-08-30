@@ -235,36 +235,43 @@ Scripts: `scripts/fast_baseline.py` (new fast Adak+Viwa engine), `scripts/calibr
 
 The README's "Real Global Baseline" is the two-station composite: **Adak Island, Alaska**
 (51.88° N, 176.66° W, extreme West) and **Viwa Island, Fiji** (17.15° S, 176.91° E,
-extreme East). A month starts when, on the same UTC civil day, BOTH conditions hold:
+extreme East). A month starts when, **at the same instant** — the moment the crescent is
+locally visible at the Adak sunset — both conditions hold:
 
-- **Adak sunset**: local topocentric visibility — topocentric altitude ≥ 3° (Normal
-  refraction) and geocentric elongation ≥ 6.4° (the MABBIMS thresholds), i.e. an actually
-  visible crescent at the extreme West;
-- **Viwa sunset**: physical possibility — topocentric altitude ≥ 0° and elongation ≥ 0°,
-  i.e. the moon still above the horizon at the extreme East.
+- **Adak sunset (that instant)**: local topocentric visibility — topocentric altitude ≥ 3°
+  (Normal refraction) and geocentric elongation ≥ 6.4° (the MABBIMS thresholds), i.e. an
+  actually visible crescent at the extreme West;
+- **Viwa at that same instant**: physical possibility — the moon's topocentric altitude
+  over Viwa's horizon ≥ 0° and elongation ≥ 0°, i.e. the moon is still up at the extreme
+  East at the very moment it is first visible at the extreme West.
 
 Month-start convention mirrors `get_start_jd_mabbims`: 3 UTC-civil-day scan after the
-conjunction; on the first day both conditions hold, start JD = floor(sunset + 0.5) + 0.5;
-fallback floor(conj + 2.5) + 0.5. Adak and Viwa sit nearly opposite each other on the date
-line, so their evening sunsets fall only ~25 minutes apart in UT within a UTC civil day.
+conjunction; on the first day both conditions hold, start JD = floor(Adak sunset + 0.5) +
+0.5; fallback floor(conj + 2.5) + 0.5. Adak and Viwa sit nearly opposite each other on the
+date line (~6.4° of longitude apart), so around the equinoxes the Adak sunset instant is
+only ~25 minutes from Viwa's own sunset; but in northern summer the high-latitude Adak
+sunset falls *hours after* Viwa's, making the same-instant Viwa gate genuinely stricter
+than a check at Viwa's own sunset.
 
-> **Correction note:** the first version of this section implemented an "either station at
-> MABBIMS thresholds" (OR) reading of the composite and reported 53.50% / 32.20%. The
-> composite was then corrected to the split-threshold AND rule above and everything
-> (calibration + 240k run) was redone; the tables below supersede the OR-version numbers.
+> **Correction note:** this section was computed twice before. The first version used an
+> "either station at MABBIMS thresholds" (OR) reading (53.50% / 32.20%); the second checked
+> Viwa at *its own sunset* on the same UTC civil day (54.05% / 24.88%). The composite was
+> then finalized to the same-instant rule above — check Viwa's possibility at the exact
+> moment of the visible Adak sunset — and everything (calibration + 240k run) was redone;
+> the tables below supersede all earlier numbers.
 
 ### 10.1 Baseline engine→astronomy-engine parity calibration
 
 Same procedure as section 0, against an astronomy-engine reference implementing the exact
-AND rule. The best biases are hard-coded in `scripts/fast_baseline.py`:
+same-instant rule. The best biases are hard-coded in `scripts/fast_baseline.py`:
 
 | Sample | Best el/alt | Adak+Viwa parity | GIC parity (0.000/0.150) |
 | :--- | :--- | ---: | ---: |
-| 300-month fit | 0.150/0.300 | 99.00% (297/300) | 99.33% (298/300) |
-| 1,200-month refit | 0.225/0.225 | 98.67% (1184/1200) | — |
-| **2,400-month confirm** | **0.225/0.225** | **98.92% (2374/2400)** | — |
+| 300-month fit | 0.450/0.300 | 99.67% (299/300) | 99.33% (298/300) |
+| 1,200-month refit | 0.300/0.300 | 99.25% (1191/1200) | — |
+| **2,400-month confirm** | **0.300/0.300** | **99.46% (2387/2400)** | — |
 
-Both optima are interior to the fit grid (0.075–0.45); the remaining ~1% differences are
+Both optima are interior to the fit grid (0.075–0.45); the remaining ~0.5% differences are
 boundary threshold flips near the 3°/6.4° and 0° cutoffs, as in section 0.
 
 ### 10.2 Full-window results (240,000 months)
@@ -276,17 +283,17 @@ civil days (JDN); Mecca 0° uses the GT row following each conjunction (section 
 
 | Criterion | Exact overall | Exact ritual |
 | :--- | ---: | ---: |
-| **Mecca 0° Sighting** (Alt ≥ 0, Elong ≥ 0 at Mecca) | **54.05%** (129,722/240,000) | **54.13%** (32,479/60,000) |
-| **GIC/KHGT** (5° grid + Wellington Fajr + Americas) | **24.88%** (59,710/240,000) | **24.70%** (14,821/60,000) |
+| **Mecca 0° Sighting** (Alt ≥ 0, Elong ≥ 0 at Mecca) | **50.47%** (121,119/240,000) | **50.56%** (30,336/60,000) |
+| **GIC/KHGT** (5° grid + Wellington Fajr + Americas) | **23.17%** (55,610/240,000) | **23.06%** (13,837/60,000) |
 
 Offset distributions vs the Adak+Viwa baseline:
 
 | Offset | Mecca 0° overall | Mecca 0° ritual | GIC overall | GIC ritual |
 | :--- | ---: | ---: | ---: | ---: |
-| −2 days | 0.33% (798) | 0.34% (203) | 2.34% (5,626) | 2.36% (1,416) |
-| −1 day | 44.06% (105,750) | 44.02% (26,409) | 72.78% (174,664) | 72.94% (43,763) |
-| +0 days | 54.05% (129,722) | 54.13% (32,479) | 24.88% (59,710) | 24.70% (14,821) |
-| +1 day | 1.55% (3,730) | 1.51% (909) | 0.00% | 0.00% |
+| −2 days | 0.33% (798) | 0.34% (203) | 5.67% (13,599) | 5.64% (3,387) |
+| −1 day | 48.37% (116,088) | 48.26% (28,958) | 71.16% (170,791) | 71.29% (42,776) |
+| +0 days | 50.47% (121,119) | 50.56% (30,336) | 23.17% (55,610) | 23.06% (13,837) |
+| +1 day | 0.83% (1,995) | 0.84% (503) | 0.00% | 0.00% |
 
 Pipeline validation: the GIC − Mecca 0° cross-check reproduces the section 8 distribution
 exactly (−2: 1,713 / −1: 84,074 / 0: 149,014 / +1: 5,198 / +2: 1).
@@ -294,18 +301,18 @@ exactly (−2: 1,713 / −1: 84,074 / 0: 149,014 / +1: 5,198 / +2: 1).
 Reading of the distributions:
 
 - **GIC is never later than the physical two-station baseline and starts 1–2 days early in
-  75.12% of all months** (72.78% one day, 2.34% two days; 72.94%/2.36% ritual) — its 5°
+  76.83% of all months** (71.16% one day, 5.67% two days; 71.29%/5.64% ritual) — its 5°
   global grid + Wellington-Fajr cutoff + Americas exception are systematically more
-  permissive than real visibility at Adak combined with a moon still up at Viwa.
-- **Mecca 0° tracks the baseline within ±1 day in 99.67% of months** (GIC: 97.66%, always
-  on the early side), with a mild −1-day lean (44.06% early / 1.55% late).
+  permissive than a visible Adak crescent whose moon is simultaneously still up over Viwa.
+- **Mecca 0° tracks the baseline within ±1 day in 99.67% of months** (GIC: 94.33%, always
+  on the early side), with a −1-day lean (48.37% early / 0.83% late).
 - Window sensitivity: on the first 50 years (600 months) the same engines give Mecca 0°
-  79.67% / GIC 12.50%; first 100 years 79.00% / 14.25%. The README's earlier 76.00% /
+  69.17% / GIC 6.33%; first 100 years 69.33% / 7.92%. The README's earlier 76.00% /
   74.00% figures were short-window (50-year) results from a smaller simulation and are
   **superseded** by this full-window rerun. The ordering — Mecca 0° closer to the real
-  global baseline than GIC — is preserved and widened to a ≈29-point gap.
+  global baseline than GIC — is preserved and widened to a ≈27-point gap.
 
 Timings (this sandbox): GT regen 193.0 s, conjunction cache 222.3 s (240,000; built once
-and shared), month compute 174.2 s on 2 cores. Per-month results are written to
+and shared), month compute 174.7 s on 2 cores. Per-month results are written to
 `baseline_1_20000.csv` (git-ignored); tables can be rebuilt without recomputation via
 `python scripts/mecca_vs_gic_baseline.py 20000 baseline_1_20000.csv --from-csv`.

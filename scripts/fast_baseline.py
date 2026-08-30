@@ -5,23 +5,24 @@ README.md defines the real global baseline as a two-station composite:
   Adak Island, Alaska (51.88 N, 176.66 W) - extreme West of the date line
   Viwa Island, Fiji    (17.15 S, 176.91 E) - extreme East of the date line
 
-A month starts when, on the same UTC civil day, the crescent satisfies BOTH:
+A month starts when, on a candidate UTC civil day, BOTH hold **at the same
+instant** - the moment of the Adak sunset:
 
-  Adak sunset : local topocentric visibility (topocentric altitude >= 3 deg
-                with Normal refraction, geocentric elongation >= 6.4 deg - the
-                MABBIMS thresholds), i.e. an actually visible crescent at the
-                extreme West, AND
-  Viwa sunset : physical possibility (topocentric altitude >= 0 deg,
-                geocentric elongation >= 0 deg), i.e. the moon still above the
-                horizon at the extreme East.
+  1. Adak sunset : the crescent is locally visible there (topocentric altitude
+     >= 3 deg with Normal refraction, geocentric elongation >= 6.4 deg - the
+     MABBIMS thresholds), and
+  2. at that same moment, the moon is physically possible at Viwa
+     (topocentric altitude >= 0 deg over Viwa's horizon, geocentric
+     elongation >= 0 deg).
+
+(Adak and Viwa sit nearly opposite each other on the date line, so the Adak
+sunset instant is only ~25 minutes before Viwa's own sunset; checking Viwa
+"at the same moment" evaluates its sky slightly before local sunset.)
 
 The month-start convention mirrors scripts/analyze_serempak.get_start_jd_mabbims:
-for each of the 3 UTC civil days following the conjunction, both station sunsets
-on that day are tested; when both conditions hold, month-start JD =
-floor(sunset + 0.5) + 0.5.  Fallback after 3 days: floor(conj + 2.5) + 0.5.
-
-(Adak and Viwa sit on nearly opposite sides of the date line, so their evening
-sunsets fall only ~25 minutes apart in UT within the same UTC civil day.)
+for each of the 3 UTC civil days following the conjunction, the Adak sunset is
+tested as above; when both conditions hold, month-start JD =
+floor(Adak sunset + 0.5) + 0.5.  Fallback after 3 days: floor(conj + 2.5) + 0.5.
 
 The engine reuses the validated Meeus kernels from scripts/fast_global.py and
 accepts the same el/alt parity-calibration biases fitted against the real
@@ -48,12 +49,12 @@ VIWA_LAT_R = math.radians(VIWA_LAT)
 # scripts/calibrate_baseline.py (same convention as fast_global: the bias is
 # added to the fast engine's elongation / topocentric altitude before the
 # threshold tests; it applies to both the Adak >= 6.4/>= 3.0 visibility test
-# and the Viwa >= 0/>= 0 physical-possibility test).
-#   300-month fit   0.150/0.300 -> 99.00% (297/300)
-#   1200-month refit 0.225/0.225 -> 98.67% (1184/1200)
-#   2400-month confirm 0.225/0.225 -> 98.92% (2374/2400)
-BASELINE_EL_BIAS = 0.225
-BASELINE_ALT_BIAS = 0.225
+# and the same-instant Viwa >= 0/>= 0 physical-possibility test).
+#   300-month fit   0.450/0.300 -> 99.67% (299/300)
+#   1200-month refit 0.300/0.300 -> 99.25% (1191/1200)
+#   2400-month confirm 0.300/0.300 -> 99.46% (2387/2400)
+BASELINE_EL_BIAS = 0.3
+BASELINE_ALT_BIAS = 0.3
 
 EL_MIN = 6.4
 ALT_MIN = 3.0
@@ -62,42 +63,45 @@ VIWA_EL_MIN = 0.0
 
 
 @njit(cache=True)
-def _station_visible(conj_jd, day_mid, lat_rad, lon_deg, el_bias, alt_bias,
-                     el_min=EL_MIN, alt_min=ALT_MIN):
-    """Sunset JD at a station on the UTC day starting at `day_mid` if the
-    crescent passes the given (el_min, alt_min) visibility test there
-    (topocentric altitude with Normal refraction), else -1.0."""
-    ss = sunset_g(day_mid, lat_rad, lon_deg)
+def _adak_visible_sunset(conj_jd, day_mid, el_bias, alt_bias):
+    """Adak sunset JD on the UTC day starting at `day_mid` if the crescent is
+    visible there (elong >= 6.4, topo alt >= 3.0 with Normal refraction),
+    else -1.0."""
+    ss = sunset_g(day_mid, ADAK_LAT_R, ADAK_LON)
     if ss <= conj_jd:
         return -1.0
     sra, sdec, _ = sun_ra_dec_r(ss)
     mra, mdec, dist = moon_state(ss)
-    if elong_g(mra, mdec, sra, sdec) + el_bias < el_min:
+    if elong_g(mra, mdec, sra, sdec) + el_bias < EL_MIN:
         return -1.0
-    a = topo_alt_g(mra, mdec, dist, ss, lat_rad, lon_deg)
+    a = topo_alt_g(mra, mdec, dist, ss, ADAK_LAT_R, ADAK_LON)
     a = a + refr(a)
-    if a + alt_bias < alt_min:
+    if a + alt_bias < ALT_MIN:
         return -1.0
     return ss
 
 
 @njit(cache=True)
 def baseline_sunset_jd(conj_jd, day_mid, el_bias, alt_bias):
-    """Triggering sunset (UT) on the UTC day whose midnight is `day_mid` when
-    BOTH composite conditions hold: MABBIMS visibility (>= 6.4 / >= 3.0) at
-    Adak AND physical possibility (>= 0 / >= 0) at Viwa.  Else -1.0.
-
-    Both sunsets fall on the same UTC civil day, so either one maps to the
-    same month-start day; the UT-earliest is returned."""
-    ss_a = _station_visible(conj_jd, day_mid, ADAK_LAT_R, ADAK_LON,
-                            el_bias, alt_bias, EL_MIN, ALT_MIN)
+    """Triggering Adak sunset (UT) on the UTC day whose midnight is `day_mid`
+    when BOTH composite conditions hold at that same instant: MABBIMS
+    visibility (>= 6.4 / >= 3.0) at Adak sunset AND physical possibility
+    (>= 0 / >= 0) at Viwa evaluated *at the Adak sunset moment*.  Else -1.0."""
+    ss_a = _adak_visible_sunset(conj_jd, day_mid, el_bias, alt_bias)
     if ss_a < 0.0:
         return -1.0
-    ss_v = _station_visible(conj_jd, day_mid, VIWA_LAT_R, VIWA_LON,
-                            el_bias, alt_bias, VIWA_EL_MIN, VIWA_ALT_MIN)
-    if ss_v < 0.0:
+    # Same instant over Viwa: geocentric elongation is instant-based (already
+    # >= 6.4 >= 0 from the Adak test, re-checked for explicitness); the real
+    # gate is the moon's topocentric altitude over Viwa's horizon.
+    sra, sdec, _ = sun_ra_dec_r(ss_a)
+    mra, mdec, dist = moon_state(ss_a)
+    if elong_g(mra, mdec, sra, sdec) + el_bias < VIWA_EL_MIN:
         return -1.0
-    return min(ss_a, ss_v)
+    a = topo_alt_g(mra, mdec, dist, ss_a, VIWA_LAT_R, VIWA_LON)
+    a = a + refr(a)
+    if a + alt_bias < VIWA_ALT_MIN:
+        return -1.0
+    return ss_a
 
 
 @njit(cache=True)

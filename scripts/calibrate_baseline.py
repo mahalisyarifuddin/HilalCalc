@@ -38,11 +38,29 @@ def get_start_jd_baseline_ae(conj_ut: float) -> float:
     """Astronomy-engine reference for the Adak+Viwa composite month start.
 
     Same convention as analyze_serempak.get_start_jd_mabbims: scan the 3 UTC
-    civil days after the conjunction, first sunset (UT-earliest across the two
-    stations) where either station is visible, month start = floor(ss+0.5)+0.5.
+    civil days after the conjunction; on a day where BOTH conditions hold -
+    MABBIMS visibility (elong >= 6.4, topo alt >= 3.0) at Adak sunset AND
+    physical possibility (elong >= 0, topo alt >= 0.0) at Viwa sunset -
+    month start = floor(sunset+0.5)+0.5.
     """
     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
     conj_dt = epoch + datetime.timedelta(days=conj_ut + AE_OFFSET - 2440587.5)
+
+    def sunset(obs):
+        return astronomy.SearchRiseSet(
+            astronomy.Body.Sun, obs, astronomy.Direction.Set, t_search, 1.0
+        )
+
+    def ok(obs, ss, el_min, alt_min):
+        if not ss or ss.ut <= conj_ut:
+            return False
+        m_vec = astronomy.GeoVector(astronomy.Body.Moon, ss, True)
+        s_vec = astronomy.GeoVector(astronomy.Body.Sun, ss, True)
+        if astronomy.AngleBetween(m_vec, s_vec) < el_min:
+            return False
+        eq_m = astronomy.Equator(astronomy.Body.Moon, ss, obs, True, True)
+        h = astronomy.Horizon(ss, obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal)
+        return h.altitude >= alt_min
 
     for day in range(3):
         target_dt = datetime.datetime(
@@ -51,24 +69,11 @@ def get_start_jd_baseline_ae(conj_ut: float) -> float:
         target_jd = (target_dt - epoch).total_seconds() / 86400.0 + 2440587.5
         t_search = astronomy.Time(target_jd - AE_OFFSET)
 
-        best = None
-        for obs in (ADAK_OBS, VIWA_OBS):
-            ss = astronomy.SearchRiseSet(
-                astronomy.Body.Sun, obs, astronomy.Direction.Set, t_search, 1.0
-            )
-            if not ss or ss.ut <= conj_ut:
-                continue
-            m_vec = astronomy.GeoVector(astronomy.Body.Moon, ss, True)
-            s_vec = astronomy.GeoVector(astronomy.Body.Sun, ss, True)
-            if astronomy.AngleBetween(m_vec, s_vec) < B.EL_MIN:
-                continue
-            eq_m = astronomy.Equator(astronomy.Body.Moon, ss, obs, True, True)
-            h = astronomy.Horizon(ss, obs, eq_m.ra, eq_m.dec, astronomy.Refraction.Normal)
-            if h.altitude >= B.ALT_MIN:
-                if best is None or ss.ut < best:
-                    best = ss.ut
-        if best is not None:
-            return math.floor(best + AE_OFFSET + 0.5) + 0.5
+        ss_a = sunset(ADAK_OBS)
+        ss_v = sunset(VIWA_OBS)
+        if ok(ADAK_OBS, ss_a, B.EL_MIN, B.ALT_MIN) and ok(VIWA_OBS, ss_v, 0.0, 0.0):
+            first = min(ss_a.ut, ss_v.ut)
+            return math.floor(first + AE_OFFSET + 0.5) + 0.5
 
     return math.floor(conj_ut + AE_OFFSET + 2.5) + 0.5
 

@@ -69,24 +69,26 @@ To test the "globality promise" of GIC, we define a simpler yet real global crit
 - **Adak Island, Alaska** (51.88° N, 176.66° W, representing the extreme West).
 - **Viwa Island, Fiji** (17.15° S, 176.91° E, representing the extreme East).
 
-A month starts under the **Adak + Viwa** composite criteria if the crescent satisfies local topocentric visibility (Altitude ≥ 3°, Elongation ≥ 6.4°) at either location at sunset.
+A month starts under the **Adak + Viwa** composite criteria if, on the same day, the crescent satisfies local topocentric visibility (Altitude ≥ 3°, Elongation ≥ 6.4°, the MABBIMS thresholds) at **Adak** at sunset **and** the moon is physically above the horizon (Altitude ≥ 0°, Elongation ≥ 0°) at **Viwa** at sunset.
 
 #### Testing the Globality Promise of GIC
 GIC (Global Islamic Calendar) claims to be a global calendar. However, because it relies on complex, convoluted rules (5° grid search, latitudinal sweep, Wellington NZ Fajr cutoff, and Americas exception), it is computationally extremely heavy and hard to verify.
 In contrast, our simpler **Adak + Viwa** composite criteria needs only two extreme geographical points at local sunset, bypassing GIC's administrative complexity entirely.
 
-The full **1–20,000 AH** rerun (240,000 months, `scripts/mecca_vs_gic_baseline.py`; fast engines calibrated to ≈98.4–98.8% astronomy-engine parity) shows GIC matches this physical two-station baseline on only **32.20%** of months: GIC starts the month **exactly 1 day early in 67.80%** of all months (67.91% of ritual months) and is *never later* than the baseline. A real global calendar is fully determined by physical visibility at the two date-line extremes — and GIC's administrative rules systematically run ahead of it.
+The full **1–20,000 AH** rerun (240,000 months, `scripts/mecca_vs_gic_baseline.py`; fast engines calibrated to ≈98.9–99.3% astronomy-engine parity) shows GIC matches this physical two-station baseline on only **24.88%** of months: GIC starts the month **1–2 days early in 75.12%** of all months (1 day early: 72.78%, 2 days early: 2.34%) and is *never later* than the baseline. A real global calendar is fully determined by physical visibility at the two date-line extremes — and GIC's administrative rules systematically run ahead of it.
 
 #### Mecca 0° Sighting vs. GIC against the Real Global Baseline
 When evaluated against the **Adak + Viwa** real global baseline (1–20,000 AH, 240,000 months; the Mecca 0° side is the real astronomy-engine ground-truth series):
-- **Mecca 0° Sighting Criteria** (Altitude ≥ 0°, Elongation ≥ 0° at Mecca) achieves **53.50% exact month-start accuracy** (53.70% of ritual months), and tracks the baseline within ±1 day in **99.67%** of months.
-- **Global Islamic Calendar (GIC)** achieves **32.20% exact accuracy** (32.09% of ritual months); it is either simultaneous (32.20%) or exactly 1 day early (67.80%).
+- **Mecca 0° Sighting Criteria** (Altitude ≥ 0°, Elongation ≥ 0° at Mecca) achieves **54.05% exact month-start accuracy** (54.13% of ritual months), and tracks the baseline within ±1 day in **99.67%** of months.
+- **Global Islamic Calendar (GIC)** achieves **24.88% exact accuracy** (24.70% of ritual months); it is either simultaneous (24.88%) or 1–2 days early (75.12%).
 
-This indicates that Mecca 0° is not only spiritually central and scientifically grounded, but is also **substantially more accurate and closer to the physical boundaries of global visibility** than GIC's complicated, administrative global criteria — a ≈21-point exact-match gap over the full 20k window.
+This indicates that Mecca 0° is not only spiritually central and scientifically grounded, but is also **substantially more accurate and closer to the physical boundaries of global visibility** than GIC's complicated, administrative global criteria — a ≈29-point exact-match gap over the full 20k window.
 
 > **Note on the earlier figures:** the previous 76.00% (Mecca 0°) / 74.00% (GIC) numbers were
-> short-window (50-year) simulation results. The 20k-year rerun supersedes them; the ordering
-> (Mecca 0° > GIC) is preserved and widened. See `MULTIYEAR_EXPERIMENTS_RERUN.md` section 10.
+> short-window (50-year) simulation results, and the first 20k rerun used an
+> "either station" reading of the composite rule. This run implements the composite exactly
+> as defined above (Adak visibility AND Viwa physical possibility) and supersedes both.
+> See `MULTIYEAR_EXPERIMENTS_RERUN.md` section 10.
 
 ## Statistical Analysis: Simultaneity Rate
 Simulated comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid with latitudinal sweep).

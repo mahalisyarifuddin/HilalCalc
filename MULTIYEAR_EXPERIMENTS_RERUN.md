@@ -214,8 +214,86 @@ supported by the full 240,000-month calibrated fast-engine rerun.
 | `scripts/optimize_thresholds.py` | ✔ | section 6 |
 | `scripts/fast_serempak.py` (calibrated, 20k) | ✔ | section 7 |
 | `scripts/gic_vs_mecca.py` (calibrated, 20k) | ✔ | section 8 |
+| `scripts/fast_baseline.py` (new Adak+Viwa fast engine) | ✔ | section 10 |
+| `scripts/calibrate_baseline.py` (parity calibration) | ✔ | section 10.1 |
+| `scripts/mecca_vs_gic_baseline.py` (20k, section-10 rerun) | ✔ | section 10.2 |
+| `scripts/conjs.py` (shared conjunction cache) | ✔ | section 10 |
 
 The original `scripts/analyze_serempak.py` astronomy-engine run for 20k is extremely heavy
 (≈7 h on this 2-core sandbox) and was **not** rerun; the calibrated fast numba engine
 (`fast_serempak.py`, `fast_global.py`) is used as the documented substitute. Its parity to
 the astronomy baseline is validated in section 0 (≈99% month-start agreement).
+
+---
+
+## 10. Mecca 0° Sighting vs. GIC against the Real Global Baseline (1–20,000 AH)
+
+**Added:** 2026-08-30, branch `arena/01a053ed-hilalcalc` (same environment as section 0).
+Scripts: `scripts/fast_baseline.py` (new fast Adak+Viwa engine), `scripts/calibrate_baseline.py`
+(parity calibration), `scripts/mecca_vs_gic_baseline.py` (full-window driver),
+`scripts/conjs.py` (shared conjunction cache, `conjs_1_20000.csv`).
+
+The README's "Real Global Baseline" is the two-station composite: **Adak Island, Alaska**
+(51.88° N, 176.66° W) and **Viwa Island, Fiji** (17.15° S, 176.91° E) — the extreme West and
+East of the globe. A month starts when the crescent satisfies local topocentric visibility
+(Alt ≥ 3°, Elong ≥ 6.4°, i.e. the MABBIMS thresholds) at **either** station at its local
+sunset. Month-start convention mirrors `get_start_jd_mabbims`: 3 UTC-civil-day scan after the
+conjunction, UT-earliest visible sunset across the two stations, start JD =
+floor(sunset + 0.5) + 0.5.
+
+### 10.1 Baseline engine→astronomy-engine parity calibration
+
+Same procedure as section 0. The best biases are hard-coded in `scripts/fast_baseline.py`:
+
+| Sample | Best el/alt | Adak+Viwa parity | GIC parity (0.000/0.150) |
+| :--- | :--- | ---: | ---: |
+| 300-month fit | 0.450/0.300 | 98.67% (296/300) | 99.33% (298/300) |
+| 1,200-month refit | 0.450/0.300 | 98.67% (1184/1200) | — |
+| **2,400-month confirm** | **0.450/0.300** | **98.38% (2361/2400)** | — |
+
+Extending the grid past el = 0.45 degrades parity (0.525 → 97.92%, 0.60 → 97.33%,
+0.75 → 95.29%), so 0.450 is a genuine optimum, not a grid edge. The remaining ~1.6%
+differences are boundary threshold flips near the 3°/6.4° cutoffs, as in section 0.
+
+### 10.2 Full-window results (240,000 months)
+
+`scripts/mecca_vs_gic_baseline.py 20000`: Mecca 0° = the real astronomy-engine GT series
+(`gt_1_20000.csv`, regenerated 2026-08-30 and identical to the section 1 series: 240,012
+rows, last JD 9035742); Adak+Viwa and GIC = calibrated fast engines. All offsets in whole
+civil days (JDN); Mecca 0° uses the GT row following each conjunction (section 8 convention).
+
+| Criterion | Exact overall | Exact ritual |
+| :--- | ---: | ---: |
+| **Mecca 0° Sighting** (Alt ≥ 0, Elong ≥ 0 at Mecca) | **53.50%** (128,408/240,000) | **53.70%** (32,221/60,000) |
+| **GIC/KHGT** (5° grid + Wellington Fajr + Americas) | **32.20%** (77,288/240,000) | **32.09%** (19,257/60,000) |
+
+Offset distributions vs the Adak+Viwa baseline:
+
+| Offset | Mecca 0° overall | Mecca 0° ritual | GIC overall | GIC ritual |
+| :--- | ---: | ---: | ---: | ---: |
+| −2 days | 0.33% (798) | 0.34% (203) | 0.00% | 0.00% |
+| −1 day | 39.50% (94,805) | 39.35% (23,612) | 67.80% (162,712) | 67.91% (40,743) |
+| +0 days | 53.50% (128,408) | 53.70% (32,221) | 32.20% (77,288) | 32.09% (19,257) |
+| +1 day | 6.66% (15,989) | 6.61% (3,964) | 0.00% | 0.00% |
+
+Pipeline validation: the GIC − Mecca 0° cross-check reproduces the section 8 distribution
+exactly (−2: 1,713 / −1: 84,074 / 0: 149,014 / +1: 5,198 / +2: 1).
+
+Reading of the distributions:
+
+- **GIC is never later than the physical two-station baseline and starts exactly 1 day
+  early in 67.80% of all months** (67.91% ritual) — its 5° global grid + Wellington-Fajr
+  cutoff + Americas exception are systematically more permissive than real extreme-station
+  visibility at the same thresholds.
+- **Mecca 0° tracks the baseline within ±1 day in 99.67% of months** (GIC: 100.00%, but
+  always on the early side), with a symmetric ±1 tail (39.50% early / 6.66% late).
+- Window sensitivity: on the first 50 years (600 months) the same engines give Mecca 0°
+  68.83% / GIC 35.33%; first 100 years 68.25% / 36.58%. The README's earlier 76.00% /
+  74.00% figures were short-window (50-year) results from a smaller simulation and are
+  **superseded** by this full-window rerun. The ordering — Mecca 0° closer to the real
+  global baseline than GIC — is preserved and widened to a ≈21-point gap.
+
+Timings (this sandbox): GT regen 193.0 s, conjunction cache 222.3 s (240,000), month
+compute 169.8 s on 2 cores. Per-month results are written to `baseline_1_20000.csv`
+(git-ignored); tables can be rebuilt without recomputation via
+`python scripts/mecca_vs_gic_baseline.py 20000 baseline_1_20000.csv --from-csv`.

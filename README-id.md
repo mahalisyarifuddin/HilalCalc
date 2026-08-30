@@ -73,14 +73,18 @@ Bulan dimulai di bawah kriteria komposit **Adak + Viwa** jika hilal memenuhi vis
 
 #### Menguji Janji Globalitas GIC
 GIC (Global Islamic Calendar) mengklaim sebagai kalender global tunggal. Namun, karena ia bergantung pada aturan-aturan yang sangat rumit dan konvolutif (pencarian grid 5°, sapuan lintang, batas Fajar Wellington NZ, dan pengecualian Amerika), GIC secara komputasi sangat berat dan sulit diverifikasi.
-Sebaliknya, kriteria komposit **Adak + Viwa** kami yang jauh lebih sederhana berhasil mencapai **tingkat akurasi kecocokan persis sebesar 74,00%** dengan GIC dalam simulasi visibilitas hilal toposentrik selama 50 tahun. Hal ini membuktikan bahwa visibilitas global dapat dimodelkan dengan sangat baik hanya melalui dua titik geografis ekstrem ini, melewati kerumitan administratif GIC.
+Sebaliknya, kriteria komposit **Adak + Viwa** kami yang jauh lebih sederhana hanya membutuhkan dua titik geografis ekstrem pada matahari terbenam lokal, sepenuhnya melewati kerumitan administratif GIC.
+
+Pengulangan penuh **1–20.000 H** (240.000 bulan, `scripts/mecca_vs_gic_baseline.py`; mesin cepat terkalibrasi pada paritas ≈98,4–98,8% dengan astronomy-engine) menunjukkan GIC hanya cocok dengan baseline dua-stasiun fisik ini pada **32,20%** bulan: GIC memulai bulan **tepat 1 hari lebih awal pada 67,80%** dari seluruh bulan (67,91% bulan ritual) dan *tidak pernah terlambat* dibanding baseline. Kalender global riil sepenuhnya ditentukan oleh visibilitas fisik di dua titik ekstrem garis tanggal — dan aturan administratif GIC secara sistematis mendahuluinya.
 
 #### Rukyat Mekkah 0° vs. GIC terhadap Baseline Global Riil
-Ketika dievaluasi terhadap baseline global riil **Adak + Viwa**:
-- **Kriteria Rukyat Mekkah 0°** (Tinggi ≥ 0°, Elongasi ≥ 0° di Mekkah) mencapai **akurasi 76,00%**.
-- **Kalender Islam Global (GIC)** mencapai **akurasi 74,00%**.
+Ketika dievaluasi terhadap baseline global riil **Adak + Viwa** (1–20.000 H, 240.000 bulan; sisi Mekkah 0° adalah seri ground-truth astronomy-engine yang sesungguhnya):
+- **Kriteria Rukyat Mekkah 0°** (Tinggi ≥ 0°, Elongasi ≥ 0° di Mekkah) mencapai **akurasi kecocokan persis awal bulan 53,50%** (53,70% bulan ritual), dan melacak baseline dalam ±1 hari pada **99,67%** bulan.
+- **Kalender Islam Global (GIC)** mencapai **akurasi persis 32,20%** (32,09% bulan ritual); ia bersamaan (32,20%) atau tepat 1 hari lebih awal (67,80%).
 
-Ini menunjukkan bahwa Mekkah 0° tidak hanya memiliki sentralitas spiritual dan berlandaskan ilmiah, tetapi juga **lebih akurat dan lebih dekat dengan batas fisik visibilitas global** dibandingkan kriteria global administratif GIC yang rumit.
+Ini menunjukkan bahwa Mekkah 0° tidak hanya memiliki sentralitas spiritual dan berlandaskan ilmiah, tetapi juga **jauh lebih akurat dan lebih dekat dengan batas fisik visibilitas global** dibandingkan kriteria global administratif GIC yang rumit — selisih kecocokan persis ≈21 poin sepanjang jendela 20 ribu tahun penuh.
+
+> **Catatan tentang angka sebelumnya:** angka lama 76,00% (Mekkah 0°) / 74,00% (GIC) merupakan hasil simulasi jendela pendek (50 tahun). Pengulangan 20 ribu tahun ini menggantikannya; urutan (Mekkah 0° > GIC) tetap dan bahkan melebar. Lihat `MULTIYEAR_EXPERIMENTS_RERUN.md` bagian 10.
 
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan dengan membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang).

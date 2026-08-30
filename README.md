@@ -69,27 +69,34 @@ To test the "globality promise" of GIC, we define a simpler yet real global crit
 - **Adak Island, Alaska** (51.88° N, 176.66° W, representing the extreme West).
 - **Viwa Island, Fiji** (17.15° S, 176.91° E, representing the extreme East).
 
-A month starts under the **Adak + Viwa** composite criteria when, at the moment the crescent is locally visible at **Adak** at sunset (topocentric Altitude ≥ 3°, Elongation ≥ 6.4°, the MABBIMS thresholds), the moon is **at that same instant** still physically above the horizon at **Viwa** (Altitude ≥ 0°, Elongation ≥ 0°).
+A month starts under the **Adak + Viwa** composite criteria when a new moon is **visible** at **Adak** and **possible** at **Viwa**, both evaluated *within, not beyond, the date-line areas* — exactly the way HilalMap evaluates every map point at its own local sunset:
+1. **At Adak's sunset**: the crescent is locally visible there (topocentric Altitude ≥ 3°, Elongation ≥ 6.4°, the MABBIMS thresholds).
+2. **At Viwa's sunset** on that same UTC civil day: the moon is physically possible over Viwa (Altitude ≥ 0°, Elongation ≥ 0°).
+
+Each station is checked only within its own date-line-area evening — neither station borrows the other's instant (which would cross the date line), and nothing beyond the date-line areas is consulted.
 
 #### Testing the Globality Promise of GIC
 GIC (Global Islamic Calendar) claims to be a global calendar. However, because it relies on complex, convoluted rules (5° grid search, latitudinal sweep, Wellington NZ Fajr cutoff, and Americas exception), it is computationally extremely heavy and hard to verify.
 In contrast, our simpler **Adak + Viwa** composite criteria needs only two extreme geographical points at local sunset, bypassing GIC's administrative complexity entirely.
 
-The full **1–20,000 AH** rerun (240,000 months, `scripts/mecca_vs_gic_baseline.py`; fast engines fitted on a 200-year astronomy-engine baseline — 99.46% Adak+Viwa parity, 98.79% GIC parity) shows GIC matches this physical two-station baseline on only **23.17%** of months: GIC starts the month **1–2 days early in 76.83%** of all months (1 day early: 71.16%, 2 days early: 5.67%) and is *never later* than the baseline. A real global calendar is fully determined by physical visibility at the two date-line extremes — and GIC's administrative rules systematically run ahead of it.
+The full **1–20,000 AH** rerun (240,000 months, `scripts/mecca_vs_gic_baseline.py`; fast engines fitted on a 200-year astronomy-engine baseline — 98.92% Adak+Viwa parity, 98.79% GIC parity) shows GIC matches this physical two-station baseline on only **24.88%** of months: GIC starts the month **1–2 days early in 75.12%** of all months (1 day early: 72.78%, 2 days early: 2.34%) and is *never later* than the baseline. A real global calendar is fully determined by physical visibility at the two date-line extremes — and GIC's administrative rules systematically run ahead of it.
 
 #### Mecca 0° Sighting vs. GIC against the Real Global Baseline
 When evaluated against the **Adak + Viwa** real global baseline (1–20,000 AH, 240,000 months; the Mecca 0° side is the real astronomy-engine ground-truth series):
-- **Mecca 0° Sighting Criteria** (Altitude ≥ 0°, Elongation ≥ 0° at Mecca) achieves **50.47% exact month-start accuracy** (50.56% of ritual months), and tracks the baseline within ±1 day in **99.67%** of months.
-- **Global Islamic Calendar (GIC)** achieves **23.17% exact accuracy** (23.06% of ritual months); it is either simultaneous (23.17%) or 1–2 days early (76.83%).
+- **Mecca 0° Sighting Criteria** (Altitude ≥ 0°, Elongation ≥ 0° at Mecca) achieves **54.05% exact month-start accuracy** (54.13% of ritual months), and tracks the baseline within ±1 day in **99.66%** of months.
+- **Global Islamic Calendar (GIC)** achieves **24.88% exact accuracy** (24.70% of ritual months); it is either simultaneous (24.88%) or 1–2 days early (75.12%).
 
-This indicates that Mecca 0° is not only spiritually central and scientifically grounded, but is also **substantially more accurate and closer to the physical boundaries of global visibility** than GIC's complicated, administrative global criteria — a ≈27-point exact-match gap over the full 20k window.
+This indicates that Mecca 0° is not only spiritually central and scientifically grounded, but is also **substantially more accurate and closer to the physical boundaries of global visibility** than GIC's complicated, administrative global criteria — a ≈29-point exact-match gap over the full 20k window.
 
 > **Note on the earlier figures:** the previous 76.00% (Mecca 0°) / 74.00% (GIC) numbers were
-> short-window (50-year) simulation results. The first 20k reruns used (a) an "either station"
-> reading of the composite rule (53.50% / 32.20%) and then (b) a two-sunset reading that checked
-> Viwa at its own sunset (54.05% / 24.88%). This run implements the composite exactly as defined
-> above — Viwa's possibility is checked **at the same instant** as the visible Adak sunset — and
-> supersedes all earlier figures. See `MULTIYEAR_EXPERIMENTS_RERUN.md` section 10.
+> short-window (50-year) simulation results. The composite rule was then read three different
+> ways: (a) an "either station" reading (53.50% / 32.20%), (b) a two-sunset reading checking
+> Viwa at its own sunset (54.05% / 24.88%), and (c) a same-instant reading checking Viwa at
+> the visible Adak sunset moment (50.47% / 23.17%). The composite is now **redefined** to
+> reading (b): each station is evaluated *within, not beyond, the date-line areas* — at its
+> own local sunset on the same UTC civil day, just like how HilalMap works — so the same-instant
+> figures (c) are superseded and the 54.05% / 24.88% numbers above are the current definition's
+> rerun. See `MULTIYEAR_EXPERIMENTS_RERUN.md` section 11.
 
 ## Statistical Analysis: Simultaneity Rate
 Simulated comparing MABBIMS (Archipelago 5° grid) vs. KHGT (Global 5° grid with latitudinal sweep).

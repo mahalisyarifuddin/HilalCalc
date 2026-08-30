@@ -13,10 +13,12 @@ this computes three month-start JDs:
                  the GT row following the conjunction, same convention as
                  scripts/gic_vs_mecca.py)
   Adak + Viwa  : the "Real Global Baseline" composite - MABBIMS visibility
-                 (alt >= 3, elong >= 6.4) at Adak sunset AND, at that same
-                 instant, physical possibility (alt >= 0, elong >= 0) over
-                 Viwa - fast numba engine calibrated in
-                 scripts/calibrate_baseline.py
+                 (alt >= 3, elong >= 6.4) at Adak's own sunset AND, at
+                 Viwa's own sunset on that same UTC civil day, physical
+                 possibility (alt >= 0, elong >= 0) over Viwa - each station
+                 evaluated within its own date-line-area evening, like
+                 HilalMap evaluates each point at its own sunset; fast numba
+                 engine calibrated in scripts/calibrate_baseline.py
   GIC (KHGT)   : the calibrated fast numba engine from scripts/fast_global.py
                  (biases 0.00/0.15, 98.79% astronomy parity)
 

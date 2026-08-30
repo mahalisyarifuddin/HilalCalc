@@ -69,22 +69,26 @@ Untuk menguji "janji globalitas" GIC, kami mendefinisikan kriteria global riil y
 - **Pulau Adak, Alaska** (51,88° LU, 176,66° BB, mewakili belahan Barat ekstrem).
 - **Pulau Viwa, Fiji** (17,15° LS, 176,91° BT, mewakili belahan Timur ekstrem).
 
-Bulan dimulai di bawah kriteria komposit **Adak + Viwa** jika, pada saat yang sama ketika hilal terlihat secara lokal di **Adak** pada matahari terbenam (Tinggi toposentrik ≥ 3°, Elongasi ≥ 6,4°, ambang MABBIMS), bulan **pada instan yang sama** masih secara fisik berada di atas ufuk di **Viwa** (Tinggi ≥ 0°, Elongasi ≥ 0°).
+Bulan dimulai di bawah kriteria komposit **Adak + Viwa** ketika bulan baru **terlihat** di **Adak** dan **memungkinkan** di **Viwa**, keduanya dievaluasi *di dalam, bukan di luar, kawasan garis tanggal* — persis seperti cara HilalMap mengevaluasi setiap titik peta pada matahari terbenamnya sendiri:
+1. **Pada matahari terbenam Adak**: hilal terlihat secara lokal di sana (Tinggi toposentrik ≥ 3°, Elongasi ≥ 6,4°, ambang MABBIMS).
+2. **Pada matahari terbenam Viwa** pada hari sipil UTC yang sama: bulan secara fisik memungkinkan di atas Viwa (Tinggi ≥ 0°, Elongasi ≥ 0°).
+
+Setiap stasiun hanya diperiksa di dalam sore kawasan garis tanggalnya sendiri — tidak ada stasiun yang meminjam instan stasiun lain (yang akan melintasi garis tanggal), dan tidak ada yang dikonsultasikan di luar kawasan garis tanggal.
 
 #### Menguji Janji Globalitas GIC
 GIC (Global Islamic Calendar) mengklaim sebagai kalender global tunggal. Namun, karena ia bergantung pada aturan-aturan yang sangat rumit dan konvolutif (pencarian grid 5°, sapuan lintang, batas Fajar Wellington NZ, dan pengecualian Amerika), GIC secara komputasi sangat berat dan sulit diverifikasi.
 Sebaliknya, kriteria komposit **Adak + Viwa** kami yang jauh lebih sederhana hanya membutuhkan dua titik geografis ekstrem pada matahari terbenam lokal, sepenuhnya melewati kerumitan administratif GIC.
 
-Pengulangan penuh **1–20.000 H** (240.000 bulan, `scripts/mecca_vs_gic_baseline.py`; mesin cepat difittingkan pada baseline astronomy-engine 200 tahun — paritas Adak+Viwa 99,46%, paritas GIC 98,79%) menunjukkan GIC hanya cocok dengan baseline dua-stasiun fisik ini pada **23,17%** bulan: GIC memulai bulan **1–2 hari lebih awal pada 76,83%** dari seluruh bulan (1 hari lebih awal: 71,16%; 2 hari lebih awal: 5,67%) dan *tidak pernah terlambat* dibanding baseline. Kalender global riil sepenuhnya ditentukan oleh visibilitas fisik di dua titik ekstrem garis tanggal — dan aturan administratif GIC secara sistematis mendahuluinya.
+Pengulangan penuh **1–20.000 H** (240.000 bulan, `scripts/mecca_vs_gic_baseline.py`; mesin cepat difittingkan pada baseline astronomy-engine 200 tahun — paritas Adak+Viwa 98,92%, paritas GIC 98,79%) menunjukkan GIC hanya cocok dengan baseline dua-stasiun fisik ini pada **24,88%** bulan: GIC memulai bulan **1–2 hari lebih awal pada 75,12%** dari seluruh bulan (1 hari lebih awal: 72,78%; 2 hari lebih awal: 2,34%) dan *tidak pernah terlambat* dibanding baseline. Kalender global riil sepenuhnya ditentukan oleh visibilitas fisik di dua titik ekstrem garis tanggal — dan aturan administratif GIC secara sistematis mendahuluinya.
 
 #### Rukyat Mekkah 0° vs. GIC terhadap Baseline Global Riil
 Ketika dievaluasi terhadap baseline global riil **Adak + Viwa** (1–20.000 H, 240.000 bulan; sisi Mekkah 0° adalah seri ground-truth astronomy-engine yang sesungguhnya):
-- **Kriteria Rukyat Mekkah 0°** (Tinggi ≥ 0°, Elongasi ≥ 0° di Mekkah) mencapai **akurasi kecocokan persis awal bulan 50,47%** (50,56% bulan ritual), dan melacak baseline dalam ±1 hari pada **99,67%** bulan.
-- **Kalender Islam Global (GIC)** mencapai **akurasi persis 23,17%** (23,06% bulan ritual); ia bersamaan (23,17%) atau 1–2 hari lebih awal (76,83%).
+- **Kriteria Rukyat Mekkah 0°** (Tinggi ≥ 0°, Elongasi ≥ 0° di Mekkah) mencapai **akurasi kecocokan persis awal bulan 54,05%** (54,13% bulan ritual), dan melacak baseline dalam ±1 hari pada **99,66%** bulan.
+- **Kalender Islam Global (GIC)** mencapai **akurasi persis 24,88%** (24,70% bulan ritual); ia bersamaan (24,88%) atau 1–2 hari lebih awal (75,12%).
 
-Ini menunjukkan bahwa Mekkah 0° tidak hanya memiliki sentralitas spiritual dan berlandaskan ilmiah, tetapi juga **jauh lebih akurat dan lebih dekat dengan batas fisik visibilitas global** dibandingkan kriteria global administratif GIC yang rumit — selisih kecocokan persis ≈27 poin sepanjang jendela 20 ribu tahun penuh.
+Ini menunjukkan bahwa Mekkah 0° tidak hanya memiliki sentralitas spiritual dan berlandaskan ilmiah, tetapi juga **jauh lebih akurat dan lebih dekat dengan batas fisik visibilitas global** dibandingkan kriteria global administratif GIC yang rumit — selisih kecocokan persis ≈29 poin sepanjang jendela 20 ribu tahun penuh.
 
-> **Catatan tentang angka sebelumnya:** angka lama 76,00% (Mekkah 0°) / 74,00% (GIC) merupakan hasil simulasi jendela pendek (50 tahun). Pengulangan 20 ribu tahun pertama menggunakan (a) pembacaan komposit "salah satu stasiun" (53,50% / 32,20%) lalu (b) pembacaan dua-matahari-terbenam yang memeriksa Viwa pada matahari terbenamnya sendiri (54,05% / 24,88%). Pengulangan ini menerapkan komposit persis seperti definisi di atas — kemungkinan Viwa diperiksa **pada instan yang sama** dengan matahari terbenam Adak yang terlihat — dan menggantikan semua angka sebelumnya. Lihat `MULTIYEAR_EXPERIMENTS_RERUN.md` bagian 10.
+> **Catatan tentang angka sebelumnya:** angka lama 76,00% (Mekkah 0°) / 74,00% (GIC) merupakan hasil simulasi jendela pendek (50 tahun). Aturan komposit kemudian dibaca dalam tiga cara: (a) pembacaan komposit "salah satu stasiun" (53,50% / 32,20%), (b) pembacaan dua-matahari-terbenam yang memeriksa Viwa pada matahari terbenamnya sendiri (54,05% / 24,88%), dan (c) pembacaan instan-sama yang memeriksa Viwa pada momen matahari terbenam Adak yang terlihat (50,47% / 23,17%). Komposit kini **didefinisikan ulang** menjadi pembacaan (b): setiap stasiun dievaluasi *di dalam, bukan di luar, kawasan garis tanggal* — pada matahari terbenamnya sendiri pada hari sipil UTC yang sama, persis seperti cara HilalMap bekerja — sehingga angka instan-sama (c) digantikan dan angka 54,05% / 24,88% di atas adalah pengulangan dari definisi saat ini. Lihat `MULTIYEAR_EXPERIMENTS_RERUN.md` bagian 11.
 
 ## Analisis Statistik: Tingkat Keserempakan
 Disimulasikan dengan membandingkan MABBIMS (Grid Kepulauan 5°) vs. KHGT (Grid Global 5° dengan sapuan lintang).

@@ -1540,28 +1540,29 @@
 				}));
 			}
 
+			const $ = id => document.getElementById(id);
 			const elements = {
-				language: document.getElementById('language'),
-				theme: document.getElementById('theme'),
-				hYearInput: document.getElementById('hYearInput'),
-				hMonthInput: document.getElementById('hMonthInput'),
-				dhuDayInput: document.getElementById('dhuDayInput'),
-				prevBtn: document.getElementById('prevBtn'),
-				nextBtn: document.getElementById('nextBtn'),
-				todayBtn: document.getElementById('todayBtn'),
-				dhuWrap: document.getElementById('dhuWrap'),
-				dhuLabel: document.getElementById('dhuLabel'),
-				navHint: document.getElementById('navHint'),
-				verdict: document.getElementById('verdict'),
-				dateAceh: document.getElementById('dateAceh'),
-				infoAceh: document.getElementById('infoAceh'),
-				dateGic: document.getElementById('dateGic'),
-				infoGic: document.getElementById('infoGic'),
-				statsContent: document.getElementById('statsContent'),
-				statsTitle: document.getElementById('statsTitle'),
-				methodology: document.getElementById('methodology'),
-				methodologyTitle: document.getElementById('methodologyTitle'),
-				appTitle: document.getElementById('appTitle')
+				language: $('language'),
+				theme: $('theme'),
+				hYearInput: $('hYearInput'),
+				hMonthInput: $('hMonthInput'),
+				dhuDayInput: $('dhuDayInput'),
+				prevBtn: $('prevBtn'),
+				nextBtn: $('nextBtn'),
+				todayBtn: $('todayBtn'),
+				dhuWrap: $('dhuWrap'),
+				dhuLabel: $('dhuLabel'),
+				navHint: $('navHint'),
+				verdict: $('verdict'),
+				dateAceh: $('dateAceh'),
+				infoAceh: $('infoAceh'),
+				dateGic: $('dateGic'),
+				infoGic: $('infoGic'),
+				statsContent: $('statsContent'),
+				statsTitle: $('statsTitle'),
+				methodology: $('methodology'),
+				methodologyTitle: $('methodologyTitle'),
+				appTitle: $('appTitle')
 			};
 
 			function jdToDate(jd) {

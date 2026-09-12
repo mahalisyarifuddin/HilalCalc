@@ -25,3 +25,7 @@
 **Mode:** Medic
 **Learning:** In Playwright E2E tests for `HilalSync.html`, UI elements within the settings dialog (like `#language`) require clicking `#settingsBtn` first to become visible. Additionally, `#todayBtn` is disabled if the active date is already today, which can cause click timeouts if not handled.
 **Action:** When writing end-to-end tests for elements within modal dialogs, explicitly script opening and closing the dialog. Anticipate UI states like disabled buttons and accommodate them.
+## 2025-02-12 - DOM Element Caching Refactor
+**Mode:** Razor
+**Learning:** Replacing a statically declared object of cached DOM elements with a `Proxy` object (e.g., `new Proxy({}, { get: (_, id) => document.getElementById(id) })`) degrades performance by bypassing the cache and querying the DOM on every property access. It also introduces critical bugs if the proxy is accessed using a `Symbol` key (e.g., by internal JS engine routines), as `document.getElementById` will attempt to coerce the `Symbol` to a string, throwing a `TypeError`.
+**Action:** Always prefer statically caching DOM element lookups using a concise helper function (e.g., `const $ = id => document.getElementById(id); const elements = { lang: $('lang') };`) rather than relying on meta-programming tricks like `Proxy` which violate performance and safety constraints.

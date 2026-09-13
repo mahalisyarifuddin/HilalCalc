@@ -24,7 +24,7 @@ def run_cuj(page):
     page.wait_for_timeout(500)
 
     # Click todayBtn
-    page.click("#todayBtn")
+    page.click("#todayBtn", force=True)
     page.wait_for_timeout(500)
 
     page.screenshot(path="/home/jules/verification/screenshots/verification.png")

@@ -1516,6 +1516,7 @@
 					formulaDescMabbims: 'MABBIMS criteria search. Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
 					formulaDescLinear: 'Best linear fit to the direct C rerun (Mecca 0° baseline). Accuracy: 67.8308% exact (1–10,000 AH); slope 29.5305741456.',
 					formulaDescTabular: 'Best modular 30-year cycle (epoch 1948440, k=29). Accuracy: 45.1183% exact (1–10,000 AH).',
+					linearNote: 'Reference JD 1948440; fitted phase −1.234392.',
 					epoch: 'Epoch',
 					leapYears: 'Leap years',
 					ofCycle: 'of 30-yr cycle',
@@ -1587,6 +1588,7 @@
 					formulaDescMabbims: 'Pencarian kriteria MABBIMS. Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.',
 					formulaDescLinear: 'Fit linear terbaik dari pengulangan C langsung (baseline Mekkah 0°). Akurasi tepat 67,8308% (1–10.000 H); slope 29,5305741456.',
 					formulaDescTabular: 'Siklus modular terbaik 30 tahun (epoh 1948440, k=29). Akurasi tepat 45,1183% (1–10.000 H).',
+					linearNote: 'JD referensi 1948440; fase fit −1,234392.',
 					epoch: 'Epoh',
 					leapYears: 'Tahun kabisat',
 					ofCycle: 'dalam siklus 30 tahun',
@@ -2005,7 +2007,7 @@
 						$('formulaDesc').textContent = tr.formulaDescMabbims;
 					} else if (mode === 'linear') {
 						$('formulaDisplay').textContent = `JD = 1948440 + ceil(29.5305741456·N − 1.234392) + Day − 1\nN = (Year−1)·12 + Month−1`;
-						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 1 AH = JD 1948440.</i> <a href="ASTRONOMY_C_10000_RERUN.md">${tr.cRerunLink}</a>`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: ${tr.linearNote}</i> <a href="ASTRONOMY_C_10000_RERUN.md">${tr.cRerunLink}</a>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
 						$('formulaDisplay').textContent = `Leap Year: ((11·Y + 29) mod 30) < 11\nJD = 1948440 + Cycle·10631 + yc·354 + Leaps(yc) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(yc) = ⌊(11·yc + 29) / 30⌋`;

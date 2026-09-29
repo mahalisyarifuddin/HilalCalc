@@ -1202,7 +1202,7 @@
 						<div class="input-row">
 							<input type="number" id="hDayInput" placeholder="D" min="1" max="30" aria-label="Day">
 							<select id="hMonthInput" aria-label="Month"></select>
-							<input type="number" id="hYearInput" placeholder="Year" min="1300" max="10000" aria-label="Year">
+							<input type="number" id="hYearInput" placeholder="Year" min="1300" max="20000" aria-label="Year">
 						</div>
 					</div>
 				</div>
@@ -1577,7 +1577,6 @@
 					mabbimsSearchLabel: 'Search Area',
 					mabbimsPoint: 'Custom Coordinate',
 					mabbimsArchipelago: 'Archipelago Wide',
-					cRerunLink: 'C rerun report'
 				},
 				id: {
 					appTitle: 'Kalender Hijriyah MABBIMS',
@@ -1648,7 +1647,6 @@
 					mabbimsSearchLabel: 'Area Pencarian',
 					mabbimsPoint: 'Koordinat Kustom',
 					mabbimsArchipelago: 'Seluruh Kepulauan',
-					cRerunLink: 'Laporan pengulangan C'
 				}
 			};
 
@@ -2007,7 +2005,7 @@
 						$('formulaDesc').textContent = tr.formulaDescMabbims;
 					} else if (mode === 'linear') {
 						$('formulaDisplay').textContent = `JD = 1948440 + ceil(29.5305741456·N − 1.234392) + Day − 1\nN = (Year−1)·12 + Month−1`;
-						$('formulaNote').innerHTML = `<i>${tr.epoch}: ${tr.linearNote}</i> <a href="ASTRONOMY_C_10000_RERUN.md">${tr.cRerunLink}</a>`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: ${tr.linearNote}</i>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
 						$('formulaDisplay').textContent = `Leap Year: ((11·Y + 29) mod 30) < 11\nJD = 1948440 + Cycle·10631 + yc·354 + Leaps(yc) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(yc) = ⌊(11·yc + 29) / 30⌋`;

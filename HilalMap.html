@@ -1082,7 +1082,6 @@
 			<section class="card" id="rerunBenchmark">
 				<div class="card-title" id="benchmarkTitle"></div>
 				<p id="benchmarkContent" class="info"></p>
-				<a id="benchmarkLink" href="ASTRONOMY_C_10000_RERUN.md"></a>
 			</section>
 			<section class="card">
 			<div id="map-container">
@@ -1465,8 +1464,7 @@
 				langLabel: "Language",
 				themeLabel: "Theme",
 				benchmarkTitle: "Latest C rerun benchmark",
-				benchmarkContent: "Direct Astronomy Engine C v2.1.19, 1–10,000 AH: the Mecca 0°/0° baseline reproduces its ground truth at 100%. San Francisco's best threshold is altitude 2° and topocentric elongation 6°, with 90.6709% accuracy. Map criteria remain MABBIMS 3°/6.4° and GIC 5°/8°.",
-				benchmarkLink: "Read the full C rerun report"
+				benchmarkContent: "Direct Astronomy Engine C v2.1.19, 1–10,000 AH: the Mecca 0°/0° baseline reproduces its ground truth at 100%. San Francisco's best threshold is altitude 2° and topocentric elongation 6°, with 90.6709% accuracy. Map criteria remain MABBIMS 3°/6.4° and GIC 5°/8°."
 			},
 			id: {
 				prefTitle: 'Pengaturan',
@@ -1528,8 +1526,7 @@
 				langLabel: "Bahasa",
 				themeLabel: "Tema",
 				benchmarkTitle: "Tolok ukur pengulangan C terbaru",
-				benchmarkContent: "Astronomy Engine C v2.1.19 langsung, 1–10.000 H: baseline Mekkah 0°/0° mereproduksi ground truth 100%. Ambang terbaik San Francisco adalah tinggi 2° dan elongasi toposentrik 6°, dengan akurasi 90,6709%. Kriteria peta tetap MABBIMS 3°/6,4° dan GIC 5°/8°.",
-				benchmarkLink: "Baca laporan pengulangan C lengkap"
+				benchmarkContent: "Astronomy Engine C v2.1.19 langsung, 1–10.000 H: baseline Mekkah 0°/0° mereproduksi ground truth 100%. Ambang terbaik San Francisco adalah tinggi 2° dan elongasi toposentrik 6°, dengan akurasi 90,6709%. Kriteria peta tetap MABBIMS 3°/6,4° dan GIC 5°/8°."
 			}
 		};
 
@@ -1808,7 +1805,6 @@ self.onmessage = e => {
 				this.language = AppSettings.applyLang(language);
 				this.saveState();
 				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.string(key); });
-				elements.benchmarkLink.href = "ASTRONOMY_C_10000_RERUN.md";
 				['In', 'Out', 'Reset'].forEach(k => {
 					const s = this.string("zoom" + k);
 					const el = elements["zoom-" + k.toLowerCase()];

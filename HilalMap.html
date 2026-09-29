@@ -1079,6 +1079,10 @@
 				<button id="renderMap" class="primary" style="width:100%;margin-top:var(--sp-4)">Render Map</button>
 				<div id="mapStatus" class="info" style="margin-top:var(--sp-2)"></div>
 			</section>
+			<section class="card" id="rerunBenchmark">
+				<div class="card-title" id="benchmarkTitle"></div>
+				<p id="benchmarkContent" class="info"></p>
+			</section>
 			<section class="card">
 			<div id="map-container">
 				<div class="map-controls">
@@ -1458,7 +1462,9 @@
 				placeholderLat: "e.g., -6.2088",
 				placeholderLon: "e.g., 106.8456",
 				langLabel: "Language",
-				themeLabel: "Theme"
+				themeLabel: "Theme",
+				benchmarkTitle: "Latest C rerun benchmark",
+				benchmarkContent: "Direct Astronomy Engine C v2.1.19, 1–10,000 AH: the Mecca 0°/0° baseline reproduces its ground truth at 100%. San Francisco's best threshold is altitude 2° and topocentric elongation 6°, with 90.6709% accuracy. Map criteria remain MABBIMS 3°/6.4° and GIC 5°/8°."
 			},
 			id: {
 				prefTitle: 'Pengaturan',
@@ -1518,7 +1524,9 @@
 				placeholderLat: "contoh: -6.2088",
 				placeholderLon: "contoh: 106.8456",
 				langLabel: "Bahasa",
-				themeLabel: "Tema"
+				themeLabel: "Tema",
+				benchmarkTitle: "Tolok ukur pengulangan C terbaru",
+				benchmarkContent: "Astronomy Engine C v2.1.19 langsung, 1–10.000 H: baseline Mekkah 0°/0° mereproduksi ground truth 100%. Ambang terbaik San Francisco adalah tinggi 2° dan elongasi toposentrik 6°, dengan akurasi 90,6709%. Kriteria peta tetap MABBIMS 3°/6,4° dan GIC 5°/8°."
 			}
 		};
 

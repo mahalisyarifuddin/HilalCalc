@@ -1,10 +1,11 @@
+import sys
 import csv
 import os
 import numpy as np
 
-def load_gt():
+def load_gt(path=None):
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(script_dir, '..', 'gt_1_20000.csv')
+    csv_path = path or os.path.join(script_dir, '..', 'gt_1_20000.csv')
     gt = []
     with open(csv_path, 'r') as f:
         reader = csv.reader(f); next(reader)
@@ -12,7 +13,7 @@ def load_gt():
     return np.array(gt)
 
 def main():
-    gt = load_gt()
+    gt = load_gt(sys.argv[1] if len(sys.argv) > 1 else None)
     # Align to 1 AH (JD 1948440)
     # The current GT starts at JD 1948085 (0 AH)
     # 1 AH is Index 12.

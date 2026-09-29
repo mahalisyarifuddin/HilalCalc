@@ -1,6 +1,8 @@
 [English](README.md) | **Bahasa Indonesia**
 
 # HilalCalc
+
+> **Pengulangan Astronomy Engine C:** hasil eksak 1–10.000 H, metode, dan perintah reproduksi tersedia di [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md).
 *Moon visibility, simplified.*
 
 ## Pengantar

@@ -11,3 +11,10 @@ __pycache__/
 gt_1_10000.csv
 conjs_1_20000.csv
 baseline_1_20000.csv
+# Exact Astronomy Engine C rerun artifacts (regenerate with make + runner).
+gt_1_*_c.csv
+observables_1_*_c.csv
+scripts/astronomy_c_10k
+scripts/astronomy_c_global_10k
+land_polygons.bin
+global_1_*_c.csv

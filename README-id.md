@@ -33,14 +33,14 @@ Alat yang dibuat khusus untuk masyarakat Indonesia untuk melacak apakah tanggal 
 **Fitur Utama:**
 -   **Verdict Per Bulan**: Indikasi jelas apakah awal bulan serempak atau berbeda.
 -   **Timeline Ganda**: Bandingkan tanggal Masehi untuk hilal baru menurut kedua kriteria.
--   **Data Historis**: Hasil simulasi keserempakan selama 20.000 tahun.
+-   **Data Historis**: Hasil keserempakan dari pengulangan C tervalidasi untuk 1–10.000 H.
 
 ### 3. HijriCalc (Kalender & Konverter)
 Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik dan konteks sejarah Anda.
 
 **Fitur Utama:**
 -   **Grid Kalender MABBIMS**: Menghasilkan kalender bulanan berdasarkan simulasi rukyatul hilal toposentrik ("Rukyat Lokal").
--   **Rumus Global**: Menggunakan rumus linear yang sangat akurat untuk konversi antara tanggal Hijriyah dan Masehi selama 20.000 tahun, dioptimalkan untuk Kriteria Komposit (Mekkah + Pulau Viwa).
+-   **Rumus Global**: Menggunakan rumus linear akurat untuk konversi Hijriyah–Masehi; analisis astronominya didokumentasikan untuk 1–10.000 H.
 -   **Transisi Sejarah**: Mendukung penuh reformasi kalender Masehi tahun 1582. Tanggal sebelum reformasi diberi label sebagai Julian.
 -   **Pengaturan**: Sesuaikan Bahasa, Tema, Awal Pekan, Lokasi, Kalender Utama, dan Mode Masehi.
 
@@ -56,7 +56,7 @@ Perbandingan dua stasiun fisik memakai **Adak, Alaska** (visibilitas MABBIMS) da
 
 ## Ringkasan Analisis (pengulangan terbaru)
 
-Laporan lengkap ada di [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md), [`MULTIYEAR_EXPERIMENTS_RERUN.md`](MULTIYEAR_EXPERIMENTS_RERUN.md), dan [`LEAP_INTERVAL_EXPERIMENT.md`](LEAP_INTERVAL_EXPERIMENT.md). **Hasil terbaru dan paling tinggi fidelitasnya adalah pengulangan C 29 September 2026**: Astronomy Engine C v2.1.19, pemanggilan langsung, tanpa kalibrasi fast engine atau aproksimasi Meeus. Untuk rentang yang tumpang tindih, dahulukan hasil 1–10.000 H ini.
+Laporan lengkap ada di [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md). **Hasil terbaru dan paling tinggi fidelitasnya adalah pengulangan C 29 September 2026**: Astronomy Engine C v2.1.19, pemanggilan langsung, tanpa kalibrasi fast engine atau aproksimasi Meeus. Laporan ini kini menjadi satu-satunya analisis jangka panjang yang didokumentasikan.
 
 ### Pengulangan C utama: 1–10.000 H
 
@@ -70,13 +70,7 @@ Laporan lengkap ada di [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md
 | Uji ambang | Mekkah 0°/0° mereproduksi ground truth 100%; San Francisco terbaik 2°/6° (toposentrik) sebesar 90,6709% |
 | Keserempakan MABBIMS–GIC eksak | **56,0242%** keseluruhan; 55,9933% bulan ritual |
 
-Pengulangan global C tidak menemukan selisih GIC selain 0 atau satu hari lebih awal terhadap MABBIMS. Terhadap seri fisik Mekkah 0°, GIC lebih awal 1–2 hari pada **86,8958%** seluruh bulan (86,9300% bulan ritual); MABBIMS sama dengan Mekkah pada 54,9592% seluruh bulan. Ini hasil C, bukan aproksimasi 20.000 tahun yang dikalibrasi.
-
-### Konteks jendela lebih panjang
-
-Laporan 1–20.000 H tetap dipertahankan untuk melihat perilaku jangka panjang, tetapi hasil global beratnya memakai mesin Numba terkalibrasi yang divalidasi pada sampel Astronomy Engine 200 tahun (99,25% MABBIMS, 98,79% GIC, 98,04% keputusan gabungan), bukan pengulangan C penuh. Hasilnya adalah keserempakan 39,17%/39,23% dan, dengan definisi Adak–Viwa terbaru, kecocokan persis 54,05% Mekkah dan 24,88% GIC. Jangan menggabungkan angka-angka ini dengan tabel C 1–10.000 H seolah-olah satu sampel.
-
-Eksperimen kalender jangka panjang juga menemukan: rumus linear terbaik 42,13%, modular k=29 pada epoch 1948440 sebesar 40,33%, dan model kabisat `R=1/L` sebesar 43,17% pada epoch 1948439. Interval bilangan alami runtuh akibat drift. Angka ini hanya konteks di README; metode dan batasannya ada di laporan rerun.
+Pengulangan global C tidak menemukan selisih GIC selain 0 atau satu hari lebih awal terhadap MABBIMS. Terhadap seri fisik Mekkah 0°, GIC lebih awal 1–2 hari pada **86,8958%** seluruh bulan (86,9300% bulan ritual); MABBIMS sama dengan Mekkah pada 54,9592% seluruh bulan. Ini adalah hasil C langsung untuk jendela 1–10.000 H yang didokumentasikan.
 
 ### Menjalankan ulang pengulangan C terbaru
 
@@ -94,22 +88,13 @@ CSV dan executable hasil dibuat sengaja diabaikan git. README ini merangkum peng
 ## Skrip Teknis
 Driver pengulangan C adalah `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `analyze_c_observables.py`, dan `analyze_c_global.py`.
 
-Direktori `scripts/` berisi alat Python yang digunakan untuk pembuatan data dan optimasi:
--   `generate_gt.py`: Menghasilkan Ground Truth toposentrik (astronomy-engine), rentang default 1–20.000 H.
--   `generate_gt_stable.py`: Menghasilkan seri 1–20.000 H mean-konjungsi yang stabil untuk epoch jauh.
--   `compare_tabular_epochs.py`: Membandingkan epoch tabular 1948439 vs 1948440 pada seluruh seri.
--   `optimize_leap_interval.py` / `optimize_leap_interval_and_R.py` / `optimize_natural_leap.py`: Pencarian grid interval kabisat (lihat LEAP_INTERVAL_EXPERIMENT.md).
--   `find_best_fit.py`: Menurunkan konstanta Rumus Linear yang optimal (argumen jalur GT opsional).
--   `find_best_tabular.py`: Menganalisis skema tabular dan konstanta modular.
--   `gic_vs_mecca.py`: Menghitung distribusi selisih awal-bulan GIC vs Mekkah 0°.
--   `knee_analysis.py`: Analisis knee point panjang siklus.
--   `fast_global.py` + `fast_serempak.py`: Mesin numba teroptimasi untuk mengulang analisis keserempakan MABBIMS/KHGT dan GIC (≈36× lebih cepat).
--   `analyze_serempak.py`: Analisis keserempakan astronomy-engine asli.
+Direktori `scripts/` berisi driver C dan alat verifikasi yang digunakan untuk pengulangan terbaru:
+-   `generate_gt.py`: Menghasilkan seri ground truth toposentrik 1–10.000 H.
 -   `verify_all_modes.py`: Verifikasi UI berbasis Playwright.
 
 Dependensi: `pip install astronomy-engine numpy numba playwright`.
 
-Seri besar yang dihasilkan (`gt_1_20000.csv`, `gt_stable_1_20000.csv`, `serempak_1_20000.csv`) diabaikan oleh git; bangkitkan ulang dengan `generate_gt.py`, `generate_gt_stable.py`, dan `fast_serempak.py`.
+CSV hasil pengulangan C diabaikan oleh git; bangkitkan ulang dengan perintah pada laporan pengulangan C.
 
 ## Konteks Sejarah
 -   **Reformasi Masehi**: Mode "Sejarah" menangani lompatan Oktober 1582 dan pelabelan Julian.

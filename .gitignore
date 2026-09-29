@@ -1,16 +1,11 @@
 venv/
 .venv/
-gt_1_20000.csv
-gt_stable_1_20000.csv
-serempak_1_20000.csv
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.png
 gt_1_10000.csv
-conjs_1_20000.csv
-baseline_1_20000.csv
 # Exact Astronomy Engine C rerun artifacts (regenerate with make + runner).
 gt_1_*_c.csv
 observables_1_*_c.csv

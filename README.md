@@ -33,14 +33,14 @@ A tool tailormade for Indonesians to track whether a Hijri month start date is s
 **Key Features:**
 -   **Per-month Verdict**: Clear indication of whether the month start is simultaneous or divergent.
 -   **Dual Timeline**: Compare Gregorian dates for the new moon according to both criteria.
--   **Historical Data**: Pre-computed simultaneity rates over 20,000 years.
+-   **Historical Data**: Pre-computed simultaneity results from the validated 1–10,000 AH C rerun.
 
 ### 3. HijriCalc (Calendar & Converter)
 A robust calendar tool that adapts its calculations to your specific location and historical context.
 
 **Key Features:**
 -   **MABBIMS Calendar Grid**: Generates a monthly calendar based on astronomical topocentric moon sighting simulation ("Local Sighting").
--   **Global Formula**: Uses a highly accurate linear formula to convert between Hijri and Gregorian dates over 20,000 years, optimized for the Composite Criteria (Mecca + Viwa Island).
+-   **Global Formula**: Uses a highly accurate linear formula for Hijri–Gregorian conversion, with astronomical analysis documented for 1–10,000 AH.
 -   **Historical Transition**: Fully supports the 1582 Gregorian reform. Dates prior to the reform are correctly labeled as Julian.
 -   **Settings**: Customize Language, Theme, Week Start Day, Location, Main Calendar, and Gregorian Mode.
 
@@ -56,7 +56,7 @@ The physical two-station comparison uses **Adak, Alaska** (MABBIMS visibility) a
 
 ## Analysis Summary (latest reruns)
 
-The detailed reports are [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md), [`MULTIYEAR_EXPERIMENTS_RERUN.md`](MULTIYEAR_EXPERIMENTS_RERUN.md), and [`LEAP_INTERVAL_EXPERIMENT.md`](LEAP_INTERVAL_EXPERIMENT.md). The **latest and highest-fidelity result is the 29 September 2026 C rerun**: Astronomy Engine C v2.1.19, direct calls, no fast-engine calibration or Meeus approximation. Its 1–10,000 AH results should be preferred when they overlap older reports.
+The detailed report is [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md). The **latest and highest-fidelity result is the 29 September 2026 C rerun**: Astronomy Engine C v2.1.19, direct calls, no fast-engine calibration or Meeus approximation. It is now the sole documented long-range analysis.
 
 ### Authoritative C rerun: 1–10,000 AH
 
@@ -70,13 +70,7 @@ The detailed reports are [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.
 | Threshold check | Mecca 0°/0° reproduces its ground truth at 100%; San Francisco best is 2°/6° (topocentric) at 90.6709% |
 | Exact MABBIMS–GIC simultaneity | **56.0242%** overall; 55.9933% ritual months |
 
-The exact C global run found no GIC offset other than 0 or one day early relative to MABBIMS. Against the Mecca 0° physical series, GIC was 1–2 days early in **86.8958%** of all months (86.9300% of ritual months); MABBIMS agreed with Mecca in 54.9592% of all months. These are C results, not the calibrated 20,000-year approximation.
-
-### Longer-window context
-
-The 1–20,000 AH report is retained for long-window behavior, but its heavy global results use a calibrated Numba engine validated on a 200-year Astronomy Engine sample (99.25% MABBIMS, 98.79% GIC, 98.04% joint month starts), not a full C rerun. It reports 39.17%/39.23% MABBIMS–GIC simultaneity and, under the current Adak–Viwa definition, 54.05% Mecca and 24.88% GIC exact matches. Do not combine these figures with the exact 1–10,000 AH C tables as if they were one sample.
-
-The companion long-window calendar experiments found: best linear fit 42.13% exact, modular k=29 at epoch 1948440 40.33%, and the constrained `R=1/L` leap model at 43.17% for epoch 1948439. Natural-number intervals collapse through drift. These results are summarized here only for context; the rerun reports contain methods and caveats.
+The exact C global run found no GIC offset other than 0 or one day early relative to MABBIMS. Against the Mecca 0° physical series, GIC was 1–2 days early in **86.8958%** of all months (86.9300% of ritual months); MABBIMS agreed with Mecca in 54.9592% of all months. These are direct C results for the documented 1–10,000 AH window.
 
 ### Reproduction of the latest C run
 
@@ -95,21 +89,12 @@ Generated CSVs and executables are intentionally git-ignored. The C rerun is del
 The C rerun drivers are `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `analyze_c_observables.py`, and `analyze_c_global.py`.
 
 The `scripts/` directory contains the Python tools used for data generation and optimization:
--   `generate_gt.py`: Generates the topocentric Ground Truth (astronomy-engine), default span 1–20,000 AH.
--   `generate_gt_stable.py`: Generates a stable mean-conjunction 1–20,000 AH series for far-future epochs.
--   `compare_tabular_epochs.py`: Compares tabular epochs 1948439 vs 1948440 across the series.
--   `optimize_leap_interval.py` / `optimize_leap_interval_and_R.py` / `optimize_natural_leap.py`: Leap-interval grid searches (see LEAP_INTERVAL_EXPERIMENT.md).
--   `find_best_fit.py`: Derives the optimal Linear Formula constants (optional GT path argument).
--   `find_best_tabular.py`: Analyzes tabular schemes and modular constants.
--   `gic_vs_mecca.py`: Computes the GIC vs Mecca 0° month-start offset distribution.
--   `knee_analysis.py`: Cycle-length knee-point analysis.
--   `fast_global.py` + `fast_serempak.py`: Optimized numba engines that redo the heavy MABBIMS/KHGT simultaneity and GIC analyses (≈36× faster than the astronomy-engine loop).
--   `analyze_serempak.py`: Original astronomy-engine simultaneity analysis.
+-   `generate_gt.py`: Generates the 1–10,000 AH topocentric ground-truth series.
 -   `verify_all_modes.py`: Playwright-based UI verification.
 
 Dependencies: `pip install astronomy-engine numpy numba playwright`.
 
-The large generated series (`gt_1_20000.csv`, `gt_stable_1_20000.csv`, `serempak_1_20000.csv`) are git-ignored; regenerate them with `generate_gt.py`, `generate_gt_stable.py`, and `fast_serempak.py`.
+Generated C CSVs are git-ignored; regenerate them with the commands in the C rerun report.
 
 ## Historical Context
 -   **Gregorian Reform**: "Historical" mode handles the October 1582 jump and Julian labeling.

@@ -1056,7 +1056,7 @@
 	<nav class="datenav" id="datenav" aria-label="Hijri month navigation">
 		<div class="datenav-group">
 			<button id="prevBtn" class="nav-btn" type="button" aria-label="Previous month">&#8249;</button>
-			<input type="number" id="hYearInput" min="1" max="20000" step="1" inputmode="numeric" aria-label="Hijri year">
+			<input type="number" id="hYearInput" step="1" inputmode="numeric" aria-label="Hijri year">
 			<select id="hMonthInput" aria-label="Hijri month">
 				<option value="1"></option>
 				<option value="2"></option>
@@ -1798,12 +1798,13 @@
 			function updateNavState() {
 				const t = todayYM();
 				elements.todayBtn.disabled = (state.year === t.year && state.month === t.month);
-				elements.prevBtn.disabled = (state.year <= 1 && state.month <= 1);
-				elements.nextBtn.disabled = (state.year >= 20000 && state.month >= 12);
+				elements.prevBtn.disabled = false;
+				elements.nextBtn.disabled = false;
 			}
 
 			function calculate() {
-				state.year = Math.min(20000, Math.max(1, parseInt(elements.hYearInput.value) || 1));
+				const parsedYear = parseInt(elements.hYearInput.value, 10);
+				state.year = Number.isFinite(parsedYear) ? parsedYear : 1;
 				if (String(state.year) !== elements.hYearInput.value) elements.hYearInput.value = state.year;
 				state.month = parseInt(elements.hMonthInput.value);
 				let res = getStartJD(state.year, state.month);

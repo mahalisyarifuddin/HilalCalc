@@ -4,6 +4,7 @@ This script uses Numba to search the continuous float parameter space for the be
 and alignment shift (S) for both tabular epochs 1948439 and 1948440.
 """
 from __future__ import annotations
+import sys
 
 import os
 import time
@@ -116,7 +117,7 @@ def run_search(path: str):
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    gt_path = os.path.join(script_dir, "..", "gt_1_20000.csv")
+    gt_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(script_dir, "..", "gt_1_20000.csv")
     if os.path.exists(gt_path):
         run_search(gt_path)
     else:

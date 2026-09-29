@@ -2,7 +2,6 @@
 
 # HilalCalc
 
-> **Astronomy Engine C rerun:** exact 1–10,000 AH results, methodology, and reproduction commands are documented in [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md).
 Moon visibility, simplified.
 
 ## Introduction

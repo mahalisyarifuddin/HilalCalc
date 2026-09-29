@@ -112,11 +112,6 @@ Astronomy Engine asli, bukan parity fit 200 tahun.
 
 ## Catatan interpretasi
 
-Hasil 10.000 tahun berbeda tajam dari rerun 20.000 tahun sebelumnya. Ini bukan sekadar
-efek bahasa C: jendela kedua (10.001–20.000 H) berada makin jauh dari epoch teori lunar
-dan mengubah statistik jangka panjang. Angka dokumen ini tidak boleh digabung dengan angka
-1–20.000 H berbasis fast engine seolah-olah keduanya memakai metode dan sampel identik.
-
 Baseline Adak–Viwa adalah eksperimen terpisah dari definisi “analisis global” MABBIMS–GIC;
 ia belum dicampurkan ke hasil di atas agar definisi dan aturan sunset masing-masing tetap
 jelas. Semua tabel yang diklaim eksak di dokumen ini benar-benar memakai jalur C.

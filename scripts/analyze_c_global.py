@@ -35,7 +35,7 @@ def main():
             gt = [int(r["JD"]) for r in csv.DictReader(f)]
         for name in ("GIC", "MABBIMS"):
             for label, sample in (("semua", rows), ("ritual", ritual)):
-                c = Counter(math.floor(float(r[name]) - gt[int(r["Index"])+1] + 1e-9)
+                c = Counter(math.floor(float(r[name]) + 0.5 + 1e-9) - gt[int(r["Index"])+1]
                             for r in sample)
                 show(f"{name} − Mekkah, {label}", c)
 

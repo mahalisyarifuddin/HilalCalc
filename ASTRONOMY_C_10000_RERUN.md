@@ -99,16 +99,23 @@ Tidak ditemukan offset selain 0 dan −1 hari antara GIC dan MABBIMS.
 
 ### Offset terhadap awal bulan fisik Mekkah 0°
 
-| Seri | Sampel | −2 hari | −1 hari | 0 hari |
+| Seri | Sampel | −1 hari | 0 hari | +1 hari |
 |:---|:---|---:|---:|---:|
 | GIC | Semua | 2,1208% (2.545) | 84,7750% (101.730) | 13,1042% (15.725) |
 | GIC | Ritual | 2,2133% (664) | 84,7167% (25.415) | 13,0700% (3.921) |
 | MABBIMS | Semua | — | 45,0408% (54.049) | 54,9592% (65.951) |
 | MABBIMS | Ritual | — | 45,1367% (13.541) | 54,8633% (16.459) |
 
-Dengan demikian, pada jendela ini GIC mendahului Mekkah 1–2 hari pada **86,8958%** semua
-bulan dan **86,9300%** bulan ritual. Seluruh angka di bagian ini berasal dari panggilan C
-Astronomy Engine asli, bukan parity fit 200 tahun.
+Secara geografis Mekkah (~40° BT) berada lebih barat dari kepulauan Melayu / MABBIMS (95°–141° BT)
+dan menggunakan kriteria fisik 0°, sehingga saat hilal belum terlihat di kepulauan Melayu, Mekkah
+dapat melihat hilal beberapa jam kemudian dan memulai bulan 1 hari lebih awal (+1 hari pada
+MABBIMS − Mekkah) pada **54,9592%** semua bulan (**54,8633%** ritual). MABBIMS serempak dengan
+Mekkah pada **45,0408%** semua bulan, dan tidak pernah mendahului Mekkah.
+
+GIC serempak dengan Mekkah pada **84,7750%** semua bulan (84,7167% ritual), 1 hari lebih awal
+pada **2,1208%** semua bulan (2,2133% ritual) karena rukyat di benua Amerika sebelum fajar NZ,
+dan 1 hari lebih lambat pada **13,1042%** semua bulan (13,0700% ritual). Seluruh angka di bagian
+ini berasal dari panggilan C Astronomy Engine asli, bukan parity fit 200 tahun.
 
 ## Catatan interpretasi
 

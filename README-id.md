@@ -69,7 +69,7 @@ Laporan lengkap ada di [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md
 | Uji ambang | Mekkah 0°/0° mereproduksi ground truth 100%; San Francisco terbaik 2°/6° (toposentrik) sebesar 90,6709% |
 | Keserempakan MABBIMS–GIC eksak | **56,0242%** keseluruhan; 55,9933% bulan ritual |
 
-Pengulangan global C tidak menemukan selisih GIC selain 0 atau satu hari lebih awal terhadap MABBIMS. Terhadap seri fisik Mekkah 0°, GIC lebih awal 1–2 hari pada **86,8958%** seluruh bulan (86,9300% bulan ritual); MABBIMS sama dengan Mekkah pada 54,9592% seluruh bulan. Ini adalah hasil C langsung untuk jendela 1–10.000 H yang didokumentasikan.
+Pengulangan global C tidak menemukan selisih GIC selain 0 atau satu hari lebih awal terhadap MABBIMS (56,0242% serempak, 43,9758% GIC 1 hari lebih awal). Terhadap seri fisik Mekkah 0°, MABBIMS sama dengan Mekkah pada **45,0408%** seluruh bulan dan 1 hari lebih lambat pada **54,9592%** (Mekkah 1 hari lebih awal dari kepulauan Melayu). GIC sama dengan Mekkah pada **84,7750%** seluruh bulan (2,1208% GIC 1 hari lebih awal, 13,1042% GIC 1 hari lebih lambat). Ini adalah hasil C langsung untuk jendela 1–10.000 H yang didokumentasikan.
 
 ### Menjalankan ulang pengulangan C terbaru
 

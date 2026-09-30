@@ -8,8 +8,7 @@ YEARS defaults to 20000.  GT_CSV defaults to gt_1_20000.csv.
 For each new-moon conjunction we compute the GIC/KHGT month-start day with the
 validated fast numba engine (scripts/fast_global.py) and compare it with the
 Mecca 0° month-start JD that follows that conjunction.  The offset is measured
-in whole civil days as floor(GIC_start - Mecca_GT_next), the same convention used
-by the GIC "throws Mecca under the bus" analysis in README.md.
+in whole civil days as floor(GIC_start + 0.5) - Mecca_GT_next.
 """
 from __future__ import annotations
 
@@ -92,7 +91,7 @@ def main() -> None:
     for k, (i, cu) in enumerate(conjs):
         gic = make_gic_jd(cu)
         # The GT row that follows this conjunction is the month start it predicts.
-        delta = math.floor(gic - gt_jd[i + 1])
+        delta = int(math.floor(gic + 0.5)) - gt_jd[i + 1]
         total[delta] += 1
         month = (i % 12) + 1
         if month in (9, 10, 12):

@@ -75,10 +75,10 @@ def process_month(args):
 def civil_day(start_jd: float) -> int:
     """Civil day (Julian Day Number) of a month-start JD.
 
-    The fast engines return midnight-based starts (JDN + 0.5), so floor() is
+    The fast engines return midnight-based starts (JDN - 0.5), so floor(start_jd + 0.5) is
     the JDN; the Mecca 0° GT series stores the integer JDN directly.
     """
-    return int(math.floor(start_jd))
+    return int(math.floor(start_jd + 0.5))
 
 
 def report(name: str, starts, baseline, rituals) -> None:

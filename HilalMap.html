@@ -1649,7 +1649,7 @@ self.onmessage = e => {
 	}
 };`;
 
-		const elements = new Proxy({},{get:(_,id)=>document.getElementById(id) });
+		const elements = new Proxy({}, { get: (_, id) => typeof id === 'string' ? document.getElementById(id) : undefined });
 
 		class HilalMap {
 			constructor() {

@@ -24,7 +24,8 @@ this computes three month-start JDs:
 
 and scores Mecca 0° and GIC against the Adak+Viwa baseline: exact month-start
 match rate and whole-day offset distribution, overall and for the ritual
-months (9, 10, 12).
+months (the conjunction-walk indices where i%12 in (7, 8, 10): Ramadan,
+Syawal, Zulhijjah).
 """
 from __future__ import annotations
 
@@ -68,7 +69,9 @@ def process_month(args):
     baseline = B.baseline_start_jd(cu + F.AE)
     test_lats, _ = F.build_test_lats(cu)
     gic = F.gic_start_jd(cu + F.AE, test_lats, test_lats.size, make_americas(test_lats))
-    ritual = int(((i % 12) + 1) in (9, 10, 12))
+    # Seed alignment: idx 0 = Safar 0 H, idx 11 = 1 Muharram 1 H => the
+    # ritual months Ramadan/Syawal/Zulhijjah map to i%12 in (7, 8, 10).
+    ritual = int((i % 12) in (7, 8, 10))
     return baseline, gic, ritual
 
 

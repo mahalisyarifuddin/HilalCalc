@@ -93,8 +93,9 @@ def main() -> None:
         # The GT row that follows this conjunction is the month start it predicts.
         delta = int(math.floor(gic + 0.5)) - gt_jd[i + 1]
         total[delta] += 1
-        month = (i % 12) + 1
-        if month in (9, 10, 12):
+        # Seed alignment: idx 0 = Safar 0 H, idx 11 = 1 Muharram 1 H => the
+        # ritual months Ramadan/Syawal/Zulhijjah map to i%12 in (7, 8, 10).
+        if (i % 12) in (7, 8, 10):
             ritual[delta] += 1
         if (k + 1) % 20000 == 0:
             print(

@@ -194,8 +194,9 @@ def process_month(args):
     jd_a = get_start_jd_mabbims(conj_ut)
     jd_g = get_start_jd_gic(conj_ut)
     sim = (abs(jd_a - jd_g) < 0.1)
-    h_month = (i % 12) + 1
-    return sim, h_month in [9, 10, 12]
+    # Seed alignment: idx 0 = Safar 0 H, idx 11 = 1 Muharram 1 H, so the
+    # ritual months Ramadan/Syawal/Zulhijjah (9/10/12) fall on i%12 in (7, 8, 10).
+    return sim, (i % 12) in (7, 8, 10)
 
 def analyze(total_years=20000):
     start_time = time.time()

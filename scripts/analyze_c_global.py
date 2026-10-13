@@ -27,7 +27,10 @@ def main():
     with open(args.global_csv, newline="") as f:
         rows = list(csv.DictReader(f))
     rows.sort(key=lambda r: int(r["Index"]))
-    ritual = [r for r in rows if int(r["Index"]) % 12 in (8, 9, 11)]
+    # Seed alignment (verified: idx 11 = 1 Muharram 1 H, idx 17347 = 1 Ramadan
+    # 1445 H): Muharram == idx%12==11, so ritual months 9/10/12 map to
+    # idx%12 in (7, 8, 10) -- not (8, 9, 11).
+    ritual = [r for r in rows if int(r["Index"]) % 12 in (7, 8, 10)]
     show("GIC − MABBIMS, semua", distribution(rows, "GIC", "MABBIMS"))
     show("GIC − MABBIMS, ritual", distribution(ritual, "GIC", "MABBIMS"))
     if args.ground_truth:

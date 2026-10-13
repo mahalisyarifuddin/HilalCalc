@@ -67,7 +67,8 @@ The detailed report is [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md
 | Natural-number leap interval | **<0.3%** exact; severe drift |
 | Best cycle knee point | **30 years** |
 | Threshold check | Mecca 0°/0° reproduces its ground truth at 100%; San Francisco best is 2°/6° (topocentric) at 90.6709% |
-| Exact MABBIMS–GIC simultaneity | **56.0242%** overall; 55.9933% ritual months |
+| Exact MABBIMS–GIC simultaneity | **56.0242%** overall; 56.1567% ritual months |
+| Yearly MABIMS–KHGT simultaneity (10,000 years) | Ramadan–Syawal **21.49%**; Ramadan–Syawal–Zulhijjah **15.05%** per year — see [`SEREMPAK_TAHUNAN_10000.md`](SEREMPAK_TAHUNAN_10000.md) |
 
 The exact C global run found no GIC offset other than 0 or one day early relative to MABBIMS (56.0242% simultaneous, 43.9758% GIC 1 day early). Against the Mecca 0° physical series, MABBIMS agreed with Mecca in **45.0408%** of all months and was 1 day later in **54.9592%** (Mecca starts 1 day earlier than the Malay archipelago). GIC agreed with Mecca in **84.7750%** of all months (2.1208% GIC 1 day early, 13.1042% GIC 1 day later). These are direct C results for the documented 1–10,000 AH window.
 

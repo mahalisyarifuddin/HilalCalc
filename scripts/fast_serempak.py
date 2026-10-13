@@ -57,7 +57,9 @@ def process_month(args):
     i, cu = args
     fa, fg = F.month_starts(cu, land_mask)
     sim = int(abs(fa - fg) < 0.1)
-    ritual = int(((i % 12) + 1) in (9, 10, 12))
+    # Seed alignment: idx 0 = Safar 0 H, idx 11 = 1 Muharram 1 H => the
+    # ritual months Ramadan/Syawal/Zulhijjah map to i%12 in (7, 8, 10).
+    ritual = int((i % 12) in (7, 8, 10))
     return fa, fg, sim, ritual
 
 

@@ -29,3 +29,7 @@
 **Mode:** Razor
 **Learning:** Replacing a statically declared object of cached DOM elements with a `Proxy` object (e.g., `new Proxy({}, { get: (_, id) => document.getElementById(id) })`) degrades performance by bypassing the cache and querying the DOM on every property access. It also introduces critical bugs if the proxy is accessed using a `Symbol` key (e.g., by internal JS engine routines), as `document.getElementById` will attempt to coerce the `Symbol` to a string, throwing a `TypeError`.
 **Action:** Always prefer statically caching DOM element lookups using a concise helper function (e.g., `const $ = id => document.getElementById(id); const elements = { lang: $('lang') };`) rather than relying on meta-programming tricks like `Proxy` which violate performance and safety constraints.
+## 2025-02-12 - DOM Element Caching Safety
+**Mode:** Razor
+**Learning:** Avoid statically defining massive DOM element mapping objects (e.g., `const elements = { btn: $('btn') }`) at script initialization, as early `document.getElementById` evaluation fails for conditionally rendered or dynamically injected elements. Also avoid `new Proxy` for DOM caching due to performance and `Symbol` coercion bugs.
+**Action:** Always prefer retrieving elements dynamically when accessed using a concise helper function (e.g., `const $ = id => document.getElementById(id);`). When modifying elements conditionally, store the result in a local variable before null-checking to eliminate redundant DOM queries (e.g., `const el = $('id'); if (el) el.placeholder = ...;`).

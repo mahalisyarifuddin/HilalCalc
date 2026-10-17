@@ -1649,7 +1649,7 @@ self.onmessage = e => {
 	}
 };`;
 
-		const elements = new Proxy({}, { get: (_, id) => typeof id === 'string' ? document.getElementById(id) : undefined });
+		const $ = id => document.getElementById(id);
 
 		class HilalMap {
 			constructor() {
@@ -1678,21 +1678,21 @@ self.onmessage = e => {
 			}
 
 			setup() {
-				elements.language.value = this.language;
-				elements.theme.value = this.themeName;
+				$('language').value = this.language;
+				$('theme').value = this.themeName;
 				this.lang(this.language);
 				this.theme(this.themeName);
 
-				elements.language.onchange = event=>this.lang(event.target.value);
-				elements.theme.onchange = event=>this.theme(event.target.value);
-				elements.renderMap.onclick = ()=>this.handleRenderClick();
-				elements.mapCriteria.onchange = ()=>this.toggleCustom();
-				elements.mapRegion.onchange = ()=>this.handleRegionChange();
-				elements.tabMap.onclick = ()=>this.switchTab("map");
-				elements.tabCalc.onclick = ()=>this.switchTab("calc");
-				elements.calcCriteria.onchange = ()=>this.toggleCustomCalc();
-				elements.calculateBtn.onclick = ()=>this.calculateDetails();
-				elements.getLocation.onclick = ()=>this.getCurrentLocation();
+				$('language').onchange = event=>this.lang(event.target.value);
+				$('theme').onchange = event=>this.theme(event.target.value);
+				$('renderMap').onclick = ()=>this.handleRenderClick();
+				$('mapCriteria').onchange = ()=>this.toggleCustom();
+				$('mapRegion').onchange = ()=>this.handleRegionChange();
+				$('tabMap').onclick = ()=>this.switchTab("map");
+				$('tabCalc').onclick = ()=>this.switchTab("calc");
+				$('calcCriteria').onchange = ()=>this.toggleCustomCalc();
+				$('calculateBtn').onclick = ()=>this.calculateDetails();
+				$('getLocation').onclick = ()=>this.getCurrentLocation();
 
 				// Zoom and pan setup
 				this.scale = 1;
@@ -1702,46 +1702,46 @@ self.onmessage = e => {
 				this.startX = 0;
 				this.startY = 0;
 
-				elements['zoom-in'].onclick = ()=>this.zoom(1.2);
-				elements['zoom-out'].onclick = ()=>this.zoom(0.8);
-				elements['zoom-reset'].onclick = ()=>this.resetZoom();
+				$('zoom-in').onclick = ()=>this.zoom(1.2);
+				$('zoom-out').onclick = ()=>this.zoom(0.8);
+				$('zoom-reset').onclick = ()=>this.resetZoom();
 
-				elements['map-container'].addEventListener('wheel',(e)=>{
+				$('map-container').addEventListener('wheel',(e)=>{
 					e.preventDefault();
 					const delta = e.deltaY > 0 ? 0.9 : 1.1;
 					this.zoom(delta);
 				});
 
-				elements['map-container'].addEventListener('mousedown',(e)=>{
+				$('map-container').addEventListener('mousedown',(e)=>{
 					this.isDragging = true;
 					this.startX = e.clientX - this.translateX;
 					this.startY = e.clientY - this.translateY;
 				});
 
-				elements['map-container'].addEventListener('mousemove',e=>this.isDragging && (
+				$('map-container').addEventListener('mousemove',e=>this.isDragging && (
 					this.translateX = e.clientX - this.startX,
 					this.translateY = e.clientY - this.startY,
 					this.limitPan(),
 					this.updateTransform()
 				));
 
-				elements['map-container'].addEventListener('mouseup',()=>{
+				$('map-container').addEventListener('mouseup',()=>{
 					this.isDragging = false;
 				});
 
-				elements['map-container'].addEventListener('mouseleave',()=>{
+				$('map-container').addEventListener('mouseleave',()=>{
 					this.isDragging = false;
 				});
 
 				const today = new Date();
 				// Use local YYYY-MM-DD instead of valueAsDate to avoid UTC timezone off-by-one errors
 				const formattedDate = `${String(today.getFullYear()).padStart(4, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-				elements.mapDate.value = formattedDate;
-				elements.calcDate.value = formattedDate;
+				$('mapDate').value = formattedDate;
+				$('calcDate').value = formattedDate;
 
 				// Setup canvas overlay
-				const canvas = elements['map-overlay'];
-				const img = elements['map-image'];
+				const canvas = $('map-overlay');
+				const img = $('map-image');
 
 				img.onload = ()=>{
 					canvas.width = img.naturalWidth;
@@ -1758,8 +1758,8 @@ self.onmessage = e => {
 			}
 
 			limitPan() {
-				const container = elements['map-container'];
-				const wrapper = elements['map-wrapper'];
+				const container = $('map-container');
+				const wrapper = $('map-wrapper');
 				const containerWidth = container.offsetWidth;
 				const containerHeight = container.offsetHeight;
 				const scaledWidth = containerWidth * this.scale;
@@ -1790,7 +1790,7 @@ self.onmessage = e => {
 			}
 
 			updateTransform() {
-				elements['map-wrapper'].style.transform =
+				$('map-wrapper').style.transform =
 					`translate(-50%, -50%) translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
 			}
 
@@ -1804,19 +1804,19 @@ self.onmessage = e => {
 			lang(language) {
 				this.language = AppSettings.applyLang(language);
 				this.saveState();
-				Object.keys(text.en).forEach(key=>{ if (elements[key]) elements[key].textContent = this.string(key); });
+				Object.keys(text.en).forEach(key=>{ const el = $(key); if (el) el.textContent = this.string(key); });
 				['In', 'Out', 'Reset'].forEach(k => {
 					const s = this.string("zoom" + k);
-					const el = elements["zoom-" + k.toLowerCase()];
+					const el = $('zoom-' + k.toLowerCase());
 					el.title = s;
 					el.setAttribute("aria-label", s);
 				});
-				if (elements.calcUtcOffset) elements.calcUtcOffset.placeholder = this.string("utcPlaceholder");
-				if (elements.calcLat) elements.calcLat.placeholder = this.string("placeholderLat");
-				if (elements.calcLon) elements.calcLon.placeholder = this.string("placeholderLon");
+				const calcUtcOffset = $('calcUtcOffset'); if (calcUtcOffset) calcUtcOffset.placeholder = this.string("utcPlaceholder");
+				const calcLat = $('calcLat'); if (calcLat) calcLat.placeholder = this.string("placeholderLat");
+				const calcLon = $('calcLon'); if (calcLon) calcLon.placeholder = this.string("placeholderLon");
 
 				const translateOptions = (selectId,prefix)=>{
-					[...elements[selectId].options].forEach(option=>{
+					[...$(selectId).options].forEach(option=>{
 						const val = option.value;
 						const key = prefix + val.charAt(0).toUpperCase() + val.slice(1);
 						const translated = this.string(key);
@@ -1829,35 +1829,35 @@ self.onmessage = e => {
 			}
 
 			toggleCustom() {
-				const isCustom = elements.mapCriteria.value === "custom";
-				elements.customCriteriaInputs.classList.toggle("hidden", !isCustom);
+				const isCustom = $('mapCriteria').value === "custom";
+				$('customCriteriaInputs').classList.toggle("hidden", !isCustom);
 			}
 
 			toggleCustomCalc() {
-				const isCustom = elements.calcCriteria.value === "custom";
-				elements.calcCustomCriteriaInputs.classList.toggle("hidden", !isCustom);
+				const isCustom = $('calcCriteria').value === "custom";
+				$('calcCustomCriteriaInputs').classList.toggle("hidden", !isCustom);
 			}
 
 			switchTab(tab) {
 				if (tab === "map") {
-					elements.tabMap.classList.add("active");
-					elements.tabMap.setAttribute("aria-selected", "true");
-					elements.tabCalc.classList.remove("active");
-					elements.tabCalc.setAttribute("aria-selected", "false");
-					elements.mapView.classList.remove("hidden");
-					elements.calcView.classList.add("hidden");
+					$('tabMap').classList.add("active");
+					$('tabMap').setAttribute("aria-selected", "true");
+					$('tabCalc').classList.remove("active");
+					$('tabCalc').setAttribute("aria-selected", "false");
+					$('mapView').classList.remove("hidden");
+					$('calcView').classList.add("hidden");
 				} else {
-					elements.tabMap.classList.remove("active");
-					elements.tabMap.setAttribute("aria-selected", "false");
-					elements.tabCalc.classList.add("active");
-					elements.tabCalc.setAttribute("aria-selected", "true");
-					elements.mapView.classList.add("hidden");
-					elements.calcView.classList.remove("hidden");
+					$('tabMap').classList.remove("active");
+					$('tabMap').setAttribute("aria-selected", "false");
+					$('tabCalc').classList.add("active");
+					$('tabCalc').setAttribute("aria-selected", "true");
+					$('mapView').classList.add("hidden");
+					$('calcView').classList.remove("hidden");
 				}
 			}
 
 			getCurrentLocation() {
-				const button = elements.getLocation;
+				const button = $('getLocation');
 				const originalText = button.innerHTML;
 
 				button.disabled = true;
@@ -1866,9 +1866,9 @@ self.onmessage = e => {
 				if (navigator.geolocation) {
 					navigator.geolocation.getCurrentPosition(
 						p => {
-							elements.calcLat.value = p.coords.latitude.toFixed(4);
-							elements.calcLon.value = p.coords.longitude.toFixed(4);
-							elements.calcUtcOffset.value = Math.round(p.coords.longitude / 15);
+							$('calcLat').value = p.coords.latitude.toFixed(4);
+							$('calcLon').value = p.coords.longitude.toFixed(4);
+							$('calcUtcOffset').value = Math.round(p.coords.longitude / 15);
 							button.disabled = false;
 							button.innerHTML = originalText;
 						},
@@ -1886,10 +1886,10 @@ self.onmessage = e => {
 			}
 
 			calculateDetails() {
-				const latitude = parseFloat(elements.calcLat.value);
-				const longitude = parseFloat(elements.calcLon.value);
-				const dateString = elements.calcDate.value;
-				const criteria = elements.calcCriteria.value;
+				const latitude = parseFloat($('calcLat').value);
+				const longitude = parseFloat($('calcLon').value);
+				const dateString = $('calcDate').value;
+				const criteria = $('calcCriteria').value;
 				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert(this.string("errorFill"));
 				else this.calculateDetailsInner(latitude, longitude, dateString, criteria);
 			}
@@ -1902,7 +1902,7 @@ self.onmessage = e => {
 				const startUT = date.ut - (longitude / 15 / 24);
 				const sunset = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, startUT, 1);
 				if (!sunset) {
-					elements.results.innerHTML = `<div class="result-card">${this.string("errorSun")}</div>`;
+					$('results').innerHTML = `<div class="result-card">${this.string("errorSun")}</div>`;
 					return;
 				}
 				this.calculateDetailsWithSunset(sunset, observer, date, criteria);
@@ -1930,7 +1930,7 @@ self.onmessage = e => {
 				const moonPhase = Astronomy.Illumination(Astronomy.Body.Moon,sunsetUT);
 				const moonset = Astronomy.SearchRiseSet(Astronomy.Body.Moon,observer,-1,sunsetUT,1);
 
-				const offset = parseFloat(elements.calcUtcOffset.value) || 0;
+				const offset = parseFloat($('calcUtcOffset').value) || 0;
 
 				const formatTime = ut => {
 					if (!ut) return "N/A";
@@ -1951,8 +1951,8 @@ self.onmessage = e => {
 				} else if (criteria === "alt0") {
 					minAlt = 0; minElong = -100; isGICInner = false;
 				} else {
-					minAlt = parseFloat(elements.calcMinAlt.value) || 0;
-					minElong = parseFloat(elements.calcMinElong.value) || 0;
+					minAlt = parseFloat($('calcMinAlt').value) || 0;
+					minElong = parseFloat($('calcMinElong').value) || 0;
 					isGICInner = false;
 				}
 
@@ -1976,13 +1976,13 @@ self.onmessage = e => {
 					{label:"illuminatedFraction",value:(moonPhase.phase_fraction * 100).toFixed(2) + "%"}
 				];
 
-				elements.results.innerHTML = displayData
+				$('results').innerHTML = displayData
 					.map(item => `<div class="result-card"><div class="result-label">${this.string(item.label) || item.label}</div><div class="result-value" style="${item.color ? `color:${item.color}` : ""}">${item.value}</div></div>`)
 					.join("");
 			}
 
 			handleRegionChange() {
-				const region = elements.mapRegion.value;
+				const region = $('mapRegion').value;
 
 				// Map bounds are 90°N to 90°S, -180° to 180°
 				const mapBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
@@ -1998,7 +1998,7 @@ self.onmessage = e => {
 			}
 
 			zoomToBounds(targetBounds, mapBounds) {
-				const container = elements['map-container'];
+				const container = $('map-container');
 				const containerWidth = container.offsetWidth;
 				const containerHeight = container.offsetHeight;
 
@@ -2040,19 +2040,19 @@ self.onmessage = e => {
 					this.worker = null;
 				}
 				this.isRendering = false;
-				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = this.string("cancelled");
+				$('renderMap').disabled = false;
+				$('renderMap').textContent = this.string("renderMap");
+				$('mapStatus').textContent = this.string("cancelled");
 			}
 
 			startRender() {
 				this.isRendering = true;
-				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.string("cancel");
-				elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
+				$('renderMap').disabled = false;
+				$('renderMap').textContent = this.string("cancel");
+				$('mapStatus').innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
 
 				// Define bounds based on region (image is 90°N to 90°S)
-				const region = elements.mapRegion.value;
+				const region = $('mapRegion').value;
 				let bounds;
 				if (region === "indonesia") {
 					bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
@@ -2060,8 +2060,8 @@ self.onmessage = e => {
 					bounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 				}
 
-				const criteria = elements.mapCriteria.value;
-				const dateString = elements.mapDate.value;
+				const criteria = $('mapCriteria').value;
+				const dateString = $('mapDate').value;
 				const dateObj = new Date(dateString ? dateString + "T12:00:00Z" : new Date());
 				const widthDeg = bounds.maxLon - bounds.minLon;
 				const heightDeg = bounds.maxLat - bounds.minLat;
@@ -2073,8 +2073,8 @@ self.onmessage = e => {
 					heightDeg: heightDeg,
 					criteria: criteria,
 					dateTimestamp: dateObj.getTime(),
-					minAlt: parseFloat(elements.minAlt.value) || 0,
-					minElong: parseFloat(elements.minElong.value) || 0
+					minAlt: parseFloat($('minAlt').value) || 0,
+					minElong: parseFloat($('minElong').value) || 0
 				};
 
 				if (!this.worker) {
@@ -2085,12 +2085,12 @@ self.onmessage = e => {
 				this.worker.onmessage = (e)=>{
 					const data = e.data;
 					if (data.progress) {
-						elements.mapStatus.innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;
+						$('mapStatus').innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;
 					} else if (data.buffer) {
 						this.handleComplete(data.width, data.height, data.buffer);
 					} else if (data.error) {
 						console.error(data.error);
-						elements.mapStatus.textContent = "Error: " + data.error;
+						$('mapStatus').textContent = "Error: " + data.error;
 						this.cancelRender();
 					}
 				};
@@ -2102,9 +2102,9 @@ self.onmessage = e => {
 				this.currentImageData = imageData;
 				this.redrawOverlay();
 				this.isRendering = false;
-				elements.renderMap.disabled = false;
-				elements.renderMap.textContent = this.string("renderMap");
-				elements.mapStatus.textContent = this.string("done");
+				$('renderMap').disabled = false;
+				$('renderMap').textContent = this.string("renderMap");
+				$('mapStatus').textContent = this.string("done");
 			}
 
 			latToPlateCarreeY(lat) {
@@ -2113,8 +2113,8 @@ self.onmessage = e => {
 
 			redrawOverlay() {
 				if (!this.currentImageData || !this.lastBounds) return;
-				const canvas = elements['map-overlay'];
-				const img = elements['map-image'];
+				const canvas = $('map-overlay');
+				const img = $('map-image');
 
 				// Set canvas to match image dimensions
 				canvas.width = img.naturalWidth || img.width;

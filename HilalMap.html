@@ -1004,7 +1004,7 @@
 			pointer-events: none;
 			image-rendering: auto;
 		}
-		/* Fase 2 — opacity + land toggle + cache UI */
+		/* Fase — opacity + land toggle */
 		.opacity-row {
 			display: flex;
 			align-items: center;
@@ -1155,13 +1155,11 @@
 						</div>
 						<div class="field">
 							<label class="check" style="margin-top:.5rem"><input type="checkbox" id="landOnlyToggle"><span id="landOnlyLabel">Hanya daratan</span></label>
-							<div class="hint" id="landOnlyHint">Tampilkan hanya di atas daratan (lautan disembunyikan)</div>
 						</div>
 					</div>
 					<div class="row" style="--cols:2;align-items:end">
 						<div class="field">
 							<label class="check"><input type="checkbox" id="lineModeToggle" checked><span id="lineModeLabel">Mode garis</span></label>
-							<div class="hint" id="lineModeHint">Mode kontur — batas visibilitas sebagai garis</div>
 						</div>
 						<div class="field">
 							<label for="lineWidthSlider" id="lineWidthLabel">Tebal garis</label>
@@ -1175,9 +1173,7 @@
 						<span class="hint" id="exportLabel" style="margin:0;font-weight:600">Ekspor:</span>
 						<button id="exportPngBtn" class="secondary" style="min-height:32px;padding:0 var(--sp-3);font-size:.8125rem">PNG</button>
 						<button id="exportCsvBtn" class="secondary" style="min-height:32px;padding:0 var(--sp-3);font-size:.8125rem">CSV</button>
-						<span id="cacheCount" class="cache-badge" style="margin-left:auto">0 cached</span>
 					</div>
-					<div id="cacheStatus" class="hint hidden" style="margin-top:var(--sp-1)"><span id="cacheStatusText"></span></div>
 					<div id="landStatus" class="hint hidden"></div>
 				</div>
 			</section>
@@ -1577,9 +1573,6 @@
 				exportLabel: "Export:",
 				exportPngBtn: "PNG",
 				exportCsvBtn: "CSV",
-				cacheHit: "Loaded from cache",
-				cacheMiss: "Computed freshly",
-				cacheCount: "cached",
 				landReady: "Land mask ready",
 				landLoading: "Loading land mask…",
 				tooltipVisible: "Visible",
@@ -1657,9 +1650,6 @@
 				exportLabel: "Ekspor:",
 				exportPngBtn: "PNG",
 				exportCsvBtn: "CSV",
-				cacheHit: "Dimuat dari cache",
-				cacheMiss: "Hitung baru",
-				cacheCount: "tersimpan",
 				landReady: "Mask daratan siap",
 				landLoading: "Memuat mask daratan…",
 				tooltipVisible: "Terlihat",
@@ -1840,13 +1830,11 @@ self.onmessage = e => {
 
 		class HilalMap {
 			constructor() {
-				this.cacheVersion = 9; // bump knee 100 (was 245)
 				this.language = AppSettings.detectLang(Object.keys(text));
 				this.themeName = 'auto';
 				this.worker = null;
 				this.isRendering = false;
-				// Fase 2: opacity + land mask + render cache
-				this.renderCache = new Map(); // key -> {width,height,buffer:ArrayBuffer}
+				// Fase: opacity + land mask (tanpa cache)
 				this.opacity = 40;
 				this.landOnly = false;
 				// Garis kontur ala KHGT
@@ -1948,23 +1936,6 @@ self.onmessage = e => {
 				else res = [[0,0],[-bufferDeg,-bufferDeg],[-bufferDeg,bufferDeg],[bufferDeg,-bufferDeg],[bufferDeg,bufferDeg]].some(([dla,dlo])=>check(lat+dla, lon+dlo));
 				this.landCache[key]=res; return res;
 			}
-			getCacheKey(region, criteria, dateStr, minAlt, minElong, landOnly) {
-				return `${region}|${criteria}|${dateStr}|${minAlt}|${minElong}|${landOnly?'land':''}`;
-			}
-			updateCacheUI(hit) {
-				const cs = $('cacheStatus'), txt=$('cacheStatusText'), cnt=$('cacheCount');
-				if (!cs) return;
-				cs.classList.remove('hidden');
-				if (hit) {
-					txt.textContent = this.string('cacheHit') + ' — ' + this.lastBounds.minLat + '°..' + this.lastBounds.maxLat + '°';
-					cnt.classList.add('hit');
-				} else {
-					txt.textContent = this.string('cacheMiss');
-					cnt.classList.remove('hit');
-				}
-				cnt.textContent = `${this.renderCache.size} ${this.string('cacheCount')}`;
-				cs.style.display='flex';
-			}
 			applyOpacity() {
 				const ov = $('map-overlay');
 				if (ov) ov.style.opacity = (this.opacity/100).toString();
@@ -1982,7 +1953,7 @@ self.onmessage = e => {
 				$('renderMap').onclick = ()=>this.handleRenderClick();
 				$('mapCriteria').onchange = ()=>this.toggleCustom();
 				$('mapRegion').onchange = ()=>this.handleRegionChange();
-				// Fase 2 wiring: opacity + landOnly + cache clear
+				// Wiring: opacity + landOnly
 				const op = $('opacitySlider');
 				if (op) {
 					op.value = this.opacity;
@@ -2168,7 +2139,7 @@ self.onmessage = e => {
 				this.saveState();
 				Object.keys(text.en).forEach(key=>{ const el = $(key); if (el) el.textContent = this.string(key); });
 				// Fase 2 + garis: translate new overlay controls
-				const extraKeys = ['opacityLabel','landOnlyLabel','landOnlyHint','lineModeLabel','lineModeHint','lineWidthLabel','exportLabel','exportPngBtn','exportCsvBtn'];
+				const extraKeys = ['opacityLabel','landOnlyLabel','lineModeLabel','lineWidthLabel','exportLabel','exportPngBtn','exportCsvBtn'];
 				extraKeys.forEach(k=>{ const el=$(k); if(el) el.textContent = this.string(k); });
 				['In', 'Out', 'Reset'].forEach(k => {
 					const s = this.string("zoom" + k);
@@ -2190,8 +2161,6 @@ self.onmessage = e => {
 				translateOptions('mapRegion', 'region');
 				translateOptions('mapCriteria', 'criteria');
 				translateOptions('calcCriteria', 'criteria');
-				// refresh cache ui language if visible
-				if (this.renderCache && this.renderCache.size>0) this.updateCacheUI(false);
 			}
 
 			toggleCustom() {
@@ -2412,27 +2381,15 @@ self.onmessage = e => {
 			}
 
 			startRender() {
-				// Fase 2: cache check before starting worker
 				const region = $('mapRegion').value;
 				const criteria = $('mapCriteria').value;
 				const dateString = $('mapDate').value;
 				const minAltVal = parseFloat($('minAlt').value) || 0;
 				const minElongVal = parseFloat($('minElong').value) || 0;
-				const cacheKey = this.getCacheKey(region, criteria, dateString, minAltVal, minElongVal, this.landOnly);
-				// setup bounds early for cache UI
 				let boundsEarly;
 				if (region === "indonesia") boundsEarly = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
 				else boundsEarly = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 				this.lastBounds = boundsEarly;
-				const cached = this.renderCache.get(cacheKey);
-				if (cached) {
-					// cache hit: restore without worker, clone buffer
-					this.isRendering = false;
-					const clonedBuf = cached.buffer.slice(0);
-					this.handleComplete(cached.width, cached.height, clonedBuf, true);
-					this.updateCacheUI(true);
-					return;
-				}
 				this.isRendering = true;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("cancel");
@@ -2456,9 +2413,6 @@ self.onmessage = e => {
 					landOnly: this.landOnly,
 					landGeojson: this.landGeojson
 				};
-				// store key for completion
-				this._pendingKey = cacheKey;
-				this._pendingParams = {widthDeg, heightDeg};
 
 				if (!this.worker) {
 					const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
@@ -2470,7 +2424,7 @@ self.onmessage = e => {
 					if (data.progress) {
 						$('mapStatus').innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;
 					} else if (data.buffer) {
-						this.handleComplete(data.width, data.height, data.buffer, false);
+						this.handleComplete(data.width, data.height, data.buffer);
 					} else if (data.error) {
 						console.error(data.error);
 						$('mapStatus').textContent = "Error: " + data.error;
@@ -2480,26 +2434,15 @@ self.onmessage = e => {
 				this.worker.postMessage(renderParams);
 			}
 
-			handleComplete(width, height, buffer, fromCache=false) {
-				// store raw unfiltered for land toggle
+			handleComplete(width, height, buffer) {
+				// store raw unfiltered for land toggle (tanpa cache)
 				const raw = new Uint8ClampedArray(buffer);
 				this.currentImageDataRaw = {width, height, buffer: raw.buffer.slice(0), raw: raw};
-				// Fase 2: save to cache if not from cache
-				if (!fromCache && this._pendingKey) {
-					this.renderCache.set(this._pendingKey, {width, height, buffer: raw.buffer.slice(0)});
-					// limit cache size to 12 entries (LRU via insertion order)
-					if (this.renderCache.size > 12) {
-						const firstKey = this.renderCache.keys().next().value;
-						this.renderCache.delete(firstKey);
-					}
-				}
-				this._pendingKey = null;
 				this.applyFiltersAndRedraw();
 				this.isRendering = false;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("renderMap");
 				$('mapStatus').textContent = this.string("done");
-				if (fromCache) this.updateCacheUI(true); else this.updateCacheUI(false);
 			}
 			applyFiltersAndRedraw() {
 				if (!this.currentImageDataRaw || !this.lastBounds) return;
@@ -2528,17 +2471,32 @@ self.onmessage = e => {
 				this.currentImageData = new ImageData(filtered, width, height);
 				this.redrawOverlay();
 			}
-			// === Ekspor PNG/CSV (rapikan panel: tanpa hapus-cache) ===
+			// === Ekspor PNG/CSV (tanpa cache, tanpa hint) ===
 			exportPNG(){
 				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
-				const canvas=$('map-overlay'), img=$('map-image');
-				const w=canvas.width||1200, h=canvas.height||600;
-				const out=document.createElement('canvas'); out.width=w; out.height=h;
-				const ctx=out.getContext('2d');
-				try{ if(img.naturalWidth) ctx.drawImage(img,0,0,w,h); }catch(e){}
-				ctx.globalAlpha=1; ctx.drawImage(canvas,0,0);
+				const overlay=$('map-overlay'), img=$('map-image');
+				const w=overlay.width||1200, h=overlay.height||600;
 				const region=$('mapRegion').value, criteria=$('mapCriteria').value, date=$('mapDate').value||'unknown';
-				const a=document.createElement('a'); a.download=`hilalmap-${region}-${criteria}-${date}.png`; a.href=out.toDataURL('image/png'); a.click();
+				const fileName=`hilalmap-${region}-${criteria}-${date}.png`;
+				const tryDownload=(canvas)=>{
+					try{ const url=canvas.toDataURL('image/png'); const a=document.createElement('a'); a.download=fileName; a.href=url; document.body.appendChild(a); a.click(); a.remove(); return true; }catch(e){ return false; }
+				};
+				// coba komposit base + overlay
+				const out=document.createElement('canvas'); out.width=w; out.height=h; const ctx=out.getContext('2d');
+				let okBase=false;
+				try{ if(img.naturalWidth){ ctx.drawImage(img,0,0,w,h); okBase=true; } }catch(e){ okBase=false; }
+				// overlay di atas (hormati opacity)
+				try{ ctx.globalAlpha=1; // overlay sudah include alpha internal, pakai 1 agar warna asli
+					ctx.drawImage(overlay,0,0); }catch(e){}
+				if(tryDownload(out)) return;
+				// fallback jika tainted (CORS SVG): ekspor hanya overlay
+				const out2=document.createElement('canvas'); out2.width=w; out2.height=h; const c2=out2.getContext('2d');
+				// background putih agar garis terlihat
+				c2.fillStyle='#ffffff'; c2.fillRect(0,0,w,h);
+				c2.drawImage(overlay,0,0);
+				if(tryDownload(out2)) return;
+				// last fallback: langsung overlay canvas
+				tryDownload(overlay);
 			}
 			exportCSV(){
 				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }

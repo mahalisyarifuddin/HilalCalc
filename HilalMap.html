@@ -1002,6 +1002,72 @@
 			width: 100%;
 			height: 100%;
 			pointer-events: none;
+			image-rendering: auto;
+		}
+		/* Fase — opacity + land toggle */
+		.opacity-row {
+			display: flex;
+			align-items: center;
+			gap: var(--sp-3);
+		}
+		.cache-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--sp-1);
+			font-size: .75rem;
+			font-weight: 600;
+			padding: 2px 8px;
+			border-radius: var(--radius-pill);
+			border: 1px solid var(--border);
+			background: var(--surface-variant);
+			color: var(--text-muted);
+		}
+		.cache-badge.hit { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+		/* Rapikan panel kontrol */
+		#layerControls { background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-3) var(--sp-4); }
+		#layerControls .row { gap: var(--sp-3); }
+		.export-row button { flex: 0 0 auto; }
+		/* Garis kontur — tooltip & marker */
+		#mapTooltip {
+			position: absolute;
+			pointer-events: none;
+			background: var(--surface);
+			color: var(--text);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: var(--sp-2) var(--sp-3);
+			font-size: .8125rem;
+			line-height: 1.4;
+			box-shadow: var(--shadow-2);
+			z-index: 6;
+			max-width: 220px;
+			display: none;
+			white-space: nowrap;
+		}
+		#mapTooltip.show { display: block; }
+		.map-marker {
+			position: absolute;
+			width: 18px; height: 18px;
+			transform: translate(-50%,-50%);
+			pointer-events: none;
+			z-index: 4;
+			filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+		}
+		.map-marker svg { width:100%; height:100%; display:block; }
+		.contour-label {
+			position: absolute;
+			background: var(--surface);
+			color: var(--text);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-pill);
+			padding: 2px 8px;
+			font-size: .6875rem;
+			font-weight: 600;
+			pointer-events: none;
+			z-index: 4;
+			white-space: nowrap;
+			box-shadow: var(--shadow-1);
+			transform: translate(-50%,-50%);
 		}
 		.spinner {
 			display: inline-block;
@@ -1078,10 +1144,38 @@
 				</div>
 				<button id="renderMap" class="primary" style="width:100%;margin-top:var(--sp-4)">Render Map</button>
 				<div id="mapStatus" class="info" style="margin-top:var(--sp-2)"></div>
-			</section>
-			<section class="card" id="rerunBenchmark">
-				<div class="card-title" id="benchmarkTitle"></div>
-				<p id="benchmarkContent" class="info"></p>
+				<div id="layerControls" class="stack" style="margin-top:var(--sp-4);gap:var(--sp-3)">
+					<div class="row" style="--cols:2;align-items:end">
+						<div class="field">
+							<label id="opacityLabel" for="opacitySlider">Opacity</label>
+							<div style="display:flex;align-items:center;gap:var(--sp-2)">
+								<input type="range" id="opacitySlider" min="0" max="100" value="40" style="flex:1">
+								<span id="opacityValue" class="mono nums" style="min-width:3.5ch;text-align:right;font-size:.875rem">40%</span>
+							</div>
+						</div>
+						<div class="field">
+							<label class="check" style="margin-top:.5rem"><input type="checkbox" id="landOnlyToggle"><span id="landOnlyLabel">Hanya daratan</span></label>
+						</div>
+					</div>
+					<div class="row" style="--cols:2;align-items:end">
+						<div class="field">
+							<label class="check"><input type="checkbox" id="lineModeToggle" checked><span id="lineModeLabel">Mode garis</span></label>
+						</div>
+						<div class="field">
+							<label for="lineWidthSlider" id="lineWidthLabel">Tebal garis</label>
+							<div style="display:flex;align-items:center;gap:var(--sp-2)">
+								<input type="range" id="lineWidthSlider" min="1" max="10" value="2" step="0.5" style="flex:1">
+								<span id="lineWidthValue" class="mono nums" style="min-width:3.5ch;text-align:right;font-size:.875rem">2px</span>
+							</div>
+						</div>
+					</div>
+					<div class="export-row" style="display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:center;border-top:1px solid var(--border);padding-top:var(--sp-3);margin-top:var(--sp-1)">
+						<span class="hint" id="exportLabel" style="margin:0;font-weight:600">Ekspor:</span>
+						<button id="exportPngBtn" class="secondary" style="min-height:32px;padding:0 var(--sp-3);font-size:.8125rem">PNG</button>
+						<button id="exportCsvBtn" class="secondary" style="min-height:32px;padding:0 var(--sp-3);font-size:.8125rem">CSV</button>
+					</div>
+					<div id="landStatus" class="hint hidden"></div>
+				</div>
 			</section>
 			<section class="card">
 			<div id="map-container">
@@ -1091,8 +1185,12 @@
 						<button id="zoom-reset" title="Reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg></button>
 				</div>
 				<div id="map-wrapper">
-					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/b/b0/World_location_map_(equirectangular_180).svg" alt="World Location Map" draggable="false">
+					<img id="map-image" crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/b/b0/World_location_map_(equirectangular_180).svg" alt="World Location Map" draggable="false">
 					<canvas id="map-overlay"></canvas>
+					<!-- Garis kontur: tooltip + marker + label -->
+					<div id="mapTooltip" role="tooltip"></div>
+					<div id="mapMarker" class="map-marker hidden" aria-hidden="true"><svg viewBox="0 0 24 24" fill="var(--primary)" stroke="#fff" stroke-width="1.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+					<div id="contourLabel" class="contour-label hidden"></div>
 				</div>
 			</div>
 			</section>
@@ -1464,7 +1562,23 @@
 				langLabel: "Language",
 				themeLabel: "Theme",
 				benchmarkTitle: "Latest C rerun benchmark",
-				benchmarkContent: "Direct Astronomy Engine C v2.1.19, 1–10,000 AH: the Mecca 0°/0° baseline reproduces its ground truth at 100%. San Francisco's best threshold is altitude 2° and topocentric elongation 6°, with 90.6709% accuracy. Map criteria remain MABBIMS 3°/6.4° and GIC 5°/8°."
+				benchmarkContent: "Direct Astronomy Engine C v2.1.19, 1–10,000 AH: the Mecca 0°/0° baseline reproduces its ground truth at 100%. San Francisco's best threshold is altitude 2° and topocentric elongation 6°, with 90.6709% accuracy. Map criteria remain MABBIMS 3°/6.4° and GIC 5°/8°.",
+				// Fase 2: overlay controls
+				opacityLabel: "Opacity",
+				landOnlyLabel: "Land only",
+				landOnlyHint: "Show only over land (hide ocean)",
+				lineModeLabel: "Contour line (KHGT style)",
+				lineModeHint: "Contour mode — visibility boundary as line",
+				lineWidthLabel: "Line width",
+				exportLabel: "Export:",
+				exportPngBtn: "PNG",
+				exportCsvBtn: "CSV",
+				landReady: "Land mask ready",
+				landLoading: "Loading land mask…",
+				tooltipVisible: "Visible",
+				tooltipNotVisible: "Not visible",
+				firstVisible: "First visible point",
+				landFallback: "Using approximate land mask"
 			},
 			id: {
 				prefTitle: 'Pengaturan',
@@ -1526,7 +1640,22 @@
 				langLabel: "Bahasa",
 				themeLabel: "Tema",
 				benchmarkTitle: "Tolok ukur pengulangan C terbaru",
-				benchmarkContent: "Astronomy Engine C v2.1.19 langsung, 1–10.000 H: baseline Mekkah 0°/0° mereproduksi ground truth 100%. Ambang terbaik San Francisco adalah tinggi 2° dan elongasi toposentrik 6°, dengan akurasi 90,6709%. Kriteria peta tetap MABBIMS 3°/6,4° dan GIC 5°/8°."
+				benchmarkContent: "Astronomy Engine C v2.1.19 langsung, 1–10.000 H: baseline Mekkah 0°/0° mereproduksi ground truth 100%. Ambang terbaik San Francisco adalah tinggi 2° dan elongasi toposentrik 6°, dengan akurasi 90,6709%. Kriteria peta tetap MABBIMS 3°/6,4° dan GIC 5°/8°.",
+				opacityLabel: "Opasitas",
+				landOnlyLabel: "Hanya daratan",
+				landOnlyHint: "Tampilkan hanya di atas daratan (lautan disembunyikan)",
+				lineModeLabel: "Mode garis",
+				lineModeHint: "Mode kontur — batas visibilitas sebagai garis",
+				lineWidthLabel: "Tebal garis",
+				exportLabel: "Ekspor:",
+				exportPngBtn: "PNG",
+				exportCsvBtn: "CSV",
+				landReady: "Mask daratan siap",
+				landLoading: "Memuat mask daratan…",
+				tooltipVisible: "Terlihat",
+				tooltipNotVisible: "Tidak terlihat",
+				firstVisible: "Titik pertama terlihat",
+				landFallback: "Menggunakan mask daratan perkiraan"
 			}
 		};
 
@@ -1536,11 +1665,54 @@ const calculateSunset = (lat, lon, baseDateUT) => {
 	const obs = new Astronomy.Observer(lat, lon, 0);
 	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, baseDateUT - (lon / 15 / 24), 1);
 };
+const sunsetCache = new Map();
+const calculateSunsetCached = (lat, lon, baseDateUT) => {
+	const k = lat.toFixed(1)+","+lon.toFixed(1)+","+baseDateUT.toFixed(4);
+	if (sunsetCache.has(k)) return sunsetCache.get(k);
+	const r = calculateSunset(lat, lon, baseDateUT);
+	sunsetCache.set(k, r);
+	return r;
+};
+// isLand in worker (mirrors main thread) — uses e.data.landGeojson if provided
+let _landGeojsonWD = null;
+let _landCacheWD = new Map();
+function isLandWD(lat, lon, bufferDeg=0){
+	if (!_landGeojsonWD) return true;
+	const key = lat.toFixed(2)+","+lon.toFixed(2)+","+bufferDeg;
+	if (_landCacheWD.has(key)) return _landCacheWD.get(key);
+	const pt=[lon,lat];
+	const inRing=(pt,ring)=>{
+		let inside=false;
+		for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+			const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+			if(((yi>pt[1])!==(yj>pt[1]))&&(pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi)) inside=!inside;
+		}
+		return inside;
+	};
+	const inPoly=(pt,rings)=>{
+		if(!inRing(pt,rings[0])) return false;
+		for(let i=1;i<rings.length;i++) if(inRing(pt,rings[i])) return false;
+		return true;
+	};
+	const check=(la,lo)=>{
+		const p=[lo,la];
+		for(const f of _landGeojsonWD.features){
+			if(f.geometry.type==='Polygon'){ if(inPoly(p,f.geometry.coordinates)) return true; }
+			else if(f.geometry.type==='MultiPolygon'){ for(const poly of f.geometry.coordinates) if(inPoly(p,poly)) return true; }
+		}
+		return false;
+	};
+	let res;
+	if(bufferDeg===0) res=check(lat,lon);
+	else res=[[0,0],[-bufferDeg,-bufferDeg],[-bufferDeg,bufferDeg],[bufferDeg,-bufferDeg],[bufferDeg,bufferDeg]].some(([dla,dlo])=>check(lat+dla,lon+dlo));
+	_landCacheWD.set(key,res); return res;
+}
 
 self.onmessage = e => {
 	try {
-		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong } = e.data;
-		const maxGridSize = 245;
+		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong, landOnly, landGeojson } = e.data;
+		_landGeojsonWD = landGeojson || null; _landCacheWD = new Map(); sunsetCache.clear();
+		const maxGridSize = 100; // knee 92→100 (4232→5000 piksel, 0.97s) full sweep 200-px, optimasi memoize
 		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
 		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
 		const height = Math.min(Math.ceil(heightDeg / cellSizeDeg), maxGridSize);
@@ -1585,19 +1757,24 @@ self.onmessage = e => {
 
 			for (let col = 0; col < width; col++) {
 				const lon = bounds.minLon + (col * cellSizeDeg);
+				// optimasi landOnly: skip ocean sebelum hitung sunset/moon (hemat ~70% World)
+				if (landOnly && _landGeojsonWD && !isLandWD(lat, lon, 0.2)) {
+					const sIdx=(row*width+col)*4; buffer[sIdx]=0; buffer[sIdx+1]=0; buffer[sIdx+2]=0; buffer[sIdx+3]=0;
+					continue;
+				}
 				let sunset = null;
 
 				if (col >= nextCol) {
 					prevCol = col;
-					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunset(lat, lon, date.ut);
+					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunsetCached(lat, lon, date.ut);
 					nextCol = Math.min(col + STEP, width - 1);
-					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunset(lat, bounds.minLon + (nextCol * cellSizeDeg), date.ut);
+					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunsetCached(lat, bounds.minLon + (nextCol * cellSizeDeg), date.ut);
 				}
 
 				if (prevSunset && nextSunset) {
 					sunset = { ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((col - prevCol) / (nextCol - prevCol || 1)) };
 				} else {
-					sunset = calculateSunset(lat, lon, date.ut);
+					sunset = calculateSunsetCached(lat, lon, date.ut);
 				}
 
 				let visible = false;
@@ -1653,11 +1830,21 @@ self.onmessage = e => {
 
 		class HilalMap {
 			constructor() {
-				this.cacheVersion = 5;
 				this.language = AppSettings.detectLang(Object.keys(text));
 				this.themeName = 'auto';
 				this.worker = null;
 				this.isRendering = false;
+				// Fase: opacity + land mask (tanpa cache)
+				this.opacity = 40;
+				this.landOnly = false;
+				// Garis kontur ala KHGT
+				this.lineMode = true; // default garis, bukan shading
+				this.lineWidth = 2;
+				this.contourSegments = []; // for tooltip & marker
+				this.markerPos = null;
+				this.landGeojson = null;
+				this.landCache = {};
+				this.currentImageDataRaw = null; // unfiltered raw buffer for toggling
 				this.loadState();
 				this.setup();
 			}
@@ -1667,14 +1854,92 @@ self.onmessage = e => {
 					const s = JSON.parse(localStorage.getItem('hmState') || '{}');
 					if (s.language) this.language = s.language;
 					if (s.theme) this.themeName = s.theme;
+					if (s.opacity != null) this.opacity = s.opacity;
+					if (s.landOnly != null) this.landOnly = s.landOnly;
+					if (s.lineMode != null) this.lineMode = s.lineMode;
+					if (s.lineWidth != null) this.lineWidth = s.lineWidth;
 				} catch (e) {}
 			}
 
 			saveState() {
 				localStorage.setItem('hmState', JSON.stringify({
 					language: this.language,
-					theme: this.themeName
+					theme: this.themeName,
+					opacity: this.opacity,
+					landOnly: this.landOnly,
+					lineMode: this.lineMode,
+					lineWidth: this.lineWidth
 				}));
+			}
+			// warna garis per kriteria (mirip KHGT: tegas, kontras)
+			getContourColor(criteria) {
+				if (criteria==='mabbims') return '#0B6B1D'; // hijau MABBIMS
+				if (criteria==='gic') return '#005DAC'; // biru KHGT
+				if (criteria==='global') return '#8A5000'; // coklat
+				if (criteria==='alt0') return '#6B7280';
+				return '#005DAC';
+			}
+
+			// Fase 2: land mask loader (reuses ne_110m_land.geojson if present)
+			async loadLandMask() {
+				const landStatus = $('landStatus');
+				if (landStatus) { landStatus.textContent = this.string('landLoading'); landStatus.classList.remove('hidden'); }
+				try {
+					const r = await fetch('ne_110m_land.geojson');
+					if (r.ok) {
+						this.landGeojson = await r.json();
+						if (landStatus) { landStatus.textContent = this.string('landReady'); setTimeout(()=>landStatus.classList.add('hidden'), 2000); }
+						return;
+					}
+				} catch(e){}
+				try {
+					const r2 = await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson');
+					if (r2.ok) this.landGeojson = await r2.json();
+				} catch(e2){}
+				if (landStatus) {
+					if (this.landGeojson) { landStatus.textContent = this.string('landReady'); setTimeout(()=>landStatus.classList.add('hidden'), 2000); }
+					else { landStatus.textContent = this.string('landFallback'); }
+				}
+			}
+			isLand(lat, lon, bufferDeg=0) {
+				const key = `${lat.toFixed(2)},${lon.toFixed(2)},${bufferDeg}`;
+				if (this.landCache[key] !== undefined) return this.landCache[key];
+				if (!this.landGeojson) {
+					// fallback approximate: treat ocean-heavy Pacific as water for demo
+					// world without geojson: assume true to not hide anything
+					this.landCache[key] = true; return true;
+				}
+				const pt = [lon, lat];
+				const inRing = (pt, ring) => {
+					let inside=false;
+					for (let i=0,j=ring.length-1;i<ring.length;j=i++) {
+						const xi=ring[i][0], yi=ring[i][1], xj=ring[j][0], yj=ring[j][1];
+						if (((yi>pt[1])!==(yj>pt[1])) && (pt[0] < (xj-xi)*(pt[1]-yi)/(yj-yi)+xi)) inside=!inside;
+					}
+					return inside;
+				};
+				const inPoly = (pt, rings) => {
+					if (!inRing(pt, rings[0])) return false;
+					for (let i=1;i<rings.length;i++) if (inRing(pt, rings[i])) return false;
+					return true;
+				};
+				const check = (la,lo) => {
+					const p=[lo,la];
+					for (const f of this.landGeojson.features) {
+						if (f.geometry.type==='Polygon') { if (inPoly(p,f.geometry.coordinates)) return true; }
+						else if (f.geometry.type==='MultiPolygon') { for (const poly of f.geometry.coordinates) if (inPoly(p,poly)) return true; }
+					}
+					return false;
+				};
+				let res;
+				if (bufferDeg===0) res = check(lat,lon);
+				else res = [[0,0],[-bufferDeg,-bufferDeg],[-bufferDeg,bufferDeg],[bufferDeg,-bufferDeg],[bufferDeg,bufferDeg]].some(([dla,dlo])=>check(lat+dla, lon+dlo));
+				this.landCache[key]=res; return res;
+			}
+			applyOpacity() {
+				const ov = $('map-overlay');
+				if (ov) ov.style.opacity = (this.opacity/100).toString();
+				const v = $('opacityValue'); if (v) v.textContent = this.opacity + '%';
 			}
 
 			setup() {
@@ -1688,6 +1953,33 @@ self.onmessage = e => {
 				$('renderMap').onclick = ()=>this.handleRenderClick();
 				$('mapCriteria').onchange = ()=>this.toggleCustom();
 				$('mapRegion').onchange = ()=>this.handleRegionChange();
+				// Wiring: opacity + landOnly
+				const op = $('opacitySlider');
+				if (op) {
+					op.value = this.opacity;
+					op.oninput = e=>{ this.opacity = parseInt(e.target.value)||0; this.saveState(); this.applyOpacity(); };
+					this.applyOpacity();
+				}
+				const landCb = $('landOnlyToggle');
+				if (landCb) {
+					landCb.checked = this.landOnly;
+					landCb.onchange = e=>{ this.landOnly = e.target.checked; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
+				}
+				// Ekspor PNG/CSV — rapikan panel, hapus hapus-cache
+				const ep=$('exportPngBtn'); if(ep) ep.onclick=()=>this.exportPNG();
+				const ec=$('exportCsvBtn'); if(ec) ec.onclick=()=>this.exportCSV();
+				// Garis kontur ala KHGT
+				const lm = $('lineModeToggle');
+				if (lm) {
+					lm.checked = this.lineMode;
+					lm.onchange = e=>{ this.lineMode = e.target.checked; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
+				}
+				const lw = $('lineWidthSlider');
+				if (lw) {
+					lw.value = this.lineWidth;
+					const lvw=$('lineWidthValue'); if (lvw) lvw.textContent = this.lineWidth + 'px';
+					lw.oninput = e=>{ this.lineWidth = parseFloat(e.target.value)||2; if (lvw) lvw.textContent = this.lineWidth + 'px'; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
+				}
 				$('tabMap').onclick = ()=>this.switchTab("map");
 				$('tabCalc').onclick = ()=>this.switchTab("calc");
 				$('calcCriteria').onchange = ()=>this.toggleCustomCalc();
@@ -1718,12 +2010,17 @@ self.onmessage = e => {
 					this.startY = e.clientY - this.translateY;
 				});
 
-				$('map-container').addEventListener('mousemove',e=>this.isDragging && (
-					this.translateX = e.clientX - this.startX,
-					this.translateY = e.clientY - this.startY,
-					this.limitPan(),
-					this.updateTransform()
-				));
+				$('map-container').addEventListener('mousemove',e=>{
+					if (this.isDragging) {
+						this.translateX = e.clientX - this.startX;
+						this.translateY = e.clientY - this.startY;
+						this.limitPan();
+						this.updateTransform();
+						return;
+					}
+					// garis kontur tooltip (hanya saat tidak drag)
+					if (this.lineMode && this.contourSegments.length) this.handleHover(e);
+				});
 
 				$('map-container').addEventListener('mouseup',()=>{
 					this.isDragging = false;
@@ -1731,6 +2028,7 @@ self.onmessage = e => {
 
 				$('map-container').addEventListener('mouseleave',()=>{
 					this.isDragging = false;
+					this.hideTooltip();
 				});
 
 				const today = new Date();
@@ -1753,6 +2051,8 @@ self.onmessage = e => {
 					this.redrawOverlay();
 				});
 
+				// Fase 2: load land mask async (non-blocking)
+				this.loadLandMask();
 				// Initialize to world view
 				this.handleRegionChange();
 			}
@@ -1793,6 +2093,39 @@ self.onmessage = e => {
 				$('map-wrapper').style.transform =
 					`translate(-50%, -50%) translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
 			}
+			// garis kontur tooltip helpers
+			handleHover(e) {
+				const container = $('map-container');
+				const rect = container.getBoundingClientRect();
+				const cx = e.clientX - rect.left;
+				const cy = e.clientY - rect.top;
+				// find nearest contour segment
+				let best = null, bestDist = Infinity;
+				for (const seg of this.contourSegments) {
+					const dx = seg.x2 - seg.x1, dy = seg.y2 - seg.y1;
+					const len2 = dx*dx + dy*dy || 1;
+					let t = ((cx - seg.x1)*dx + (cy - seg.y1)*dy) / len2;
+					t = Math.max(0, Math.min(1, t));
+					const px = seg.x1 + t*dx, py = seg.y1 + t*dy;
+					const d = Math.hypot(cx - px, cy - py);
+					if (d < bestDist) { bestDist = d; best = {px, py, lat: seg.lat, lon: seg.lon, d}; }
+				}
+				const tt = $('mapTooltip');
+				if (!tt) return;
+				if (best && bestDist < 16) {
+					tt.textContent = `${best.lat.toFixed(2)}°, ${best.lon.toFixed(2)}° — ${this.string('tooltipVisible') || 'Visible'}`;
+					tt.style.left = (best.px + 12) + 'px';
+					tt.style.top = (best.py - 10) + 'px';
+					tt.classList.add('show');
+					// flip if near edge
+					if (best.px > rect.width - 140) tt.style.left = (best.px - tt.offsetWidth - 12) + 'px';
+				} else {
+					this.hideTooltip();
+				}
+			}
+			hideTooltip() {
+				const tt=$('mapTooltip'); if (tt) tt.classList.remove('show');
+			}
 
 			string(key) { return text[this.language]?.[key] ?? key; }
 
@@ -1805,11 +2138,13 @@ self.onmessage = e => {
 				this.language = AppSettings.applyLang(language);
 				this.saveState();
 				Object.keys(text.en).forEach(key=>{ const el = $(key); if (el) el.textContent = this.string(key); });
+				// Fase 2 + garis: translate new overlay controls
+				const extraKeys = ['opacityLabel','landOnlyLabel','lineModeLabel','lineWidthLabel','exportLabel','exportPngBtn','exportCsvBtn'];
+				extraKeys.forEach(k=>{ const el=$(k); if(el) el.textContent = this.string(k); });
 				['In', 'Out', 'Reset'].forEach(k => {
 					const s = this.string("zoom" + k);
 					const el = $('zoom-' + k.toLowerCase());
-					el.title = s;
-					el.setAttribute("aria-label", s);
+					if (el) { el.title = s; el.setAttribute("aria-label", s); }
 				});
 				const calcUtcOffset = $('calcUtcOffset'); if (calcUtcOffset) calcUtcOffset.placeholder = this.string("utcPlaceholder");
 				const calcLat = $('calcLat'); if (calcLat) calcLat.placeholder = this.string("placeholderLat");
@@ -2046,26 +2381,26 @@ self.onmessage = e => {
 			}
 
 			startRender() {
+				const region = $('mapRegion').value;
+				const criteria = $('mapCriteria').value;
+				const dateString = $('mapDate').value;
+				const minAltVal = parseFloat($('minAlt').value) || 0;
+				const minElongVal = parseFloat($('minElong').value) || 0;
+				let boundsEarly;
+				if (region === "indonesia") boundsEarly = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
+				else boundsEarly = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
+				this.lastBounds = boundsEarly;
 				this.isRendering = true;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("cancel");
 				$('mapStatus').innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
 
 				// Define bounds based on region (image is 90°N to 90°S)
-				const region = $('mapRegion').value;
-				let bounds;
-				if (region === "indonesia") {
-					bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
-				} else {
-					bounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
-				}
+				let bounds = boundsEarly;
 
-				const criteria = $('mapCriteria').value;
-				const dateString = $('mapDate').value;
 				const dateObj = new Date(dateString ? dateString + "T12:00:00Z" : new Date());
 				const widthDeg = bounds.maxLon - bounds.minLon;
 				const heightDeg = bounds.maxLat - bounds.minLat;
-				this.lastBounds = bounds;
 
 				const renderParams = {
 					bounds: bounds,
@@ -2073,8 +2408,10 @@ self.onmessage = e => {
 					heightDeg: heightDeg,
 					criteria: criteria,
 					dateTimestamp: dateObj.getTime(),
-					minAlt: parseFloat($('minAlt').value) || 0,
-					minElong: parseFloat($('minElong').value) || 0
+					minAlt: minAltVal,
+					minElong: minElongVal,
+					landOnly: this.landOnly,
+					landGeojson: this.landGeojson
 				};
 
 				if (!this.worker) {
@@ -2098,13 +2435,85 @@ self.onmessage = e => {
 			}
 
 			handleComplete(width, height, buffer) {
-				const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
-				this.currentImageData = imageData;
-				this.redrawOverlay();
+				// store raw unfiltered for land toggle (tanpa cache)
+				const raw = new Uint8ClampedArray(buffer);
+				this.currentImageDataRaw = {width, height, buffer: raw.buffer.slice(0), raw: raw};
+				this.applyFiltersAndRedraw();
 				this.isRendering = false;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("renderMap");
 				$('mapStatus').textContent = this.string("done");
+			}
+			applyFiltersAndRedraw() {
+				if (!this.currentImageDataRaw || !this.lastBounds) return;
+				let {width, height, raw} = this.currentImageDataRaw;
+				// clone for filtering
+				let filtered = new Uint8ClampedArray(raw);
+				if (this.landOnly) {
+					// per-pixel land check
+					const bounds = this.lastBounds;
+					const wDeg = bounds.maxLon - bounds.minLon;
+					const hDeg = bounds.maxLat - bounds.minLat;
+					const cellW = wDeg / width;
+					const cellH = hDeg / height;
+					for (let r=0; r<height; r++) {
+						const lat = bounds.maxLat - (r + 0.5) * cellH;
+						for (let c=0;c<width;c++) {
+							const lon = bounds.minLon + (c + 0.5) * cellW;
+							const idx = (r*width + c)*4 + 3; // alpha
+							if (filtered[idx] > 0) {
+								// visible pixel: hide if over ocean
+								if (!this.isLand(lat, lon, 0.25)) filtered[idx]=0;
+							}
+						}
+					}
+				}
+				this.currentImageData = new ImageData(filtered, width, height);
+				this.redrawOverlay();
+			}
+			// === Ekspor PNG/CSV (tanpa cache, tanpa hint) ===
+			exportPNG(){
+				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
+				const overlay=$('map-overlay'), img=$('map-image');
+				const w=overlay.width||1200, h=overlay.height||600;
+				const region=$('mapRegion').value, criteria=$('mapCriteria').value, date=$('mapDate').value||'unknown';
+				const fileName=`hilalmap-${region}-${criteria}-${date}.png`;
+				const tryDownload=(canvas)=>{
+					try{ const url=canvas.toDataURL('image/png'); const a=document.createElement('a'); a.download=fileName; a.href=url; document.body.appendChild(a); a.click(); a.remove(); return true; }catch(e){ return false; }
+				};
+				// coba komposit base + overlay
+				const out=document.createElement('canvas'); out.width=w; out.height=h; const ctx=out.getContext('2d');
+				let okBase=false;
+				try{ if(img.naturalWidth){ ctx.drawImage(img,0,0,w,h); okBase=true; } }catch(e){ okBase=false; }
+				// overlay di atas (hormati opacity)
+				try{ ctx.globalAlpha=1; // overlay sudah include alpha internal, pakai 1 agar warna asli
+					ctx.drawImage(overlay,0,0); }catch(e){}
+				if(tryDownload(out)) return;
+				// fallback jika tainted (CORS SVG): ekspor hanya overlay
+				const out2=document.createElement('canvas'); out2.width=w; out2.height=h; const c2=out2.getContext('2d');
+				// background putih agar garis terlihat
+				c2.fillStyle='#ffffff'; c2.fillRect(0,0,w,h);
+				c2.drawImage(overlay,0,0);
+				if(tryDownload(out2)) return;
+				// last fallback: langsung overlay canvas
+				tryDownload(overlay);
+			}
+			exportCSV(){
+				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
+				const {width,height,raw}=this.currentImageDataRaw;
+				const bounds=this.lastBounds; const wDeg=bounds.maxLon-bounds.minLon, hDeg=bounds.maxLat-bounds.minLat;
+				const lines=['latitude,longitude,visible,landOnly,criteria,date'];
+				const date=$('mapDate').value, criteria=$('mapCriteria').value;
+				for(let r=0;r<height;r++){
+					const lat=bounds.maxLat - (r+0.5)/height*hDeg;
+					for(let c=0;c<width;c++){
+						const lon=bounds.minLon + (c+0.5)/width*wDeg;
+						const idx=(r*width+c)*4+3; const vis=raw[idx]>0?1:0;
+						lines.push(`${lat.toFixed(4)},${lon.toFixed(4)},${vis},${this.landOnly?1:0},${criteria},${date}`);
+					}
+				}
+				const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+				const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`hilalmap-${$('mapRegion').value}-${criteria}-${date}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 			}
 
 			latToPlateCarreeY(lat) {
@@ -2112,47 +2521,247 @@ self.onmessage = e => {
 			}
 
 			redrawOverlay() {
-				if (!this.currentImageData || !this.lastBounds) return;
+				if (!this.currentImageDataRaw || !this.lastBounds) return;
 				const canvas = $('map-overlay');
 				const img = $('map-image');
-
-				// Set canvas to match image dimensions
-				canvas.width = img.naturalWidth || img.width;
-				canvas.height = img.naturalHeight || img.height;
-
+				// Set canvas to match image dimensions (image may not be loaded yet)
+				canvas.width = img.naturalWidth || img.width || canvas.clientWidth || 1200;
+				canvas.height = img.naturalHeight || img.height || canvas.clientHeight || 600;
+				if (!canvas.width || !canvas.height) return;
 				const ctx = canvas.getContext("2d");
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-				// Create temporary canvas with the calculation data
-				const tempCanvas = document.createElement('canvas');
-				tempCanvas.width = this.currentImageData.width;
-				tempCanvas.height = this.currentImageData.height;
-				const tempCtx = tempCanvas.getContext('2d');
-				tempCtx.putImageData(this.currentImageData, 0, 0);
-
-				// Calculate position based on bounds
-				// Image covers 90°N to 90°S, -180° to 180°
+				// hide previous marker/label
+				const mk=$('mapMarker'), cl=$('contourLabel');
+				if (mk) mk.classList.add('hidden');
+				if (cl) cl.classList.add('hidden');
+				this.contourSegments = [];
+				this.markerPos = null;
+				// common geo transform
 				const imgBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 				const dataBounds = this.lastBounds;
-
-				// Horizontal (Linear)
 				const x = ((dataBounds.minLon - imgBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
 				const w = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
-
-				// Vertical (Linear)
-				// Map Y=0 is 90°N, Y=Height is -90°S
 				const mapTopY = this.latToPlateCarreeY(imgBounds.maxLat);
 				const mapBottomY = this.latToPlateCarreeY(imgBounds.minLat);
-
 				const dataTopY = this.latToPlateCarreeY(dataBounds.maxLat);
 				const dataBottomY = this.latToPlateCarreeY(dataBounds.minLat);
-
-				// Y pixel is proportional to (mapTopY - val)
 				const y = ((mapTopY - dataTopY) / (mapTopY - mapBottomY)) * canvas.height;
 				const h = ((mapTopY - dataBottomY) / (mapTopY - mapBottomY)) * canvas.height - y;
 
-				// Draw scaled overlay
-				ctx.drawImage(tempCanvas, x, y, w, h);
+				if (!this.lineMode) {
+					// === SHADING MODE (Fase 2) ===
+					if (!this.currentImageData) return;
+					ctx.imageSmoothingEnabled = true;
+					ctx.imageSmoothingQuality = 'high';
+					const tempCanvas = document.createElement('canvas');
+					tempCanvas.width = this.currentImageData.width;
+					tempCanvas.height = this.currentImageData.height;
+					const tempCtx = tempCanvas.getContext('2d');
+					tempCtx.imageSmoothingEnabled = true;
+					tempCtx.putImageData(this.currentImageData, 0, 0);
+					ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, x, y, w, h);
+					canvas.style.opacity = (this.opacity/100).toString();
+					return;
+				}
+				// === GARIS KONTOUR MODE (ala KHGT) ===
+				const raw = this.currentImageDataRaw.raw;
+				const width = this.currentImageDataRaw.width;
+				const height = this.currentImageDataRaw.height;
+				const criteria = $('mapCriteria').value;
+				const color = this.getContourColor(criteria);
+				// build visibility boolean grid
+				const visible = new Uint8Array(width*height);
+				for (let i=0;i<width*height;i++) visible[i] = raw[i*4+3] > 0 ? 1 : 0;
+				// land filter for line segments: if landOnly, we will skip ocean mid-points later
+				// prepare transform from grid to canvas overlay coords (pre-wrapper)
+				const gridToCanvas = (gx, gy) => {
+					return { x: x + (gx / width) * w, y: y + (gy / height) * h };
+				};
+				// collect boundary edges: for each visible cell, check right & bottom neighbors + outer border
+				const segments = []; // store grid coords + lat/lon for solid join
+				const boundsW = dataBounds.maxLon - dataBounds.minLon;
+				const boundsH = dataBounds.maxLat - dataBounds.minLat;
+				for (let r=0;r<height;r++) {
+					for (let c=0;c<width;c++) {
+						const idx = r*width + c;
+						if (!visible[idx]) continue;
+						const lat = dataBounds.maxLat - (r + 0.5)/height * boundsH;
+						const lon = dataBounds.minLon + (c + 0.5)/width * boundsW;
+						// helper to add edge if neighbor not visible or out of bounds (pakai grid int untuk adjacency)
+						const addEdgeGrid = (gx1,gy1,gx2,gy2, midLat, midLon) => {
+							if (this.landOnly && !this.isLand(midLat, midLon, 0.2)) return;
+							segments.push({gx1,gy1,gx2,gy2, lat, lon});
+						};
+						// right edge
+						if (c===width-1 || !visible[idx+1]) {
+							const midLat = lat;
+							const midLon = dataBounds.minLon + (c+1)/width * boundsW;
+							addEdgeGrid(c+1, r, c+1, r+1, midLat, midLon);
+						}
+						// bottom edge
+						if (r===height-1 || !visible[idx+width]) {
+							const midLat = dataBounds.maxLat - (r+1)/height * boundsH;
+							const midLon = lon;
+							addEdgeGrid(c, r+1, c+1, r+1, midLat, midLon);
+						}
+						// left edge (hanya jika tetangga kiri tidak terlihat)
+						if (c===0 || !visible[idx-1]) {
+							const midLat = lat;
+							const midLon = dataBounds.minLon + c/width * boundsW;
+							addEdgeGrid(c, r, c, r+1, midLat, midLon);
+						}
+						// top edge
+						if (r===0 || !visible[idx-width]) {
+							const midLat = dataBounds.maxLat - r/height * boundsH;
+							const midLon = lon;
+							addEdgeGrid(c, r, c+1, r, midLat, midLon);
+						}
+					}
+				}
+				// if no visible, show empty but still opacity
+				if (!segments.length) {
+					canvas.style.opacity = (this.opacity/100).toString();
+					this.contourSegments = [];
+					return;
+				}
+				// gabungkan segmen grid agar garis solid tak putus (pakai grid int sebagai key)
+				const pointKey = (gx,gy)=> gx+'|'+gy;
+				const adj = new Map();
+				segments.forEach((s,i)=>{
+					const k1=pointKey(s.gx1,s.gy1), k2=pointKey(s.gx2,s.gy2);
+					if(!adj.has(k1)) adj.set(k1,[]);
+					if(!adj.has(k2)) adj.set(k2,[]);
+					adj.get(k1).push(i); adj.get(k2).push(i);
+				});
+				const used = new Set();
+				const polylinesGrid = [];
+				for(let i=0;i<segments.length;i++){
+					if(used.has(i)) continue;
+					let cur = segments[i];
+					let line = [{gx:cur.gx1,gy:cur.gy1},{gx:cur.gx2,gy:cur.gy2}];
+					used.add(i);
+					let endKey = pointKey(cur.gx2,cur.gy2);
+					while(true){
+						const nextIdxs = adj.get(endKey) || [];
+						let nxt = nextIdxs.find(j=>!used.has(j));
+						if(nxt==null) break;
+						const ns = segments[nxt];
+						used.add(nxt);
+						const k1=pointKey(ns.gx1,ns.gy1), k2=pointKey(ns.gx2,ns.gy2);
+						if(k1===endKey){ line.push({gx:ns.gx2,gy:ns.gy2}); endKey=k2; }
+						else { line.push({gx:ns.gx1,gy:ns.gy1}); endKey=k1; }
+					}
+					let startKey = pointKey(cur.gx1,cur.gy1);
+					while(true){
+						const prevIdxs = adj.get(startKey) || [];
+						let prv = prevIdxs.find(j=>!used.has(j));
+						if(prv==null) break;
+						const ps = segments[prv];
+						used.add(prv);
+						const k1=pointKey(ps.gx1,ps.gy1), k2=pointKey(ps.gx2,ps.gy2);
+						if(k2===startKey){ line.unshift({gx:ps.gx1,gy:ps.gy1}); startKey=k1; }
+						else { line.unshift({gx:ps.gx2,gy:ps.gy2}); startKey=k2; }
+					}
+					// smoothing: hapus titik kolinear lurus di grid space
+					const smooth=[];
+					for(let p=0;p<line.length;p++){
+						if(p===0||p===line.length-1){ smooth.push(line[p]); continue; }
+						const a=line[p-1], b=line[p], c=line[p+1];
+						const cross = (b.gx-a.gx)*(c.gy-b.gy) - (b.gy-a.gy)*(c.gx-b.gx);
+						const dot = (b.gx-a.gx)*(c.gx-b.gx) + (b.gy-a.gy)*(c.gy-b.gy);
+						if(cross===0 && dot>0) continue;
+						smooth.push(b);
+					}
+					if(smooth.length>=2) polylinesGrid.push(smooth);
+				}
+				// konversi grid -> canvas
+				const polylines = polylinesGrid.map(pl=> pl.map(p=> gridToCanvas(p.gx,p.gy)));
+				// gambar semua polyline sebagai garis solid tak putus
+				ctx.save();
+				ctx.strokeStyle = color;
+				ctx.lineWidth = this.lineWidth;
+				ctx.lineJoin = 'round';
+				ctx.lineCap = 'round';
+				ctx.globalAlpha = (this.opacity/100) * 0.95 + 0.05;
+				ctx.beginPath();
+				for(const pl of polylines){
+					ctx.moveTo(pl[0].x, pl[0].y);
+					for(let i=1;i<pl.length;i++) ctx.lineTo(pl[i].x, pl[i].y);
+				}
+				ctx.stroke();
+				// glow tipis agar kontras (tanpa putus)
+				ctx.globalAlpha = 0.20 * (this.opacity/100);
+				ctx.lineWidth = this.lineWidth + 3.5;
+				ctx.strokeStyle = '#fff';
+				ctx.stroke();
+				// garis utama di atas
+				ctx.globalAlpha = (this.opacity/100);
+				ctx.lineWidth = this.lineWidth;
+				ctx.strokeStyle = color;
+				ctx.beginPath();
+				for(const pl of polylines){ ctx.moveTo(pl[0].x, pl[0].y); for(let i=1;i<pl.length;i++) ctx.lineTo(pl[i].x, pl[i].y); }
+				ctx.stroke();
+				ctx.restore();
+				canvas.style.opacity = '1';
+				// untuk tooltip: flatten polylinesGrid + polylines bersama (grid untuk lat/lon)
+				const flatSegs=[];
+				for(let pi=0; pi<polylines.length; pi++){
+					const pl = polylines[pi];
+					const plG = polylinesGrid[pi];
+					for(let i=0;i<pl.length-1;i++){
+						const a=pl[i], b=pl[i+1];
+						const gA=plG[i], gB=plG[i+1];
+						const gxMid=(gA.gx+gB.gx)/2, gyMid=(gA.gy+gB.gy)/2;
+						const latMid = dataBounds.maxLat - gyMid/height * boundsH;
+						const lonMid = dataBounds.minLon + gxMid/width * boundsW;
+						flatSegs.push({x1:a.x,y1:a.y,x2:b.x,y2:b.y, lat:latMid, lon:lonMid});
+					}
+				}
+				// ganti segments dengan flatSegs untuk tooltip
+				segments.length=0; flatSegs.forEach(s=>segments.push(s));
+				// store for hover: need to convert segments to container pixel space (already overlay canvas space; handleHover uses container rect which matches overlay canvas size because overlay covers wrapper which is 100% of container after transform? For simplicity, store same and handleHover will map client to overlay by scaling rect to canvas size.)
+				// container rect to canvas ratio:
+				const container = $('map-container');
+				const rect = container.getBoundingClientRect();
+				const scaleX = rect.width / canvas.width;
+				const scaleY = rect.height / canvas.height;
+				this.contourSegments = segments.map(s=>({
+					x1: s.x1 * scaleX, y1: s.y1 * scaleY, x2: s.x2 * scaleX, y2: s.y2 * scaleY, lat: s.lat, lon: s.lon
+				}));
+				// marker: first visible point (sentroid of visible boundary for 'semua' detail)
+				// compute centroid of all visible boundary cells
+				let sumLat=0, sumLon=0, cnt=0;
+				for (let r=0;r<height;r++) for (let c=0;c<width;c++) if (visible[r*width+c]) { sumLat += dataBounds.maxLat - (r+0.5)/height*boundsH; sumLon += dataBounds.minLon + (c+0.5)/width*boundsW; cnt++; }
+				if (cnt>0) {
+					const cenLat = sumLat/cnt, cenLon = sumLon/cnt;
+					// find boundary cell closest to centroid for marker (more meaningful than random)
+					let bestD=Infinity, best=null;
+					for (let r=0;r<height;r++) for (let c=0;c<width;c++) if (visible[r*width+c]) {
+						const lat = dataBounds.maxLat - (r+0.5)/height*boundsH, lon = dataBounds.minLon + (c+0.5)/width*boundsW;
+						const isB = (c===0 || c===width-1 || r===0 || r===height-1 || !visible[r*width+c+1] || !visible[r*width+c-1] || !visible[(r-1)*width+c] || !visible[(r+1)*width+c]);
+						if (!isB) continue;
+						const d = Math.hypot(lat-cenLat, lon-cenLon);
+						if (d<bestD) {bestD=d; best={lat,lon};}
+					}
+					if (best) {
+						const cx = x + (best.lon - dataBounds.minLon)/boundsW * w;
+						const cy = y + (dataBounds.maxLat - best.lat)/boundsH * h;
+						this.markerPos = {lat:best.lat, lon:best.lon, x:cx*scaleX, y:cy*scaleY, cx, cy};
+						// place marker div (position inside wrapper: use % of canvas)
+						if (mk) {
+							mk.style.left = (cx / canvas.width * 100) + '%';
+							mk.style.top = (cy / canvas.height * 100) + '%';
+							mk.classList.remove('hidden');
+							mk.title = `${this.string('firstVisible')}: ${best.lat.toFixed(2)}°, ${best.lon.toFixed(2)}°`;
+						}
+						if (cl) {
+							cl.textContent = criteria==='mabbims' ? 'MABBIMS 3°/6.4°' : criteria==='gic' ? 'KHGT 5°/8°' : criteria;
+							cl.style.left = (cx / canvas.width * 100) + '%';
+							cl.style.top = ((cy / canvas.height * 100) - 3) + '%';
+							cl.classList.remove('hidden');
+						}
+					}
+				}
 			}
 		}
 		new HilalMap();

@@ -1002,7 +1002,27 @@
 			width: 100%;
 			height: 100%;
 			pointer-events: none;
+			image-rendering: auto;
 		}
+		/* Fase 2 — opacity + land toggle + cache UI */
+		.opacity-row {
+			display: flex;
+			align-items: center;
+			gap: var(--sp-3);
+		}
+		.cache-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--sp-1);
+			font-size: .75rem;
+			font-weight: 600;
+			padding: 2px 8px;
+			border-radius: var(--radius-pill);
+			border: 1px solid var(--border);
+			background: var(--surface-variant);
+			color: var(--text-muted);
+		}
+		.cache-badge.hit { background: var(--success-bg); color: var(--success); border-color: var(--success); }
 		.spinner {
 			display: inline-block;
 			width: 1em;
@@ -1078,6 +1098,27 @@
 				</div>
 				<button id="renderMap" class="primary" style="width:100%;margin-top:var(--sp-4)">Render Map</button>
 				<div id="mapStatus" class="info" style="margin-top:var(--sp-2)"></div>
+				<div id="layerControls" class="stack" style="margin-top:var(--sp-4);gap:var(--sp-3)">
+					<div class="row" style="--cols:2;align-items:end">
+						<div class="field">
+							<label id="opacityLabel" for="opacitySlider">Opacity</label>
+							<div style="display:flex;align-items:center;gap:var(--sp-2)">
+								<input type="range" id="opacitySlider" min="0" max="100" value="40" style="flex:1">
+								<span id="opacityValue" class="mono nums" style="min-width:3.5ch;text-align:right;font-size:.875rem">40%</span>
+							</div>
+						</div>
+						<div class="field">
+							<label class="check" style="margin-top:.5rem"><input type="checkbox" id="landOnlyToggle"><span id="landOnlyLabel">Hanya daratan</span></label>
+							<div class="hint" id="landOnlyHint">Tampilkan hanya di atas daratan (lautan disembunyikan)</div>
+						</div>
+					</div>
+					<div id="cacheStatus" class="hidden" style="display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap">
+						<span id="cacheStatusText" class="hint"></span>
+						<button id="clearCacheBtn" class="secondary" style="min-height:28px;padding:0 var(--sp-2);font-size:.75rem">Clear cache</button>
+						<span id="cacheCount" class="cache-badge">0 cached</span>
+					</div>
+					<div id="landStatus" class="hint hidden"></div>
+				</div>
 			</section>
 			<section class="card" id="rerunBenchmark">
 				<div class="card-title" id="benchmarkTitle"></div>
@@ -1464,7 +1505,18 @@
 				langLabel: "Language",
 				themeLabel: "Theme",
 				benchmarkTitle: "Latest C rerun benchmark",
-				benchmarkContent: "Direct Astronomy Engine C v2.1.19, 1–10,000 AH: the Mecca 0°/0° baseline reproduces its ground truth at 100%. San Francisco's best threshold is altitude 2° and topocentric elongation 6°, with 90.6709% accuracy. Map criteria remain MABBIMS 3°/6.4° and GIC 5°/8°."
+				benchmarkContent: "Direct Astronomy Engine C v2.1.19, 1–10,000 AH: the Mecca 0°/0° baseline reproduces its ground truth at 100%. San Francisco's best threshold is altitude 2° and topocentric elongation 6°, with 90.6709% accuracy. Map criteria remain MABBIMS 3°/6.4° and GIC 5°/8°.",
+				// Fase 2: overlay controls
+				opacityLabel: "Opacity",
+				landOnlyLabel: "Land only",
+				landOnlyHint: "Show only over land (hide ocean)",
+				clearCache: "Clear cache",
+				cacheHit: "Loaded from cache",
+				cacheMiss: "Computed freshly",
+				cacheCount: "cached",
+				landReady: "Land mask ready",
+				landLoading: "Loading land mask…",
+				landFallback: "Using approximate land mask"
 			},
 			id: {
 				prefTitle: 'Pengaturan',
@@ -1526,7 +1578,17 @@
 				langLabel: "Bahasa",
 				themeLabel: "Tema",
 				benchmarkTitle: "Tolok ukur pengulangan C terbaru",
-				benchmarkContent: "Astronomy Engine C v2.1.19 langsung, 1–10.000 H: baseline Mekkah 0°/0° mereproduksi ground truth 100%. Ambang terbaik San Francisco adalah tinggi 2° dan elongasi toposentrik 6°, dengan akurasi 90,6709%. Kriteria peta tetap MABBIMS 3°/6,4° dan GIC 5°/8°."
+				benchmarkContent: "Astronomy Engine C v2.1.19 langsung, 1–10.000 H: baseline Mekkah 0°/0° mereproduksi ground truth 100%. Ambang terbaik San Francisco adalah tinggi 2° dan elongasi toposentrik 6°, dengan akurasi 90,6709%. Kriteria peta tetap MABBIMS 3°/6,4° dan GIC 5°/8°.",
+				opacityLabel: "Opasitas",
+				landOnlyLabel: "Hanya daratan",
+				landOnlyHint: "Tampilkan hanya di atas daratan (lautan disembunyikan)",
+				clearCache: "Hapus cache",
+				cacheHit: "Dimuat dari cache",
+				cacheMiss: "Hitung baru",
+				cacheCount: "tersimpan",
+				landReady: "Mask daratan siap",
+				landLoading: "Memuat mask daratan…",
+				landFallback: "Menggunakan mask daratan perkiraan"
 			}
 		};
 
@@ -1653,11 +1715,18 @@ self.onmessage = e => {
 
 		class HilalMap {
 			constructor() {
-				this.cacheVersion = 5;
+				this.cacheVersion = 6; // bump for Fase 2 overlay controls
 				this.language = AppSettings.detectLang(Object.keys(text));
 				this.themeName = 'auto';
 				this.worker = null;
 				this.isRendering = false;
+				// Fase 2: opacity + land mask + render cache
+				this.renderCache = new Map(); // key -> {width,height,buffer:ArrayBuffer}
+				this.opacity = 40;
+				this.landOnly = false;
+				this.landGeojson = null;
+				this.landCache = {};
+				this.currentImageDataRaw = null; // unfiltered raw buffer for toggling
 				this.loadState();
 				this.setup();
 			}
@@ -1667,14 +1736,97 @@ self.onmessage = e => {
 					const s = JSON.parse(localStorage.getItem('hmState') || '{}');
 					if (s.language) this.language = s.language;
 					if (s.theme) this.themeName = s.theme;
+					if (s.opacity != null) this.opacity = s.opacity;
+					if (s.landOnly != null) this.landOnly = s.landOnly;
 				} catch (e) {}
 			}
 
 			saveState() {
 				localStorage.setItem('hmState', JSON.stringify({
 					language: this.language,
-					theme: this.themeName
+					theme: this.themeName,
+					opacity: this.opacity,
+					landOnly: this.landOnly
 				}));
+			}
+
+			// Fase 2: land mask loader (reuses ne_110m_land.geojson if present)
+			async loadLandMask() {
+				const landStatus = $('landStatus');
+				if (landStatus) { landStatus.textContent = this.string('landLoading'); landStatus.classList.remove('hidden'); }
+				try {
+					const r = await fetch('ne_110m_land.geojson');
+					if (r.ok) {
+						this.landGeojson = await r.json();
+						if (landStatus) { landStatus.textContent = this.string('landReady'); setTimeout(()=>landStatus.classList.add('hidden'), 2000); }
+						return;
+					}
+				} catch(e){}
+				try {
+					const r2 = await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson');
+					if (r2.ok) this.landGeojson = await r2.json();
+				} catch(e2){}
+				if (landStatus) {
+					if (this.landGeojson) { landStatus.textContent = this.string('landReady'); setTimeout(()=>landStatus.classList.add('hidden'), 2000); }
+					else { landStatus.textContent = this.string('landFallback'); }
+				}
+			}
+			isLand(lat, lon, bufferDeg=0) {
+				const key = `${lat.toFixed(2)},${lon.toFixed(2)},${bufferDeg}`;
+				if (this.landCache[key] !== undefined) return this.landCache[key];
+				if (!this.landGeojson) {
+					// fallback approximate: treat ocean-heavy Pacific as water for demo
+					// world without geojson: assume true to not hide anything
+					this.landCache[key] = true; return true;
+				}
+				const pt = [lon, lat];
+				const inRing = (pt, ring) => {
+					let inside=false;
+					for (let i=0,j=ring.length-1;i<ring.length;j=i++) {
+						const xi=ring[i][0], yi=ring[i][1], xj=ring[j][0], yj=ring[j][1];
+						if (((yi>pt[1])!==(yj>pt[1])) && (pt[0] < (xj-xi)*(pt[1]-yi)/(yj-yi)+xi)) inside=!inside;
+					}
+					return inside;
+				};
+				const inPoly = (pt, rings) => {
+					if (!inRing(pt, rings[0])) return false;
+					for (let i=1;i<rings.length;i++) if (inRing(pt, rings[i])) return false;
+					return true;
+				};
+				const check = (la,lo) => {
+					const p=[lo,la];
+					for (const f of this.landGeojson.features) {
+						if (f.geometry.type==='Polygon') { if (inPoly(p,f.geometry.coordinates)) return true; }
+						else if (f.geometry.type==='MultiPolygon') { for (const poly of f.geometry.coordinates) if (inPoly(p,poly)) return true; }
+					}
+					return false;
+				};
+				let res;
+				if (bufferDeg===0) res = check(lat,lon);
+				else res = [[0,0],[-bufferDeg,-bufferDeg],[-bufferDeg,bufferDeg],[bufferDeg,-bufferDeg],[bufferDeg,bufferDeg]].some(([dla,dlo])=>check(lat+dla, lon+dlo));
+				this.landCache[key]=res; return res;
+			}
+			getCacheKey(region, criteria, dateStr, minAlt, minElong) {
+				return `${region}|${criteria}|${dateStr}|${minAlt}|${minElong}`;
+			}
+			updateCacheUI(hit) {
+				const cs = $('cacheStatus'), txt=$('cacheStatusText'), cnt=$('cacheCount');
+				if (!cs) return;
+				cs.classList.remove('hidden');
+				if (hit) {
+					txt.textContent = this.string('cacheHit') + ' — ' + this.lastBounds.minLat + '°..' + this.lastBounds.maxLat + '°';
+					cnt.classList.add('hit');
+				} else {
+					txt.textContent = this.string('cacheMiss');
+					cnt.classList.remove('hit');
+				}
+				cnt.textContent = `${this.renderCache.size} ${this.string('cacheCount')}`;
+				cs.style.display='flex';
+			}
+			applyOpacity() {
+				const ov = $('map-overlay');
+				if (ov) ov.style.opacity = (this.opacity/100).toString();
+				const v = $('opacityValue'); if (v) v.textContent = this.opacity + '%';
 			}
 
 			setup() {
@@ -1688,6 +1840,20 @@ self.onmessage = e => {
 				$('renderMap').onclick = ()=>this.handleRenderClick();
 				$('mapCriteria').onchange = ()=>this.toggleCustom();
 				$('mapRegion').onchange = ()=>this.handleRegionChange();
+				// Fase 2 wiring: opacity + landOnly + cache clear
+				const op = $('opacitySlider');
+				if (op) {
+					op.value = this.opacity;
+					op.oninput = e=>{ this.opacity = parseInt(e.target.value)||0; this.saveState(); this.applyOpacity(); };
+					this.applyOpacity();
+				}
+				const landCb = $('landOnlyToggle');
+				if (landCb) {
+					landCb.checked = this.landOnly;
+					landCb.onchange = e=>{ this.landOnly = e.target.checked; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
+				}
+				const clr = $('clearCacheBtn');
+				if (clr) clr.onclick = ()=>{ this.renderCache.clear(); this.updateCacheUI(false); $('mapStatus').textContent = this.string('done'); clr.blur(); };
 				$('tabMap').onclick = ()=>this.switchTab("map");
 				$('tabCalc').onclick = ()=>this.switchTab("calc");
 				$('calcCriteria').onchange = ()=>this.toggleCustomCalc();
@@ -1753,6 +1919,8 @@ self.onmessage = e => {
 					this.redrawOverlay();
 				});
 
+				// Fase 2: load land mask async (non-blocking)
+				this.loadLandMask();
 				// Initialize to world view
 				this.handleRegionChange();
 			}
@@ -1805,11 +1973,13 @@ self.onmessage = e => {
 				this.language = AppSettings.applyLang(language);
 				this.saveState();
 				Object.keys(text.en).forEach(key=>{ const el = $(key); if (el) el.textContent = this.string(key); });
+				// Fase 2: translate new overlay controls
+				const extraKeys = ['opacityLabel','landOnlyLabel','landOnlyHint','clearCache'];
+				extraKeys.forEach(k=>{ const el=$(k); if(el) el.textContent = this.string(k); });
 				['In', 'Out', 'Reset'].forEach(k => {
 					const s = this.string("zoom" + k);
 					const el = $('zoom-' + k.toLowerCase());
-					el.title = s;
-					el.setAttribute("aria-label", s);
+					if (el) { el.title = s; el.setAttribute("aria-label", s); }
 				});
 				const calcUtcOffset = $('calcUtcOffset'); if (calcUtcOffset) calcUtcOffset.placeholder = this.string("utcPlaceholder");
 				const calcLat = $('calcLat'); if (calcLat) calcLat.placeholder = this.string("placeholderLat");
@@ -1826,6 +1996,8 @@ self.onmessage = e => {
 				translateOptions('mapRegion', 'region');
 				translateOptions('mapCriteria', 'criteria');
 				translateOptions('calcCriteria', 'criteria');
+				// refresh cache ui language if visible
+				if (this.renderCache && this.renderCache.size>0) this.updateCacheUI(false);
 			}
 
 			toggleCustom() {
@@ -2046,26 +2218,38 @@ self.onmessage = e => {
 			}
 
 			startRender() {
+				// Fase 2: cache check before starting worker
+				const region = $('mapRegion').value;
+				const criteria = $('mapCriteria').value;
+				const dateString = $('mapDate').value;
+				const minAltVal = parseFloat($('minAlt').value) || 0;
+				const minElongVal = parseFloat($('minElong').value) || 0;
+				const cacheKey = this.getCacheKey(region, criteria, dateString, minAltVal, minElongVal);
+				// setup bounds early for cache UI
+				let boundsEarly;
+				if (region === "indonesia") boundsEarly = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
+				else boundsEarly = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
+				this.lastBounds = boundsEarly;
+				const cached = this.renderCache.get(cacheKey);
+				if (cached) {
+					// cache hit: restore without worker, clone buffer
+					this.isRendering = false;
+					const clonedBuf = cached.buffer.slice(0);
+					this.handleComplete(cached.width, cached.height, clonedBuf, true);
+					this.updateCacheUI(true);
+					return;
+				}
 				this.isRendering = true;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("cancel");
 				$('mapStatus').innerHTML = `<span class="spinner"></span> ${this.string("calculating")}`;
 
 				// Define bounds based on region (image is 90°N to 90°S)
-				const region = $('mapRegion').value;
-				let bounds;
-				if (region === "indonesia") {
-					bounds = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
-				} else {
-					bounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
-				}
+				let bounds = boundsEarly;
 
-				const criteria = $('mapCriteria').value;
-				const dateString = $('mapDate').value;
 				const dateObj = new Date(dateString ? dateString + "T12:00:00Z" : new Date());
 				const widthDeg = bounds.maxLon - bounds.minLon;
 				const heightDeg = bounds.maxLat - bounds.minLat;
-				this.lastBounds = bounds;
 
 				const renderParams = {
 					bounds: bounds,
@@ -2073,9 +2257,12 @@ self.onmessage = e => {
 					heightDeg: heightDeg,
 					criteria: criteria,
 					dateTimestamp: dateObj.getTime(),
-					minAlt: parseFloat($('minAlt').value) || 0,
-					minElong: parseFloat($('minElong').value) || 0
+					minAlt: minAltVal,
+					minElong: minElongVal
 				};
+				// store key for completion
+				this._pendingKey = cacheKey;
+				this._pendingParams = {widthDeg, heightDeg};
 
 				if (!this.worker) {
 					const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
@@ -2087,7 +2274,7 @@ self.onmessage = e => {
 					if (data.progress) {
 						$('mapStatus').innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;
 					} else if (data.buffer) {
-						this.handleComplete(data.width, data.height, data.buffer);
+						this.handleComplete(data.width, data.height, data.buffer, false);
 					} else if (data.error) {
 						console.error(data.error);
 						$('mapStatus').textContent = "Error: " + data.error;
@@ -2097,14 +2284,53 @@ self.onmessage = e => {
 				this.worker.postMessage(renderParams);
 			}
 
-			handleComplete(width, height, buffer) {
-				const imageData = new ImageData(new Uint8ClampedArray(buffer), width, height);
-				this.currentImageData = imageData;
-				this.redrawOverlay();
+			handleComplete(width, height, buffer, fromCache=false) {
+				// store raw unfiltered for land toggle
+				const raw = new Uint8ClampedArray(buffer);
+				this.currentImageDataRaw = {width, height, buffer: raw.buffer.slice(0), raw: raw};
+				// Fase 2: save to cache if not from cache
+				if (!fromCache && this._pendingKey) {
+					this.renderCache.set(this._pendingKey, {width, height, buffer: raw.buffer.slice(0)});
+					// limit cache size to 12 entries (LRU via insertion order)
+					if (this.renderCache.size > 12) {
+						const firstKey = this.renderCache.keys().next().value;
+						this.renderCache.delete(firstKey);
+					}
+				}
+				this._pendingKey = null;
+				this.applyFiltersAndRedraw();
 				this.isRendering = false;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("renderMap");
 				$('mapStatus').textContent = this.string("done");
+				if (fromCache) this.updateCacheUI(true); else this.updateCacheUI(false);
+			}
+			applyFiltersAndRedraw() {
+				if (!this.currentImageDataRaw || !this.lastBounds) return;
+				let {width, height, raw} = this.currentImageDataRaw;
+				// clone for filtering
+				let filtered = new Uint8ClampedArray(raw);
+				if (this.landOnly) {
+					// per-pixel land check
+					const bounds = this.lastBounds;
+					const wDeg = bounds.maxLon - bounds.minLon;
+					const hDeg = bounds.maxLat - bounds.minLat;
+					const cellW = wDeg / width;
+					const cellH = hDeg / height;
+					for (let r=0; r<height; r++) {
+						const lat = bounds.maxLat - (r + 0.5) * cellH;
+						for (let c=0;c<width;c++) {
+							const lon = bounds.minLon + (c + 0.5) * cellW;
+							const idx = (r*width + c)*4 + 3; // alpha
+							if (filtered[idx] > 0) {
+								// visible pixel: hide if over ocean
+								if (!this.isLand(lat, lon, 0.25)) filtered[idx]=0;
+							}
+						}
+					}
+				}
+				this.currentImageData = new ImageData(filtered, width, height);
+				this.redrawOverlay();
 			}
 
 			latToPlateCarreeY(lat) {
@@ -2117,17 +2343,23 @@ self.onmessage = e => {
 				const img = $('map-image');
 
 				// Set canvas to match image dimensions
-				canvas.width = img.naturalWidth || img.width;
-				canvas.height = img.naturalHeight || img.height;
+				canvas.width = img.naturalWidth || img.width || canvas.clientWidth || 1200;
+				canvas.height = img.naturalHeight || img.height || canvas.clientHeight || 600;
+				if (!canvas.width || !canvas.height) return;
 
 				const ctx = canvas.getContext("2d");
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				// Fase 2: high-quality smoothing for 245-grid interpolation
+				ctx.imageSmoothingEnabled = true;
+				ctx.imageSmoothingQuality = 'high';
 
 				// Create temporary canvas with the calculation data
 				const tempCanvas = document.createElement('canvas');
 				tempCanvas.width = this.currentImageData.width;
 				tempCanvas.height = this.currentImageData.height;
 				const tempCtx = tempCanvas.getContext('2d');
+				// also smooth when putting data (nearest but scaled later)
+				tempCtx.imageSmoothingEnabled = true;
 				tempCtx.putImageData(this.currentImageData, 0, 0);
 
 				// Calculate position based on bounds
@@ -2151,8 +2383,10 @@ self.onmessage = e => {
 				const y = ((mapTopY - dataTopY) / (mapTopY - mapBottomY)) * canvas.height;
 				const h = ((mapTopY - dataBottomY) / (mapTopY - mapBottomY)) * canvas.height - y;
 
-				// Draw scaled overlay
-				ctx.drawImage(tempCanvas, x, y, w, h);
+				// Draw scaled overlay with smoothing
+				ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, x, y, w, h);
+				// apply opacity via CSS (keep per-pixel alpha at 100)
+				canvas.style.opacity = (this.opacity/100).toString();
 			}
 		}
 		new HilalMap();

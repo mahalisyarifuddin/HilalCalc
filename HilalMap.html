@@ -2481,22 +2481,44 @@ self.onmessage = e => {
 				const tryDownload=(canvas)=>{
 					try{ const url=canvas.toDataURL('image/png'); const a=document.createElement('a'); a.download=fileName; a.href=url; document.body.appendChild(a); a.click(); a.remove(); return true; }catch(e){ return false; }
 				};
-				// coba komposit base + overlay
-				const out=document.createElement('canvas'); out.width=w; out.height=h; const ctx=out.getContext('2d');
-				let okBase=false;
-				try{ if(img.naturalWidth){ ctx.drawImage(img,0,0,w,h); okBase=true; } }catch(e){ okBase=false; }
-				// overlay di atas (hormati opacity)
-				try{ ctx.globalAlpha=1; // overlay sudah include alpha internal, pakai 1 agar warna asli
-					ctx.drawImage(overlay,0,0); }catch(e){}
-				if(tryDownload(out)) return;
-				// fallback jika tainted (CORS SVG): ekspor hanya overlay
-				const out2=document.createElement('canvas'); out2.width=w; out2.height=h; const c2=out2.getContext('2d');
-				// background putih agar garis terlihat
-				c2.fillStyle='#ffffff'; c2.fillRect(0,0,w,h);
-				c2.drawImage(overlay,0,0);
-				if(tryDownload(out2)) return;
-				// last fallback: langsung overlay canvas
-				tryDownload(overlay);
+				// komposit base map + overlay
+				const buildComposite=(base)=>{
+					const out=document.createElement('canvas'); out.width=w; out.height=h; const ctx=out.getContext('2d');
+					try{ if(base && base.naturalWidth){ ctx.drawImage(base,0,0,w,h); } }catch(e){}
+					// overlay di atas (hormati opacity)
+					try{ ctx.globalAlpha=1; // overlay sudah include alpha internal, pakai 1 agar warna asli
+						ctx.drawImage(overlay,0,0); }catch(e){}
+					return out;
+				};
+				// coba jalur cepat: <img> langsung (berhasil jika gambar origin-clean)
+				if(img.naturalWidth && tryDownload(buildComposite(img))) return;
+				// fallback jika tainted (CORS SVG): muat ulang peta via fetch->blob (URL same-origin) agar canvas tidak tainted dan lapisan peta tetap ikut terekspor
+				this.loadCleanBaseImage(img).then(clean=>{
+					if(clean && tryDownload(buildComposite(clean))) return;
+					// fallback berikutnya: ekspor hanya overlay dengan background putih agar garis terlihat
+					const out2=document.createElement('canvas'); out2.width=w; out2.height=h; const c2=out2.getContext('2d');
+					c2.fillStyle='#ffffff'; c2.fillRect(0,0,w,h);
+					try{ c2.drawImage(overlay,0,0); }catch(e){}
+					if(tryDownload(out2)) return;
+					// last fallback: langsung overlay canvas
+					tryDownload(overlay);
+				});
+			}
+			// Muat peta dasar sebagai blob same-origin menghindari canvas tainted oleh SVG lintas origin; hasil di-cache agar ekspor berikutnya instan
+			loadCleanBaseImage(img){
+				if(this._cleanBasePromise) return this._cleanBasePromise;
+				const src=img.currentSrc||img.src;
+				this._cleanBasePromise=fetch(src,{mode:'cors',credentials:'omit'})
+					.then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
+					.then(blob=>new Promise(resolve=>{
+						const url=URL.createObjectURL(blob);
+						const im=new Image();
+						im.onload=()=>{ if(im.naturalWidth){ resolve(im); }else{ URL.revokeObjectURL(url); resolve(null); } };
+						im.onerror=()=>{ URL.revokeObjectURL(url); resolve(null); };
+						im.src=url;
+					}))
+					.catch(()=>null);
+				return this._cleanBasePromise;
 			}
 			exportCSV(){
 				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }

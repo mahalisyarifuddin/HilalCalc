@@ -1175,12 +1175,6 @@
 					<div id="landStatus" class="hint hidden"></div>
 				</div>
 			</section>
-			<details class="disclosure" id="rerunBenchmark">
-				<summary id="benchmarkTitle"></summary>
-				<div class="disclosure-body">
-					<p id="benchmarkContent" class="info"></p>
-				</div>
-			</details>
 			<section class="card">
 			<div id="map-container">
 				<div class="map-controls">
@@ -2584,33 +2578,87 @@ self.onmessage = e => {
 					this.contourSegments = [];
 					return;
 				}
-				// draw all segments as one path with smoothing
+				// gabungkan segmen yang berbagi titik agar garis solid tak putus
+				const pointKey = (x,y)=> x.toFixed(1)+','+y.toFixed(1);
+				const adj = new Map(); // key -> array of seg idx
+				segments.forEach((s,i)=>{
+					const k1=pointKey(s.x1,s.y1), k2=pointKey(s.x2,s.y2);
+					if(!adj.has(k1)) adj.set(k1,[]);
+					if(!adj.has(k2)) adj.set(k2,[]);
+					adj.get(k1).push(i); adj.get(k2).push(i);
+				});
+				const used = new Set();
+				const polylines = [];
+				for(let i=0;i<segments.length;i++){
+					if(used.has(i)) continue;
+					// start polyline dari segmen yang belum dipakai, coba jalan dua arah
+					let cur = segments[i];
+					let line = [{x:cur.x1,y:cur.y1},{x:cur.x2,y:cur.y2}];
+					used.add(i);
+					// walk forward
+					let endKey = pointKey(cur.x2,cur.y2);
+					while(true){
+						const nextIdxs = adj.get(endKey) || [];
+						let nxt = nextIdxs.find(j=>!used.has(j));
+						if(nxt==null) break;
+						const ns = segments[nxt];
+						used.add(nxt);
+						// orient segmen agar start = endKey
+						const k1=pointKey(ns.x1,ns.y1), k2=pointKey(ns.x2,ns.y2);
+						if(k1===endKey){ line.push({x:ns.x2,y:ns.y2}); endKey=k2; }
+						else { line.push({x:ns.x1,y:ns.y1}); endKey=k1; }
+					}
+					// walk backward dari awal
+					let startKey = pointKey(cur.x1,cur.y1);
+					while(true){
+						const prevIdxs = adj.get(startKey) || [];
+						let prv = prevIdxs.find(j=>!used.has(j));
+						if(prv==null) break;
+						const ps = segments[prv];
+						used.add(prv);
+						const k1=pointKey(ps.x1,ps.y1), k2=pointKey(ps.x2,ps.y2);
+						if(k2===startKey){ line.unshift({x:ps.x1,y:ps.y1}); startKey=k1; }
+						else { line.unshift({x:ps.x2,y:ps.y2}); startKey=k2; }
+					}
+					// smoothing sederhana: hapus titik kolinear (lurus)
+					const smooth=[];
+					for(let p=0;p<line.length;p++){
+						if(p===0||p===line.length-1){ smooth.push(line[p]); continue; }
+						const a=line[p-1], b=line[p], c=line[p+1];
+						const cross = (b.x-a.x)*(c.y-b.y) - (b.y-a.y)*(c.x-b.x);
+						const dot = (b.x-a.x)*(c.x-b.x) + (b.y-a.y)*(c.y-b.y);
+						if(Math.abs(cross) < 0.5 && dot>0) continue; // kolinear, skip
+						smooth.push(b);
+					}
+					if(smooth.length>=2) polylines.push(smooth);
+				}
+				// gambar semua polyline sebagai garis solid tak putus
 				ctx.save();
 				ctx.strokeStyle = color;
 				ctx.lineWidth = this.lineWidth;
 				ctx.lineJoin = 'round';
 				ctx.lineCap = 'round';
-				ctx.globalAlpha = (this.opacity/100) * 0.95 + 0.05; // keep visible even at low opacity
+				ctx.globalAlpha = (this.opacity/100) * 0.95 + 0.05;
 				ctx.beginPath();
-				for (const s of segments) {
-					ctx.moveTo(s.x1, s.y1);
-					ctx.lineTo(s.x2, s.y2);
+				for(const pl of polylines){
+					ctx.moveTo(pl[0].x, pl[0].y);
+					for(let i=1;i<pl.length;i++) ctx.lineTo(pl[i].x, pl[i].y);
 				}
 				ctx.stroke();
-				// add glow for readability on light/dark basemap
-				ctx.globalAlpha = 0.25 * (this.opacity/100);
-				ctx.lineWidth = this.lineWidth + 3;
+				// glow tipis agar kontras
+				ctx.globalAlpha = 0.20 * (this.opacity/100);
+				ctx.lineWidth = this.lineWidth + 3.5;
 				ctx.strokeStyle = '#fff';
 				ctx.stroke();
-				// re-stroke main line on top
+				// garis utama di atas
 				ctx.globalAlpha = (this.opacity/100);
 				ctx.lineWidth = this.lineWidth;
 				ctx.strokeStyle = color;
 				ctx.beginPath();
-				for (const s of segments) { ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); }
+				for(const pl of polylines){ ctx.moveTo(pl[0].x, pl[0].y); for(let i=1;i<pl.length;i++) ctx.lineTo(pl[i].x, pl[i].y); }
 				ctx.stroke();
 				ctx.restore();
-				canvas.style.opacity = '1'; // opacity handled via globalAlpha
+				canvas.style.opacity = '1';
 				// store for hover: need to convert segments to container pixel space (already overlay canvas space; handleHover uses container rect which matches overlay canvas size because overlay covers wrapper which is 100% of container after transform? For simplicity, store same and handleHover will map client to overlay by scaling rect to canvas size.)
 				// container rect to canvas ratio:
 				const container = $('map-container');

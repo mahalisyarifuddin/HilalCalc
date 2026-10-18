@@ -2472,7 +2472,10 @@ self.onmessage = e => {
 				this.redrawOverlay();
 			}
 			// === Ekspor PNG/CSV (tanpa cache, tanpa hint) ===
-			exportPNG(){
+			// Ekspor PNG = lapisan peta dasar + overlay hasil. Urutan sumber peta dasar:
+			// 1) <img> di layar (jika origin-clean), 2) salinan CORS via fetch, 3) render ulang
+			// dari ne_110m_land.geojson (same-origin). Tanpa 3 pun PNG tidak boleh kosong putih.
+			async exportPNG(){
 				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
 				const overlay=$('map-overlay'), img=$('map-image');
 				const w=overlay.width||1200, h=overlay.height||600;
@@ -2481,33 +2484,33 @@ self.onmessage = e => {
 				const tryDownload=(canvas)=>{
 					try{ const url=canvas.toDataURL('image/png'); const a=document.createElement('a'); a.download=fileName; a.href=url; document.body.appendChild(a); a.click(); a.remove(); return true; }catch(e){ return false; }
 				};
-				// komposit base map + overlay
+				// komposit: base map (gambar atau render land) + overlay hasil di atas
 				const buildComposite=(base)=>{
 					const out=document.createElement('canvas'); out.width=w; out.height=h; const ctx=out.getContext('2d');
-					try{ if(base && base.naturalWidth){ ctx.drawImage(base,0,0,w,h); } }catch(e){}
-					// overlay di atas (hormati opacity)
-					try{ ctx.globalAlpha=1; // overlay sudah include alpha internal, pakai 1 agar warna asli
-						ctx.drawImage(overlay,0,0); }catch(e){}
+					if(base){ try{ ctx.drawImage(base,0,0,w,h); }catch(e){} }
+					ctx.globalAlpha=1;
+					try{ ctx.drawImage(overlay,0,0); }catch(e){}
 					return out;
 				};
-				// coba jalur cepat: <img> langsung (berhasil jika gambar origin-clean)
+				// 1) jalur cepat: <img> langsung (berhasil jika gambar origin-clean)
 				if(img.naturalWidth && tryDownload(buildComposite(img))) return;
-				// fallback jika tainted (CORS SVG): muat ulang peta via fetch->blob (URL same-origin) agar canvas tidak tainted dan lapisan peta tetap ikut terekspor
-				this.loadCleanBaseImage(img).then(clean=>{
-					if(clean && tryDownload(buildComposite(clean))) return;
-					// fallback berikutnya: ekspor hanya overlay dengan background putih agar garis terlihat
-					const out2=document.createElement('canvas'); out2.width=w; out2.height=h; const c2=out2.getContext('2d');
-					c2.fillStyle='#ffffff'; c2.fillRect(0,0,w,h);
-					try{ c2.drawImage(overlay,0,0); }catch(e){}
-					if(tryDownload(out2)) return;
-					// last fallback: langsung overlay canvas
-					tryDownload(overlay);
-				});
+				// 2) salinan CORS dari URL peta dasar (jika img tainted)
+				const clean=await this.loadCleanBaseImage(img);
+				if(clean && tryDownload(buildComposite(clean))) return;
+				// 3) peta dasar dari data land same-origin (tidak bergantung CORS/CDN)
+				const landBase=await this.renderLandBase(w,h);
+				if(landBase && tryDownload(buildComposite(landBase))) return;
+				// 4) fallback terakhir: overlay di atas latar putih
+				const out2=document.createElement('canvas'); out2.width=w; out2.height=h; const c2=out2.getContext('2d');
+				c2.fillStyle='#ffffff'; c2.fillRect(0,0,w,h);
+				try{ c2.drawImage(overlay,0,0); }catch(e){}
+				if(!tryDownload(out2)) tryDownload(overlay);
 			}
-			// Muat peta dasar sebagai blob same-origin menghindari canvas tainted oleh SVG lintas origin; hasil di-cache agar ekspor berikutnya instan
+			// Muat peta dasar via fetch (CORS) sebagai blob same-origin agar canvas tidak tainted; hasil sukses di-cache agar ekspor berikutnya instan
 			loadCleanBaseImage(img){
 				if(this._cleanBasePromise) return this._cleanBasePromise;
 				const src=img.currentSrc||img.src;
+				if(!src) return Promise.resolve(null);
 				this._cleanBasePromise=fetch(src,{mode:'cors',credentials:'omit'})
 					.then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.blob(); })
 					.then(blob=>new Promise(resolve=>{
@@ -2517,8 +2520,29 @@ self.onmessage = e => {
 						im.onerror=()=>{ URL.revokeObjectURL(url); resolve(null); };
 						im.src=url;
 					}))
-					.catch(()=>null);
+					.catch(()=>null)
+					.then(res=>{ if(!res) this._cleanBasePromise=null; return res; }); // jangan kunci kegagalan selamanya
 				return this._cleanBasePromise;
+			}
+			// Render peta dasar (daratan di atas laut) dari ne_110m_land.geojson, proyeksi equirectangular 360x180 seperti peta dasar
+			async renderLandBase(w,h){
+				let gj=this.landGeojson;
+				if(!gj){
+					try{ const r=await fetch('ne_110m_land.geojson'); if(r.ok){ gj=await r.json(); this.landGeojson=gj; } }catch(e){}
+				}
+				if(!gj || !gj.features) return null;
+				const c=document.createElement('canvas'); c.width=w; c.height=h; const ctx=c.getContext('2d');
+				ctx.fillStyle='#bcd9ea'; ctx.fillRect(0,0,w,h); // laut
+				ctx.fillStyle='#e3dccb'; ctx.beginPath();        // daratan
+				const px=lon=>(lon+180)/360*w, py=lat=>(90-lat)/180*h;
+				const addRing=ring=>{ ring.forEach((pt,i)=>{ const x=px(pt[0]), y=py(pt[1]); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.closePath(); };
+				for(const f of gj.features){
+					const g=f && f.geometry; if(!g) continue;
+					const polys=g.type==='MultiPolygon'?g.coordinates:(g.type==='Polygon'?[g.coordinates]:[]);
+					for(const poly of polys) for(const ring of poly) addRing(ring);
+				}
+				ctx.fill('evenodd');
+				return c;
 			}
 			exportCSV(){
 				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }

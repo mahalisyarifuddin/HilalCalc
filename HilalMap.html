@@ -1156,8 +1156,8 @@
 					</div>
 					<div class="row" style="--cols:2;align-items:end">
 						<div class="field">
-							<label class="check"><input type="checkbox" id="lineModeToggle" checked><span id="lineModeLabel">Mode garis (ala KHGT)</span></label>
-							<div class="hint" id="lineModeHint">Tampilkan batas sebagai garis kontur, bukan blok warna</div>
+							<label class="check"><input type="checkbox" id="lineModeToggle" checked><span id="lineModeLabel">Mode garis</span></label>
+							<div class="hint" id="lineModeHint">Mode kontur — batas visibilitas sebagai garis</div>
 						</div>
 						<div class="field">
 							<label for="lineWidthSlider" id="lineWidthLabel">Tebal garis</label>
@@ -1566,7 +1566,7 @@
 				landOnlyLabel: "Land only",
 				landOnlyHint: "Show only over land (hide ocean)",
 				lineModeLabel: "Contour line (KHGT style)",
-				lineModeHint: "Show boundary as contour line, not filled shading",
+				lineModeHint: "Contour mode — visibility boundary as line",
 				lineWidthLabel: "Line width",
 				clearCache: "Clear cache",
 				cacheHit: "Loaded from cache",
@@ -1643,8 +1643,8 @@
 				opacityLabel: "Opasitas",
 				landOnlyLabel: "Hanya daratan",
 				landOnlyHint: "Tampilkan hanya di atas daratan (lautan disembunyikan)",
-				lineModeLabel: "Mode garis (ala KHGT)",
-				lineModeHint: "Tampilkan batas sebagai garis kontur, bukan blok warna",
+				lineModeLabel: "Mode garis",
+				lineModeHint: "Mode kontur — batas visibilitas sebagai garis",
 				lineWidthLabel: "Tebal garis",
 				clearCache: "Hapus cache",
 				cacheHit: "Dimuat dari cache",
@@ -2530,7 +2530,7 @@ self.onmessage = e => {
 					return { x: x + (gx / width) * w, y: y + (gy / height) * h };
 				};
 				// collect boundary edges: for each visible cell, check right & bottom neighbors + outer border
-				const segments = [];
+				const segments = []; // store grid coords + lat/lon for solid join
 				const boundsW = dataBounds.maxLon - dataBounds.minLon;
 				const boundsH = dataBounds.maxLat - dataBounds.minLat;
 				for (let r=0;r<height;r++) {
@@ -2539,36 +2539,34 @@ self.onmessage = e => {
 						if (!visible[idx]) continue;
 						const lat = dataBounds.maxLat - (r + 0.5)/height * boundsH;
 						const lon = dataBounds.minLon + (c + 0.5)/width * boundsW;
-						// helper to add edge if neighbor not visible or out of bounds
-						const addEdge = (x1,y1,x2,y2, midLat, midLon) => {
-							// landOnly check: skip if middle point over ocean
+						// helper to add edge if neighbor not visible or out of bounds (pakai grid int untuk adjacency)
+						const addEdgeGrid = (gx1,gy1,gx2,gy2, midLat, midLon) => {
 							if (this.landOnly && !this.isLand(midLat, midLon, 0.2)) return;
-							const p1 = gridToCanvas(x1, y1);
-							const p2 = gridToCanvas(x2, y2);
-							segments.push({x1:p1.x, y1:p1.y, x2:p2.x, y2:p2.y, lat, lon});
+							segments.push({gx1,gy1,gx2,gy2, lat, lon});
 						};
 						// right edge
 						if (c===width-1 || !visible[idx+1]) {
 							const midLat = lat;
 							const midLon = dataBounds.minLon + (c+1)/width * boundsW;
-							addEdge(c+1, r, c+1, r+1, midLat, midLon);
+							addEdgeGrid(c+1, r, c+1, r+1, midLat, midLon);
 						}
 						// bottom edge
 						if (r===height-1 || !visible[idx+width]) {
 							const midLat = dataBounds.maxLat - (r+1)/height * boundsH;
 							const midLon = lon;
-							addEdge(c, r+1, c+1, r+1, midLat, midLon);
+							addEdgeGrid(c, r+1, c+1, r+1, midLat, midLon);
 						}
-						// left edge for first column visible (outer border)
-						if (c===0) {
+						// left edge (hanya jika tetangga kiri tidak terlihat)
+						if (c===0 || !visible[idx-1]) {
 							const midLat = lat;
-							const midLon = dataBounds.minLon;
-							if (visible[idx]) addEdge(c, r, c, r+1, midLat, midLon);
+							const midLon = dataBounds.minLon + c/width * boundsW;
+							addEdgeGrid(c, r, c, r+1, midLat, midLon);
 						}
-						if (r===0) {
-							const midLat = dataBounds.maxLat;
+						// top edge
+						if (r===0 || !visible[idx-width]) {
+							const midLat = dataBounds.maxLat - r/height * boundsH;
 							const midLon = lon;
-							addEdge(c, r, c+1, r, midLat, midLon);
+							addEdgeGrid(c, r, c+1, r, midLat, midLon);
 						}
 					}
 				}
@@ -2578,60 +2576,58 @@ self.onmessage = e => {
 					this.contourSegments = [];
 					return;
 				}
-				// gabungkan segmen yang berbagi titik agar garis solid tak putus
-				const pointKey = (x,y)=> x.toFixed(1)+','+y.toFixed(1);
-				const adj = new Map(); // key -> array of seg idx
+				// gabungkan segmen grid agar garis solid tak putus (pakai grid int sebagai key)
+				const pointKey = (gx,gy)=> gx+'|'+gy;
+				const adj = new Map();
 				segments.forEach((s,i)=>{
-					const k1=pointKey(s.x1,s.y1), k2=pointKey(s.x2,s.y2);
+					const k1=pointKey(s.gx1,s.gy1), k2=pointKey(s.gx2,s.gy2);
 					if(!adj.has(k1)) adj.set(k1,[]);
 					if(!adj.has(k2)) adj.set(k2,[]);
 					adj.get(k1).push(i); adj.get(k2).push(i);
 				});
 				const used = new Set();
-				const polylines = [];
+				const polylinesGrid = [];
 				for(let i=0;i<segments.length;i++){
 					if(used.has(i)) continue;
-					// start polyline dari segmen yang belum dipakai, coba jalan dua arah
 					let cur = segments[i];
-					let line = [{x:cur.x1,y:cur.y1},{x:cur.x2,y:cur.y2}];
+					let line = [{gx:cur.gx1,gy:cur.gy1},{gx:cur.gx2,gy:cur.gy2}];
 					used.add(i);
-					// walk forward
-					let endKey = pointKey(cur.x2,cur.y2);
+					let endKey = pointKey(cur.gx2,cur.gy2);
 					while(true){
 						const nextIdxs = adj.get(endKey) || [];
 						let nxt = nextIdxs.find(j=>!used.has(j));
 						if(nxt==null) break;
 						const ns = segments[nxt];
 						used.add(nxt);
-						// orient segmen agar start = endKey
-						const k1=pointKey(ns.x1,ns.y1), k2=pointKey(ns.x2,ns.y2);
-						if(k1===endKey){ line.push({x:ns.x2,y:ns.y2}); endKey=k2; }
-						else { line.push({x:ns.x1,y:ns.y1}); endKey=k1; }
+						const k1=pointKey(ns.gx1,ns.gy1), k2=pointKey(ns.gx2,ns.gy2);
+						if(k1===endKey){ line.push({gx:ns.gx2,gy:ns.gy2}); endKey=k2; }
+						else { line.push({gx:ns.gx1,gy:ns.gy1}); endKey=k1; }
 					}
-					// walk backward dari awal
-					let startKey = pointKey(cur.x1,cur.y1);
+					let startKey = pointKey(cur.gx1,cur.gy1);
 					while(true){
 						const prevIdxs = adj.get(startKey) || [];
 						let prv = prevIdxs.find(j=>!used.has(j));
 						if(prv==null) break;
 						const ps = segments[prv];
 						used.add(prv);
-						const k1=pointKey(ps.x1,ps.y1), k2=pointKey(ps.x2,ps.y2);
-						if(k2===startKey){ line.unshift({x:ps.x1,y:ps.y1}); startKey=k1; }
-						else { line.unshift({x:ps.x2,y:ps.y2}); startKey=k2; }
+						const k1=pointKey(ps.gx1,ps.gy1), k2=pointKey(ps.gx2,ps.gy2);
+						if(k2===startKey){ line.unshift({gx:ps.gx1,gy:ps.gy1}); startKey=k1; }
+						else { line.unshift({gx:ps.gx2,gy:ps.gy2}); startKey=k2; }
 					}
-					// smoothing sederhana: hapus titik kolinear (lurus)
+					// smoothing: hapus titik kolinear lurus di grid space
 					const smooth=[];
 					for(let p=0;p<line.length;p++){
 						if(p===0||p===line.length-1){ smooth.push(line[p]); continue; }
 						const a=line[p-1], b=line[p], c=line[p+1];
-						const cross = (b.x-a.x)*(c.y-b.y) - (b.y-a.y)*(c.x-b.x);
-						const dot = (b.x-a.x)*(c.x-b.x) + (b.y-a.y)*(c.y-b.y);
-						if(Math.abs(cross) < 0.5 && dot>0) continue; // kolinear, skip
+						const cross = (b.gx-a.gx)*(c.gy-b.gy) - (b.gy-a.gy)*(c.gx-b.gx);
+						const dot = (b.gx-a.gx)*(c.gx-b.gx) + (b.gy-a.gy)*(c.gy-b.gy);
+						if(cross===0 && dot>0) continue;
 						smooth.push(b);
 					}
-					if(smooth.length>=2) polylines.push(smooth);
+					if(smooth.length>=2) polylinesGrid.push(smooth);
 				}
+				// konversi grid -> canvas
+				const polylines = polylinesGrid.map(pl=> pl.map(p=> gridToCanvas(p.gx,p.gy)));
 				// gambar semua polyline sebagai garis solid tak putus
 				ctx.save();
 				ctx.strokeStyle = color;
@@ -2645,7 +2641,7 @@ self.onmessage = e => {
 					for(let i=1;i<pl.length;i++) ctx.lineTo(pl[i].x, pl[i].y);
 				}
 				ctx.stroke();
-				// glow tipis agar kontras
+				// glow tipis agar kontras (tanpa putus)
 				ctx.globalAlpha = 0.20 * (this.opacity/100);
 				ctx.lineWidth = this.lineWidth + 3.5;
 				ctx.strokeStyle = '#fff';
@@ -2659,6 +2655,22 @@ self.onmessage = e => {
 				ctx.stroke();
 				ctx.restore();
 				canvas.style.opacity = '1';
+				// untuk tooltip: flatten polylinesGrid + polylines bersama (grid untuk lat/lon)
+				const flatSegs=[];
+				for(let pi=0; pi<polylines.length; pi++){
+					const pl = polylines[pi];
+					const plG = polylinesGrid[pi];
+					for(let i=0;i<pl.length-1;i++){
+						const a=pl[i], b=pl[i+1];
+						const gA=plG[i], gB=plG[i+1];
+						const gxMid=(gA.gx+gB.gx)/2, gyMid=(gA.gy+gB.gy)/2;
+						const latMid = dataBounds.maxLat - gyMid/height * boundsH;
+						const lonMid = dataBounds.minLon + gxMid/width * boundsW;
+						flatSegs.push({x1:a.x,y1:a.y,x2:b.x,y2:b.y, lat:latMid, lon:lonMid});
+					}
+				}
+				// ganti segments dengan flatSegs untuk tooltip
+				segments.length=0; flatSegs.forEach(s=>segments.push(s));
 				// store for hover: need to convert segments to container pixel space (already overlay canvas space; handleHover uses container rect which matches overlay canvas size because overlay covers wrapper which is 100% of container after transform? For simplicity, store same and handleHover will map client to overlay by scaling rect to canvas size.)
 				// container rect to canvas ratio:
 				const container = $('map-container');

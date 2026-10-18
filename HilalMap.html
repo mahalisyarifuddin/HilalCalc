@@ -1023,6 +1023,48 @@
 			color: var(--text-muted);
 		}
 		.cache-badge.hit { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+		/* Garis kontur — tooltip & marker */
+		#mapTooltip {
+			position: absolute;
+			pointer-events: none;
+			background: var(--surface);
+			color: var(--text);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: var(--sp-2) var(--sp-3);
+			font-size: .8125rem;
+			line-height: 1.4;
+			box-shadow: var(--shadow-2);
+			z-index: 6;
+			max-width: 220px;
+			display: none;
+			white-space: nowrap;
+		}
+		#mapTooltip.show { display: block; }
+		.map-marker {
+			position: absolute;
+			width: 18px; height: 18px;
+			transform: translate(-50%,-50%);
+			pointer-events: none;
+			z-index: 4;
+			filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+		}
+		.map-marker svg { width:100%; height:100%; display:block; }
+		.contour-label {
+			position: absolute;
+			background: var(--surface);
+			color: var(--text);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-pill);
+			padding: 2px 8px;
+			font-size: .6875rem;
+			font-weight: 600;
+			pointer-events: none;
+			z-index: 4;
+			white-space: nowrap;
+			box-shadow: var(--shadow-1);
+			transform: translate(-50%,-50%);
+		}
 		.spinner {
 			display: inline-block;
 			width: 1em;
@@ -1112,6 +1154,19 @@
 							<div class="hint" id="landOnlyHint">Tampilkan hanya di atas daratan (lautan disembunyikan)</div>
 						</div>
 					</div>
+					<div class="row" style="--cols:2;align-items:end">
+						<div class="field">
+							<label class="check"><input type="checkbox" id="lineModeToggle" checked><span id="lineModeLabel">Mode garis (ala KHGT)</span></label>
+							<div class="hint" id="lineModeHint">Tampilkan batas sebagai garis kontur, bukan blok warna</div>
+						</div>
+						<div class="field">
+							<label for="lineWidthSlider" id="lineWidthLabel">Tebal garis</label>
+							<div style="display:flex;align-items:center;gap:var(--sp-2)">
+								<input type="range" id="lineWidthSlider" min="1" max="5" value="2" step="0.5" style="flex:1">
+								<span id="lineWidthValue" class="mono nums" style="min-width:3ch;text-align:right;font-size:.875rem">2px</span>
+							</div>
+						</div>
+					</div>
 					<div id="cacheStatus" class="hidden" style="display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap">
 						<span id="cacheStatusText" class="hint"></span>
 						<button id="clearCacheBtn" class="secondary" style="min-height:28px;padding:0 var(--sp-2);font-size:.75rem">Clear cache</button>
@@ -1134,6 +1189,10 @@
 				<div id="map-wrapper">
 					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/b/b0/World_location_map_(equirectangular_180).svg" alt="World Location Map" draggable="false">
 					<canvas id="map-overlay"></canvas>
+					<!-- Garis kontur: tooltip + marker + label -->
+					<div id="mapTooltip" role="tooltip"></div>
+					<div id="mapMarker" class="map-marker hidden" aria-hidden="true"><svg viewBox="0 0 24 24" fill="var(--primary)" stroke="#fff" stroke-width="1.2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+					<div id="contourLabel" class="contour-label hidden"></div>
 				</div>
 			</div>
 			</section>
@@ -1510,12 +1569,18 @@
 				opacityLabel: "Opacity",
 				landOnlyLabel: "Land only",
 				landOnlyHint: "Show only over land (hide ocean)",
+				lineModeLabel: "Contour line (KHGT style)",
+				lineModeHint: "Show boundary as contour line, not filled shading",
+				lineWidthLabel: "Line width",
 				clearCache: "Clear cache",
 				cacheHit: "Loaded from cache",
 				cacheMiss: "Computed freshly",
 				cacheCount: "cached",
 				landReady: "Land mask ready",
 				landLoading: "Loading land mask…",
+				tooltipVisible: "Visible",
+				tooltipNotVisible: "Not visible",
+				firstVisible: "First visible point",
 				landFallback: "Using approximate land mask"
 			},
 			id: {
@@ -1582,12 +1647,18 @@
 				opacityLabel: "Opasitas",
 				landOnlyLabel: "Hanya daratan",
 				landOnlyHint: "Tampilkan hanya di atas daratan (lautan disembunyikan)",
+				lineModeLabel: "Mode garis (ala KHGT)",
+				lineModeHint: "Tampilkan batas sebagai garis kontur, bukan blok warna",
+				lineWidthLabel: "Tebal garis",
 				clearCache: "Hapus cache",
 				cacheHit: "Dimuat dari cache",
 				cacheMiss: "Hitung baru",
 				cacheCount: "tersimpan",
 				landReady: "Mask daratan siap",
 				landLoading: "Memuat mask daratan…",
+				tooltipVisible: "Terlihat",
+				tooltipNotVisible: "Tidak terlihat",
+				firstVisible: "Titik pertama terlihat",
 				landFallback: "Menggunakan mask daratan perkiraan"
 			}
 		};
@@ -1715,7 +1786,7 @@ self.onmessage = e => {
 
 		class HilalMap {
 			constructor() {
-				this.cacheVersion = 6; // bump for Fase 2 overlay controls
+				this.cacheVersion = 7; // bump for Fase 2+ garis kontur
 				this.language = AppSettings.detectLang(Object.keys(text));
 				this.themeName = 'auto';
 				this.worker = null;
@@ -1724,6 +1795,11 @@ self.onmessage = e => {
 				this.renderCache = new Map(); // key -> {width,height,buffer:ArrayBuffer}
 				this.opacity = 40;
 				this.landOnly = false;
+				// Garis kontur ala KHGT
+				this.lineMode = true; // default garis, bukan shading
+				this.lineWidth = 2;
+				this.contourSegments = []; // for tooltip & marker
+				this.markerPos = null;
 				this.landGeojson = null;
 				this.landCache = {};
 				this.currentImageDataRaw = null; // unfiltered raw buffer for toggling
@@ -1738,6 +1814,8 @@ self.onmessage = e => {
 					if (s.theme) this.themeName = s.theme;
 					if (s.opacity != null) this.opacity = s.opacity;
 					if (s.landOnly != null) this.landOnly = s.landOnly;
+					if (s.lineMode != null) this.lineMode = s.lineMode;
+					if (s.lineWidth != null) this.lineWidth = s.lineWidth;
 				} catch (e) {}
 			}
 
@@ -1746,8 +1824,18 @@ self.onmessage = e => {
 					language: this.language,
 					theme: this.themeName,
 					opacity: this.opacity,
-					landOnly: this.landOnly
+					landOnly: this.landOnly,
+					lineMode: this.lineMode,
+					lineWidth: this.lineWidth
 				}));
+			}
+			// warna garis per kriteria (mirip KHGT: tegas, kontras)
+			getContourColor(criteria) {
+				if (criteria==='mabbims') return '#0B6B1D'; // hijau MABBIMS
+				if (criteria==='gic') return '#005DAC'; // biru KHGT
+				if (criteria==='global') return '#8A5000'; // coklat
+				if (criteria==='alt0') return '#6B7280';
+				return '#005DAC';
 			}
 
 			// Fase 2: land mask loader (reuses ne_110m_land.geojson if present)
@@ -1854,6 +1942,18 @@ self.onmessage = e => {
 				}
 				const clr = $('clearCacheBtn');
 				if (clr) clr.onclick = ()=>{ this.renderCache.clear(); this.updateCacheUI(false); $('mapStatus').textContent = this.string('done'); clr.blur(); };
+				// Garis kontur ala KHGT
+				const lm = $('lineModeToggle');
+				if (lm) {
+					lm.checked = this.lineMode;
+					lm.onchange = e=>{ this.lineMode = e.target.checked; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
+				}
+				const lw = $('lineWidthSlider');
+				if (lw) {
+					lw.value = this.lineWidth;
+					const lvw=$('lineWidthValue'); if (lvw) lvw.textContent = this.lineWidth + 'px';
+					lw.oninput = e=>{ this.lineWidth = parseFloat(e.target.value)||2; if (lvw) lvw.textContent = this.lineWidth + 'px'; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
+				}
 				$('tabMap').onclick = ()=>this.switchTab("map");
 				$('tabCalc').onclick = ()=>this.switchTab("calc");
 				$('calcCriteria').onchange = ()=>this.toggleCustomCalc();
@@ -1884,12 +1984,17 @@ self.onmessage = e => {
 					this.startY = e.clientY - this.translateY;
 				});
 
-				$('map-container').addEventListener('mousemove',e=>this.isDragging && (
-					this.translateX = e.clientX - this.startX,
-					this.translateY = e.clientY - this.startY,
-					this.limitPan(),
-					this.updateTransform()
-				));
+				$('map-container').addEventListener('mousemove',e=>{
+					if (this.isDragging) {
+						this.translateX = e.clientX - this.startX;
+						this.translateY = e.clientY - this.startY;
+						this.limitPan();
+						this.updateTransform();
+						return;
+					}
+					// garis kontur tooltip (hanya saat tidak drag)
+					if (this.lineMode && this.contourSegments.length) this.handleHover(e);
+				});
 
 				$('map-container').addEventListener('mouseup',()=>{
 					this.isDragging = false;
@@ -1897,6 +2002,7 @@ self.onmessage = e => {
 
 				$('map-container').addEventListener('mouseleave',()=>{
 					this.isDragging = false;
+					this.hideTooltip();
 				});
 
 				const today = new Date();
@@ -1961,6 +2067,39 @@ self.onmessage = e => {
 				$('map-wrapper').style.transform =
 					`translate(-50%, -50%) translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
 			}
+			// garis kontur tooltip helpers
+			handleHover(e) {
+				const container = $('map-container');
+				const rect = container.getBoundingClientRect();
+				const cx = e.clientX - rect.left;
+				const cy = e.clientY - rect.top;
+				// find nearest contour segment
+				let best = null, bestDist = Infinity;
+				for (const seg of this.contourSegments) {
+					const dx = seg.x2 - seg.x1, dy = seg.y2 - seg.y1;
+					const len2 = dx*dx + dy*dy || 1;
+					let t = ((cx - seg.x1)*dx + (cy - seg.y1)*dy) / len2;
+					t = Math.max(0, Math.min(1, t));
+					const px = seg.x1 + t*dx, py = seg.y1 + t*dy;
+					const d = Math.hypot(cx - px, cy - py);
+					if (d < bestDist) { bestDist = d; best = {px, py, lat: seg.lat, lon: seg.lon, d}; }
+				}
+				const tt = $('mapTooltip');
+				if (!tt) return;
+				if (best && bestDist < 16) {
+					tt.textContent = `${best.lat.toFixed(2)}°, ${best.lon.toFixed(2)}° — ${this.string('tooltipVisible') || 'Visible'}`;
+					tt.style.left = (best.px + 12) + 'px';
+					tt.style.top = (best.py - 10) + 'px';
+					tt.classList.add('show');
+					// flip if near edge
+					if (best.px > rect.width - 140) tt.style.left = (best.px - tt.offsetWidth - 12) + 'px';
+				} else {
+					this.hideTooltip();
+				}
+			}
+			hideTooltip() {
+				const tt=$('mapTooltip'); if (tt) tt.classList.remove('show');
+			}
 
 			string(key) { return text[this.language]?.[key] ?? key; }
 
@@ -1973,8 +2112,8 @@ self.onmessage = e => {
 				this.language = AppSettings.applyLang(language);
 				this.saveState();
 				Object.keys(text.en).forEach(key=>{ const el = $(key); if (el) el.textContent = this.string(key); });
-				// Fase 2: translate new overlay controls
-				const extraKeys = ['opacityLabel','landOnlyLabel','landOnlyHint','clearCache'];
+				// Fase 2 + garis: translate new overlay controls
+				const extraKeys = ['opacityLabel','landOnlyLabel','landOnlyHint','lineModeLabel','lineModeHint','lineWidthLabel','clearCache'];
 				extraKeys.forEach(k=>{ const el=$(k); if(el) el.textContent = this.string(k); });
 				['In', 'Out', 'Reset'].forEach(k => {
 					const s = this.string("zoom" + k);
@@ -2338,55 +2477,181 @@ self.onmessage = e => {
 			}
 
 			redrawOverlay() {
-				if (!this.currentImageData || !this.lastBounds) return;
+				if (!this.currentImageDataRaw || !this.lastBounds) return;
 				const canvas = $('map-overlay');
 				const img = $('map-image');
-
-				// Set canvas to match image dimensions
+				// Set canvas to match image dimensions (image may not be loaded yet)
 				canvas.width = img.naturalWidth || img.width || canvas.clientWidth || 1200;
 				canvas.height = img.naturalHeight || img.height || canvas.clientHeight || 600;
 				if (!canvas.width || !canvas.height) return;
-
 				const ctx = canvas.getContext("2d");
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				// Fase 2: high-quality smoothing for 245-grid interpolation
-				ctx.imageSmoothingEnabled = true;
-				ctx.imageSmoothingQuality = 'high';
-
-				// Create temporary canvas with the calculation data
-				const tempCanvas = document.createElement('canvas');
-				tempCanvas.width = this.currentImageData.width;
-				tempCanvas.height = this.currentImageData.height;
-				const tempCtx = tempCanvas.getContext('2d');
-				// also smooth when putting data (nearest but scaled later)
-				tempCtx.imageSmoothingEnabled = true;
-				tempCtx.putImageData(this.currentImageData, 0, 0);
-
-				// Calculate position based on bounds
-				// Image covers 90°N to 90°S, -180° to 180°
+				// hide previous marker/label
+				const mk=$('mapMarker'), cl=$('contourLabel');
+				if (mk) mk.classList.add('hidden');
+				if (cl) cl.classList.add('hidden');
+				this.contourSegments = [];
+				this.markerPos = null;
+				// common geo transform
 				const imgBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
 				const dataBounds = this.lastBounds;
-
-				// Horizontal (Linear)
 				const x = ((dataBounds.minLon - imgBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
 				const w = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
-
-				// Vertical (Linear)
-				// Map Y=0 is 90°N, Y=Height is -90°S
 				const mapTopY = this.latToPlateCarreeY(imgBounds.maxLat);
 				const mapBottomY = this.latToPlateCarreeY(imgBounds.minLat);
-
 				const dataTopY = this.latToPlateCarreeY(dataBounds.maxLat);
 				const dataBottomY = this.latToPlateCarreeY(dataBounds.minLat);
-
-				// Y pixel is proportional to (mapTopY - val)
 				const y = ((mapTopY - dataTopY) / (mapTopY - mapBottomY)) * canvas.height;
 				const h = ((mapTopY - dataBottomY) / (mapTopY - mapBottomY)) * canvas.height - y;
 
-				// Draw scaled overlay with smoothing
-				ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, x, y, w, h);
-				// apply opacity via CSS (keep per-pixel alpha at 100)
-				canvas.style.opacity = (this.opacity/100).toString();
+				if (!this.lineMode) {
+					// === SHADING MODE (Fase 2) ===
+					if (!this.currentImageData) return;
+					ctx.imageSmoothingEnabled = true;
+					ctx.imageSmoothingQuality = 'high';
+					const tempCanvas = document.createElement('canvas');
+					tempCanvas.width = this.currentImageData.width;
+					tempCanvas.height = this.currentImageData.height;
+					const tempCtx = tempCanvas.getContext('2d');
+					tempCtx.imageSmoothingEnabled = true;
+					tempCtx.putImageData(this.currentImageData, 0, 0);
+					ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, x, y, w, h);
+					canvas.style.opacity = (this.opacity/100).toString();
+					return;
+				}
+				// === GARIS KONTOUR MODE (ala KHGT) ===
+				const raw = this.currentImageDataRaw.raw;
+				const width = this.currentImageDataRaw.width;
+				const height = this.currentImageDataRaw.height;
+				const criteria = $('mapCriteria').value;
+				const color = this.getContourColor(criteria);
+				// build visibility boolean grid
+				const visible = new Uint8Array(width*height);
+				for (let i=0;i<width*height;i++) visible[i] = raw[i*4+3] > 0 ? 1 : 0;
+				// land filter for line segments: if landOnly, we will skip ocean mid-points later
+				// prepare transform from grid to canvas overlay coords (pre-wrapper)
+				const gridToCanvas = (gx, gy) => {
+					return { x: x + (gx / width) * w, y: y + (gy / height) * h };
+				};
+				// collect boundary edges: for each visible cell, check right & bottom neighbors + outer border
+				const segments = [];
+				const boundsW = dataBounds.maxLon - dataBounds.minLon;
+				const boundsH = dataBounds.maxLat - dataBounds.minLat;
+				for (let r=0;r<height;r++) {
+					for (let c=0;c<width;c++) {
+						const idx = r*width + c;
+						if (!visible[idx]) continue;
+						const lat = dataBounds.maxLat - (r + 0.5)/height * boundsH;
+						const lon = dataBounds.minLon + (c + 0.5)/width * boundsW;
+						// helper to add edge if neighbor not visible or out of bounds
+						const addEdge = (x1,y1,x2,y2, midLat, midLon) => {
+							// landOnly check: skip if middle point over ocean
+							if (this.landOnly && !this.isLand(midLat, midLon, 0.2)) return;
+							const p1 = gridToCanvas(x1, y1);
+							const p2 = gridToCanvas(x2, y2);
+							segments.push({x1:p1.x, y1:p1.y, x2:p2.x, y2:p2.y, lat, lon});
+						};
+						// right edge
+						if (c===width-1 || !visible[idx+1]) {
+							const midLat = lat;
+							const midLon = dataBounds.minLon + (c+1)/width * boundsW;
+							addEdge(c+1, r, c+1, r+1, midLat, midLon);
+						}
+						// bottom edge
+						if (r===height-1 || !visible[idx+width]) {
+							const midLat = dataBounds.maxLat - (r+1)/height * boundsH;
+							const midLon = lon;
+							addEdge(c, r+1, c+1, r+1, midLat, midLon);
+						}
+						// left edge for first column visible (outer border)
+						if (c===0) {
+							const midLat = lat;
+							const midLon = dataBounds.minLon;
+							if (visible[idx]) addEdge(c, r, c, r+1, midLat, midLon);
+						}
+						if (r===0) {
+							const midLat = dataBounds.maxLat;
+							const midLon = lon;
+							addEdge(c, r, c+1, r, midLat, midLon);
+						}
+					}
+				}
+				// if no visible, show empty but still opacity
+				if (!segments.length) {
+					canvas.style.opacity = (this.opacity/100).toString();
+					this.contourSegments = [];
+					return;
+				}
+				// draw all segments as one path with smoothing
+				ctx.save();
+				ctx.strokeStyle = color;
+				ctx.lineWidth = this.lineWidth;
+				ctx.lineJoin = 'round';
+				ctx.lineCap = 'round';
+				ctx.globalAlpha = (this.opacity/100) * 0.95 + 0.05; // keep visible even at low opacity
+				ctx.beginPath();
+				for (const s of segments) {
+					ctx.moveTo(s.x1, s.y1);
+					ctx.lineTo(s.x2, s.y2);
+				}
+				ctx.stroke();
+				// add glow for readability on light/dark basemap
+				ctx.globalAlpha = 0.25 * (this.opacity/100);
+				ctx.lineWidth = this.lineWidth + 3;
+				ctx.strokeStyle = '#fff';
+				ctx.stroke();
+				// re-stroke main line on top
+				ctx.globalAlpha = (this.opacity/100);
+				ctx.lineWidth = this.lineWidth;
+				ctx.strokeStyle = color;
+				ctx.beginPath();
+				for (const s of segments) { ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); }
+				ctx.stroke();
+				ctx.restore();
+				canvas.style.opacity = '1'; // opacity handled via globalAlpha
+				// store for hover: need to convert segments to container pixel space (already overlay canvas space; handleHover uses container rect which matches overlay canvas size because overlay covers wrapper which is 100% of container after transform? For simplicity, store same and handleHover will map client to overlay by scaling rect to canvas size.)
+				// container rect to canvas ratio:
+				const container = $('map-container');
+				const rect = container.getBoundingClientRect();
+				const scaleX = rect.width / canvas.width;
+				const scaleY = rect.height / canvas.height;
+				this.contourSegments = segments.map(s=>({
+					x1: s.x1 * scaleX, y1: s.y1 * scaleY, x2: s.x2 * scaleX, y2: s.y2 * scaleY, lat: s.lat, lon: s.lon
+				}));
+				// marker: first visible point (sentroid of visible boundary for 'semua' detail)
+				// compute centroid of all visible boundary cells
+				let sumLat=0, sumLon=0, cnt=0;
+				for (let r=0;r<height;r++) for (let c=0;c<width;c++) if (visible[r*width+c]) { sumLat += dataBounds.maxLat - (r+0.5)/height*boundsH; sumLon += dataBounds.minLon + (c+0.5)/width*boundsW; cnt++; }
+				if (cnt>0) {
+					const cenLat = sumLat/cnt, cenLon = sumLon/cnt;
+					// find boundary cell closest to centroid for marker (more meaningful than random)
+					let bestD=Infinity, best=null;
+					for (let r=0;r<height;r++) for (let c=0;c<width;c++) if (visible[r*width+c]) {
+						const lat = dataBounds.maxLat - (r+0.5)/height*boundsH, lon = dataBounds.minLon + (c+0.5)/width*boundsW;
+						const isB = (c===0 || c===width-1 || r===0 || r===height-1 || !visible[r*width+c+1] || !visible[r*width+c-1] || !visible[(r-1)*width+c] || !visible[(r+1)*width+c]);
+						if (!isB) continue;
+						const d = Math.hypot(lat-cenLat, lon-cenLon);
+						if (d<bestD) {bestD=d; best={lat,lon};}
+					}
+					if (best) {
+						const cx = x + (best.lon - dataBounds.minLon)/boundsW * w;
+						const cy = y + (dataBounds.maxLat - best.lat)/boundsH * h;
+						this.markerPos = {lat:best.lat, lon:best.lon, x:cx*scaleX, y:cy*scaleY, cx, cy};
+						// place marker div (position inside wrapper: use % of canvas)
+						if (mk) {
+							mk.style.left = (cx / canvas.width * 100) + '%';
+							mk.style.top = (cy / canvas.height * 100) + '%';
+							mk.classList.remove('hidden');
+							mk.title = `${this.string('firstVisible')}: ${best.lat.toFixed(2)}°, ${best.lon.toFixed(2)}°`;
+						}
+						if (cl) {
+							cl.textContent = criteria==='mabbims' ? 'MABBIMS 3°/6.4°' : criteria==='gic' ? 'KHGT 5°/8°' : criteria;
+							cl.style.left = (cx / canvas.width * 100) + '%';
+							cl.style.top = ((cy / canvas.height * 100) - 3) + '%';
+							cl.classList.remove('hidden');
+						}
+					}
+				}
 			}
 		}
 		new HilalMap();

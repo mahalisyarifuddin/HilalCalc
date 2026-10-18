@@ -1665,10 +1665,53 @@ const calculateSunset = (lat, lon, baseDateUT) => {
 	const obs = new Astronomy.Observer(lat, lon, 0);
 	return Astronomy.SearchRiseSet(Astronomy.Body.Sun, obs, -1, baseDateUT - (lon / 15 / 24), 1);
 };
+const sunsetCache = new Map();
+const calculateSunsetCached = (lat, lon, baseDateUT) => {
+	const k = lat.toFixed(1)+","+lon.toFixed(1)+","+baseDateUT.toFixed(4);
+	if (sunsetCache.has(k)) return sunsetCache.get(k);
+	const r = calculateSunset(lat, lon, baseDateUT);
+	sunsetCache.set(k, r);
+	return r;
+};
+// isLand in worker (mirrors main thread) — uses e.data.landGeojson if provided
+let _landGeojsonWD = null;
+let _landCacheWD = new Map();
+function isLandWD(lat, lon, bufferDeg=0){
+	if (!_landGeojsonWD) return true;
+	const key = lat.toFixed(2)+","+lon.toFixed(2)+","+bufferDeg;
+	if (_landCacheWD.has(key)) return _landCacheWD.get(key);
+	const pt=[lon,lat];
+	const inRing=(pt,ring)=>{
+		let inside=false;
+		for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+			const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+			if(((yi>pt[1])!==(yj>pt[1]))&&(pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi)) inside=!inside;
+		}
+		return inside;
+	};
+	const inPoly=(pt,rings)=>{
+		if(!inRing(pt,rings[0])) return false;
+		for(let i=1;i<rings.length;i++) if(inRing(pt,rings[i])) return false;
+		return true;
+	};
+	const check=(la,lo)=>{
+		const p=[lo,la];
+		for(const f of _landGeojsonWD.features){
+			if(f.geometry.type==='Polygon'){ if(inPoly(p,f.geometry.coordinates)) return true; }
+			else if(f.geometry.type==='MultiPolygon'){ for(const poly of f.geometry.coordinates) if(inPoly(p,poly)) return true; }
+		}
+		return false;
+	};
+	let res;
+	if(bufferDeg===0) res=check(lat,lon);
+	else res=[[0,0],[-bufferDeg,-bufferDeg],[-bufferDeg,bufferDeg],[bufferDeg,-bufferDeg],[bufferDeg,bufferDeg]].some(([dla,dlo])=>check(lat+dla,lon+dlo));
+	_landCacheWD.set(key,res); return res;
+}
 
 self.onmessage = e => {
 	try {
-		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong } = e.data;
+		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong, landOnly, landGeojson } = e.data;
+		_landGeojsonWD = landGeojson || null; _landCacheWD = new Map(); sunsetCache.clear();
 		const maxGridSize = 245;
 		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
 		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
@@ -1714,19 +1757,24 @@ self.onmessage = e => {
 
 			for (let col = 0; col < width; col++) {
 				const lon = bounds.minLon + (col * cellSizeDeg);
+				// optimasi landOnly: skip ocean sebelum hitung sunset/moon (hemat ~70% World)
+				if (landOnly && _landGeojsonWD && !isLandWD(lat, lon, 0.2)) {
+					const sIdx=(row*width+col)*4; buffer[sIdx]=0; buffer[sIdx+1]=0; buffer[sIdx+2]=0; buffer[sIdx+3]=0;
+					continue;
+				}
 				let sunset = null;
 
 				if (col >= nextCol) {
 					prevCol = col;
-					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunset(lat, lon, date.ut);
+					prevSunset = (col === nextCol && nextSunset !== null) ? nextSunset : calculateSunsetCached(lat, lon, date.ut);
 					nextCol = Math.min(col + STEP, width - 1);
-					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunset(lat, bounds.minLon + (nextCol * cellSizeDeg), date.ut);
+					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunsetCached(lat, bounds.minLon + (nextCol * cellSizeDeg), date.ut);
 				}
 
 				if (prevSunset && nextSunset) {
 					sunset = { ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((col - prevCol) / (nextCol - prevCol || 1)) };
 				} else {
-					sunset = calculateSunset(lat, lon, date.ut);
+					sunset = calculateSunsetCached(lat, lon, date.ut);
 				}
 
 				let visible = false;
@@ -1782,7 +1830,7 @@ self.onmessage = e => {
 
 		class HilalMap {
 			constructor() {
-				this.cacheVersion = 7; // bump for Fase 2+ garis kontur
+				this.cacheVersion = 8; // bump for Fase optimasi sweep (memoize+landOnly dini)
 				this.language = AppSettings.detectLang(Object.keys(text));
 				this.themeName = 'auto';
 				this.worker = null;
@@ -1890,8 +1938,8 @@ self.onmessage = e => {
 				else res = [[0,0],[-bufferDeg,-bufferDeg],[-bufferDeg,bufferDeg],[bufferDeg,-bufferDeg],[bufferDeg,bufferDeg]].some(([dla,dlo])=>check(lat+dla, lon+dlo));
 				this.landCache[key]=res; return res;
 			}
-			getCacheKey(region, criteria, dateStr, minAlt, minElong) {
-				return `${region}|${criteria}|${dateStr}|${minAlt}|${minElong}`;
+			getCacheKey(region, criteria, dateStr, minAlt, minElong, landOnly) {
+				return `${region}|${criteria}|${dateStr}|${minAlt}|${minElong}|${landOnly?'land':''}`;
 			}
 			updateCacheUI(hit) {
 				const cs = $('cacheStatus'), txt=$('cacheStatusText'), cnt=$('cacheCount');
@@ -2359,7 +2407,7 @@ self.onmessage = e => {
 				const dateString = $('mapDate').value;
 				const minAltVal = parseFloat($('minAlt').value) || 0;
 				const minElongVal = parseFloat($('minElong').value) || 0;
-				const cacheKey = this.getCacheKey(region, criteria, dateString, minAltVal, minElongVal);
+				const cacheKey = this.getCacheKey(region, criteria, dateString, minAltVal, minElongVal, this.landOnly);
 				// setup bounds early for cache UI
 				let boundsEarly;
 				if (region === "indonesia") boundsEarly = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
@@ -2393,7 +2441,9 @@ self.onmessage = e => {
 					criteria: criteria,
 					dateTimestamp: dateObj.getTime(),
 					minAlt: minAltVal,
-					minElong: minElongVal
+					minElong: minElongVal,
+					landOnly: this.landOnly,
+					landGeojson: this.landGeojson
 				};
 				// store key for completion
 				this._pendingKey = cacheKey;

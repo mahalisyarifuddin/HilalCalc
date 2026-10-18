@@ -1712,7 +1712,7 @@ self.onmessage = e => {
 	try {
 		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong, landOnly, landGeojson } = e.data;
 		_landGeojsonWD = landGeojson || null; _landCacheWD = new Map(); sunsetCache.clear();
-		const maxGridSize = 245;
+		const maxGridSize = 100; // knee 92→100 (4232→5000 piksel, 0.97s) full sweep 200-px, optimasi memoize
 		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
 		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
 		const height = Math.min(Math.ceil(heightDeg / cellSizeDeg), maxGridSize);
@@ -1830,7 +1830,7 @@ self.onmessage = e => {
 
 		class HilalMap {
 			constructor() {
-				this.cacheVersion = 8; // bump for Fase optimasi sweep (memoize+landOnly dini)
+				this.cacheVersion = 9; // bump knee 100 (was 245)
 				this.language = AppSettings.detectLang(Object.keys(text));
 				this.themeName = 'auto';
 				this.worker = null;

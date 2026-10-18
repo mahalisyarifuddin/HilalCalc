@@ -1023,6 +1023,10 @@
 			color: var(--text-muted);
 		}
 		.cache-badge.hit { background: var(--success-bg); color: var(--success); border-color: var(--success); }
+		/* Rapikan panel kontrol */
+		#layerControls { background: var(--surface-variant); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-3) var(--sp-4); }
+		#layerControls .row { gap: var(--sp-3); }
+		.export-row button { flex: 0 0 auto; }
 		/* Garis kontur — tooltip & marker */
 		#mapTooltip {
 			position: absolute;
@@ -1162,16 +1166,18 @@
 						<div class="field">
 							<label for="lineWidthSlider" id="lineWidthLabel">Tebal garis</label>
 							<div style="display:flex;align-items:center;gap:var(--sp-2)">
-								<input type="range" id="lineWidthSlider" min="1" max="5" value="2" step="0.5" style="flex:1">
-								<span id="lineWidthValue" class="mono nums" style="min-width:3ch;text-align:right;font-size:.875rem">2px</span>
+								<input type="range" id="lineWidthSlider" min="1" max="10" value="2" step="0.5" style="flex:1">
+								<span id="lineWidthValue" class="mono nums" style="min-width:3.5ch;text-align:right;font-size:.875rem">2px</span>
 							</div>
 						</div>
 					</div>
-					<div id="cacheStatus" class="hidden" style="display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap">
-						<span id="cacheStatusText" class="hint"></span>
-						<button id="clearCacheBtn" class="secondary" style="min-height:28px;padding:0 var(--sp-2);font-size:.75rem">Clear cache</button>
-						<span id="cacheCount" class="cache-badge">0 cached</span>
+					<div class="export-row" style="display:flex;gap:var(--sp-2);flex-wrap:wrap;align-items:center;border-top:1px solid var(--border);padding-top:var(--sp-3);margin-top:var(--sp-1)">
+						<span class="hint" id="exportLabel" style="margin:0;font-weight:600">Ekspor:</span>
+						<button id="exportPngBtn" class="secondary" style="min-height:32px;padding:0 var(--sp-3);font-size:.8125rem">PNG</button>
+						<button id="exportCsvBtn" class="secondary" style="min-height:32px;padding:0 var(--sp-3);font-size:.8125rem">CSV</button>
+						<span id="cacheCount" class="cache-badge" style="margin-left:auto">0 cached</span>
 					</div>
+					<div id="cacheStatus" class="hint hidden" style="margin-top:var(--sp-1)"><span id="cacheStatusText"></span></div>
 					<div id="landStatus" class="hint hidden"></div>
 				</div>
 			</section>
@@ -1183,7 +1189,7 @@
 						<button id="zoom-reset" title="Reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v5h5"></path></svg></button>
 				</div>
 				<div id="map-wrapper">
-					<img id="map-image" src="https://upload.wikimedia.org/wikipedia/commons/b/b0/World_location_map_(equirectangular_180).svg" alt="World Location Map" draggable="false">
+					<img id="map-image" crossorigin="anonymous" src="https://upload.wikimedia.org/wikipedia/commons/b/b0/World_location_map_(equirectangular_180).svg" alt="World Location Map" draggable="false">
 					<canvas id="map-overlay"></canvas>
 					<!-- Garis kontur: tooltip + marker + label -->
 					<div id="mapTooltip" role="tooltip"></div>
@@ -1568,7 +1574,9 @@
 				lineModeLabel: "Contour line (KHGT style)",
 				lineModeHint: "Contour mode — visibility boundary as line",
 				lineWidthLabel: "Line width",
-				clearCache: "Clear cache",
+				exportLabel: "Export:",
+				exportPngBtn: "PNG",
+				exportCsvBtn: "CSV",
 				cacheHit: "Loaded from cache",
 				cacheMiss: "Computed freshly",
 				cacheCount: "cached",
@@ -1646,7 +1654,9 @@
 				lineModeLabel: "Mode garis",
 				lineModeHint: "Mode kontur — batas visibilitas sebagai garis",
 				lineWidthLabel: "Tebal garis",
-				clearCache: "Hapus cache",
+				exportLabel: "Ekspor:",
+				exportPngBtn: "PNG",
+				exportCsvBtn: "CSV",
 				cacheHit: "Dimuat dari cache",
 				cacheMiss: "Hitung baru",
 				cacheCount: "tersimpan",
@@ -1984,8 +1994,9 @@ self.onmessage = e => {
 					landCb.checked = this.landOnly;
 					landCb.onchange = e=>{ this.landOnly = e.target.checked; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
 				}
-				const clr = $('clearCacheBtn');
-				if (clr) clr.onclick = ()=>{ this.renderCache.clear(); this.updateCacheUI(false); $('mapStatus').textContent = this.string('done'); clr.blur(); };
+				// Ekspor PNG/CSV — rapikan panel, hapus hapus-cache
+				const ep=$('exportPngBtn'); if(ep) ep.onclick=()=>this.exportPNG();
+				const ec=$('exportCsvBtn'); if(ec) ec.onclick=()=>this.exportCSV();
 				// Garis kontur ala KHGT
 				const lm = $('lineModeToggle');
 				if (lm) {
@@ -2157,7 +2168,7 @@ self.onmessage = e => {
 				this.saveState();
 				Object.keys(text.en).forEach(key=>{ const el = $(key); if (el) el.textContent = this.string(key); });
 				// Fase 2 + garis: translate new overlay controls
-				const extraKeys = ['opacityLabel','landOnlyLabel','landOnlyHint','lineModeLabel','lineModeHint','lineWidthLabel','clearCache'];
+				const extraKeys = ['opacityLabel','landOnlyLabel','landOnlyHint','lineModeLabel','lineModeHint','lineWidthLabel','exportLabel','exportPngBtn','exportCsvBtn'];
 				extraKeys.forEach(k=>{ const el=$(k); if(el) el.textContent = this.string(k); });
 				['In', 'Out', 'Reset'].forEach(k => {
 					const s = this.string("zoom" + k);
@@ -2516,6 +2527,35 @@ self.onmessage = e => {
 				}
 				this.currentImageData = new ImageData(filtered, width, height);
 				this.redrawOverlay();
+			}
+			// === Ekspor PNG/CSV (rapikan panel: tanpa hapus-cache) ===
+			exportPNG(){
+				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
+				const canvas=$('map-overlay'), img=$('map-image');
+				const w=canvas.width||1200, h=canvas.height||600;
+				const out=document.createElement('canvas'); out.width=w; out.height=h;
+				const ctx=out.getContext('2d');
+				try{ if(img.naturalWidth) ctx.drawImage(img,0,0,w,h); }catch(e){}
+				ctx.globalAlpha=1; ctx.drawImage(canvas,0,0);
+				const region=$('mapRegion').value, criteria=$('mapCriteria').value, date=$('mapDate').value||'unknown';
+				const a=document.createElement('a'); a.download=`hilalmap-${region}-${criteria}-${date}.png`; a.href=out.toDataURL('image/png'); a.click();
+			}
+			exportCSV(){
+				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
+				const {width,height,raw}=this.currentImageDataRaw;
+				const bounds=this.lastBounds; const wDeg=bounds.maxLon-bounds.minLon, hDeg=bounds.maxLat-bounds.minLat;
+				const lines=['latitude,longitude,visible,landOnly,criteria,date'];
+				const date=$('mapDate').value, criteria=$('mapCriteria').value;
+				for(let r=0;r<height;r++){
+					const lat=bounds.maxLat - (r+0.5)/height*hDeg;
+					for(let c=0;c<width;c++){
+						const lon=bounds.minLon + (c+0.5)/width*wDeg;
+						const idx=(r*width+c)*4+3; const vis=raw[idx]>0?1:0;
+						lines.push(`${lat.toFixed(4)},${lon.toFixed(4)},${vis},${this.landOnly?1:0},${criteria},${date}`);
+					}
+				}
+				const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+				const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`hilalmap-${$('mapRegion').value}-${criteria}-${date}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 			}
 
 			latToPlateCarreeY(lat) {

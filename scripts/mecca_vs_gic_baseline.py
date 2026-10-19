@@ -26,6 +26,12 @@ and scores Mecca 0° and GIC against the Adak+Viwa baseline: exact month-start
 match rate and whole-day offset distribution, overall and for the ritual
 months (the conjunction-walk indices where i%12 in (7, 8, 10): Ramadan,
 Syawal, Zulhijjah).
+
+Note: this is the calibrated fast-engine pipeline.  The authoritative
+1-10,000 AH recalculation uses the exact Astronomy Engine C path instead
+(scripts/astronomy_c_baseline_10k.c + scripts/analyze_c_baseline.py against
+the C global/GT runs; see ASTRONOMY_C_10000_RERUN.md, "Baseline global fisik
+Adak-Viwa" section): Mecca 0° 8.9617% exact, GIC 18.0050% exact.
 """
 from __future__ import annotations
 

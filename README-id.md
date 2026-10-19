@@ -68,9 +68,10 @@ Laporan lengkap ada di [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md
 | Knee point siklus terbaik | **30 tahun** |
 | Uji ambang | Mekkah 0°/0° mereproduksi ground truth 100%; San Francisco terbaik 2°/6° (toposentrik) sebesar 90,6709% |
 | Keserempakan MABBIMS–GIC eksak | **56,0242%** keseluruhan; 56,1567% bulan ritual |
+| Akurasi terhadap baseline Adak+Viwa (C eksak, 19 Okt 2026) | Mekkah 0° tepat **8,9617%**; GIC tepat **18,0050%** — keduanya umumnya 1 hari lebih awal dari baseline, tidak pernah lebih lambat |
 | Keserempakan tahunan MABIMS–KHGT (10.000 tahun) | Ramadan–Syawal **21,49%**; Ramadan–Syawal–Zulhijjah **15,05%** per tahun — lihat [bagian keserempakan tahunan](ASTRONOMY_C_10000_RERUN.md#keserempakan-tahunan-ramadan-syawal-dan-zulhijjah) pada laporan |
 
-Pengulangan global C tidak menemukan selisih GIC selain 0 atau satu hari lebih awal terhadap MABBIMS (56,0242% serempak, 43,9758% GIC 1 hari lebih awal). Terhadap seri fisik Mekkah 0°, MABBIMS sama dengan Mekkah pada **45,0408%** seluruh bulan dan 1 hari lebih lambat pada **54,9592%** (Mekkah 1 hari lebih awal dari kepulauan Melayu). GIC sama dengan Mekkah pada **84,7750%** seluruh bulan (2,1208% GIC 1 hari lebih awal, 13,1042% GIC 1 hari lebih lambat). Ini adalah hasil C langsung untuk jendela 1–10.000 H yang didokumentasikan.
+Pengulangan global C tidak menemukan selisih GIC selain 0 atau satu hari lebih awal terhadap MABBIMS (56,0242% serempak, 43,9758% GIC 1 hari lebih awal). Terhadap seri fisik Mekkah 0°, MABBIMS sama dengan Mekkah pada **45,0408%** seluruh bulan dan 1 hari lebih lambat pada **54,9592%** (Mekkah 1 hari lebih awal dari kepulauan Melayu). GIC sama dengan Mekkah pada **84,7750%** seluruh bulan (2,1208% GIC 1 hari lebih awal, 13,1042% GIC 1 hari lebih lambat). Terhadap baseline fisik Adak+Viwa jalur C eksak (visibilitas MABBIMS di Adak plus kemungkinan fisik di Viwa, masing-masing pada matahari terbenamnya), Mekkah 0° tepat pada **8,9617%** bulan dan GIC pada **18,0050%**; keduanya 1 hari lebih awal pada sebagian besar bulan sisanya (80,0158% / 72,9125%) dan tidak pernah lebih lambat, karena ambang MABBIMS penuh baseline di lintang tinggi Adak menjadikannya seri yang paling akhir dari ketiganya. Ini adalah hasil C langsung untuk jendela 1–10.000 H yang didokumentasikan.
 
 ### Menjalankan ulang pengulangan C terbaru
 
@@ -81,12 +82,15 @@ make astronomy-c-global
 OMP_NUM_THREADS=8 ./scripts/astronomy_c_global_10k 10000
 python scripts/analyze_c_observables.py gt_1_10000_c.csv observables_1_10000_c.csv
 python scripts/analyze_c_global.py global_1_10000_c.csv --ground-truth gt_1_10000_c.csv
+make astronomy-c-baseline
+OMP_NUM_THREADS=8 ./scripts/astronomy_c_baseline_10k 10000
+python scripts/analyze_c_baseline.py baseline_1_10000_c.csv --global global_1_10000_c.csv --ground-truth gt_1_10000_c.csv
 ```
 
 CSV dan executable hasil dibuat sengaja diabaikan git. README ini merangkum pengulangan C; metodologi, distribusi, waktu proses, dan interpretasi lengkap ada di laporannya.
 
 ## Skrip Teknis
-Driver pengulangan C adalah `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `analyze_c_observables.py`, dan `analyze_c_global.py`.
+Driver pengulangan C adalah `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, dan `analyze_c_baseline.py`.
 
 Direktori `scripts/` berisi driver C dan alat verifikasi yang digunakan untuk pengulangan terbaru:
 -   `generate_gt.py`: Menghasilkan seri ground truth toposentrik 1–10.000 H.

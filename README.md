@@ -68,9 +68,10 @@ The detailed report is [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md
 | Best cycle knee point | **30 years** |
 | Threshold check | Mecca 0°/0° reproduces its ground truth at 100%; San Francisco best is 2°/6° (topocentric) at 90.6709% |
 | Exact MABBIMS–GIC simultaneity | **56.0242%** overall; 56.1567% ritual months |
+| Accuracy vs Adak+Viwa baseline (exact C, 19 Oct 2026) | Mecca 0° **8.9617%** exact; GIC **18.0050%** exact — both usually start 1 day before the baseline, never later |
 | Yearly MABIMS–KHGT simultaneity (10,000 years) | Ramadan–Syawal **21.49%**; Ramadan–Syawal–Zulhijjah **15.05%** per year — see the [yearly simultaneity section](ASTRONOMY_C_10000_RERUN.md#keserempakan-tahunan-ramadan-syawal-dan-zulhijjah) of the report |
 
-The exact C global run found no GIC offset other than 0 or one day early relative to MABBIMS (56.0242% simultaneous, 43.9758% GIC 1 day early). Against the Mecca 0° physical series, MABBIMS agreed with Mecca in **45.0408%** of all months and was 1 day later in **54.9592%** (Mecca starts 1 day earlier than the Malay archipelago). GIC agreed with Mecca in **84.7750%** of all months (2.1208% GIC 1 day early, 13.1042% GIC 1 day later). These are direct C results for the documented 1–10,000 AH window.
+The exact C global run found no GIC offset other than 0 or one day early relative to MABBIMS (56.0242% simultaneous, 43.9758% GIC 1 day early). Against the Mecca 0° physical series, MABBIMS agreed with Mecca in **45.0408%** of all months and was 1 day later in **54.9592%** (Mecca starts 1 day earlier than the Malay archipelago). GIC agreed with Mecca in **84.7750%** of all months (2.1208% GIC 1 day early, 13.1042% GIC 1 day later). Against the exact-C Adak+Viwa physical baseline (MABBIMS visibility at Adak plus physical possibility at Viwa, each at its own sunset), Mecca 0° is exact in **8.9617%** of months and GIC in **18.0050%**; both are 1 day early in most remaining months (80.0158% / 72.9125%) and never later, because the baseline's full MABBIMS thresholds at Adak's high latitude make it the latest of the three series. These are direct C results for the documented 1–10,000 AH window.
 
 ### Reproduction of the latest C run
 
@@ -81,12 +82,15 @@ make astronomy-c-global
 OMP_NUM_THREADS=8 ./scripts/astronomy_c_global_10k 10000
 python scripts/analyze_c_observables.py gt_1_10000_c.csv observables_1_10000_c.csv
 python scripts/analyze_c_global.py global_1_10000_c.csv --ground-truth gt_1_10000_c.csv
+make astronomy-c-baseline
+OMP_NUM_THREADS=8 ./scripts/astronomy_c_baseline_10k 10000
+python scripts/analyze_c_baseline.py baseline_1_10000_c.csv --global global_1_10000_c.csv --ground-truth gt_1_10000_c.csv
 ```
 
 Generated CSVs and executables are intentionally git-ignored. The C rerun is deliberately concise here; methodology, distributions, timings, and interpretation are in its report.
 
 ## Technical Scripts
-The C rerun drivers are `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `analyze_c_observables.py`, and `analyze_c_global.py`.
+The C rerun drivers are `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, and `analyze_c_baseline.py`.
 
 The `scripts/` directory contains the Python tools used for data generation and optimization:
 -   `generate_gt.py`: Generates the 1–10,000 AH topocentric ground-truth series.

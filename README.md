@@ -61,7 +61,9 @@ The detailed report is [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md
 
 | Analysis | Result |
 | :--- | :--- |
-| Best 30-year tabular (epoch 1948440, k=29) | **45.1183%** exact; epoch 1948439: 26.3750% |
+| Best 30-year tabular vs Mecca 0° (epochs 1948439/1948440 only) | Epoch 1948440, k=29: **45.1183%** exact (full 1–10,000 AH) |
+| Best 30-year tabular vs Adak+Viwa (epochs 1948439/1948440 only) | Epoch 1948440, k=29: **26.7267%** exact (120,000 aligned months) |
+| Best 30-year tabular vs GIC (epochs 1948439/1948440 only) | Epoch 1948440, k=29: **44.7533%** exact (120,000 aligned months) |
 | Best linear month formula | **67.8308%** exact; slope 29.53057414 |
 | Leap interval with `R = 1/L` | 62.3117% exact at epoch 1948439; 61.1717% at 1948440 |
 | Natural-number leap interval | **<0.3%** exact; severe drift |
@@ -85,12 +87,13 @@ python scripts/analyze_c_global.py global_1_10000_c.csv --ground-truth gt_1_1000
 make astronomy-c-baseline
 OMP_NUM_THREADS=8 ./scripts/astronomy_c_baseline_10k 10000
 python scripts/analyze_c_baseline.py baseline_1_10000_c.csv --global global_1_10000_c.csv --ground-truth gt_1_10000_c.csv
+python scripts/analyze_c_tabular.py gt_1_10000_c.csv --baseline baseline_1_10000_c.csv --global global_1_10000_c.csv
 ```
 
 Generated CSVs and executables are intentionally git-ignored. The C rerun is deliberately concise here; methodology, distributions, timings, and interpretation are in its report.
 
 ## Technical Scripts
-The C rerun drivers are `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, and `analyze_c_baseline.py`.
+The C rerun drivers are `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, `analyze_c_baseline.py`, and `analyze_c_tabular.py`.
 
 The `scripts/` directory contains the Python tools used for data generation and optimization:
 -   `generate_gt.py`: Generates the 1–10,000 AH topocentric ground-truth series.

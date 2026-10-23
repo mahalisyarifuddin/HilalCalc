@@ -1,10 +1,10 @@
 # Analisis 10.000 Tahun Hijriyah — Astronomy Engine C
 
-**Tanggal:** 29 September 2026 (pengulangan C dan analisis global); diperbarui 13 Oktober 2026 (koreksi mask bulan ritual dan analisis keserempakan tahunan); diperbarui 19 Oktober 2026 (baseline Adak–Viwa dihitung ulang eksak)  
+**Tanggal:** 29 September 2026 (pengulangan C dan analisis global); diperbarui 13 Oktober 2026 (koreksi mask bulan ritual dan analisis keserempakan tahunan); diperbarui 19 Oktober 2026 (baseline Adak–Viwa dihitung ulang eksak); diperbarui 23 Oktober 2026 (kalibrasi tabular terhadap tiga seri)<br>
 **Rentang:** 1–10.000 H, 120.000 bulan (seri ground truth memuat 120.012 baris bila tahun 0 yang menjadi benih ikut dihitung; seri global berbenih Safar 0 H, lihat [Penjajaran indeks](#penjajaran-indeks-dan-mask-bulan-ritual-koreksi-13-oktober-2026))  
 **Mesin astronomi:** Astronomy Engine C v2.1.19, tanpa bias kalibrasi dan tanpa aproksimasi Meeus/numba  
 **Kompilasi:** GCC `-O3 -march=native`  
-**Skrip:** `scripts/astronomy_c_10k.c`, `scripts/astronomy_c_global_10k.c`, `scripts/astronomy_c_baseline_10k.c`, `scripts/analyze_c_observables.py`, `scripts/analyze_c_global.py`, `scripts/analyze_c_baseline.py`, `scripts/analyze_serempak_yearly.py`
+**Skrip:** `scripts/astronomy_c_10k.c`, `scripts/astronomy_c_global_10k.c`, `scripts/astronomy_c_baseline_10k.c`, `scripts/analyze_c_observables.py`, `scripts/analyze_c_global.py`, `scripts/analyze_c_baseline.py`, `scripts/analyze_c_tabular.py`, `scripts/analyze_serempak_yearly.py`
 
 Dokumen ini adalah satu-satunya laporan analisis jangka panjang di repositori. Ia
 menggabungkan laporan pengulangan C 29 September 2026 dengan laporan keserempakan
@@ -83,7 +83,7 @@ tahun benih pra-Hijrah yang diawali Safar). Penjajaran indeks diverifikasi terha
 anchor:
 
 - **idx 11 = 1 Muharram 1 H** = 19 Juli 622 M (mulai MABBIMS `JD 1948439.5`),
-  cocok dengan epoch tabular terbaik repo (1948440) dan tarikh klasik
+  cocok dengan epoch tabular tradisional yang dipakai HijriCalc (1948440) dan tarikh klasik
   16 Juli 622 Julian;
 - **idx 17347 = 1 Ramadan 1445 H**: konjungsi 10 Maret 2024 09:01 UT,
   GIC/KHGT 11 Maret 2024 (sesuai deklarasi riil), MABBIMS 12 Maret 2024.
@@ -99,10 +99,11 @@ benar.) Angka "semua bulan" tidak terpengaruh; angka "ritual" yang berubah diran
 
 ## Hasil kalender aritmetis dan ambang
 
-Seluruh tabel di bagian ini dibandingkan terhadap `gt_1_10000_c.csv` (awal bulan fisik
+Kecuali subbagian kalibrasi tabular tiga seri yang menyebut targetnya secara eksplisit,
+seluruh tabel di bagian ini dibandingkan terhadap `gt_1_10000_c.csv` (awal bulan fisik
 Mekkah 0°).
 
-### Kalender tabular 30 tahun
+### Kalender tabular 30 tahun pada dua epoch tradisional
 
 | Epoch | Skema terbaik | Tepat |
 |---:|:---|---:|
@@ -111,6 +112,35 @@ Mekkah 0°).
 
 Distribusi offset skema terbaik epoch 1948440: −3: 0,27%; −2: 7,17%; −1: 26,38%;
 0: 45,12%; +1: 20,42%; +2: 0,64%. Kalender Kuwaiti mencapai 37,8575%.
+
+### Kalibrasi tabular dua epoch terhadap Mekkah 0°, Adak+Viwa, dan GIC
+
+Ditambahkan 23 Oktober 2026. `scripts/analyze_c_tabular.py` mencari seluruh `k = 0…29`
+pada **epoch 1948439 atau 1948440 saja** (60 kandidat per target); tidak ada epoch lain
+yang dipertimbangkan. Objektifnya adalah jumlah awal bulan yang tepat. Seri dengan
+jumlah kecocokan sama diurutkan menurut MAE, preferensi epoch 1948440, lalu epoch dan
+`k` terkecil. Ini adalah kecocokan *in-sample* pada jendela analisis, bukan validasi
+prediktif di luar sampel.
+
+Perbandingan tiga seri memakai **120.000 baris yang sama dan sejajar indeks** dari run
+global/baseline (idx global 0 = Safar 0 H dipetakan ke idx tabular/GT 1; 30.000 bulan
+ritual). JD awal bulan Adak+Viwa/GIC diubah menjadi JDN sipil dengan
+`floor(JD + 0,5)`. Dengan demikian tidak ada perbedaan hasil yang disebabkan oleh
+sampel atau konvensi tanggal yang berbeda.
+
+| Seri target kalibrasi | Epoch terbaik | k | Tepat, semua bulan | Tepat, bulan ritual | MAE |
+|:---|---:|---:|---:|---:|---:|
+| Mekkah 0° (baris sejajar) | 1948440 | 29 | **45,1100%** (54.132/120.000) | 45,8867% (13.766/30.000) | 0,6325 hari |
+| Adak+Viwa | 1948440 | 29 | **26,7267%** (32.072/120.000) | 25,9400% (7.782/30.000) | 0,9842 hari |
+| GIC | 1948440 | 29 | **44,7533%** (53.704/120.000) | 45,3967% (13.619/30.000) | 0,6193 hari |
+
+Untuk ground truth Mekkah 0° **penuh 1–10.000 H** (120.000 bulan, idx GT ≥ 12),
+parameter terbaik juga epoch **1948440, k=29**, dengan **45,1183%** tepat
+(54.142/120.000), 45,8967% pada bulan ritual (13.769/30.000), dan MAE 0,6323 hari.
+Jadi ketiga target memilih parameter tabular yang sama; yang berbeda adalah tingkat
+kesepakatan dengan masing-masing seri. Analyzer juga mencetak tahun kabisat,
+distribusi offset, bias, dan MAE. Mode Tabular yang sudah ada di HijriCalc tidak
+diubah; deskripsinya secara eksplisit menyebut ruang pencarian dua epoch tradisional.
 
 ### Formula linear
 
@@ -337,7 +367,11 @@ OMP_NUM_THREADS=8 ./scripts/astronomy_c_baseline_10k 10000
 python3 scripts/analyze_c_baseline.py baseline_1_10000_c.csv \
     --global global_1_10000_c.csv --ground-truth gt_1_10000_c.csv
 
-# 4. Keserempakan tahunan (Python murni, <1 detik)
+# 4. Kalibrasi tabular 30 tahun terhadap Mekkah 0°, Adak+Viwa, dan GIC
+python3 scripts/analyze_c_tabular.py gt_1_10000_c.csv \
+    --baseline baseline_1_10000_c.csv --global global_1_10000_c.csv
+
+# 5. Keserempakan tahunan (Python murni, <1 detik)
 python3 scripts/analyze_serempak_yearly.py global_1_10000_c.csv --anchor
 ```
 

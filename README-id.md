@@ -61,7 +61,9 @@ Laporan lengkap ada di [`ASTRONOMY_C_10000_RERUN.md`](ASTRONOMY_C_10000_RERUN.md
 
 | Analisis | Hasil |
 | :--- | :--- |
-| Tabular 30 tahun terbaik (epoch 1948440, k=29) | **45,1183%** tepat; epoch 1948439: 26,3750% |
+| Tabular 30 tahun terbaik vs Mekkah 0° (hanya epoch 1948439/1948440) | Epoch 1948440, k=29: **45,1183%** tepat (1–10.000 H penuh) |
+| Tabular 30 tahun terbaik vs Adak+Viwa (hanya epoch 1948439/1948440) | Epoch 1948440, k=29: **26,7267%** tepat (120.000 bulan sejajar) |
+| Tabular 30 tahun terbaik vs GIC (hanya epoch 1948439/1948440) | Epoch 1948440, k=29: **44,7533%** tepat (120.000 bulan sejajar) |
 | Rumus linear terbaik | **67,8308%** tepat; slope 29,53057414 |
 | Interval kabisat dengan `R = 1/L` | 62,3117% tepat pada epoch 1948439; 61,1717% pada 1948440 |
 | Interval kabisat bilangan alami | **<0,3%** tepat; drift parah |
@@ -85,12 +87,13 @@ python scripts/analyze_c_global.py global_1_10000_c.csv --ground-truth gt_1_1000
 make astronomy-c-baseline
 OMP_NUM_THREADS=8 ./scripts/astronomy_c_baseline_10k 10000
 python scripts/analyze_c_baseline.py baseline_1_10000_c.csv --global global_1_10000_c.csv --ground-truth gt_1_10000_c.csv
+python scripts/analyze_c_tabular.py gt_1_10000_c.csv --baseline baseline_1_10000_c.csv --global global_1_10000_c.csv
 ```
 
 CSV dan executable hasil dibuat sengaja diabaikan git. README ini merangkum pengulangan C; metodologi, distribusi, waktu proses, dan interpretasi lengkap ada di laporannya.
 
 ## Skrip Teknis
-Driver pengulangan C adalah `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, dan `analyze_c_baseline.py`.
+Driver pengulangan C adalah `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, `analyze_c_baseline.py`, dan `analyze_c_tabular.py`.
 
 Direktori `scripts/` berisi driver C dan alat verifikasi yang digunakan untuk pengulangan terbaru:
 -   `generate_gt.py`: Menghasilkan seri ground truth toposentrik 1–10.000 H.

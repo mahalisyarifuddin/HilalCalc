@@ -1514,9 +1514,9 @@
 					today: 'Today',
 					formulaTitle: 'Methodology',
 					formulaDescMabbims: 'MABBIMS criteria search. Altitude ≥ 3°, Elongation (Geo) ≥ 6.4°.',
-					formulaDescLinear: 'Best linear fit to the direct C rerun (Mecca 0° baseline). Accuracy: 67.8308% exact (1–10,000 AH); slope 29.5305741456.',
-					formulaDescTabular: 'Modular 30-year cycle (epoch 1948440, k=29), the best fit to Mecca 0° among traditional epochs 1948439/1948440. Accuracy: 45.1183% exact (1–10,000 AH).',
-					linearNote: 'Reference JD 1948440; fitted phase −1.234392.',
+					formulaDescLinear: 'Best linear fit to the direct C rerun (Mecca 0° baseline). Accuracy: 67.8308% exact (1–10,000 AH); slope 29.5305741456. Epoch: 1 Muharram 0 AH = JD 1948086.',
+					formulaDescTabular: 'Modular 30-year cycle (epoch 1 Muharram 0 AH = JD 1948086; 1 Muharram 1 AH = JD 1948440, k=29), the best fit to Mecca 0° among traditional epochs 1948439/1948440. Accuracy: 45.1183% exact (1–10,000 AH).',
+					linearNote: 'Reference JD 1948086 (1 Muharram 0 AH); fitted phase −1.601282.',
 					epoch: 'Epoch',
 					leapYears: 'Leap years',
 					ofCycle: 'of 30-yr cycle',
@@ -1585,9 +1585,9 @@
 					today: 'Hari Ini',
 					formulaTitle: 'Metodologi',
 					formulaDescMabbims: 'Pencarian kriteria MABBIMS. Tinggi ≥ 3°, Elongasi (Geo) ≥ 6.4°.',
-					formulaDescLinear: 'Fit linear terbaik dari pengulangan C langsung (baseline Mekkah 0°). Akurasi tepat 67,8308% (1–10.000 H); slope 29,5305741456.',
-					formulaDescTabular: 'Siklus modular 30 tahun (epoh 1948440, k=29), fit terbaik terhadap Mekkah 0° di antara epoh tradisional 1948439/1948440. Akurasi tepat 45,1183% (1–10.000 H).',
-					linearNote: 'JD referensi 1948440; fase fit −1,234392.',
+					formulaDescLinear: 'Fit linear terbaik dari pengulangan C langsung (baseline Mekkah 0°). Akurasi tepat 67,8308% (1–10.000 H); slope 29,5305741456. Epoh: 1 Muharram 0 H = JD 1948086.',
+					formulaDescTabular: 'Siklus modular 30 tahun (epoh 1 Muharram 0 H = JD 1948086; 1 Muharram 1 H = JD 1948440, k=29), fit terbaik terhadap Mekkah 0° di antara epoh tradisional 1948439/1948440. Akurasi tepat 45,1183% (1–10.000 H).',
+					linearNote: 'JD referensi 1948086 (1 Muharram 0 H); fase fit −1,601282.',
 					epoch: 'Epoh',
 					leapYears: 'Tahun kabisat',
 					ofCycle: 'dalam siklus 30 tahun',
@@ -2004,12 +2004,12 @@
 						$('formulaNote').innerHTML = '';
 						$('formulaDesc').textContent = tr.formulaDescMabbims;
 					} else if (mode === 'linear') {
-						$('formulaDisplay').textContent = `JD = 1948440 + ceil(29.5305741456·N − 1.234392) + Day − 1\nN = (Year−1)·12 + Month−1`;
+						$('formulaDisplay').textContent = `JD = 1948086 + ceil(29.5305741456·N − 1.601282) + Day − 1\nN = Year·12 + Month−1`;
 						$('formulaNote').innerHTML = `<i>${tr.epoch}: ${tr.linearNote}</i>`;
 						$('formulaDesc').textContent = tr.formulaDescLinear;
 					} else {
-						$('formulaDisplay').textContent = `Leap Year: ((11·Y + 29) mod 30) < 11\nJD = 1948440 + Cycle·10631 + yc·354 + Leaps(yc) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(yc) = ⌊(11·yc + 29) / 30⌋`;
-						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 1 AH = JD 1948440. Y = cycle year 1–30. yc = years since 1 AH (0–29). M = month 1–12. ${tr.leapYears}: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28 ${tr.ofCycle}.</i>`;
+						$('formulaDisplay').textContent = `Leap Year: ((11·Y + 29) mod 30) < 11\nJD = 1948086 + 354 + Cycle·10631 + yc·354 + Leaps(yc) + ⌈(M−1)·29.5⌉ + Day − 1\nLeaps(yc) = ⌊(11·yc + 29) / 30⌋`;
+						$('formulaNote').innerHTML = `<i>${tr.epoch}: 1 Muharram 0 AH = JD 1948086 (1 Muharram 1 AH = JD 1948440; year 0 = 354 days, cycle year 30). Y = cycle year 1–30 (= Hijri years 1–30, 31–60, …). yc = years since 1 AH (0–29). M = month 1–12. ${tr.leapYears}: 1, 3, 6, 9, 11, 14, 17, 20, 22, 25, 28 ${tr.ofCycle}.</i>`;
 						$('formulaDesc').textContent = tr.formulaDescTabular;
 					}
 				}
@@ -2113,7 +2113,13 @@
 					return (Math.floor(jd + 1.5) % 7);
 				}
 
+				/* Epoch: 1 Muharram 0 AH = JD 1948086 (tabular). Year 0 has 354 days
+				   (cycle year 30, non-leap), so 1 Muharram 1 AH = JD 1948440.
+				   idx counts months since the epoch (idx 0 = 1 Muharram 0 AH);
+				   off = idx − 12 counts months since 1 AH, keeping cycle years
+				   1–30 aligned to Hijri years 1–30, 31–60, … */
 				linMonthStartJD(idx) {
+					const EPOCH_0AH = 1948086, YEAR0_DAYS = 354;
 					const off = idx - 12;
 					if (state.calcMode === 'tabular') {
 						const cyc = Math.floor(off / 360);
@@ -2121,12 +2127,13 @@
 						const yc = Math.floor(rem / 12);
 						const mc = rem % 12;
 						const leaps = Math.floor((11 * yc + 29) / 30);
-						return 1948440 + cyc * 10631 + yc * 354 + leaps + Math.floor(mc * 29.5 + 0.5);
+						return EPOCH_0AH + YEAR0_DAYS + cyc * 10631 + yc * 354 + leaps + Math.floor(mc * 29.5 + 0.5);
 					}
-					return 1948440 + Math.ceil(29.5305741456 * off - 1.234392);
+					return EPOCH_0AH + Math.ceil(29.5305741456 * idx - 1.6012817472);
 				}
 				linIdxFromJD(jd) {
-					let i = Math.floor((jd - 1948440) / 29.5305741456) + 12;
+					const EPOCH_0AH = 1948086;
+					let i = Math.floor((jd - EPOCH_0AH) / 29.5305741456);
 					if (this.linMonthStartJD(i + 1) <= jd) i++;
 					if (this.linMonthStartJD(i) > jd) i--;
 					return i;

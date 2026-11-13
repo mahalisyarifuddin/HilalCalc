@@ -1621,8 +1621,10 @@
 				const cacheKey = `${year}-${month}`;
 				if (state.cache[cacheKey]) return state.cache[cacheKey];
 
-				const totalMonths = (year - 1) * 12 + (month - 1);
-				const approxJD = 1948440 + totalMonths * 29.5305741456;
+				/* Epoch: 1 Muharram 0 AH = JD 1948086; totalMonths counts months
+				   since the epoch (year 0 = 354 days, so 1 Muharram 1 AH = JD 1948440) */
+				const totalMonths = year * 12 + (month - 1);
+				const approxJD = 1948086 + totalMonths * 29.5305741456;
 				const startTime = Astronomy.MakeTime(jdToDate(approxJD - 15));
 				const conj = Astronomy.SearchMoonPhase(0, startTime, 40);
 
@@ -1786,8 +1788,9 @@
 			   disable "Today" when it would do nothing. */
 			function todayYM() {
 				const jd = Date.now() / 86400000 + 2440587.5;
-				const linMonthStartJD = idx => 1948440 + Math.ceil(29.5305741456 * (idx - 12) - 1.234392);
-				let index = Math.floor((jd - 1948440) / 29.5305741456) + 12;
+				/* Epoch: 1 Muharram 0 AH = JD 1948086; idx counts months since the epoch */
+				const linMonthStartJD = idx => 1948086 + Math.ceil(29.5305741456 * idx - 1.6012817472);
+				let index = Math.floor((jd - 1948086) / 29.5305741456);
 				if (linMonthStartJD(index + 1) <= jd) index++;
 				if (linMonthStartJD(index) > jd) index--;
 				let m = index % 12;
@@ -1818,7 +1821,16 @@
 				elements.dateAceh.textContent = formatDate(res.jdAceh + offset);
 				elements.dateGic.textContent = formatDate(res.jdGic + offset);
 
-				const formatInfo = (info, prefix) => prefix + (info.ut > 0 ? (utToDate(info.ut).toISOString().substring(11, 19) + " UTC<br>" + strings.alt + ": " + info.alt.toFixed(2) + "°, " + strings.elong + ": " + info.elong.toFixed(2) + "°") : "N/A");
+				/* Maghrib info has no date limit: ut is days since J2000 (noon 1 Jan 2000),
+				   so it is negative before 2000 AD — check finiteness, not positivity */
+				const formatInfo = (info, prefix) => {
+					if (!info || !Number.isFinite(info.ut)) return prefix + "N/A";
+					const d = utToDate(info.ut);
+					const hh = String(d.getUTCHours()).padStart(2, '0');
+					const mm = String(d.getUTCMinutes()).padStart(2, '0');
+					const ss = String(d.getUTCSeconds()).padStart(2, '0');
+					return prefix + `${hh}:${mm}:${ss} UTC<br>` + strings.alt + ": " + info.alt.toFixed(2) + "°, " + strings.elong + ": " + info.elong.toFixed(2) + "°";
+				};
 
 				elements.infoAceh.innerHTML = formatInfo(res.detailAceh, strings.acehInfo);
 				elements.infoGic.innerHTML = formatInfo(res.detailGic, strings.gicInfo);

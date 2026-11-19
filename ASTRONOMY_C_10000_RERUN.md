@@ -42,10 +42,15 @@ dengan Astronomy Engine C. Untuk setiap ijtimak, kedua kriteria menentukan tangg
 bulan:
 
 - **MABBIMS (2021; ditulis juga MABIMS):** tinggi toposentrik ≥ 3° dan elongasi
-  geosentrik ≥ 6,4° saat matahari terbenam, grid kepulauan Melayu 95°BT–141°BT
+  toposentrik ≥ 6,4° saat matahari terbenam, grid kepulauan Melayu 95°BT–141°BT
   (uji daratan, buffer 2°);
-- **GIC / KHGT (Turki 2016):** tinggi ≥ 5° dan elongasi ≥ 8° pada sapuan global 5°,
+- **GIC / KHGT (Turki 2016):** tinggi ≥ 5° dan elongasi toposentrik ≥ 8° pada sapuan global 5°,
   sebelum Fajar Wellington NZ (−17,5°), dengan pengecualian rukyat di Amerika.
+
+Kedua kriteria pada pengulangan global C menghitung elongasi dari vektor toposentrik.
+Ini berbeda dari HilalSync, yang memakai elongasi geosentrik. Jalur C historis juga
+mempertahankan prapenyaring satu meridian; hasil tanpa prapenyaring dapat diperiksa
+menggunakan `--audit-prefilters` (lihat [panduan pengembang](README.md#developer-checks)).
 
 Uji daratan menggunakan poligon `ne_110m_land.geojson` yang dikonversi tanpa mengubah
 koordinat oleh `scripts/prepare_land_binary.py`. Tidak ada bias altitude/elongasi dan

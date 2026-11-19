@@ -1,0 +1,101 @@
+[
+  {
+    "year": 1,
+    "month": 1,
+    "note": "Early epoch",
+    "conjunction_ut": -503107.28003662743,
+    "browser_jd": [
+      1948439.5,
+      1948438.5
+    ],
+    "historical_c_jd": [
+      1948439.5,
+      1948438.5
+    ]
+  },
+  {
+    "year": 1443,
+    "month": 2,
+    "note": "MABBIMS elongation just above 6.4 degrees",
+    "conjunction_ut": 7919.536358502287,
+    "browser_jd": [
+      2459465.5,
+      2459465.5
+    ],
+    "historical_c_jd": [
+      2459465.5,
+      2459465.5
+    ]
+  },
+  {
+    "year": 1445,
+    "month": 9,
+    "note": "GIC elongation just above 8 degrees",
+    "conjunction_ut": 8834.875666176706,
+    "browser_jd": [
+      2460381.5,
+      2460380.5
+    ],
+    "historical_c_jd": [
+      2460381.5,
+      2460380.5
+    ]
+  },
+  {
+    "year": 1445,
+    "month": 10,
+    "note": "Both criteria agree",
+    "conjunction_ut": 8864.264876025738,
+    "browser_jd": [
+      2460410.5,
+      2460410.5
+    ],
+    "historical_c_jd": [
+      2460410.5,
+      2460410.5
+    ]
+  },
+  {
+    "year": 1446,
+    "month": 12,
+    "note": "MABBIMS altitude just above 3 degrees",
+    "conjunction_ut": 9277.626992657197,
+    "browser_jd": [
+      2460823.5,
+      2460823.5
+    ],
+    "historical_c_jd": [
+      2460823.5,
+      2460823.5
+    ]
+  },
+  {
+    "year": 1440,
+    "month": 4,
+    "note": "GIC altitude just above 5 degrees",
+    "conjunction_ut": 6914.806296645548,
+    "browser_jd": [
+      2458461.5,
+      2458460.5
+    ],
+    "historical_c_jd": [
+      2458461.5,
+      2458461.5
+    ]
+  },
+  {
+    "year": 1445,
+    "month": 9,
+    "note": "MABBIMS fallback when no sampled point is on land",
+    "land_fixture": "land_outside_search.geojson",
+    "conjunction_ut": 8834.875666176706,
+    "browser_jd": [
+      2460381.5,
+      2460381.5
+    ],
+    "historical_c_jd": [
+      2460381.5,
+      2460381.5
+    ]
+  }
+]

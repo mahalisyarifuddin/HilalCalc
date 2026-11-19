@@ -5,14 +5,24 @@
 Moon visibility, simplified.
 
 ## Introduction
-HilalCalc is a collection of single-file, browser-based tools for calculating and visualizing the Islamic Hijri calendar and the visibility of the crescent moon (Hilal). Designed for researchers, students, and observers, these tools implement topocentric criteria to predict the start of Islamic months based on actual surface-based sightings.
+HilalCalc is a collection of static, browser-based tools for calculating and visualizing the Islamic Hijri calendar and the visibility of the crescent moon (Hilal). Designed for researchers, students, and observers, these tools implement topocentric criteria to predict the start of Islamic months based on actual surface-based sightings.
 
-The repository includes three standalone tools:
+The repository includes three browser tools:
 1.  **HilalMap.html**: A map-based visualization of global moon visibility.
 2.  **HijriCalc.html**: A calendar calculator with a round-trip linear converter.
 3.  **HilalSync.html**: A tool to track Hijri month-start simultaneity (serempak) for Indonesia.
 
 The interface supports both **English** and **Bahasa Indonesia**.
+
+## Run locally
+
+From the repository root, run `python3 -m http.server 8000` and open
+[HilalMap](http://localhost:8000/HilalMap.html), [HilalSync](http://localhost:8000/HilalSync.html), or
+[HijriCalc](http://localhost:8000/HijriCalc.html). Use HTTP rather than opening the files directly:
+workers and GeoJSON fetches need access to the companion files. For static deployment, keep the HTML
+pages, `ne_110m_land.geojson`, and `scripts/vendor/astronomy-engine/astronomy.browser.min.js` at the
+same relative paths. No frontend build or CDN is needed for calculations. The bundled JS is the
+unmodified Astronomy Engine 2.1.19 `astronomy.browser.min.js` from npm; its MIT notice is included.
 
 ## The Tools
 
@@ -24,7 +34,7 @@ Visualize where the new crescent moon is visible on the globe for any given date
 -   **Detailed Calculations**: Calculate exact moon position (Altitude, Elongation, Azimuth, Age) for any specific coordinate using topocentric vectors.
 -   **Multiple Criteria**: Support for MABBIMS (Min Alt 3°, Min Elong 6.4°), Global Islamic Calendar (GIC), and custom criteria.
 -   **Web Worker Rendering**: Offloads complex calculations to a background thread to keep the UI responsive.
--   **Offline Capable**: Works locally (requires internet only for the map tiles).
+-   **Local Rendering**: Astronomy calculations and land filtering use bundled assets. The detailed on-screen basemap is loaded from Wikimedia; PNG export can draw a simpler local basemap.
 
 ### 2. HilalSync (Simultaneity Tracker)
 A tool tailormade for Indonesians to track whether a Hijri month start date is simultaneous (serempak) between MABBIMS and Global (GIC) criteria.
@@ -49,6 +59,12 @@ A robust calendar tool that adapts its calculations to your specific location an
 - **MABBIMS (2021):** topocentric altitude ≥ 3° and geocentric elongation ≥ 6.4° at local sunset; the reference location is Banda Aceh (5.55° N, 95.32° E).
 - **KHGT / GIC (Turkey 2016):** altitude ≥ 5° and elongation ≥ 8° on a global 5° sweep, subject to the Wellington, New Zealand Fajr cutoff and the Americas exception.
 - **Mecca 0° analytical baseline:** altitude ≥ 0° and elongation ≥ 0° at Mecca. This is a ground-truth series for comparing arithmetic calendars, not a claim that every tool mode uses this criterion.
+
+### Browser predictions vs. the historical C benchmark
+
+- **HilalSync** uses geocentric elongation for both criteria and searches its sampled grid without single-meridian prefilters. If no MABBIMS grid point qualifies, it starts the month one day later than the ordinary sunset-based rule, using the first Banda Aceh sunset after conjunction. The GIC verdict is withheld if the local land dataset is unavailable.
+- **Historical global C rerun** uses topocentric elongation for both criteria and retains its single-meridian prefilters for reproducibility. The reported statistics are not a validation of the live browser verdicts. The two implementations can differ near thresholds, even with the same conjunction.
+- **HilalMap** visualizes visibility rather than selecting a month start. The MABBIMS overlay and location calculator use topocentric elongation. The GIC overlay uses geocentric vectors and a −18° Wellington dawn cutoff, so it is not a map of the full HilalSync decision rule. **HijriCalc** has its own MABBIMS month-start search (topocentric altitude, geocentric elongation) plus linear and tabular arithmetic modes.
 
 ### Global comparison model
 The physical two-station comparison uses **Adak, Alaska** (MABBIMS visibility) and **Viwa, Fiji** (physical possibility), each at its own local sunset on the same UTC civil day and within its own date-line area. This is the current definition; older same-instant and either-station readings are superseded.
@@ -77,6 +93,9 @@ The exact C global run found no GIC offset other than 0 or one day early relativ
 
 ### Reproduction of the latest C run
 
+Requires GNU Make, Python 3, and a C11 compiler with OpenMP support (e.g. GCC). Run from the
+repository root. `make astronomy-c-global` converts the checked-in GeoJSON to `land_polygons.bin`.
+
 ```bash
 make astronomy-c-10k
 ./scripts/astronomy_c_10k 10000
@@ -92,16 +111,41 @@ python scripts/analyze_c_tabular.py gt_1_10000_c.csv --baseline baseline_1_10000
 
 Generated CSVs and executables are intentionally git-ignored. The C rerun is deliberately concise here; methodology, distributions, timings, and interpretation are in its report.
 
-## Technical Scripts
-The C rerun drivers are `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, `analyze_c_baseline.py`, and `analyze_c_tabular.py`.
+## Developer checks
 
-The `scripts/` directory contains the Python tools used for data generation and optimization:
--   `generate_gt.py`: Generates the 1–10,000 AH topocentric ground-truth series.
--   `verify_all_modes.py`: Playwright-based UI verification.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-test.txt
+python -m playwright install chromium  # add --with-deps on Linux if system libraries are missing
+make test PYTHON=python
+```
 
-Dependencies: `pip install astronomy-engine numpy numba playwright`.
+The suite checks CSV validation, C and browser month starts against shared fixtures, the three
+HijriCalc modes, Sync navigation and missing land data, and map masking, cancellation, worker
+errors, and PNG export with and without CORS. Browser tests use local HTTP and block external
+requests. Set `CHROMIUM_PATH` to use a system Chromium instead of Playwright's bundled browser.
 
-Generated C CSVs are git-ignored; regenerate them with the commands in the C rerun report.
+To compare the historical C prefilters against the same sampled grid without prefilters:
+
+```bash
+make astronomy-c-global
+OMP_NUM_THREADS=2 ./scripts/astronomy_c_global_10k 10 land_polygons.bin --audit-prefilters
+./scripts/astronomy_c_global_10k --conjunction-ut 6914.806296645548 land_polygons.bin
+```
+
+The audit prints how many MABBIMS and GIC month starts change; the CSV still contains the
+historical, prefiltered values. The second command prints the historical MABBIMS and GIC Julian
+Dates for a single conjunction expressed in Astronomy Engine UT days since J2000.
+
+## Legacy Python analysis
+
+The Python generation and optimization tools are separate from the 10,000-year C rerun.
+`python scripts/generate_gt.py` generates or resumes `gt_1_20000.csv` for years **0–20,000 AH
+inclusive** (240,012 month starts). Install `astronomy-engine`, `numpy`, and `numba` for the legacy
+pipeline. Run `python scripts/verify_gt_consistency.py` for a full check, or
+`python scripts/verify_gt_quick.py` for the epoch and first 100 transitions. Both accept an optional
+CSV path and exit nonzero on a failed check.
 
 ## Historical Context
 -   **Gregorian Reform**: "Historical" mode handles the October 1582 jump and Julian labeling.

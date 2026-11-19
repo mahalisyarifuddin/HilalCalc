@@ -1,39 +1,21 @@
-import asyncio
-from playwright.async_api import async_playwright
-import os
+"""Assert a known conversion in all three HijriCalc modes."""
+from playwright.sync_api import expect
 
-async def run():
-    async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        page = await browser.new_page()
 
-        # Load the file
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        file_path = "file://" + os.path.abspath(os.path.join(script_dir, "..", "HijriCalc.html"))
-        await page.goto(file_path)
+def verify_modes(page, base_url):
+    page.goto(f'{base_url}/HijriCalc.html')
+    for mode, day in [('astronomic', '1'), ('linear', '2'), ('tabular', '1')]:
+        page.click('#prefBtn')
+        page.select_option('#calcMode', mode)
+        page.click('#savePrefBtn')
+        page.locator('#gDateInput').fill('2024-03-12')
+        page.locator('#gDateInput').dispatch_event('change')
+        expect(page.locator('#hYearInput')).to_have_value('1445')
+        expect(page.locator('#hMonthInput')).to_have_value('9')
+        expect(page.locator('#hDayInput')).to_have_value(day)
 
-        modes = ["linear", "tabular"]
 
-        for mode in modes:
-            # Open settings
-            await page.evaluate("document.getElementById('prefDialog').showModal()")
+if __name__ == '__main__':
+    from scripts.verify_browser import run
 
-            # Select mode
-            await page.select_option("#calcMode", mode)
-
-            # Save
-            await page.click("#savePrefBtn")
-            await page.wait_for_timeout(500)
-
-            # Open formula details
-            await page.evaluate("document.querySelector('details').open = true")
-            await page.wait_for_timeout(500)
-
-            # Take screenshot
-            await page.screenshot(path=os.path.join(script_dir, "..", f"mode_{mode}.png"))
-            print(f"Verified mode: {mode}")
-
-        await browser.close()
-
-if __name__ == "__main__":
-    asyncio.run(run())
+    run(verify_modes)

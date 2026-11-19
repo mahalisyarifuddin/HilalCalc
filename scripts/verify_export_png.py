@@ -13,10 +13,7 @@ Usage:
   playwright install chromium
   python scripts/verify_export_png.py
 
-Optional environment variables:
-  ASTRONOMY_ENGINE_JS  local path to astronomy.browser.min.js; if set, the jsDelivr
-                       request is served from this file (useful offline).
-  CHROMIUM_PATH        path to a Chromium binary to use instead of Playwright's.
+Set CHROMIUM_PATH to use a custom Chromium binary.
 """
 import collections
 import functools
@@ -65,6 +62,12 @@ def start_server(directory, cors):
                 self.send_header('Access-Control-Allow-Origin', '*')
             super().end_headers()
 
+        def copyfile(self, source, outputfile):
+            try:
+                super().copyfile(source, outputfile)
+            except (BrokenPipeError, ConnectionResetError):
+                pass  # Browser cancelled a request when closing the page.
+
         def log_message(self, *args):
             pass
 
@@ -85,18 +88,14 @@ def share(counts, total, rgb):
     return counts.get(rgb, 0) / total
 
 
-def run_scenario(p, app_port, base_port, base_dir, cors, label):
+def run_scenario(p, app_port, base_port, cors, label):
     launch_kwargs = {'headless': True, 'args': ['--no-sandbox', '--disable-gpu']}
     if os.environ.get('CHROMIUM_PATH'):
         launch_kwargs['executable_path'] = os.environ['CHROMIUM_PATH']
     browser = p.chromium.launch(**launch_kwargs)
     try:
         ctx = browser.new_context(accept_downloads=True, viewport={'width': 1400, 'height': 900})
-        js_path = os.environ.get('ASTRONOMY_ENGINE_JS')
-        if js_path:
-            ctx.route('https://cdn.jsdelivr.net/**', lambda r: r.fulfill(
-                status=200, body=open(js_path, 'rb').read(),
-                headers={'content-type': 'application/javascript', 'access-control-allow-origin': '*'}))
+        ctx.route('https://**/*', lambda route: route.abort())
         pg = ctx.new_page()
         errors = []
         pg.on('pageerror', lambda e: errors.append(str(e)))
@@ -105,16 +104,12 @@ def run_scenario(p, app_port, base_port, base_dir, cors, label):
         pg.evaluate("u => { document.getElementById('map-image').src = u; }",
                     f'http://127.0.0.1:{base_port}/basemap.svg')
         pg.wait_for_function("document.getElementById('map-image').complete", timeout=30000)
-        pg.wait_for_timeout(300)
         pg.click('#renderMap')
-        pg.wait_for_selector('#mapStatus .spinner', timeout=30000)
-        pg.wait_for_selector('#mapStatus .spinner', state='detached', timeout=600000)
-        pg.wait_for_timeout(300)
+        pg.wait_for_function("['Done', 'Selesai'].includes(document.getElementById('mapStatus').textContent)", timeout=30000)
         with pg.expect_download(timeout=60000) as dl:
             pg.click('#exportPngBtn')
         png = open(dl.value.path(), 'rb').read()
-        if errors:
-            print(f'  [{label}] page errors: {errors[:3]}')
+        assert not errors, errors
     finally:
         browser.close()
     size, total, counts = count_colours(png)
@@ -125,28 +120,28 @@ def run_scenario(p, app_port, base_port, base_dir, cors, label):
 
 
 def main():
-    base_dir = tempfile.mkdtemp(prefix='hilal-base-')
-    with open(os.path.join(base_dir, 'basemap.svg'), 'wb') as f:
-        f.write(build_test_base_svg())
-    app = start_server(ROOT, cors=False)
-    base_cors = start_server(base_dir, cors=True)
-    base_nocors = start_server(base_dir, cors=False)
-    failures = []
-    try:
-        with sync_playwright() as p:
-            scenarios = [
-                ('base map with CORS', base_cors, True),
-                ('base map without CORS (regression)', base_nocors, False),
-            ]
-            for label, base, cors in scenarios:
-                ocean, land = run_scenario(p, app.server_address[1], base.server_address[1], base_dir, cors, label)
-                # Map layer present = both base colours cover a substantial part of the image.
-                if ocean < 0.3 or land < 0.05:
-                    failures.append(f'{label}: map layer missing (ocean={ocean:.1%}, land={land:.1%})')
-    finally:
-        app.shutdown()
-        base_cors.shutdown()
-        base_nocors.shutdown()
+    with tempfile.TemporaryDirectory(prefix='hilal-base-') as base_dir:
+        with open(os.path.join(base_dir, 'basemap.svg'), 'wb') as f:
+            f.write(build_test_base_svg())
+        app = start_server(ROOT, cors=False)
+        base_cors = start_server(base_dir, cors=True)
+        base_nocors = start_server(base_dir, cors=False)
+        failures = []
+        try:
+            with sync_playwright() as p:
+                scenarios = [
+                    ('base map with CORS', base_cors, True),
+                    ('base map without CORS (regression)', base_nocors, False),
+                ]
+                for label, base, cors in scenarios:
+                    ocean, land = run_scenario(p, app.server_address[1], base.server_address[1], cors, label)
+                    # Map layer present = both base colours cover a substantial part of the image.
+                    if ocean < 0.3 or land < 0.05:
+                        failures.append(f'{label}: map layer missing (ocean={ocean:.1%}, land={land:.1%})')
+        finally:
+            for server in (app, base_cors, base_nocors):
+                server.shutdown()
+                server.server_close()
     if failures:
         print('FAIL')
         for f in failures:

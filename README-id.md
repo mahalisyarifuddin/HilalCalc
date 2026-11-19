@@ -5,14 +5,23 @@
 *Moon visibility, simplified.*
 
 ## Pengantar
-HilalCalc adalah kumpulan alat berbasis peramban (browser) file tunggal untuk menghitung dan memvisualisasikan kalender Hijriyah serta visibilitas hilal (bulan sabit muda). Dirancang untuk peneliti, pelajar, dan pengamat, alat ini mengimplementasikan kriteria toposentrik untuk memprediksi awal bulan Islam berdasarkan penampakan aktual dari permukaan bumi.
+HilalCalc adalah kumpulan alat statis berbasis peramban untuk menghitung dan memvisualisasikan kalender Hijriyah serta visibilitas hilal (bulan sabit muda). Dirancang untuk peneliti, pelajar, dan pengamat, alat ini mengimplementasikan kriteria toposentrik untuk memprediksi awal bulan Islam berdasarkan penampakan aktual dari permukaan bumi.
 
-Repositori ini mencakup tiga alat mandiri:
+Repositori ini mencakup tiga alat peramban:
 1.  **HilalMap.html**: Visualisasi peta global visibilitas hilal.
 2.  **HijriCalc.html**: Kalkulator kalender dengan konverter linear dua arah.
 3.  **HilalSync.html**: Alat untuk melacak keserempakan awal bulan Hijriyah untuk Indonesia.
 
 Antarmuka mendukung **Bahasa Inggris** dan **Bahasa Indonesia**.
+
+## Menjalankan secara lokal
+
+Jalankan `python3 -m http.server 8000` dari akar repositori, lalu buka
+[HilalMap](http://localhost:8000/HilalMap.html), [HilalSync](http://localhost:8000/HilalSync.html), atau
+[HijriCalc](http://localhost:8000/HijriCalc.html). Gunakan HTTP, bukan membuka file HTML langsung,
+agar worker dan GeoJSON dapat mengakses aset pendamping. Saat menerbitkan situs statis, pertahankan
+jalur relatif `ne_110m_land.geojson` dan `scripts/vendor/astronomy-engine/astronomy.browser.min.js`.
+Astronomy Engine 2.1.19 sudah disertakan; tidak perlu build frontend atau CDN untuk perhitungan.
 
 ## Fitur Alat
 
@@ -24,7 +33,7 @@ Visualisasikan di mana hilal terlihat di bola dunia untuk tanggal tertentu.
 -   **Perhitungan Detail**: Hitung posisi bulan yang tepat (Tinggi, Elongasi, Azimuth, Umur) untuk koordinat tertentu menggunakan vektor toposentrik.
 -   **Kriteria Beragam**: Mendukung MABBIMS (Tinggi ≥ 3°, Elongasi ≥ 6,4°), Kalender Islam Global (GIC), dan kriteria kustom.
 -   **Render Web Worker**: Memindahkan perhitungan kompleks ke *background thread* agar UI tetap responsif.
--   **Bisa Offline**: Bekerja secara lokal (memerlukan internet hanya untuk *tile* peta).
+-   **Render Lokal**: Perhitungan astronomi dan penyaringan daratan memakai aset lokal. Peta dasar layar dimuat dari Wikimedia; ekspor PNG dapat menggambar peta dasar sederhana dari data lokal.
 
 ### 2. HilalSync (Pelacak Keserempakan)
 Alat yang dibuat khusus untuk masyarakat Indonesia untuk melacak apakah tanggal awal bulan Hijriyah serempak antara kriteria MABBIMS dan Global (GIC).
@@ -49,6 +58,16 @@ Alat kalender yang kuat yang menyesuaikan perhitungannya dengan lokasi spesifik 
 - **MABBIMS (2021):** tinggi toposentrik ≥ 3° dan elongasi geosentrik ≥ 6,4° saat matahari terbenam; lokasi acuan Banda Aceh (5,55° LU, 95,32° BT).
 - **KHGT / GIC (Turki 2016):** tinggi ≥ 5° dan elongasi ≥ 8° pada sapuan global 5°, dengan batas Fajar Wellington, Selandia Baru, serta pengecualian Amerika.
 - **Baseline analitis Mekkah 0°:** tinggi ≥ 0° dan elongasi ≥ 0° di Mekkah. Ini adalah seri ground truth untuk membandingkan kalender aritmetis, bukan klaim bahwa semua mode alat memakai kriteria ini.
+
+### Prediksi langsung dan tolok ukur C historis
+
+**HilalSync** menggunakan elongasi geosentrik untuk kedua kriteria dan menelusuri grid sampel tanpa
+prapenyaring satu meridian. Jika tidak ada titik MABBIMS yang memenuhi syarat, awal bulan dihitung
+satu hari lebih lambat daripada aturan senja biasa, memakai senja Banda Aceh pertama setelah
+konjungsi. Putusan KHGT tidak ditampilkan jika data daratan tidak tersedia.
+**Pengulangan C historis** memakai elongasi toposentrik untuk kedua kriteria dan mempertahankan
+prapenyaring agar statistiknya dapat direproduksi. Tanggal prediksi langsung dapat berbeda dari
+tolok ukur tersebut, terutama dekat ambang kriteria.
 
 ### Model perbandingan global
 Perbandingan dua stasiun fisik memakai **Adak, Alaska** (visibilitas MABBIMS) dan **Viwa, Fiji** (kemungkinan fisik), masing-masing pada matahari terbenam lokalnya pada hari sipil UTC yang sama dan di dalam kawasan garis tanggalnya. Ini adalah definisi terbaru; pembacaan instan-sama dan salah-satu-stasiun yang lama telah digantikan.
@@ -77,6 +96,9 @@ Pengulangan global C tidak menemukan selisih GIC selain 0 atau satu hari lebih a
 
 ### Menjalankan ulang pengulangan C terbaru
 
+Perlu GNU Make, Python 3, serta kompilator C11 dengan OpenMP (misalnya GCC). Jalankan dari akar
+repositori; `make astronomy-c-global` menyiapkan `land_polygons.bin` dari GeoJSON bawaan.
+
 ```bash
 make astronomy-c-10k
 ./scripts/astronomy_c_10k 10000
@@ -92,16 +114,27 @@ python scripts/analyze_c_tabular.py gt_1_10000_c.csv --baseline baseline_1_10000
 
 CSV dan executable hasil dibuat sengaja diabaikan git. README ini merangkum pengulangan C; metodologi, distribusi, waktu proses, dan interpretasi lengkap ada di laporannya.
 
-## Skrip Teknis
-Driver pengulangan C adalah `astronomy_c_10k.c`, `astronomy_c_global_10k.c`, `astronomy_c_baseline_10k.c`, `analyze_c_observables.py`, `analyze_c_global.py`, `analyze_c_baseline.py`, dan `analyze_c_tabular.py`.
+## Pengujian pengembang
 
-Direktori `scripts/` berisi driver C dan alat verifikasi yang digunakan untuk pengulangan terbaru:
--   `generate_gt.py`: Menghasilkan seri ground truth toposentrik 1–10.000 H.
--   `verify_all_modes.py`: Verifikasi UI berbasis Playwright.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-test.txt
+python -m playwright install chromium  # tambahkan --with-deps di Linux bila perlu
+make test PYTHON=python
+```
 
-Dependensi: `pip install astronomy-engine numpy numba playwright`.
+Tes memakai HTTP lokal dan memblokir permintaan eksternal. Atur `CHROMIUM_PATH` jika memakai
+Chromium sistem. Lihat [panduan audit prapenyaring C](README.md#developer-checks) untuk membandingkan
+hasil dengan dan tanpa prapenyaring.
 
-CSV hasil pengulangan C diabaikan oleh git; bangkitkan ulang dengan perintah pada laporan pengulangan C.
+## Analisis Python lama
+
+`python scripts/generate_gt.py` menghasilkan atau melanjutkan `gt_1_20000.csv` untuk tahun
+**0–20.000 H inklusif** (240.012 awal bulan), berbeda dari pengulangan C 10.000 tahun. Pasang
+`astronomy-engine`, `numpy`, dan `numba` untuk alur lama ini. Gunakan `python scripts/verify_gt_consistency.py`
+untuk memeriksa seluruh CSV atau `python scripts/verify_gt_quick.py` untuk epoch dan 100 transisi
+pertama. Keduanya menerima jalur CSV opsional dan mengembalikan kode keluar bukan nol jika gagal.
 
 ## Konteks Sejarah
 -   **Reformasi Masehi**: Mode "Sejarah" menangani lompatan Oktober 1582 dan pelabelan Julian.

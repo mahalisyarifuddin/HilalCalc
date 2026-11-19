@@ -1499,7 +1499,7 @@
 		})();
 	</script>
 
-	<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+	<script src="scripts/vendor/astronomy-engine/astronomy.browser.min.js"></script>
 	<script>
 		const text = {
 			en: {
@@ -1659,7 +1659,7 @@
 			}
 		};
 
-		const WORKER_CODE = `importScripts("https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js");
+		const WORKER_CODE = `importScripts(${JSON.stringify(new URL("scripts/vendor/astronomy-engine/astronomy.browser.min.js", document.baseURI).href)});
 
 const calculateSunset = (lat, lon, baseDateUT) => {
 	const obs = new Astronomy.Observer(lat, lon, 0);
@@ -1673,45 +1673,10 @@ const calculateSunsetCached = (lat, lon, baseDateUT) => {
 	sunsetCache.set(k, r);
 	return r;
 };
-// isLand in worker (mirrors main thread) — uses e.data.landGeojson if provided
-let _landGeojsonWD = null;
-let _landCacheWD = new Map();
-function isLandWD(lat, lon, bufferDeg=0){
-	if (!_landGeojsonWD) return true;
-	const key = lat.toFixed(2)+","+lon.toFixed(2)+","+bufferDeg;
-	if (_landCacheWD.has(key)) return _landCacheWD.get(key);
-	const pt=[lon,lat];
-	const inRing=(pt,ring)=>{
-		let inside=false;
-		for(let i=0,j=ring.length-1;i<ring.length;j=i++){
-			const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
-			if(((yi>pt[1])!==(yj>pt[1]))&&(pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi)) inside=!inside;
-		}
-		return inside;
-	};
-	const inPoly=(pt,rings)=>{
-		if(!inRing(pt,rings[0])) return false;
-		for(let i=1;i<rings.length;i++) if(inRing(pt,rings[i])) return false;
-		return true;
-	};
-	const check=(la,lo)=>{
-		const p=[lo,la];
-		for(const f of _landGeojsonWD.features){
-			if(f.geometry.type==='Polygon'){ if(inPoly(p,f.geometry.coordinates)) return true; }
-			else if(f.geometry.type==='MultiPolygon'){ for(const poly of f.geometry.coordinates) if(inPoly(p,poly)) return true; }
-		}
-		return false;
-	};
-	let res;
-	if(bufferDeg===0) res=check(lat,lon);
-	else res=[[0,0],[-bufferDeg,-bufferDeg],[-bufferDeg,bufferDeg],[bufferDeg,-bufferDeg],[bufferDeg,bufferDeg]].some(([dla,dlo])=>check(lat+dla,lon+dlo));
-	_landCacheWD.set(key,res); return res;
-}
-
 self.onmessage = e => {
 	try {
-		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong, landOnly, landGeojson } = e.data;
-		_landGeojsonWD = landGeojson || null; _landCacheWD = new Map(); sunsetCache.clear();
+		const { bounds, widthDeg, heightDeg, criteria, dateTimestamp, minAlt, minElong } = e.data;
+		sunsetCache.clear();
 		const maxGridSize = 100; // knee 92→100 (4232→5000 piksel, 0.97s) full sweep 200-px, optimasi memoize
 		const cellSizeDeg = Math.max(widthDeg / maxGridSize, heightDeg / maxGridSize, 0.1);
 		const width = Math.min(Math.ceil(widthDeg / cellSizeDeg), maxGridSize);
@@ -1757,11 +1722,6 @@ self.onmessage = e => {
 
 			for (let col = 0; col < width; col++) {
 				const lon = bounds.minLon + (col * cellSizeDeg);
-				// optimasi landOnly: skip ocean sebelum hitung sunset/moon (hemat ~70% World)
-				if (landOnly && _landGeojsonWD && !isLandWD(lat, lon, 0.2)) {
-					const sIdx=(row*width+col)*4; buffer[sIdx]=0; buffer[sIdx+1]=0; buffer[sIdx+2]=0; buffer[sIdx+3]=0;
-					continue;
-				}
 				let sunset = null;
 
 				if (col >= nextCol) {
@@ -1888,13 +1848,17 @@ self.onmessage = e => {
 					const r = await fetch('ne_110m_land.geojson');
 					if (r.ok) {
 						this.landGeojson = await r.json();
+						if (this.landOnly) this.applyFiltersAndRedraw();
 						if (landStatus) { landStatus.textContent = this.string('landReady'); setTimeout(()=>landStatus.classList.add('hidden'), 2000); }
 						return;
 					}
 				} catch(e){}
 				try {
 					const r2 = await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson');
-					if (r2.ok) this.landGeojson = await r2.json();
+					if (r2.ok) {
+						this.landGeojson = await r2.json();
+						if (this.landOnly) this.applyFiltersAndRedraw();
+					}
 				} catch(e2){}
 				if (landStatus) {
 					if (this.landGeojson) { landStatus.textContent = this.string('landReady'); setTimeout(()=>landStatus.classList.add('hidden'), 2000); }
@@ -1904,11 +1868,8 @@ self.onmessage = e => {
 			isLand(lat, lon, bufferDeg=0) {
 				const key = `${lat.toFixed(2)},${lon.toFixed(2)},${bufferDeg}`;
 				if (this.landCache[key] !== undefined) return this.landCache[key];
-				if (!this.landGeojson) {
-					// fallback approximate: treat ocean-heavy Pacific as water for demo
-					// world without geojson: assume true to not hide anything
-					this.landCache[key] = true; return true;
-				}
+				// Do not cache the permissive fallback while the land mask is loading.
+				if (!this.landGeojson) return true;
 				const pt = [lon, lat];
 				const inRing = (pt, ring) => {
 					let inside=false;
@@ -2369,7 +2330,7 @@ self.onmessage = e => {
 				this.isRendering ? this.cancelRender() : this.startRender();
 			}
 
-			cancelRender() {
+			cancelRender(message = this.string("cancelled")) {
 				if (this.worker) {
 					this.worker.terminate();
 					this.worker = null;
@@ -2377,7 +2338,7 @@ self.onmessage = e => {
 				this.isRendering = false;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("renderMap");
-				$('mapStatus').textContent = this.string("cancelled");
+				$('mapStatus').textContent = message;
 			}
 
 			startRender() {
@@ -2389,7 +2350,6 @@ self.onmessage = e => {
 				let boundsEarly;
 				if (region === "indonesia") boundsEarly = { minLat: -11, maxLat: 6, minLon: 95, maxLon: 141 };
 				else boundsEarly = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
-				this.lastBounds = boundsEarly;
 				this.isRendering = true;
 				$('renderMap').disabled = false;
 				$('renderMap').textContent = this.string("cancel");
@@ -2409,35 +2369,44 @@ self.onmessage = e => {
 					criteria: criteria,
 					dateTimestamp: dateObj.getTime(),
 					minAlt: minAltVal,
-					minElong: minElongVal,
-					landOnly: this.landOnly,
-					landGeojson: this.landGeojson
+					minElong: minElongVal
 				};
 
 				if (!this.worker) {
 					const blob = new Blob([WORKER_CODE], { type: 'application/javascript' });
-					this.worker = new Worker(URL.createObjectURL(blob));
+					const url = URL.createObjectURL(blob);
+					try {
+						this.worker = new Worker(url);
+					} catch (error) {
+						this.cancelRender(`Error: ${error.message}`);
+						return;
+					} finally {
+						URL.revokeObjectURL(url);
+					}
 				}
 
+				this.worker.onerror = (event) => {
+					event.preventDefault();
+					this.cancelRender(`Error: ${event.message || 'Map worker failed to start'}`);
+				};
 				this.worker.onmessage = (e)=>{
 					const data = e.data;
 					if (data.progress) {
 						$('mapStatus').innerHTML = `<span class="spinner"></span> ${this.string("calculating")} ${data.progress}%`;
 					} else if (data.buffer) {
-						this.handleComplete(data.width, data.height, data.buffer);
+						this.handleComplete(data.width, data.height, data.buffer, {bounds, region, criteria, date: dateString || dateObj.toISOString().slice(0, 10)});
 					} else if (data.error) {
 						console.error(data.error);
-						$('mapStatus').textContent = "Error: " + data.error;
-						this.cancelRender();
+						this.cancelRender("Error: " + data.error);
 					}
 				};
 				this.worker.postMessage(renderParams);
 			}
 
-			handleComplete(width, height, buffer) {
+			handleComplete(width, height, buffer, metadata) {
 				// store raw unfiltered for land toggle (tanpa cache)
 				const raw = new Uint8ClampedArray(buffer);
-				this.currentImageDataRaw = {width, height, buffer: raw.buffer.slice(0), raw: raw};
+				this.currentImageDataRaw = {width, height, raw, ...metadata};
 				this.applyFiltersAndRedraw();
 				this.isRendering = false;
 				$('renderMap').disabled = false;
@@ -2445,13 +2414,13 @@ self.onmessage = e => {
 				$('mapStatus').textContent = this.string("done");
 			}
 			applyFiltersAndRedraw() {
-				if (!this.currentImageDataRaw || !this.lastBounds) return;
+				if (!this.currentImageDataRaw) return;
 				let {width, height, raw} = this.currentImageDataRaw;
 				// clone for filtering
 				let filtered = new Uint8ClampedArray(raw);
 				if (this.landOnly) {
 					// per-pixel land check
-					const bounds = this.lastBounds;
+					const bounds = this.currentImageDataRaw.bounds;
 					const wDeg = bounds.maxLon - bounds.minLon;
 					const hDeg = bounds.maxLat - bounds.minLat;
 					const cellW = wDeg / width;
@@ -2476,10 +2445,14 @@ self.onmessage = e => {
 			// 1) <img> di layar (jika origin-clean), 2) salinan CORS via fetch, 3) render ulang
 			// dari ne_110m_land.geojson (same-origin). Tanpa 3 pun PNG tidak boleh kosong putih.
 			async exportPNG(){
-				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
-				const overlay=$('map-overlay'), img=$('map-image');
-				const w=overlay.width||1200, h=overlay.height||600;
-				const region=$('mapRegion').value, criteria=$('mapCriteria').value, date=$('mapDate').value||'unknown';
+				if(!this.currentImageDataRaw){ alert(this.string('errorFill')||'Render peta dulu'); return; }
+				const liveOverlay=$('map-overlay'), img=$('map-image');
+				const w=liveOverlay.width||1200, h=liveOverlay.height||600;
+				// Keep the pixels and filename from the same render across async basemap loads.
+				const overlay=document.createElement('canvas');
+				overlay.width=w; overlay.height=h;
+				overlay.getContext('2d').drawImage(liveOverlay,0,0);
+				const {region, criteria, date} = this.currentImageDataRaw;
 				const fileName=`hilalmap-${region}-${criteria}-${date}.png`;
 				const tryDownload=(canvas)=>{
 					try{ const url=canvas.toDataURL('image/png'); const a=document.createElement('a'); a.download=fileName; a.href=url; document.body.appendChild(a); a.click(); a.remove(); return true; }catch(e){ return false; }
@@ -2545,21 +2518,20 @@ self.onmessage = e => {
 				return c;
 			}
 			exportCSV(){
-				if(!this.currentImageDataRaw || !this.lastBounds){ alert(this.string('errorFill')||'Render peta dulu'); return; }
-				const {width,height,raw}=this.currentImageDataRaw;
-				const bounds=this.lastBounds; const wDeg=bounds.maxLon-bounds.minLon, hDeg=bounds.maxLat-bounds.minLat;
+				if(!this.currentImageDataRaw){ alert(this.string('errorFill')||'Render peta dulu'); return; }
+				const {width,height,raw,bounds,region,criteria,date}=this.currentImageDataRaw;
+				const wDeg=bounds.maxLon-bounds.minLon, hDeg=bounds.maxLat-bounds.minLat;
 				const lines=['latitude,longitude,visible,landOnly,criteria,date'];
-				const date=$('mapDate').value, criteria=$('mapCriteria').value;
 				for(let r=0;r<height;r++){
 					const lat=bounds.maxLat - (r+0.5)/height*hDeg;
 					for(let c=0;c<width;c++){
 						const lon=bounds.minLon + (c+0.5)/width*wDeg;
-						const idx=(r*width+c)*4+3; const vis=raw[idx]>0?1:0;
+						const idx=(r*width+c)*4+3; const vis=raw[idx]>0 && (!this.landOnly || this.isLand(lat,lon,0.25)) ? 1 : 0;
 						lines.push(`${lat.toFixed(4)},${lon.toFixed(4)},${vis},${this.landOnly?1:0},${criteria},${date}`);
 					}
 				}
 				const blob=new Blob([lines.join('\n')],{type:'text/csv'});
-				const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`hilalmap-${$('mapRegion').value}-${criteria}-${date}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+				const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`hilalmap-${region}-${criteria}-${date}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 			}
 
 			latToPlateCarreeY(lat) {
@@ -2567,7 +2539,7 @@ self.onmessage = e => {
 			}
 
 			redrawOverlay() {
-				if (!this.currentImageDataRaw || !this.lastBounds) return;
+				if (!this.currentImageDataRaw) return;
 				const canvas = $('map-overlay');
 				const img = $('map-image');
 				// Set canvas to match image dimensions (image may not be loaded yet)
@@ -2584,7 +2556,7 @@ self.onmessage = e => {
 				this.markerPos = null;
 				// common geo transform
 				const imgBounds = { minLat: -90, maxLat: 90, minLon: -180, maxLon: 180 };
-				const dataBounds = this.lastBounds;
+				const dataBounds = this.currentImageDataRaw.bounds;
 				const x = ((dataBounds.minLon - imgBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
 				const w = ((dataBounds.maxLon - dataBounds.minLon) / (imgBounds.maxLon - imgBounds.minLon)) * canvas.width;
 				const mapTopY = this.latToPlateCarreeY(imgBounds.maxLat);

@@ -1,45 +1,64 @@
-from playwright.sync_api import sync_playwright
-import os
+"""HilalSync regression scenarios, served from a local HTTP origin."""
+import json
+from pathlib import Path
 
-def run_cuj(page):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = "file://" + os.path.abspath(os.path.join(script_dir, "HilalSync.html"))
-    page.goto(file_path)
-    page.wait_for_timeout(500)
+from playwright.sync_api import expect
 
-    # Click prevBtn
-    page.click("#prevBtn")
-    page.wait_for_timeout(500)
+FIXTURES = Path(__file__).resolve().parent / "tests"
 
-    # Click nextBtn
-    page.click("#nextBtn")
-    page.wait_for_timeout(500)
 
-    # Change language
-    page.click("#settingsBtn")
-    page.wait_for_timeout(500)
-    page.select_option("#language", "id")
-    page.wait_for_timeout(500)
-    page.click("#settingsDoneBtn")
-    page.wait_for_timeout(500)
+def verify_sync(page, base_url):
+    page.goto(f'{base_url}/HilalSync.html')
+    page.wait_for_function('Boolean(landGeojson) && Boolean(document.querySelector("#verdict").textContent)')
+    assert page.evaluate('''() => [0, 99, 100].map(year => {
+        const date = new Date('2000-12-31T23:59:59Z');
+        date.setUTCFullYear(year);
+        return utcMidnight(date, 1).toISOString();
+    })''') == ['0001-01-01T00:00:00.000Z', '0100-01-01T00:00:00.000Z', '0101-01-01T00:00:00.000Z']
+    cases = json.loads((FIXTURES / 'month_start_cases.json').read_text())
+    for case in cases:
+        if 'land_fixture' in case:
+            continue
+        actual = page.evaluate('''([year, month]) => {
+            const {jdAceh, jdGic} = getStartJD(year, month);
+            return [jdAceh, jdGic];
+        }''', [case['year'], case['month']])
+        assert actual == case['browser_jd'], (case['note'], actual)
+    page.locator('#hYearInput').fill('1445')
+    page.select_option('#hMonthInput', '12')
+    page.click('#nextBtn')
+    expect(page.locator('#hYearInput')).to_have_value('1446')
+    expect(page.locator('#hMonthInput')).to_have_value('1')
+    page.click('#prevBtn')
+    expect(page.locator('#hYearInput')).to_have_value('1445')
+    expect(page.locator('#hMonthInput')).to_have_value('12')
 
-    # Click todayBtn
-    page.click("#todayBtn", force=True)
-    page.wait_for_timeout(500)
+    for case in cases:
+        if 'land_fixture' not in case:
+            continue
+        land = FIXTURES / case['land_fixture']
+        page.route('**/ne_110m_land.geojson', lambda route: route.fulfill(path=land))
+        page.reload()
+        page.wait_for_function('Boolean(landGeojson)')
+        actual = page.evaluate('''([year, month]) => {
+            const {jdAceh, jdGic, detailAceh} = getStartJD(year, month);
+            return [jdAceh, jdGic, detailAceh];
+        }''', [case['year'], case['month']])
+        assert actual == [*case['browser_jd'], None], (case['note'], actual)
+        page.unroute('**/ne_110m_land.geojson')
 
-    page.screenshot(path="/home/jules/verification/screenshots/verification.png")
-    page.wait_for_timeout(1000)
+    for response in ({'status': 503}, {'json': {'type': 'FeatureCollection', 'features': [
+            {'geometry': {'type': 'Polygon', 'coordinates': []}}
+    ]}}):
+        page.route('**/ne_110m_land.geojson', lambda route: route.fulfill(**response))
+        page.reload()
+        expect(page.locator('#dateGic')).to_have_text('—')
+        expect(page.locator('#verdict')).to_contain_text('Land data unavailable')
+        assert page.evaluate('isLandGeoJSON(26, -70)') is False
+        page.unroute('**/ne_110m_land.geojson')
 
-if __name__ == "__main__":
-    os.makedirs("/home/jules/verification/videos", exist_ok=True)
-    os.makedirs("/home/jules/verification/screenshots", exist_ok=True)
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(record_video_dir="/home/jules/verification/videos")
-        page = context.new_page()
-        try:
-            run_cuj(page)
-        finally:
-            context.close()
-            browser.close()
+if __name__ == '__main__':
+    from scripts.verify_browser import run
+
+    run(verify_sync)

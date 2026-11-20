@@ -49,6 +49,24 @@ def verify_map_worker_error(page, base_url):
     expect(button).to_have_text(initial)
 
 
+def verify_map_invalid_calculator_inputs(page, base_url):
+    page.goto(f'{base_url}/HilalMap.html')
+    page.locator('#calcLat').fill('91')
+    page.locator('#calcLon').fill('0')
+    page.locator('#calcDate').fill('2024-04-10')
+    page.on('dialog', lambda dialog: dialog.accept())
+    page.locator('#calculateBtn').click()
+    expect(page.locator('#results')).to_be_empty()
+    page.locator('#calcLat').fill('0')
+    page.locator('#calcLon').fill('181')
+    page.locator('#calculateBtn').click()
+    expect(page.locator('#results')).to_be_empty()
+    page.locator('#calcLon').fill('0')
+    page.locator('#calcDate').fill('2024-02-31')
+    page.locator('#calculateBtn').click()
+    expect(page.locator('#results')).to_be_empty()
+
+
 def run(*scenarios):
     server = start_server(ROOT, cors=False)
     try:
@@ -75,4 +93,4 @@ if __name__ == '__main__':
     from scripts.verify_all_modes import verify_modes
     from verify_hilalsync import verify_sync
 
-    run(verify_modes, verify_sync, verify_map, verify_map_worker_error)
+    run(verify_modes, verify_sync, verify_map, verify_map_worker_error, verify_map_invalid_calculator_inputs)

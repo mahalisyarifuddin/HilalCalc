@@ -1164,7 +1164,7 @@
 						<div class="field">
 							<label for="lineWidthSlider" id="lineWidthLabel">Tebal garis</label>
 							<div style="display:flex;align-items:center;gap:var(--sp-2)">
-								<input type="range" id="lineWidthSlider" min="1" max="10" value="2" step="0.5" style="flex:1">
+								<input type="range" id="lineWidthSlider" min="1" max="10" value="4" step="0.5" style="flex:1">
 								<span id="lineWidthValue" class="mono nums" style="min-width:3.5ch;text-align:right;font-size:.875rem">2px</span>
 							</div>
 						</div>
@@ -1711,7 +1711,8 @@ self.onmessage = e => {
 		const minY = latToPlateCarreeY(bounds.minLat);
 		const maxY = latToPlateCarreeY(bounds.maxLat);
 		const yRange = maxY - minY;
-		const STEP = 10;
+		// Denser sunset anchors reduce interpolation error while preserving the same output grid.
+		const STEP = 5;
 
 		for (let row = 0; row < height; row++) {
 			const lat = plateCarreeYToLat(maxY - (row / (height - 1 || 1)) * yRange);
@@ -1731,9 +1732,11 @@ self.onmessage = e => {
 					nextSunset = (nextCol === prevCol) ? prevSunset : calculateSunsetCached(lat, bounds.minLon + (nextCol * cellSizeDeg), date.ut);
 				}
 
-				if (prevSunset && nextSunset) {
+				if (prevSunset && nextSunset && Math.abs(nextSunset.ut - prevSunset.ut) < 0.5) {
 					sunset = { ut: prevSunset.ut + (nextSunset.ut - prevSunset.ut) * ((col - prevCol) / (nextCol - prevCol || 1)) };
 				} else {
+					// A missing event or a large UTC jump marks a sunset discontinuity
+					// (often near the date line); do not interpolate across it.
 					sunset = calculateSunsetCached(lat, lon, date.ut);
 				}
 
@@ -1799,7 +1802,7 @@ self.onmessage = e => {
 				this.landOnly = false;
 				// Garis kontur ala KHGT
 				this.lineMode = true; // default garis, bukan shading
-				this.lineWidth = 2;
+				this.lineWidth = 4;
 				this.contourSegments = []; // for tooltip & marker
 				this.markerPos = null;
 				this.landGeojson = null;
@@ -1812,24 +1815,22 @@ self.onmessage = e => {
 			loadState() {
 				try {
 					const s = JSON.parse(localStorage.getItem('hmState') || '{}');
-					if (s.language) this.language = s.language;
-					if (s.theme) this.themeName = s.theme;
-					if (s.opacity != null) this.opacity = s.opacity;
-					if (s.landOnly != null) this.landOnly = s.landOnly;
-					if (s.lineMode != null) this.lineMode = s.lineMode;
-					if (s.lineWidth != null) this.lineWidth = s.lineWidth;
+					if (s.language === 'en' || s.language === 'id') this.language = s.language;
+					if (s.theme === 'auto' || s.theme === 'light' || s.theme === 'dark') this.themeName = s.theme;
+					if (Number.isFinite(s.opacity) && s.opacity >= 0 && s.opacity <= 100) this.opacity = s.opacity;
+					if (typeof s.landOnly === 'boolean') this.landOnly = s.landOnly;
+					if (typeof s.lineMode === 'boolean') this.lineMode = s.lineMode;
+					if (Number.isFinite(s.lineWidth) && s.lineWidth >= 1 && s.lineWidth <= 10) this.lineWidth = s.lineWidth;
 				} catch (e) {}
 			}
 
 			saveState() {
-				localStorage.setItem('hmState', JSON.stringify({
-					language: this.language,
-					theme: this.themeName,
-					opacity: this.opacity,
-					landOnly: this.landOnly,
-					lineMode: this.lineMode,
-					lineWidth: this.lineWidth
-				}));
+				try {
+					localStorage.setItem('hmState', JSON.stringify({
+						language: this.language, theme: this.themeName, opacity: this.opacity,
+						landOnly: this.landOnly, lineMode: this.lineMode, lineWidth: this.lineWidth
+					}));
+				} catch (e) { /* Storage may be disabled or full; app remains usable. */ }
 			}
 			// warna garis per kriteria (mirip KHGT: tegas, kontras)
 			getContourColor(criteria) {
@@ -1939,7 +1940,7 @@ self.onmessage = e => {
 				if (lw) {
 					lw.value = this.lineWidth;
 					const lvw=$('lineWidthValue'); if (lvw) lvw.textContent = this.lineWidth + 'px';
-					lw.oninput = e=>{ this.lineWidth = parseFloat(e.target.value)||2; if (lvw) lvw.textContent = this.lineWidth + 'px'; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
+					lw.oninput = e=>{ this.lineWidth = parseFloat(e.target.value)||4; if (lvw) lvw.textContent = this.lineWidth + 'px'; this.saveState(); if (this.currentImageDataRaw) this.applyFiltersAndRedraw(); };
 				}
 				$('tabMap').onclick = ()=>this.switchTab("map");
 				$('tabCalc').onclick = ()=>this.switchTab("calc");
@@ -2186,8 +2187,13 @@ self.onmessage = e => {
 				const longitude = parseFloat($('calcLon').value);
 				const dateString = $('calcDate').value;
 				const criteria = $('calcCriteria').value;
-				if (isNaN(latitude) || isNaN(longitude) || !dateString) alert(this.string("errorFill"));
-				else this.calculateDetailsInner(latitude, longitude, dateString, criteria);
+				const dateValid = /^\d{4}-\d{2}-\d{2}$/.test(dateString) && !Number.isNaN(Date.parse(dateString + 'T12:00:00Z')) && new Date(dateString + 'T12:00:00Z').toISOString().slice(0, 10) === dateString;
+				if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180 || !dateValid) {
+					alert(this.string("errorFill"));
+					return;
+				}
+				try { this.calculateDetailsInner(latitude, longitude, dateString, criteria); }
+				catch (error) { console.error('HilalMap detail calculation failed:', error); $('results').textContent = this.string('errorSun'); }
 			}
 
 			calculateDetailsInner(latitude, longitude, dateString, criteria) {
@@ -2436,6 +2442,13 @@ self.onmessage = e => {
 							}
 						}
 					}
+				}
+				// Keep area-fill colors consistent with the criterion's contour color.
+				const areaColor = this.getContourColor(this.currentImageDataRaw.criteria);
+				const rgb = [1, 3, 5].map(i => parseInt(areaColor.slice(i, i + 2), 16));
+				for (let i = 0; i < width * height; i++) {
+					const p = i * 4;
+					if (filtered[p + 3] > 0) { filtered[p] = rgb[0]; filtered[p + 1] = rgb[1]; filtered[p + 2] = rgb[2]; }
 				}
 				this.currentImageData = new ImageData(filtered, width, height);
 				this.redrawOverlay();
@@ -2704,9 +2717,14 @@ self.onmessage = e => {
 				ctx.beginPath();
 				for(const pl of polylines){
 					ctx.moveTo(pl[0].x, pl[0].y);
-					for(let i=1;i<pl.length;i++) ctx.lineTo(pl[i].x, pl[i].y);
+					if (pl.length === 2) { ctx.lineTo(pl[1].x, pl[1].y); continue; }
+					for(let i=1;i<pl.length-1;i++) {
+						const midX=(pl[i].x+pl[i+1].x)/2, midY=(pl[i].y+pl[i+1].y)/2;
+						ctx.quadraticCurveTo(pl[i].x, pl[i].y, midX, midY);
+					}
+					ctx.lineTo(pl[pl.length-1].x, pl[pl.length-1].y);
 				}
-				ctx.stroke();
+				// Glow and crisp foreground strokes follow; avoid an extra redundant base pass.
 				// glow tipis agar kontras (tanpa putus)
 				ctx.globalAlpha = 0.20 * (this.opacity/100);
 				ctx.lineWidth = this.lineWidth + 3.5;
@@ -2717,7 +2735,15 @@ self.onmessage = e => {
 				ctx.lineWidth = this.lineWidth;
 				ctx.strokeStyle = color;
 				ctx.beginPath();
-				for(const pl of polylines){ ctx.moveTo(pl[0].x, pl[0].y); for(let i=1;i<pl.length;i++) ctx.lineTo(pl[i].x, pl[i].y); }
+				for(const pl of polylines){
+					ctx.moveTo(pl[0].x, pl[0].y);
+					if (pl.length === 2) { ctx.lineTo(pl[1].x, pl[1].y); continue; }
+					for(let i=1;i<pl.length-1;i++) {
+						const midX=(pl[i].x+pl[i+1].x)/2, midY=(pl[i].y+pl[i+1].y)/2;
+						ctx.quadraticCurveTo(pl[i].x, pl[i].y, midX, midY);
+					}
+					ctx.lineTo(pl[pl.length-1].x, pl[pl.length-1].y);
+				}
 				ctx.stroke();
 				ctx.restore();
 				canvas.style.opacity = '1';

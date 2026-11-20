@@ -34,7 +34,7 @@ Visualize where the new crescent moon is visible on the globe for any given date
 -   **Detailed Calculations**: Calculate exact moon position (Altitude, Elongation, Azimuth, Age) for any specific coordinate using topocentric vectors.
 -   **Multiple Criteria**: Support for MABBIMS (Min Alt 3°, Min Elong 6.4°), Global Islamic Calendar (GIC), and custom criteria.
 -   **Web Worker Rendering**: Offloads complex calculations to a background thread to keep the UI responsive.
--   **Local Rendering**: Astronomy calculations and land filtering use bundled assets. The detailed on-screen basemap is loaded from Wikimedia; PNG export can draw a simpler local basemap.
+-   **Local Rendering**: Astronomy calculations and land filtering use bundled assets. The detailed on-screen basemap is loaded from Wikimedia; PNG export can draw a simpler local basemap. The map is sampled on a finite grid, so contour edges are visual guides rather than survey-grade boundaries; sunset times are interpolated between samples except across detected missing/discontinuous events. Land-only filtering depends on the bundled Natural Earth data (with an optional network fallback). CSV exports report the rendered grid cells and the active land-only filter.
 
 ### 2. HilalSync (Simultaneity Tracker)
 A tool tailormade for Indonesians to track whether a Hijri month start date is simultaneous (serempak) between MABBIMS and Global (GIC) criteria.
